@@ -54,7 +54,9 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.DavConstants;
+import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
+import org.apache.jackrabbit.webdav.MultiStatus;
 import org.apache.jackrabbit.webdav.client.methods.DeleteMethod;
 import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
@@ -190,6 +192,10 @@ public class CalDavCalendarCollection extends AbstractCalendarCollection {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        catch (DavException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -208,6 +214,10 @@ public class CalDavCalendarCollection extends AbstractCalendarCollection {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        catch (DavException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -216,8 +226,9 @@ public class CalDavCalendarCollection extends AbstractCalendarCollection {
      * @return
      * @throws IOException 
      * @throws ObjectStoreException 
+     * @throws DavException 
      */
-    private String getProperty(DavPropertyName propertyName) throws IOException, ObjectStoreException {
+    private String getProperty(DavPropertyName propertyName) throws IOException, ObjectStoreException, DavException {
 //        Vector properties = new Vector();
 //        properties.add(propertyName);
         
@@ -248,7 +259,10 @@ public class CalDavCalendarCollection extends AbstractCalendarCollection {
         if (!propFindMethod.succeeded()) {
             throw new ObjectStoreException(propFindMethod.getStatusLine().toString());
         }
-        return propFindMethod.getResponseBodyAsString();
+        
+        MultiStatus multi = propFindMethod.getResponseBodyAsMultiStatus();
+        DavPropertySet props = multi.getResponses()[0].getProperties(200);
+        return props.get(propertyName).getValue().toString();
     }
     
     /* (non-Javadoc)
