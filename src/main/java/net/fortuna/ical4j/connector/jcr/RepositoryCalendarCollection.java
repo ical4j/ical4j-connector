@@ -131,7 +131,7 @@ public class RepositoryCalendarCollection extends AbstractCalendarCollection {
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.protocol.CalendarCollection#getMaxAttendeesPerInstance()
      */
-    public int getMaxAttendeesPerInstance() {
+    public Integer getMaxAttendeesPerInstance() {
         try {
             return (int) node.getProperty(NodeProperty.MAX_ATTENDEES.getPropertyName()).getLong();
         }
@@ -157,7 +157,7 @@ public class RepositoryCalendarCollection extends AbstractCalendarCollection {
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.protocol.CalendarCollection#getMaxInstances()
      */
-    public int getMaxInstances() {
+    public Integer getMaxInstances() {
         try {
             return (int) node.getProperty(NodeProperty.MAX_INSTANCES.getPropertyName()).getLong();
         }

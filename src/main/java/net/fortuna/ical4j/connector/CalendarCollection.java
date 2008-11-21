@@ -92,13 +92,13 @@ public interface CalendarCollection extends ObjectCollection {
      * @return a numeric value indicating the maximum number of recurrence instances
      * that a calendar object resource stored in a calendar collection can generate.
      */
-    int getMaxInstances();
+    Integer getMaxInstances();
     
     /**
      * @return a numeric value indicating the maximum number of ATTENDEE properties
      * in any instance of a calendar object resource stored in a calendar collection.
      */
-    int getMaxAttendeesPerInstance();
+    Integer getMaxAttendeesPerInstance();
     
     /**
      * Stores the specified calendar in this collection.
