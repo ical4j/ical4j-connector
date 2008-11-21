@@ -37,6 +37,7 @@ package net.fortuna.ical4j.connector.caldav;
 
 import java.io.IOException;
 
+import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.MediaType;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.caldav.method.GetMethod;
@@ -49,10 +50,12 @@ import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
+import org.apache.jackrabbit.webdav.client.methods.DeleteMethod;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
@@ -61,19 +64,13 @@ import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
  * @author Ben
  *
  */
-public class CalDavCalendarCollection extends AbstractDavObjectCollection {
+public class CalDavCalendarCollection extends AbstractDavObjectCollection implements CalendarCollection {
 
     private Log log = LogFactory.getLog(CalDavCalendarCollection.class);
-
-//    private CalDavCalendarStore store;
     
     private String displayName;
     
     private String description;
-    
-//    private CalDAV4JMethodFactory methodFactory;
-    
-//    private CalDAVCalendarCollection delegate;
     
     /**
      * @param store
@@ -91,13 +88,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection {
      */
     public CalDavCalendarCollection(CalDavCalendarStore store, String id, String displayName, String description) {
     	super(store, id);
-//        this.store = store;
         this.displayName = displayName;
         this.description = description;
-//        methodFactory = new CalDAV4JMethodFactory();
-//        methodFactory.setProdID(store.getProdId());
-//        delegate = new CalDAVCalendarCollection(store.getPath() + id,
-//                store.getHostConfig(), methodFactory, store.getProdId());
     }
     
     /**
@@ -106,8 +98,6 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection {
      * @throws ObjectStoreException 
      */
     void create() throws IOException, ObjectStoreException {
-//        delegate.createCalendar(store.getHttpClient());
-        
         MkCalendarMethod mkCalendarMethod = new MkCalendarMethod(getPath());
         
         DavPropertySet properties = new DavPropertySet();
@@ -179,8 +169,22 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection {
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxAttendeesPerInstance()
      */
-    public int getMaxAttendeesPerInstance() {
-        // TODO Auto-generated method stub
+    public Integer getMaxAttendeesPerInstance() {
+        try {
+            return getProperty(CalDavPropertyName.MAX_ATTENDEES_PER_INSTANCE, Integer.class);
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (ObjectStoreException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (DavException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return 0;
     }
 
@@ -188,15 +192,43 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection {
      * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxDateTime()
      */
     public String getMaxDateTime() {
-        // TODO Auto-generated method stub
+        try {
+            return getProperty(CalDavPropertyName.MAX_DATE_TIME, String.class);
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (ObjectStoreException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (DavException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return null;
     }
 
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxInstances()
      */
-    public int getMaxInstances() {
-        // TODO Auto-generated method stub
+    public Integer getMaxInstances() {
+        try {
+            return getProperty(CalDavPropertyName.MAX_INSTANCES, Integer.class);
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (ObjectStoreException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (DavException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return 0;
     }
 
@@ -204,7 +236,21 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection {
      * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxResourceSize()
      */
     public long getMaxResourceSize() {
-        // TODO Auto-generated method stub
+        try {
+            return getProperty(CalDavPropertyName.MAX_RESOURCE_SIZE, Long.class);
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (ObjectStoreException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (DavException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return 0;
     }
 
@@ -212,7 +258,21 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection {
      * @see net.fortuna.ical4j.connector.CalendarCollection#getMinDateTime()
      */
     public String getMinDateTime() {
-        // TODO Auto-generated method stub
+        try {
+            return getProperty(CalDavPropertyName.MIN_DATE_TIME, String.class);
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (ObjectStoreException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (DavException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -220,7 +280,21 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection {
      * @see net.fortuna.ical4j.connector.CalendarCollection#getSupportedComponentTypes()
      */
     public String[] getSupportedComponentTypes() {
-        // TODO Auto-generated method stub
+        try {
+            return getProperty(CalDavPropertyName.SUPPORTED_CALENDAR_COMPONENT_SET, String.class).split(",");
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (ObjectStoreException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (DavException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return null;
     }
 
@@ -276,17 +350,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection {
      * @see net.fortuna.ical4j.connector.CalendarCollection#getCalendar(net.fortuna.ical4j.model.property.Uid)
      */
     public Calendar getCalendar(String uid) {
-        /*
-        try {
-            return delegate.getCalendarForEventUID(store.getHttpClient(), uid);
-        }
-        catch (CalDAV4JException ce) {
-            log.error("Error retrieving calendar [" + uid + "]", ce);
-        }
-        */
         GetMethod method = new GetMethod(getPath() + "/" + uid + ".ics");
         try {
-        	getStore().execute(method);
+            getStore().execute(method);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -314,8 +380,40 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection {
      * @see net.fortuna.ical4j.connector.CalendarCollection#removeCalendar(net.fortuna.ical4j.model.property.Uid)
      */
     public Calendar removeCalendar(String uid) throws ObjectStoreException {
-        // TODO Auto-generated method stub
-        return null;
+        Calendar calendar = getCalendar(uid);
+        
+        DeleteMethod deleteMethod = new DeleteMethod(getPath() + "/" + uid + ".ics");
+        try {
+            getStore().execute(deleteMethod);
+        }
+        catch (HttpException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        if (!deleteMethod.succeeded()) {
+            throw new ObjectStoreException(deleteMethod.getStatusLine().toString());
+        }
+        
+        return calendar;
+    }
+
+    /* (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.CalendarCollection#merge(net.fortuna.ical4j.model.Calendar)
+     */
+    public final void merge(Calendar calendar) throws ObjectStoreException {
+        try {
+            Calendar[] uidCalendars = Calendars.split(calendar);
+            for (int i = 0; i < uidCalendars.length; i++) {
+                addCalendar(uidCalendars[i]);
+            }
+        }
+        catch (ConstraintViolationException cve) {
+            throw new ObjectStoreException("Invalid calendar format", cve);
+        }
     }
     
     /* (non-Javadoc)
