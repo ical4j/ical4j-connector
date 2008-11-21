@@ -38,6 +38,7 @@ package net.fortuna.ical4j.connector.caldav;
 import java.io.IOException;
 
 import net.fortuna.ical4j.connector.CalendarCollection;
+import net.fortuna.ical4j.connector.CalendarStore;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.model.Calendar;
 
@@ -48,7 +49,7 @@ import org.apache.commons.httpclient.protocol.Protocol;
  * @author Ben
  *
  */
-public class CalDavCalendarStore extends AbstractDavObjectStore<CalendarCollection> {
+public class CalDavCalendarStore extends AbstractDavObjectStore<CalendarCollection> implements CalendarStore {
 
     private String prodId;
     
