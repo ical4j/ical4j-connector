@@ -38,70 +38,27 @@ package net.fortuna.ical4j.connector.caldav;
 import java.io.IOException;
 
 import net.fortuna.ical4j.connector.CalendarCollection;
-import net.fortuna.ical4j.connector.CalendarStore;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.model.Calendar;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.protocol.Protocol;
 
 /**
  * @author Ben
  *
  */
-public class CalDavCalendarStore implements CalendarStore {
+public class CalDavCalendarStore extends AbstractDavObjectStore<CalendarCollection> {
 
     private String prodId;
-    
-    private HostConfiguration hostConfig;
-    
-    private String path;
-    
-    private HttpClient httpClient;
     
     /**
      * @param host
      * @param port
      */
     public CalDavCalendarStore(String prodId, String host, int port, Protocol protocol, String path) {
+    	super(host, port, protocol, path);
         this.prodId = prodId;
-        hostConfig = new HostConfiguration();
-        hostConfig.setHost(host, port, protocol);
-        this.path = path;
-    }
-
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStore#connect()
-     */
-    public boolean connect() throws ObjectStoreException {
-        httpClient = new HttpClient();
-        httpClient.getParams().setAuthenticationPreemptive(true);
-        return true;
-    }
-
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStore#connect(java.lang.String, char[])
-     */
-    public boolean connect(String username, char[] password)
-            throws ObjectStoreException {
-        
-        httpClient = new HttpClient();
-        Credentials credentials = new UsernamePasswordCredentials(username, new String(password));
-        httpClient.getState().setCredentials(AuthScope.ANY, credentials);
-        httpClient.getParams().setAuthenticationPreemptive(true);
-        return true;
-    }
-    
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStore#disconnect()
-     */
-    public void disconnect() throws ObjectStoreException {
-        httpClient = null;
     }
     
     /* (non-Javadoc)
@@ -191,27 +148,6 @@ public class CalDavCalendarStore implements CalendarStore {
     public CalendarCollection replace(String id, CalendarCollection calendar) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    /**
-     * @return the hostConfig
-     */
-    final HostConfiguration getHostConfig() {
-        return hostConfig;
-    }
-
-    /**
-     * @return the path
-     */
-    final String getPath() {
-        return path;
-    }
-
-    /**
-     * @return the httpClient
-     */
-    final HttpClient getHttpClient() {
-        return httpClient;
     }
 
     /**

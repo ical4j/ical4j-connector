@@ -37,7 +37,6 @@ package net.fortuna.ical4j.connector.caldav;
 
 import java.io.IOException;
 
-import net.fortuna.ical4j.connector.AbstractCalendarCollection;
 import net.fortuna.ical4j.connector.MediaType;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.caldav.method.GetMethod;
@@ -50,17 +49,11 @@ import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.MultiStatus;
-import org.apache.jackrabbit.webdav.client.methods.DeleteMethod;
-import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
-import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 
@@ -68,13 +61,11 @@ import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
  * @author Ben
  *
  */
-public class CalDavCalendarCollection extends AbstractCalendarCollection {
+public class CalDavCalendarCollection extends AbstractDavObjectCollection {
 
     private Log log = LogFactory.getLog(CalDavCalendarCollection.class);
 
-    private CalDavCalendarStore store;
-    
-    private String id;
+//    private CalDavCalendarStore store;
     
     private String displayName;
     
@@ -99,8 +90,8 @@ public class CalDavCalendarCollection extends AbstractCalendarCollection {
      * @param description
      */
     public CalDavCalendarCollection(CalDavCalendarStore store, String id, String displayName, String description) {
-        this.store = store;
-        this.id = id;
+    	super(store, id);
+//        this.store = store;
         this.displayName = displayName;
         this.description = description;
 //        methodFactory = new CalDAV4JMethodFactory();
@@ -117,7 +108,7 @@ public class CalDavCalendarCollection extends AbstractCalendarCollection {
     void create() throws IOException, ObjectStoreException {
 //        delegate.createCalendar(store.getHttpClient());
         
-        MkCalendarMethod mkCalendarMethod = new MkCalendarMethod(store.getPath() + id);
+        MkCalendarMethod mkCalendarMethod = new MkCalendarMethod(getPath());
         
         DavPropertySet properties = new DavPropertySet();
         properties.add(new DefaultDavProperty(DavPropertyName.DISPLAYNAME, displayName));
@@ -127,45 +118,9 @@ public class CalDavCalendarCollection extends AbstractCalendarCollection {
         mkcalendar.setProperties(properties);
         mkCalendarMethod.setRequestBody(mkcalendar);
 
-        store.getHttpClient().executeMethod(store.getHostConfig(), mkCalendarMethod);
+        getStore().execute(mkCalendarMethod);
         if (!mkCalendarMethod.succeeded()) {
             throw new ObjectStoreException(mkCalendarMethod.getStatusCode() + ": " + mkCalendarMethod.getStatusText());
-        }
-    }
-    
-    /**
-     * Removes this collection from the CalDAV server.
-     * @throws IOException 
-     * @throws HttpException 
-     * @throws ObjectStoreException 
-     * @throws CalDAV4JException
-     */
-    void delete() throws HttpException, IOException, ObjectStoreException {
-        DeleteMethod deleteMethod = new DeleteMethod(store.getPath() + id);
-        store.getHttpClient().executeMethod(store.getHostConfig(), deleteMethod);
-        if (!deleteMethod.succeeded()){
-            throw new ObjectStoreException(deleteMethod.getStatusCode() + ": " + deleteMethod.getStatusText());
-        }
-    }
-    
-    /**
-     * @return
-     * @throws IOException 
-     * @throws HttpException 
-     * @throws ObjectStoreException 
-     * @throws CalDAV4JException
-     */
-    boolean exists() throws HttpException, IOException, ObjectStoreException {
-        GetMethod getMethod = new GetMethod(store.getPath() + id);
-        store.getHttpClient().executeMethod(store.getHostConfig(), getMethod);
-        if (getMethod.getStatusCode() == DavServletResponse.SC_OK) {
-            return true;
-        }
-        else if (getMethod.getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
-            return false;
-        }
-        else {
-            throw new ObjectStoreException(getMethod.getStatusLine().toString());
         }
     }
     
@@ -182,7 +137,7 @@ public class CalDavCalendarCollection extends AbstractCalendarCollection {
      */
     public String getDescription() {
         try {
-            return getProperty(CalDavPropertyName.CALENDAR_DESCRIPTION);
+            return getProperty(CalDavPropertyName.CALENDAR_DESCRIPTION, String.class);
         }
         catch (IOException e) {
             // TODO Auto-generated catch block
@@ -204,7 +159,7 @@ public class CalDavCalendarCollection extends AbstractCalendarCollection {
      */
     public String getDisplayName() {
         try {
-            return getProperty(DavPropertyName.DISPLAYNAME);
+            return getProperty(DavPropertyName.DISPLAYNAME, String.class);
         }
         catch (IOException e) {
             // TODO Auto-generated catch block
@@ -219,50 +174,6 @@ public class CalDavCalendarCollection extends AbstractCalendarCollection {
             e.printStackTrace();
         }
         return null;
-    }
-
-    /**
-     * @param propertyName
-     * @return
-     * @throws IOException 
-     * @throws ObjectStoreException 
-     * @throws DavException 
-     */
-    private String getProperty(DavPropertyName propertyName) throws IOException, ObjectStoreException, DavException {
-//        Vector properties = new Vector();
-//        properties.add(propertyName);
-        
-//        PropFind propFind = new PropFind();
-//        propFind.setPropertyName(propertyName);
-        DavPropertyNameSet set = new DavPropertyNameSet();
-        set.add(propertyName);
-        
-        PropFindMethod propFindMethod = new PropFindMethod(store.getPath() + id, set, DavConstants.DEPTH_0);
-//        propFindMethod.setPropertyNames(properties.elements());
-//        propFindMethod.setDepth(0);
-//        propFindMethod.setRequestBody(propFind);
-        
-        store.getHttpClient().executeMethod(store.getHostConfig(), propFindMethod);
-        /*
-        if (propFindMethod.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
-            Enumeration props = propFindMethod.getResponseProperties(store.getPath() + id + "/");
-            if (props.hasMoreElements()) {
-                return ((BaseProperty) props.nextElement()).getPropertyAsString();
-            }
-        }
-        else {
-            throw new CalDAV4JException(
-                    "Unexpected Status returned from Server: "
-                            + propFindMethod.getStatusCode());
-        }
-        */
-        if (!propFindMethod.succeeded()) {
-            throw new ObjectStoreException(propFindMethod.getStatusLine().toString());
-        }
-        
-        MultiStatus multi = propFindMethod.getResponseBodyAsMultiStatus();
-        DavPropertySet props = multi.getResponses()[0].getProperties(200);
-        return props.get(propertyName).getValue().toString();
     }
     
     /* (non-Javadoc)
@@ -338,7 +249,7 @@ public class CalDavCalendarCollection extends AbstractCalendarCollection {
             throw new ObjectStoreException("No UID specified in calendar");
         }
 
-        PutMethod putMethod = new PutMethod(store.getPath() + id + "/" + uid.getValue() + ".ics");
+        PutMethod putMethod = new PutMethod(getPath() + "/" + uid.getValue() + ".ics");
 //        putMethod.setAllEtags(true);
 //        putMethod.setIfNoneMatch(true);
 //        putMethod.setRequestBody(calendar);
@@ -351,7 +262,7 @@ public class CalDavCalendarCollection extends AbstractCalendarCollection {
         }
         
         try {
-            store.getHttpClient().executeMethod(store.getHostConfig(), putMethod);
+        	getStore().execute(putMethod);
             if (putMethod.getStatusCode() != DavServletResponse.SC_CREATED) {
                 throw new ObjectStoreException("Error creating calendar on server: " + putMethod.getStatusLine());
             }
@@ -373,9 +284,9 @@ public class CalDavCalendarCollection extends AbstractCalendarCollection {
             log.error("Error retrieving calendar [" + uid + "]", ce);
         }
         */
-        GetMethod method = new GetMethod(store.getPath() + id + "/" + uid + ".ics");
+        GetMethod method = new GetMethod(getPath() + "/" + uid + ".ics");
         try {
-            store.getHttpClient().executeMethod(store.getHostConfig(), method);
+        	getStore().execute(method);
         }
         catch (Exception e) {
             e.printStackTrace();
