@@ -35,6 +35,7 @@
  */
 package net.fortuna.ical4j.connector;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -66,7 +67,7 @@ public class CalendarCollectionTest extends TestCase {
     
     private String displayName = "My Calendars";
     
-    private String[] supportedComponents = {Component.VEVENT};
+    private String[] supportedComponents = {Component.VAVAILABILITY, Component.VJOURNAL, Component.VEVENT, Component.VFREEBUSY, Component.VTODO};
     
     private String[] calendarUids;
     
@@ -190,6 +191,13 @@ public class CalendarCollectionTest extends TestCase {
 //        fail("Not yet implemented");
     }
 
+    /**
+     * 
+     */
+    public void testGetSupportedComponentTypes() {
+        assertTrue(Arrays.equals(supportedComponents, collection.getSupportedComponentTypes()));
+    }
+    
     /**
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarCollection#getCalendar(String)}.
      */
