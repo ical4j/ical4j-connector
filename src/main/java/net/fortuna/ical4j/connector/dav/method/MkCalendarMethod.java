@@ -33,50 +33,38 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector.caldav;
+package net.fortuna.ical4j.connector.dav.method;
 
-import org.apache.jackrabbit.webdav.DavConstants;
-import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.apache.jackrabbit.webdav.xml.XmlSerializable;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.apache.jackrabbit.webdav.DavServletResponse;
+import org.apache.jackrabbit.webdav.client.methods.DavMethodBase;
 
 /**
  * @author Ben
  *
  */
-public class MkCalendar implements XmlSerializable {
-
-    public static final String XML_MKCALENDAR = "mkcalendar";
-    
-    private DavPropertySet properties;
-    
-    /**
-     * @return the properties
-     */
-    public DavPropertySet getProperties() {
-        return properties;
-    }
+public class MkCalendarMethod extends DavMethodBase {
 
     /**
-     * @param properties the properties to set
+     * @param uri
      */
-    public void setProperties(DavPropertySet properties) {
-        this.properties = properties;
+    public MkCalendarMethod(String uri) {
+        super(uri);
     }
 
     /* (non-Javadoc)
-     * @see org.apache.jackrabbit.webdav.xml.XmlSerializable#toXml(org.w3c.dom.Document)
+     * @see org.apache.jackrabbit.webdav.client.methods.DavMethodBase#getName()
      */
     @Override
-    public Element toXml(Document document) {
-        Element set = DomUtil.createElement(document, DavConstants.XML_SET, DavConstants.NAMESPACE);
-        set.appendChild(properties.toXml(document));
-        
-        Element mkcalendar = DomUtil.createElement(document, XML_MKCALENDAR, CalDavConstants.NAMESPACE);
-        mkcalendar.appendChild(set);
-        return mkcalendar;
+    public String getName() {
+        return CalDavMethods.METHOD_MKCALENDAR;
+    }
+
+    /* (non-Javadoc)
+     * @see org.apache.jackrabbit.webdav.client.methods.DavMethodBase#isSuccess(int)
+     */
+    @Override
+    protected boolean isSuccess(int statusCode) {
+        return statusCode == DavServletResponse.SC_CREATED;
     }
 
 }

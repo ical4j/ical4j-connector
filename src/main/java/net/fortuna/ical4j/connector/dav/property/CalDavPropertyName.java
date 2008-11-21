@@ -33,38 +33,33 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector.caldav.method;
+package net.fortuna.ical4j.connector.dav.property;
 
-import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.client.methods.DavMethodBase;
+import net.fortuna.ical4j.connector.dav.CalDavConstants;
+
+import org.apache.jackrabbit.webdav.property.DavPropertyName;
 
 /**
  * @author Ben
  *
  */
-public class MkCalendarMethod extends DavMethodBase {
+public class CalDavPropertyName {
 
-    /**
-     * @param uri
-     */
-    public MkCalendarMethod(String uri) {
-        super(uri);
-    }
+    public static final DavPropertyName CALENDAR_DESCRIPTION = DavPropertyName.create("calendar-description", CalDavConstants.NAMESPACE);
 
-    /* (non-Javadoc)
-     * @see org.apache.jackrabbit.webdav.client.methods.DavMethodBase#getName()
-     */
-    @Override
-    public String getName() {
-        return CalDavMethods.METHOD_MKCALENDAR;
-    }
+    public static final DavPropertyName CALENDAR_TIMEZONE = DavPropertyName.create("calendar-timezone", CalDavConstants.NAMESPACE);
 
-    /* (non-Javadoc)
-     * @see org.apache.jackrabbit.webdav.client.methods.DavMethodBase#isSuccess(int)
-     */
-    @Override
-    protected boolean isSuccess(int statusCode) {
-        return statusCode == DavServletResponse.SC_CREATED;
-    }
+    public static final DavPropertyName SUPPORTED_CALENDAR_COMPONENT_SET = DavPropertyName.create("supported-calendar-component-set", CalDavConstants.NAMESPACE);
 
+    public static final DavPropertyName SUPPORTED_CALENDAR_DATA = DavPropertyName.create("supported-calendar-data", CalDavConstants.NAMESPACE);
+
+    public static final DavPropertyName MAX_RESOURCE_SIZE = DavPropertyName.create("max-resource-size", CalDavConstants.NAMESPACE);
+
+    public static final DavPropertyName MIN_DATE_TIME = DavPropertyName.create("min-date-time", CalDavConstants.NAMESPACE);
+
+    public static final DavPropertyName MAX_DATE_TIME = DavPropertyName.create("max-date-time", CalDavConstants.NAMESPACE);
+
+    public static final DavPropertyName MAX_INSTANCES = DavPropertyName.create("max-instances", CalDavConstants.NAMESPACE);
+
+    public static final DavPropertyName MAX_ATTENDEES_PER_INSTANCE = DavPropertyName.create("max-attendees-per-instance", CalDavConstants.NAMESPACE);
 }

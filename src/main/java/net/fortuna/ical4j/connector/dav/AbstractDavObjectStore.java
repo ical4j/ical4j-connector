@@ -19,7 +19,7 @@
  * along with Touchbase.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.fortuna.ical4j.connector.caldav;
+package net.fortuna.ical4j.connector.dav;
 
 import java.io.IOException;
 

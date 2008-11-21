@@ -33,16 +33,41 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector.caldav;
+package net.fortuna.ical4j.connector.dav.method;
 
-import org.apache.jackrabbit.webdav.xml.Namespace;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import net.fortuna.ical4j.data.CalendarOutputter;
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.ValidationException;
+
+import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 
 /**
  * @author Ben
  *
  */
-public class CalDavConstants {
+public class PutMethod extends org.apache.jackrabbit.webdav.client.methods.PutMethod {
 
-    public static final Namespace NAMESPACE = Namespace.getNamespace("C", "urn:ietf:params:xml:ns:caldav");
+    private CalendarOutputter outputter;
+    
+    /**
+     * @param uri
+     */
+    public PutMethod(String uri) {
+        super(uri);
+        this.outputter = new CalendarOutputter();
+    }
 
+    /**
+     * @param calendar
+     * @throws IOException
+     * @throws ValidationException
+     */
+    public void setCalendar(Calendar calendar) throws IOException, ValidationException {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        outputter.output(calendar, bytes);
+        setRequestEntity(new ByteArrayRequestEntity(bytes.toByteArray(), "text/calendar"));
+    }
 }

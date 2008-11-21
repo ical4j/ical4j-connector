@@ -33,7 +33,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector.caldav;
+package net.fortuna.ical4j.connector.dav;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,10 +42,10 @@ import java.util.List;
 import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.MediaType;
 import net.fortuna.ical4j.connector.ObjectStoreException;
-import net.fortuna.ical4j.connector.caldav.method.GetMethod;
-import net.fortuna.ical4j.connector.caldav.method.MkCalendarMethod;
-import net.fortuna.ical4j.connector.caldav.method.PutMethod;
-import net.fortuna.ical4j.connector.caldav.property.CalDavPropertyName;
+import net.fortuna.ical4j.connector.dav.method.GetMethod;
+import net.fortuna.ical4j.connector.dav.method.MkCalendarMethod;
+import net.fortuna.ical4j.connector.dav.method.PutMethod;
+import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;

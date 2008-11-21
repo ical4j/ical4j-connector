@@ -33,22 +33,44 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector.caldav.method;
+package net.fortuna.ical4j.connector.dav.method;
 
-import org.apache.jackrabbit.webdav.DavMethods;
+import java.io.IOException;
+
+import net.fortuna.ical4j.data.CalendarBuilder;
+import net.fortuna.ical4j.data.ParserException;
+import net.fortuna.ical4j.model.Calendar;
 
 /**
  * @author Ben
  *
  */
-public class CalDavMethods extends DavMethods {
-    
-    public static final String METHOD_MKCALENDAR = "MKCALENDAR";
-    
-    public static final String METHOD_REPORT = "REPORT";
-    
-    public static final String METHOD_MKTICKET = "MKTICKET";
-    
-    public static final String METHOD_DELTICKET = "DELTICKET";
-    
+public class GetMethod extends org.apache.commons.httpclient.methods.GetMethod {
+
+    /**
+     * 
+     */
+    public GetMethod() {
+    }
+
+    /**
+     * @param uri
+     */
+    public GetMethod(String uri) {
+        super(uri);
+    }
+
+    /**
+     * @return
+     * @throws IOException
+     * @throws ParserException
+     */
+    public Calendar getCalendar() throws IOException, ParserException {
+        String contentType = getResponseHeader("Content-Type").getValue();
+        if (contentType.startsWith("text/calendar")) {
+            CalendarBuilder builder = new CalendarBuilder();
+            return builder.build(getResponseBodyAsStream());
+        }
+        return null;
+    }
 }

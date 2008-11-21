@@ -33,44 +33,50 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector.caldav.method;
+package net.fortuna.ical4j.connector.dav;
 
-import java.io.IOException;
-
-import net.fortuna.ical4j.data.CalendarBuilder;
-import net.fortuna.ical4j.data.ParserException;
-import net.fortuna.ical4j.model.Calendar;
+import org.apache.jackrabbit.webdav.DavConstants;
+import org.apache.jackrabbit.webdav.property.DavPropertySet;
+import org.apache.jackrabbit.webdav.xml.DomUtil;
+import org.apache.jackrabbit.webdav.xml.XmlSerializable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * @author Ben
  *
  */
-public class GetMethod extends org.apache.commons.httpclient.methods.GetMethod {
+public class MkCalendar implements XmlSerializable {
 
+    public static final String XML_MKCALENDAR = "mkcalendar";
+    
+    private DavPropertySet properties;
+    
     /**
-     * 
+     * @return the properties
      */
-    public GetMethod() {
+    public DavPropertySet getProperties() {
+        return properties;
     }
 
     /**
-     * @param uri
+     * @param properties the properties to set
      */
-    public GetMethod(String uri) {
-        super(uri);
+    public void setProperties(DavPropertySet properties) {
+        this.properties = properties;
     }
 
-    /**
-     * @return
-     * @throws IOException
-     * @throws ParserException
+    /* (non-Javadoc)
+     * @see org.apache.jackrabbit.webdav.xml.XmlSerializable#toXml(org.w3c.dom.Document)
      */
-    public Calendar getCalendar() throws IOException, ParserException {
-        String contentType = getResponseHeader("Content-Type").getValue();
-        if (contentType.startsWith("text/calendar")) {
-            CalendarBuilder builder = new CalendarBuilder();
-            return builder.build(getResponseBodyAsStream());
-        }
-        return null;
+    @Override
+    public Element toXml(Document document) {
+        Element set = DomUtil.createElement(document, DavConstants.XML_SET, DavConstants.NAMESPACE);
+        set.appendChild(properties.toXml(document));
+        
+        Element mkcalendar = DomUtil.createElement(document, XML_MKCALENDAR, CalDavConstants.NAMESPACE);
+        mkcalendar.appendChild(set);
+        return mkcalendar;
     }
+
 }

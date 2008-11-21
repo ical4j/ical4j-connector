@@ -33,45 +33,22 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector.caldav;
+package net.fortuna.ical4j.connector.dav.method;
 
-import org.apache.jackrabbit.webdav.DavConstants;
-import org.apache.jackrabbit.webdav.property.DavPropertyName;
-import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.apache.jackrabbit.webdav.xml.XmlSerializable;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.apache.jackrabbit.webdav.DavMethods;
 
 /**
  * @author Ben
  *
  */
-public class PropFind implements XmlSerializable {
-
-    private DavPropertyName propertyName;
+public class CalDavMethods extends DavMethods {
     
-    /**
-     * @return the propertyName
-     */
-    public DavPropertyName getPropertyName() {
-        return propertyName;
-    }
-
-    /**
-     * @param propertyName the propertyName to set
-     */
-    public void setPropertyName(DavPropertyName propertyName) {
-        this.propertyName = propertyName;
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.jackrabbit.webdav.xml.XmlSerializable#toXml(org.w3c.dom.Document)
-     */
-    @Override
-    public Element toXml(Document document) {
-        Element propfind = DomUtil.createElement(document, DavConstants.XML_PROPFIND, DavConstants.NAMESPACE);
-        propfind.appendChild(propertyName.toXml(document));
-        return propfind;
-    }
-
+    public static final String METHOD_MKCALENDAR = "MKCALENDAR";
+    
+    public static final String METHOD_REPORT = "REPORT";
+    
+    public static final String METHOD_MKTICKET = "MKTICKET";
+    
+    public static final String METHOD_DELTICKET = "DELTICKET";
+    
 }

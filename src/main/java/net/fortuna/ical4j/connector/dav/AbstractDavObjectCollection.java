@@ -19,7 +19,7 @@
  * along with Touchbase.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.fortuna.ical4j.connector.caldav;
+package net.fortuna.ical4j.connector.dav;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -28,7 +28,7 @@ import java.util.Collection;
 
 import net.fortuna.ical4j.connector.ObjectCollection;
 import net.fortuna.ical4j.connector.ObjectStoreException;
-import net.fortuna.ical4j.connector.caldav.method.GetMethod;
+import net.fortuna.ical4j.connector.dav.method.GetMethod;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.jackrabbit.webdav.DavConstants;

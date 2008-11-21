@@ -39,6 +39,7 @@ import org.apache.commons.httpclient.protocol.Protocol;
 
 import net.fortuna.ical4j.connector.CalendarStore;
 import net.fortuna.ical4j.connector.CalendarStoreLifecycle;
+import net.fortuna.ical4j.connector.dav.CalDavCalendarStore;
 
 /**
  * @author Ben

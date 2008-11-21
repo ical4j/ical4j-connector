@@ -33,41 +33,45 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector.caldav.method;
+package net.fortuna.ical4j.connector.dav;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
-import net.fortuna.ical4j.data.CalendarOutputter;
-import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.ValidationException;
-
-import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
+import org.apache.jackrabbit.webdav.DavConstants;
+import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.xml.DomUtil;
+import org.apache.jackrabbit.webdav.xml.XmlSerializable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * @author Ben
  *
  */
-public class PutMethod extends org.apache.jackrabbit.webdav.client.methods.PutMethod {
+public class PropFind implements XmlSerializable {
 
-    private CalendarOutputter outputter;
+    private DavPropertyName propertyName;
     
     /**
-     * @param uri
+     * @return the propertyName
      */
-    public PutMethod(String uri) {
-        super(uri);
-        this.outputter = new CalendarOutputter();
+    public DavPropertyName getPropertyName() {
+        return propertyName;
     }
 
     /**
-     * @param calendar
-     * @throws IOException
-     * @throws ValidationException
+     * @param propertyName the propertyName to set
      */
-    public void setCalendar(Calendar calendar) throws IOException, ValidationException {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        outputter.output(calendar, bytes);
-        setRequestEntity(new ByteArrayRequestEntity(bytes.toByteArray(), "text/calendar"));
+    public void setPropertyName(DavPropertyName propertyName) {
+        this.propertyName = propertyName;
     }
+
+    /* (non-Javadoc)
+     * @see org.apache.jackrabbit.webdav.xml.XmlSerializable#toXml(org.w3c.dom.Document)
+     */
+    @Override
+    public Element toXml(Document document) {
+        Element propfind = DomUtil.createElement(document, DavConstants.XML_PROPFIND, DavConstants.NAMESPACE);
+        propfind.appendChild(propertyName.toXml(document));
+        return propfind;
+    }
+
 }
