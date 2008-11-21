@@ -22,8 +22,10 @@
 package net.fortuna.ical4j.connector.caldav;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
-import net.fortuna.ical4j.connector.AbstractCalendarCollection;
+import net.fortuna.ical4j.connector.ObjectCollection;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.caldav.method.GetMethod;
 
@@ -40,66 +42,97 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 
 /**
  * @author fortuna
- *
  */
-public abstract class AbstractDavObjectCollection extends AbstractCalendarCollection {
+public abstract class AbstractDavObjectCollection implements ObjectCollection {
 
-	private AbstractDavObjectStore<?> store;
-	
-	private String id;
-	
-	/**
-	 * @param id
-	 */
-	public AbstractDavObjectCollection(AbstractDavObjectStore<?> store, String id) {
-		this.store = store;
-		this.id = id;
-	}
-	
+    private AbstractDavObjectStore<?> store;
+
+    private String id;
+
     /**
-	 * @return the store
-	 */
-	public final AbstractDavObjectStore<?> getStore() {
-		return store;
-	}
+     * @param id
+     */
+    public AbstractDavObjectCollection(AbstractDavObjectStore<?> store, String id) {
+        this.store = store;
+        this.id = id;
+    }
 
-	/**
-	 * @return the id
-	 */
-	public final String getId() {
-		return id;
-	}
+    /**
+     * @return the store
+     */
+    public final AbstractDavObjectStore<?> getStore() {
+        return store;
+    }
 
-	/**
-	 * @return
-	 */
-	public final String getPath() {
-		return getStore().getPath() + getId();
-	}
-	
-	/**
+    /**
+     * @return the id
+     */
+    public final String getId() {
+        return id;
+    }
+
+    /**
+     * @return
+     */
+    public final String getPath() {
+        return getStore().getPath() + getId();
+    }
+
+    /**
      * @param propertyName
      * @return
-     * @throws IOException 
-     * @throws ObjectStoreException 
-     * @throws DavException 
+     * @throws IOException
+     * @throws ObjectStoreException
+     * @throws DavException
      */
     public final <T> T getProperty(DavPropertyName propertyName, Class<T> type) throws IOException, ObjectStoreException, DavException {
         DavPropertyNameSet set = new DavPropertyNameSet();
         set.add(propertyName);
-        
+
         PropFindMethod propFindMethod = new PropFindMethod(store.getPath() + id, set, DavConstants.DEPTH_0);
         store.execute(propFindMethod);
 
         if (!propFindMethod.succeeded()) {
             throw new ObjectStoreException(propFindMethod.getStatusLine().toString());
         }
-        
+
         MultiStatus multi = propFindMethod.getResponseBodyAsMultiStatus();
         DavPropertySet props = multi.getResponses()[0].getProperties(200);
-        return (T) props.get(propertyName).getValue();
+        if (props.get(propertyName) != null) {
+            Object value = props.get(propertyName).getValue();
+            try {
+                Constructor<T> constructor = type.getConstructor(value.getClass());
+                return constructor.newInstance(value);
+            }
+            catch (SecurityException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (NoSuchMethodException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (IllegalArgumentException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (InstantiationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (IllegalAccessException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (InvocationTargetException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return (T) props.get(propertyName).getValue();
+        }
+        return null;
     }
-    
+
     /**
      * @throws HttpException
      * @throws IOException
@@ -108,8 +141,9 @@ public abstract class AbstractDavObjectCollection extends AbstractCalendarCollec
     public final void delete() throws HttpException, IOException, ObjectStoreException {
         DeleteMethod deleteMethod = new DeleteMethod(getPath());
         getStore().execute(deleteMethod);
-        if (!deleteMethod.succeeded()){
-            throw new ObjectStoreException(deleteMethod.getStatusCode() + ": " + deleteMethod.getStatusText());
+        if (!deleteMethod.succeeded()) {
+            throw new ObjectStoreException(deleteMethod.getStatusCode() + ": "
+                    + deleteMethod.getStatusText());
         }
     }
 
@@ -131,5 +165,5 @@ public abstract class AbstractDavObjectCollection extends AbstractCalendarCollec
         else {
             throw new ObjectStoreException(getMethod.getStatusLine().toString());
         }
-    }    
+    }
 }
