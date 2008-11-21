@@ -89,14 +89,15 @@ public interface ObjectStore<T extends ObjectCollection> {
      * @param id
      * @return if a collection with the specified id exists in the store it is
      * returned. Otherwise returns null.
+     * @throws ObjectNotFoundException 
      */
-    T removeCollection(String id) throws ObjectStoreException;
+    T removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException;
     
     /**
      * @param id
      * @return an object collection with the specified id. If no collection with the specified id
-     * is found in this store, null is returned.
+     * is found in this store, an {@link ObjectNotFoundException} is thrown.
      */
-    T getCollection(String id) throws ObjectStoreException;
+    T getCollection(String id) throws ObjectStoreException, ObjectNotFoundException;
 
 }

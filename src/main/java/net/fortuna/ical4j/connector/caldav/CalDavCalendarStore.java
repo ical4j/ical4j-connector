@@ -39,6 +39,7 @@ import java.io.IOException;
 
 import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.CalendarStore;
+import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.model.Calendar;
 
@@ -98,7 +99,7 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalendarCollecti
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarStore#get(java.lang.String)
      */
-    public CalendarCollection getCollection(String id) throws ObjectStoreException {
+    public CalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         CalDavCalendarCollection collection = new CalDavCalendarCollection(this, id);
         try {
             if (collection.exists()) {
@@ -113,7 +114,7 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalendarCollecti
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        return null;
+        throw new ObjectNotFoundException("Collection with id: [" + id + "] not found");
     }
 
     /* (non-Javadoc)
@@ -127,8 +128,8 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalendarCollecti
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarStore#remove(java.lang.String)
      */
-    public CalendarCollection removeCollection(String id) throws ObjectStoreException {
-        CalDavCalendarCollection collection = new CalDavCalendarCollection(this, id);
+    public CalendarCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
+        CalDavCalendarCollection collection = (CalDavCalendarCollection) getCollection(id);
         try {
             collection.delete();
         }

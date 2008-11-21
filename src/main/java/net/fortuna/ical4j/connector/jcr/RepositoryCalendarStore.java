@@ -56,6 +56,7 @@ import javax.naming.NamingException;
 
 import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.CalendarStore;
+import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.model.Calendar;
 
@@ -193,8 +194,12 @@ public class RepositoryCalendarStore implements CalendarStore {
     public CalendarCollection addCollection(String id)
             throws ObjectStoreException {
         try {
-            if (getCollection(id) != null) {
+            try {
+                getCollection(id);
                 throw new ObjectStoreException("Collection already exists");
+            }
+            catch (ObjectNotFoundException onfe) {
+                // expected..
             }
             Node collectionNode = session.getRootNode().addNode(
                     NodeType.COLLECTION.getNodeName());
@@ -227,7 +232,7 @@ public class RepositoryCalendarStore implements CalendarStore {
      * (non-Javadoc)
      * @see net.fortuna.ical4j.protocol.CalendarStore#get(java.lang.String)
      */
-    public CalendarCollection getCollection(String id) throws ObjectStoreException {
+    public CalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
             // return new RepositoryCalendarCollection(session.getRootNode().getNode(id));
             // String queryString = session.getRootNode().getPath() + '/' + NodeNames.COLLECTION
@@ -244,14 +249,14 @@ public class RepositoryCalendarStore implements CalendarStore {
         catch (RepositoryException re) {
             log.warn("Error retrieving collection [" + id + "]", re);
         }
-        return null;
+        throw new ObjectNotFoundException("Collection with id: [" + id + "] not found");
     }
 
     /*
      * (non-Javadoc)
      * @see net.fortuna.ical4j.protocol.CalendarStore#remove(java.lang.String)
      */
-    public CalendarCollection removeCollection(String id) throws ObjectStoreException {
+    public CalendarCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
             RepositoryCalendarCollection collection = (RepositoryCalendarCollection) getCollection(id);
             if (collection != null) {

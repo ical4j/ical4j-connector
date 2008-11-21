@@ -107,8 +107,9 @@ public class CalendarStoreTest extends TestCase {
 
     /**
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarStore#getCollection(java.lang.String)}.
+     * @throws ObjectNotFoundException 
      */
-    public void testGetCollection() throws ObjectStoreException {
+    public void testGetCollection() throws ObjectStoreException, ObjectNotFoundException {
         CalendarCollection cc = store.getCollection("myCalendars");
         assertNull(cc);
         
@@ -119,8 +120,9 @@ public class CalendarStoreTest extends TestCase {
 
     /**
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarStore#removeCollection(java.lang.String)}.
+     * @throws ObjectNotFoundException 
      */
-    public void testRemoveCollection() throws ObjectStoreException {
+    public void testRemoveCollection() throws ObjectStoreException, ObjectNotFoundException {
         store.addCollection("myCalendars");
         CalendarCollection cc = store.getCollection("myCalendars");
         assertNotNull(cc);
