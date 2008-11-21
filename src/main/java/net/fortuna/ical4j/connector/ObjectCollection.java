@@ -35,16 +35,12 @@
  */
 package net.fortuna.ical4j.connector;
 
+
 /**
  * @author Ben
  *
  */
 public interface ObjectCollection {
-
-    /**
-     * @param id
-     */
-//    void setDisplayName(String id);
     
     /**
      * @return
@@ -52,13 +48,17 @@ public interface ObjectCollection {
     String getDisplayName();
     
     /**
-     * @param description
-     */
-//    void setDescription(String description);
-    
-    /**
      * @return
      */
     String getDescription();
 
+    /**
+     * Returns a property value for the collection.
+     * @param <T> the property return type
+     * @param name the property name
+     * @param type the property return type
+     * @return a value of the specified type, or null if no property is found
+     */
+//    <T> T getProperty(String propertyName, Class<T> type);
+    
 }

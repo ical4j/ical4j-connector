@@ -38,14 +38,13 @@ import org.apache.commons.httpclient.protocol.Protocol;
 
 /**
  * @author fortuna
- *
  */
 public abstract class AbstractDavObjectStore<T extends ObjectCollection> implements ObjectStore<T> {
-    
+
     private HttpClient httpClient;
-    
+
     private HostConfiguration hostConfiguration;
-    
+
     private String path;
 
     /**
@@ -65,51 +64,54 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
     public final String getPath() {
         return path;
     }
-    
-	/* (non-Javadoc)
-	 * @see net.fortuna.ical4j.connector.ObjectStore#connect()
-	 */
-	@Override
-	public final boolean connect() throws ObjectStoreException {
+
+    /*
+     * (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.ObjectStore#connect()
+     */
+    @Override
+    public final boolean connect() throws ObjectStoreException {
         httpClient = new HttpClient();
         httpClient.getParams().setAuthenticationPreemptive(true);
         return true;
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see net.fortuna.ical4j.connector.ObjectStore#connect(java.lang.String, char[])
-	 */
-	@Override
-	public final boolean connect(String username, char[] password) throws ObjectStoreException {
-		connect();
-//        httpClient = new HttpClient();
+    /*
+     * (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.ObjectStore#connect(java.lang.String, char[])
+     */
+    @Override
+    public final boolean connect(String username, char[] password) throws ObjectStoreException {
+        connect();
+        // httpClient = new HttpClient();
         Credentials credentials = new UsernamePasswordCredentials(username, new String(password));
         httpClient.getState().setCredentials(AuthScope.ANY, credentials);
-//        httpClient.getParams().setAuthenticationPreemptive(true);
+        // httpClient.getParams().setAuthenticationPreemptive(true);
         return true;
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see net.fortuna.ical4j.connector.ObjectStore#disconnect()
-	 */
-	@Override
-	public final void disconnect() throws ObjectStoreException {
+    /*
+     * (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.ObjectStore#disconnect()
+     */
+    @Override
+    public final void disconnect() throws ObjectStoreException {
         httpClient = null;
-	}
-	
-	/**
-	 * @return
-	 */
-	public final boolean isConnected() {
-		return httpClient != null;
-	}
-	
-	/**
-	 * @param method
-	 * @throws HttpException
-	 * @throws IOException
-	 */
-	int execute(HttpMethodBase method) throws HttpException, IOException {
-		return httpClient.executeMethod(hostConfiguration, method);
-	}
+    }
+
+    /**
+     * @return
+     */
+    public final boolean isConnected() {
+        return httpClient != null;
+    }
+
+    /**
+     * @param method
+     * @throws HttpException
+     * @throws IOException
+     */
+    int execute(HttpMethodBase method) throws HttpException, IOException {
+        return httpClient.executeMethod(hostConfiguration, method);
+    }
 }
