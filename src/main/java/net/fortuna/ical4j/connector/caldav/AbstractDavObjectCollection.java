@@ -24,6 +24,7 @@ package net.fortuna.ical4j.connector.caldav;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 
 import net.fortuna.ical4j.connector.ObjectCollection;
 import net.fortuna.ical4j.connector.ObjectStoreException;
@@ -101,8 +102,17 @@ public abstract class AbstractDavObjectCollection implements ObjectCollection {
         if (props.get(propertyName) != null) {
             Object value = props.get(propertyName).getValue();
             try {
-                Constructor<T> constructor = type.getConstructor(value.getClass());
-                return constructor.newInstance(value);
+                if (Collection.class.isAssignableFrom(type)) {
+                    T result = type.newInstance();
+                    if (value instanceof Collection<?>) {
+                        ((Collection<?>) result).addAll((Collection) value);
+                    }
+                    return result;
+                }
+                else {
+                    Constructor<T> constructor = type.getConstructor(value.getClass());
+                    return constructor.newInstance(value);
+                }
             }
             catch (SecurityException e) {
                 // TODO Auto-generated catch block
