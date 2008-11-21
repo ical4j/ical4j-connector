@@ -36,6 +36,8 @@
 package net.fortuna.ical4j.connector.caldav;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.MediaType;
@@ -59,6 +61,7 @@ import org.apache.jackrabbit.webdav.client.methods.DeleteMethod;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
+import org.w3c.dom.Node;
 
 /**
  * @author Ben
@@ -281,7 +284,17 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
      */
     public String[] getSupportedComponentTypes() {
         try {
-            return getProperty(CalDavPropertyName.SUPPORTED_CALENDAR_COMPONENT_SET, String.class).split(",");
+            List<Node> supportedComponentNodes = getProperty(CalDavPropertyName.SUPPORTED_CALENDAR_COMPONENT_SET, ArrayList.class);
+            List<String> supportedComponents = new ArrayList<String>();
+            for (Node node : supportedComponentNodes) {
+                if (node.getAttributes() != null) {
+                    Node nameNode = node.getAttributes().getNamedItemNS(CalDavConstants.NAMESPACE.getURI(), "name");
+                    if (nameNode != null) {
+                        supportedComponents.add(nameNode.getTextContent());
+                    }
+                }
+            }
+            return supportedComponents.toArray(new String[supportedComponents.size()]);
         }
         catch (IOException e) {
             // TODO Auto-generated catch block
