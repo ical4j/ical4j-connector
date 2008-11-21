@@ -108,7 +108,7 @@ public class CalendarCollectionTest extends TestCase {
             Calendar testCal = Calendars.load("etc/samples/valid/Australian32Holidays.ics");
             collection.merge(testCal);
             
-            Set uidList = new HashSet();
+            Set<String> uidList = new HashSet<String>();
             Calendar[] uidCals = Calendars.split(testCal);
             for (int i = 0; i < uidCals.length; i++) {
                 Uid uid = Calendars.getUid(uidCals[i]);
@@ -148,6 +148,7 @@ public class CalendarCollectionTest extends TestCase {
      */
     public void testGetMaxAttendeesPerInstance() {
 //        fail("Not yet implemented");
+        assertEquals(Integer.valueOf(0), collection.getMaxAttendeesPerInstance());
     }
 
     /**
@@ -155,6 +156,7 @@ public class CalendarCollectionTest extends TestCase {
      */
     public void testGetMaxDateTime() {
 //        fail("Not yet implemented");
+        assertEquals(0, collection.getMaxDateTime());
     }
 
     /**
@@ -162,6 +164,7 @@ public class CalendarCollectionTest extends TestCase {
      */
     public void testGetMaxInstances() {
 //        fail("Not yet implemented");
+        assertEquals(Integer.valueOf(0), collection.getMaxInstances());
     }
 
     /**
@@ -169,6 +172,7 @@ public class CalendarCollectionTest extends TestCase {
      */
     public void testGetMaxResourceSize() {
 //        fail("Not yet implemented");
+        assertEquals(10485760, collection.getMaxResourceSize());
     }
 
     /**
@@ -176,6 +180,7 @@ public class CalendarCollectionTest extends TestCase {
      */
     public void testGetMinDateTime() {
 //        fail("Not yet implemented");
+        assertEquals(0, collection.getMinDateTime());
     }
 
     /**
