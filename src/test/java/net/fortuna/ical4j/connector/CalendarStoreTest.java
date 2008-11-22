@@ -110,8 +110,14 @@ public class CalendarStoreTest extends TestCase {
      * @throws ObjectNotFoundException 
      */
     public void testGetCollection() throws ObjectStoreException, ObjectNotFoundException {
-        CalendarCollection cc = store.getCollection("myCalendars");
-        assertNull(cc);
+        CalendarCollection cc = null;
+        try {
+            store.getCollection("myCalendars");
+            fail("Should throw " + ObjectNotFoundException.class.getSimpleName());
+        }
+        catch (ObjectNotFoundException onfe) {
+            LOG.debug("Caught exception: " + onfe.getMessage());
+        }
         
         store.addCollection("myCalendars");
         cc = store.getCollection("myCalendars");
@@ -126,10 +132,16 @@ public class CalendarStoreTest extends TestCase {
         store.addCollection("myCalendars");
         CalendarCollection cc = store.getCollection("myCalendars");
         assertNotNull(cc);
-        
         cc = store.removeCollection("myCalendars");
         assertNotNull(cc);
-        assertNull(store.getCollection("myCalendars"));
+        
+        try {
+            store.getCollection("myCalendars");
+            fail("Should throw " + ObjectNotFoundException.class.getSimpleName());
+        }
+        catch (ObjectNotFoundException onfe) {
+            LOG.debug("Caught exception: " + onfe.getMessage());
+        }
     }
 
 }

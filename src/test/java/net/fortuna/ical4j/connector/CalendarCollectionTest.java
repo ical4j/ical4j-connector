@@ -100,11 +100,11 @@ public class CalendarCollectionTest extends TestCase {
         catch (Exception e) {
         }
         
-        collection = store.getCollection(collectionId);
-        if (collection == null) {
+        try {
+            collection = store.getCollection(collectionId);
             collection = store.addCollection(collectionId, displayName, description, supportedComponents, null);
-//            collection.setDescription(description);
-//            collection.setDisplayName(displayName);
+//                collection.setDescription(description);
+//                collection.setDisplayName(displayName);
             
             Calendar testCal = Calendars.load("etc/samples/valid/Australian32Holidays.ics");
             collection.merge(testCal);
@@ -118,6 +118,8 @@ public class CalendarCollectionTest extends TestCase {
                 }
             }
             calendarUids = (String[]) uidList.toArray(new String[uidList.size()]);
+        }
+        catch (ObjectNotFoundException onfe) {
         }
     }
 
