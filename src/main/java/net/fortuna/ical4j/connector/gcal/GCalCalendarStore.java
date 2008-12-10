@@ -1,8 +1,4 @@
 /*
- * $Id$
- *
- * Created on 14/03/2008
- *
  * Copyright (c) 2008, Ben Fortuna
  * All rights reserved.
  *
@@ -47,6 +43,10 @@ import org.apache.commons.logging.LogFactory;
 //import com.google.gdata.util.AuthenticationException;
 
 /**
+ * $Id$
+ *
+ * Created on 14/03/2008
+ *
  * @author Ben
  *
  */

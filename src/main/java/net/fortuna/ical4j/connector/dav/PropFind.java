@@ -1,8 +1,4 @@
 /*
- * $Id$
- *
- * Created on 19/11/2008
- *
  * Copyright (c) 2008, Ben Fortuna
  * All rights reserved.
  *
@@ -43,6 +39,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
+ * $Id$
+ *
+ * Created on 19/11/2008
+ *
  * @author Ben
  *
  */

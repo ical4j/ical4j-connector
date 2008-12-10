@@ -1,8 +1,4 @@
 /*
- * $Id$
- *
- * Created on 19/11/2008
- *
  * Copyright (c) 2008, Ben Fortuna
  * All rights reserved.
  *
@@ -40,6 +36,10 @@ import net.fortuna.ical4j.connector.dav.CalDavConstants;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 
 /**
+ * $Id$
+ *
+ * Created on 19/11/2008
+ *
  * @author Ben
  *
  */

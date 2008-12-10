@@ -1,8 +1,4 @@
 /*
- * $Id$
- *
- * Created on 19/11/2008
- *
  * Copyright (c) 2008, Ben Fortuna
  * All rights reserved.
  *
@@ -39,6 +35,10 @@ import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.client.methods.DavMethodBase;
 
 /**
+ * $Id$
+ *
+ * Created on 19/11/2008
+ *
  * @author Ben
  *
  */

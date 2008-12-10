@@ -1,8 +1,4 @@
 /*
- * $Id$
- *
- * Created on 24/02/2008
- *
  * Copyright (c) 2008, Ben Fortuna
  * All rights reserved.
  *
@@ -64,6 +60,10 @@ import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.w3c.dom.Node;
 
 /**
+ * $Id$
+ *
+ * Created on 24/02/2008
+ *
  * @author Ben
  *
  */

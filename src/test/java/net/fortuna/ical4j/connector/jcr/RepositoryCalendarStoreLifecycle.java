@@ -1,8 +1,4 @@
 /*
- * $Id$
- *
- * Created on 01/03/2008
- *
  * Copyright (c) 2008, Ben Fortuna
  * All rights reserved.
  *
@@ -49,6 +45,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.core.jndi.RegistryHelper;
 
 /**
+ * $Id$
+ *
+ * Created on 01/03/2008
+ *
  * @author Ben
  */
 public class RepositoryCalendarStoreLifecycle implements CalendarStoreLifecycle {

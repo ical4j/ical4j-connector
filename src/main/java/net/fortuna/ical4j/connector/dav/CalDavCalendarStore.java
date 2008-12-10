@@ -1,8 +1,4 @@
 /*
- * $Id$
- *
- * Created on 24/02/2008
- *
  * Copyright (c) 2008, Ben Fortuna
  * All rights reserved.
  *
@@ -47,6 +43,10 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.protocol.Protocol;
 
 /**
+ * $Id$
+ *
+ * Created on 24/02/2008
+ *
  * @author Ben
  *
  */
