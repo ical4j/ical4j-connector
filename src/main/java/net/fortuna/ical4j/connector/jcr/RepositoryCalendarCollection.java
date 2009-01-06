@@ -306,7 +306,7 @@ public class RepositoryCalendarCollection extends AbstractCalendarCollection {
     public Calendar getCalendar(String uid) {
         try {
             String queryString = "//" + NodeType.COLLECTION.getNodeName()
-                + "[@" + NodeProperty.COLLECTION_ID.getPropertyName() + "='" + getId() + "']/" + NodeType.CALENDAR.getNodeName() + "[@" + NodeProperty.UID + "='" + uid + "']";
+                + "[@" + NodeProperty.COLLECTION_ID.getPropertyName() + "='" + getId() + "']/" + NodeType.CALENDAR.getNodeName() + "[@" + NodeProperty.UID.getPropertyName() + "='" + uid + "']";
 
             QueryManager qm = node.getSession().getWorkspace().getQueryManager();
             Query folderQuery = qm.createQuery(queryString, Query.XPATH);
