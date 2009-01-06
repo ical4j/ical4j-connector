@@ -61,16 +61,16 @@ public class CalDavCalendarCollectionTest extends AbstractCalDavTest {
                 new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
         suite.addTest(new CalendarCollectionTest("testGetCalendar",
                 new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
-        suite.addTest(new CalendarCollectionTest("testGetMaxAttendeesPerInstance",
-                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
-        suite.addTest(new CalendarCollectionTest("testGetMaxDateTime",
-                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
-        suite.addTest(new CalendarCollectionTest("testGetMaxInstances",
-                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
+//        suite.addTest(new CalendarCollectionTest("testGetMaxAttendeesPerInstance",
+//                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
+//        suite.addTest(new CalendarCollectionTest("testGetMaxDateTime",
+//                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
+//        suite.addTest(new CalendarCollectionTest("testGetMaxInstances",
+//                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
         suite.addTest(new CalendarCollectionTest("testGetMaxResourceSize",
                 new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
-        suite.addTest(new CalendarCollectionTest("testGetMinDateTime",
-                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
+//        suite.addTest(new CalendarCollectionTest("testGetMinDateTime",
+//                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
         suite.addTest(new CalendarCollectionTest("testGetSupportedComponentTypes",
                 new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
         suite.addTest(new CalendarCollectionTest("testGetCalendars",
