@@ -73,6 +73,8 @@ public class CalDavCalendarCollectionTest extends AbstractCalDavTest {
                 new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
         suite.addTest(new CalendarCollectionTest("testGetSupportedComponentTypes",
                 new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
+        suite.addTest(new CalendarCollectionTest("testGetCalendars",
+                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
 
         return suite;
     }

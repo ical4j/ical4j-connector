@@ -292,6 +292,15 @@ public class RepositoryCalendarCollection extends AbstractCalendarCollection {
     }
 
     /* (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.CalendarCollection#getCalendars()
+     */
+    @Override
+    public Calendar[] getCalendars() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#getCalendar(net.fortuna.ical4j.model.property.Uid)
      */
     public Calendar getCalendar(String uid) {

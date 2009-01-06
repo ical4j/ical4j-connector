@@ -35,12 +35,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.MediaType;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.method.GetMethod;
 import net.fortuna.ical4j.connector.dav.method.MkCalendarMethod;
 import net.fortuna.ical4j.connector.dav.method.PutMethod;
+import net.fortuna.ical4j.connector.dav.method.ReportMethod;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
@@ -55,8 +59,14 @@ import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.client.methods.DeleteMethod;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
+import org.apache.jackrabbit.webdav.version.report.ReportInfo;
+import org.apache.jackrabbit.webdav.xml.DomUtil;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
@@ -121,7 +131,51 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
      * @see net.fortuna.ical4j.connector.CalendarCollection#getCalendars()
      */
     public Calendar[] getCalendars() {
-        // TODO Auto-generated method stub
+        try {
+            DavPropertyNameSet properties = new DavPropertyNameSet();
+            properties.add(DavPropertyName.GETETAG);
+            properties.add(CalDavPropertyName.CALENDAR_DATA);
+            
+            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            Element filter = DomUtil.createElement(document, "filter", CalDavConstants.NAMESPACE); 
+            Element calFilter = DomUtil.createElement(document, "comp-filter", CalDavConstants.NAMESPACE); 
+            calFilter.setAttribute("name", "VCALENDAR"); 
+            Element eventFilter = DomUtil.createElement(document, "comp-filter", CalDavConstants.NAMESPACE); 
+            eventFilter.setAttribute("name", "VEVENT"); 
+            calFilter.appendChild(eventFilter); 
+            filter.appendChild(calFilter);
+            
+            ReportInfo info = new ReportInfo(ReportMethod.CALENDAR_QUERY, 1, properties);
+            info.setContentElement(filter);
+            
+            ReportMethod method = new ReportMethod(getPath(), info);
+            getStore().execute(method);
+            if (method.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
+                return method.getCalendars();
+            }
+            else if (method.getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
+                return null;
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (DOMException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (DavException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (ParserException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (ParserConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return null;
     }
 

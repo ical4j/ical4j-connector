@@ -109,7 +109,14 @@ public interface CalendarCollection extends ObjectCollection {
     void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException;
     
     /**
-     * @return
+     * Returns all calendar objects stored in the collection.
+     * @return an array of calendars
+     */
+    Calendar[] getCalendars();
+    
+    /**
+     * Returns the calendar object with the specified UID.
+     * @return a calendar object or null if no calendar with the specified UID exists
      */
     Calendar getCalendar(String uid);
     

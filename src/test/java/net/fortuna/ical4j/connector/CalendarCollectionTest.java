@@ -209,4 +209,9 @@ public class CalendarCollectionTest extends TestCase {
             assertNotNull("Calendar for uid: [" + calendarUids[i] + "] not found", cal);
         }
     }
+    
+    public void testGetCalendars() {
+        Calendar[] calendars = collection.getCalendars();
+        assertNotNull(calendars);
+    }
 }
