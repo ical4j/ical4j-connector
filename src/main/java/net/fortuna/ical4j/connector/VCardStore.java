@@ -39,6 +39,6 @@ package net.fortuna.ical4j.connector;
  * @author Ben
  *
  */
-public interface ContactCollection extends ObjectCollection {
+public interface VCardStore extends ObjectStore<VCardCollection> {
 
 }
