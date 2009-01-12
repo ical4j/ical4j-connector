@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>modularity-parent</artifactId>
 		<groupId>net.modularity</groupId>
-		<version>1.0.4-SNAPSHOT</version>
+		<version>1.0.5</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.fortuna.ical4j</groupId>
@@ -74,8 +74,8 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
 					<descriptors>
-						<descriptor>etc/bin-assembly.xml</descriptor>
-						<descriptor>etc/src-assembly.xml</descriptor>
+						<descriptor>src/main/assembly/bin.xml</descriptor>
+						<descriptor>src/main/assembly/src.xml</descriptor>
 					</descriptors>
 				</configuration>
 				<executions>
@@ -95,12 +95,12 @@
 		<dependency>
 			<groupId>net.fortuna.ical4j</groupId>
 			<artifactId>ical4j</artifactId>
-			<version>1.0-rc1-SNAPSHOT</version>
+			<version>1.0-rc1</version>
 		</dependency>
 		<dependency>
 			<groupId>net.fortuna.ical4j</groupId>
 			<artifactId>ical4j-vcard</artifactId>
-			<version>0.9-SNAPSHOT</version>
+			<version>0.9</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.jcr</groupId>
