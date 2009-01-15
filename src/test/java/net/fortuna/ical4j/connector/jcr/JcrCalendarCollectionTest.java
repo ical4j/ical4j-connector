@@ -29,34 +29,34 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector;
+package net.fortuna.ical4j.connector.jcr;
 
-import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.ConstraintViolationException;
-import net.fortuna.ical4j.util.Calendars;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import net.fortuna.ical4j.connector.CalendarCollectionTest;
 
 /**
  * $Id$
  *
- * Created on 06/03/2008
+ * Created on 27/02/2008
  *
  * @author Ben
  *
  */
-public abstract class AbstractCalendarCollection implements CalendarCollection {
-
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#merge(net.fortuna.ical4j.model.Calendar)
+public class JcrCalendarCollectionTest extends AbstractRepositoryTest {
+    
+    /**
+     * @return
      */
-    public final void merge(Calendar calendar) throws ObjectStoreException {
-        try {
-            Calendar[] uidCalendars = Calendars.split(calendar);
-            for (int i = 0; i < uidCalendars.length; i++) {
-                    addCalendar(uidCalendars[i]);
-            }
-        }
-        catch (ConstraintViolationException cve) {
-            throw new ObjectStoreException("Invalid calendar format", cve);
-        }
+    public static Test suite() {
+        TestSuite suite = new TestSuite(JcrCalendarCollectionTest.class.getSimpleName());
+        
+        suite.addTest(new CalendarCollectionTest("testGetDescription",
+                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetDescription"), USERNAME, PASSWORD));
+        suite.addTest(new CalendarCollectionTest("testGetDisplayName",
+                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetDisplayName"), USERNAME, PASSWORD));
+        suite.addTest(new CalendarCollectionTest("testGetCalendar",
+                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetCalendar"), USERNAME, PASSWORD));
+        return suite;
     }
 }

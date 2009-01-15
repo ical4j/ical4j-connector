@@ -51,11 +51,11 @@ import org.apache.jackrabbit.core.jndi.RegistryHelper;
  *
  * @author Ben
  */
-public class RepositoryCalendarStoreLifecycle implements CalendarStoreLifecycle {
+public class JcrCalendarStoreLifecycle implements CalendarStoreLifecycle {
 
     private static final String BASE_TEST_DIR = System
             .getProperty("java.io.tmpdir")
-            + File.separator + RepositoryCalendarStoreLifecycle.class.getSimpleName() + File.separator;
+            + File.separator + JcrCalendarStoreLifecycle.class.getSimpleName() + File.separator;
 
     private String name;
 
@@ -70,7 +70,7 @@ public class RepositoryCalendarStoreLifecycle implements CalendarStoreLifecycle 
     /**
      * @param id
      */
-    public RepositoryCalendarStoreLifecycle(String name) {
+    public JcrCalendarStoreLifecycle(String name) {
         this.name = name;
     }
 
@@ -110,7 +110,7 @@ public class RepositoryCalendarStoreLifecycle implements CalendarStoreLifecycle 
 
         repository = (Repository) context.lookup(repoName);
         // repository = new TransientRepository("test/repository.xml", testDir.getAbsolutePath());
-        store = new RepositoryCalendarStore(repository);
+        store = new JcrCalendarStore(repository);
     }
 
 }

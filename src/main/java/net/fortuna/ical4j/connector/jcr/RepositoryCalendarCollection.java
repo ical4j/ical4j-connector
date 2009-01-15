@@ -41,9 +41,9 @@ import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 
-import net.fortuna.ical4j.connector.AbstractCalendarCollection;
-import net.fortuna.ical4j.connector.ObjectStoreException;
+import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.MediaType;
+import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.data.ParserException;
@@ -65,7 +65,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Ben
  *
  */
-public class RepositoryCalendarCollection extends AbstractCalendarCollection {
+public class RepositoryCalendarCollection implements CalendarCollection {
     
     private Log log = LogFactory.getLog(RepositoryCalendarCollection.class);
 
@@ -270,9 +270,6 @@ public class RepositoryCalendarCollection extends AbstractCalendarCollection {
     public void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
         try {
             Uid uid = Calendars.getUid(calendar);
-            if (uid == null) {
-                throw new ConstraintViolationException("Calendar must specify a uniquie identifier (UID)");
-            }
             Node calendarNode = node.addNode(NodeType.CALENDAR.getNodeName());
             calendarNode.setProperty(NodeProperty.UID.getPropertyName(), uid.getValue());
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -367,5 +364,21 @@ public class RepositoryCalendarCollection extends AbstractCalendarCollection {
             throw new ObjectStoreException("Error exporting collection", pe);
         }
         return exported;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.CalendarCollection#merge(net.fortuna.ical4j.model.Calendar)
+     */
+    public final void merge(Calendar calendar) throws ObjectStoreException {
+        try {
+            Calendar[] uidCalendars = Calendars.split(calendar);
+            for (int i = 0; i < uidCalendars.length; i++) {
+                addCalendar(uidCalendars[i]);
+            }
+        }
+        catch (ConstraintViolationException cve) {
+            throw new ObjectStoreException("Invalid calendar format", cve);
+        }
     }
 }
