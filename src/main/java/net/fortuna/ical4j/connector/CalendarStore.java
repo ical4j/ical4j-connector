@@ -40,7 +40,7 @@ package net.fortuna.ical4j.connector;
  * @author Ben
  *
  */
-public interface CalendarStore extends ObjectStore<CalendarCollection> {
+public interface CalendarStore<T extends CalendarCollection> extends ObjectStore<T> {
     
     /**
      * Merges the specified calendar with an existing calendar in the store with the

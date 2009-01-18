@@ -54,5 +54,5 @@ public interface CalendarStoreLifecycle {
     /**
      * @return
      */
-    CalendarStore getCalendarStore();
+    CalendarStore<CalendarCollection> getCalendarStore();
 }

@@ -50,7 +50,7 @@ import org.apache.commons.httpclient.protocol.Protocol;
  * @author Ben
  *
  */
-public class CalDavCalendarStore extends AbstractDavObjectStore<CalendarCollection> implements CalendarStore {
+public class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCollection> implements CalendarStore<CalDavCalendarCollection> {
 
     private String prodId;
     
@@ -66,7 +66,7 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalendarCollecti
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarStore#add(java.lang.String)
      */
-    public CalendarCollection addCollection(String id) throws ObjectStoreException {
+    public CalDavCalendarCollection addCollection(String id) throws ObjectStoreException {
         CalDavCalendarCollection collection = new CalDavCalendarCollection(this, id);
         try {
             collection.create();
@@ -81,7 +81,7 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalendarCollecti
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarStore#addCollection(java.lang.String, java.lang.String, java.lang.String, java.lang.String[], net.fortuna.ical4j.model.Calendar)
      */
-    public CalendarCollection addCollection(String id, String displayName,
+    public CalDavCalendarCollection addCollection(String id, String displayName,
             String description, String[] supportedComponents, Calendar timezone)
             throws ObjectStoreException {
         
@@ -99,7 +99,7 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalendarCollecti
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarStore#get(java.lang.String)
      */
-    public CalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
+    public CalDavCalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         CalDavCalendarCollection collection = new CalDavCalendarCollection(this, id);
         try {
             if (collection.exists()) {
@@ -128,8 +128,8 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalendarCollecti
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarStore#remove(java.lang.String)
      */
-    public CalendarCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
-        CalDavCalendarCollection collection = (CalDavCalendarCollection) getCollection(id);
+    public CalDavCalendarCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
+        CalDavCalendarCollection collection = getCollection(id);
         try {
             collection.delete();
         }
@@ -147,10 +147,10 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalendarCollecti
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarStore#replace(java.lang.String, net.fortuna.ical4j.connector.CalendarCollection)
      */
-    public CalendarCollection replace(String id, CalendarCollection calendar) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+//    public CalendarCollection replace(String id, CalendarCollection calendar) {
+//        // TODO Auto-generated method stub
+//        return null;
+//    }
 
     /**
      * @return the prodId

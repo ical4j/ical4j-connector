@@ -50,7 +50,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.CalendarStore;
 import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
@@ -66,7 +65,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Ben
  */
-public class RepositoryCalendarStore implements CalendarStore {
+public class RepositoryCalendarStore implements CalendarStore<RepositoryCalendarCollection> {
 
     public static final String NAMESPACE = "ical4j";
 
@@ -191,7 +190,7 @@ public class RepositoryCalendarStore implements CalendarStore {
      * (non-Javadoc)
      * @see net.fortuna.ical4j.protocol.CalendarStore#add(java.lang.String)
      */
-    public CalendarCollection addCollection(String id)
+    public RepositoryCalendarCollection addCollection(String id)
             throws ObjectStoreException {
         try {
             try {
@@ -217,7 +216,7 @@ public class RepositoryCalendarStore implements CalendarStore {
      * @see net.fortuna.ical4j.connector.CalendarStore#addCollection(java.lang.String, java.lang.String,
      * java.lang.String, java.lang.String[], net.fortuna.ical4j.model.Calendar)
      */
-    public CalendarCollection addCollection(String id, String displayName,
+    public RepositoryCalendarCollection addCollection(String id, String displayName,
             String description, String[] supportedComponents, Calendar timezone)
             throws ObjectStoreException {
         
@@ -232,7 +231,7 @@ public class RepositoryCalendarStore implements CalendarStore {
      * (non-Javadoc)
      * @see net.fortuna.ical4j.protocol.CalendarStore#get(java.lang.String)
      */
-    public CalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
+    public RepositoryCalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
             // return new RepositoryCalendarCollection(session.getRootNode().getNode(id));
             // String queryString = session.getRootNode().getPath() + '/' + NodeNames.COLLECTION
@@ -256,7 +255,7 @@ public class RepositoryCalendarStore implements CalendarStore {
      * (non-Javadoc)
      * @see net.fortuna.ical4j.protocol.CalendarStore#remove(java.lang.String)
      */
-    public CalendarCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
+    public RepositoryCalendarCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
             RepositoryCalendarCollection collection = (RepositoryCalendarCollection) getCollection(id);
             if (collection != null) {

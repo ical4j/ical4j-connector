@@ -50,7 +50,7 @@ public class CalendarStoreTest extends TestCase {
     
     private CalendarStoreLifecycle lifecycle;
     
-    private CalendarStore store;
+    private CalendarStore<CalendarCollection> store;
     
     private String username;
     
