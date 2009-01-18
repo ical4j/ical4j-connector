@@ -53,7 +53,7 @@ public class CalendarCollectionTest extends TestCase {
 
     private CalendarStoreLifecycle lifecycle;
     
-    private CalendarStore store;
+    private CalendarStore<CalendarCollection> store;
     
     private String username;
     
@@ -66,7 +66,7 @@ public class CalendarCollectionTest extends TestCase {
     private String description = "My collection of calendars";
     
     private String displayName = "My Calendars";
-    
+
     private String[] supportedComponents = {Component.VAVAILABILITY, Component.VJOURNAL, Component.VEVENT, Component.VFREEBUSY, Component.VTODO};
     
     private String[] calendarUids;
@@ -95,7 +95,7 @@ public class CalendarCollectionTest extends TestCase {
         
         // ensure collection doesn't exist prior to tests..
         try {
-            store.removeCollection("myCalendars");
+            store.removeCollection(collectionId);
         }
         catch (Exception e) {
         }
@@ -121,6 +121,13 @@ public class CalendarCollectionTest extends TestCase {
             }
             calendarUids = (String[]) uidList.toArray(new String[uidList.size()]);
         }
+        
+        // reconnect..
+        store.disconnect();
+        store = lifecycle.getCalendarStore();
+        store.connect(username, password);
+        
+        collection = store.getCollection(collectionId);
     }
 
     /* (non-Javadoc)
@@ -210,7 +217,7 @@ public class CalendarCollectionTest extends TestCase {
         }
     }
     
-    public void testGetCalendars() {
+    public void testGetCalendars() throws ObjectStoreException {
         Calendar[] calendars = collection.getCalendars();
         assertNotNull(calendars);
     }

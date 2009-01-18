@@ -65,7 +65,7 @@ public class JcrCalendarStoreLifecycle implements CalendarStoreLifecycle {
 
     private Repository repository;
 
-    private CalendarStore store;
+//    private CalendarStore store;
 
     /**
      * @param id
@@ -79,7 +79,7 @@ public class JcrCalendarStoreLifecycle implements CalendarStoreLifecycle {
      * @see net.fortuna.ical4j.connector.CalendarStoreLifecycle#getCalendarStore()
      */
     public CalendarStore getCalendarStore() {
-        return store;
+        return new JcrCalendarStore(repository);
     }
 
     /*
@@ -94,6 +94,7 @@ public class JcrCalendarStoreLifecycle implements CalendarStoreLifecycle {
      * (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarStoreLifecycle#startup()
      */
+    @SuppressWarnings("unchecked")
     public void startup() throws Exception {
         // bind repository..
         Hashtable env = new Hashtable();
@@ -104,13 +105,13 @@ public class JcrCalendarStoreLifecycle implements CalendarStoreLifecycle {
         repoName = name; // "Test Calendar Repository";
 
         File testDir = new File(BASE_TEST_DIR, repoName);
-        FileUtils.deleteDirectory(testDir);
+        FileUtils.deleteQuietly(testDir);
         RegistryHelper.registerRepository(context, repoName,
                 "src/test/resources/repository.xml", testDir.getAbsolutePath(), false);
 
         repository = (Repository) context.lookup(repoName);
         // repository = new TransientRepository("test/repository.xml", testDir.getAbsolutePath());
-        store = new JcrCalendarStore(repository);
+//        store = new JcrCalendarStore(repository);
     }
 
 }
