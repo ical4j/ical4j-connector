@@ -104,7 +104,7 @@ public class RepositoryCalendarStoreLifecycle implements CalendarStoreLifecycle 
         repoName = name; // "Test Calendar Repository";
 
         File testDir = new File(BASE_TEST_DIR, repoName);
-        FileUtils.deleteDirectory(testDir);
+        FileUtils.deleteQuietly(testDir);
         RegistryHelper.registerRepository(context, repoName,
                 "src/test/resources/repository.xml", testDir.getAbsolutePath(), false);
 
