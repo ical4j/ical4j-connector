@@ -43,6 +43,7 @@ import net.fortuna.ical4j.connector.CalendarStoreLifecycle;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.core.jndi.RegistryHelper;
+import org.jcrom.Jcrom;
 
 /**
  * $Id$
@@ -66,12 +67,15 @@ public class JcrCalendarStoreLifecycle implements CalendarStoreLifecycle {
     private Repository repository;
 
 //    private CalendarStore store;
+    
+    private Jcrom jcrom;
 
     /**
      * @param id
      */
     public JcrCalendarStoreLifecycle(String name) {
         this.name = name;
+        this.jcrom = new Jcrom();
     }
 
     /*
@@ -79,7 +83,7 @@ public class JcrCalendarStoreLifecycle implements CalendarStoreLifecycle {
      * @see net.fortuna.ical4j.connector.CalendarStoreLifecycle#getCalendarStore()
      */
     public CalendarStore getCalendarStore() {
-        return new JcrCalendarStore(repository);
+        return new JcrCalendarStore(jcrom, repository, "store");
     }
 
     /*

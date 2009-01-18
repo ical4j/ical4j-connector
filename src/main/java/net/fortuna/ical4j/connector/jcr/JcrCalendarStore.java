@@ -59,6 +59,8 @@ public class JcrCalendarStore implements CalendarStore<JcrCalendarCollection> {
 
     private Repository repository;
 
+    private String path;
+    
     private Session session;
 
     private Jcrom jcrom;
@@ -66,12 +68,33 @@ public class JcrCalendarStore implements CalendarStore<JcrCalendarCollection> {
     /**
      * 
      */
-    public JcrCalendarStore(Repository repository) {
+    public JcrCalendarStore(Jcrom jcrom, Repository repository, String path) {
         this.repository = repository;
+        this.path = path;
         
-        jcrom = new Jcrom(true, true);
+//        jcrom = new Jcrom(true, true);
+        this.jcrom = jcrom;
+        // ensure appropriate classes are mapped..
         jcrom.map(JcrCalendarCollection.class);
         jcrom.map(JcrCalendar.class);
+    }
+    
+    /**
+     * @return
+     * @throws RepositoryException 
+     * @throws PathNotFoundException 
+     * @throws ObjectStoreException 
+     */
+    Node getNode() throws PathNotFoundException, RepositoryException, ObjectStoreException {
+        assertConnected();
+        try {
+            return session.getRootNode().getNode(path);
+        }
+        catch (PathNotFoundException pnfe) {
+            session.getRootNode().addNode(path);
+            session.save();
+        }
+        return session.getRootNode().getNode(path);
     }
     
     /* (non-Javadoc)
@@ -84,7 +107,7 @@ public class JcrCalendarStore implements CalendarStore<JcrCalendarCollection> {
         collection.setStore(this);
         collection.setName(id);
         try {
-            jcrom.addNode(session.getRootNode(), collection);
+            jcrom.addNode(getNode(), collection);
             session.save();
         }
         catch (RepositoryException re) {
@@ -106,7 +129,7 @@ public class JcrCalendarStore implements CalendarStore<JcrCalendarCollection> {
         collection.setDisplayName(displayName);
         collection.setDescription(description);
         try {
-            jcrom.addNode(session.getRootNode(), collection);
+            jcrom.addNode(getNode(), collection);
             session.save();
         }
         catch (RepositoryException re) {
@@ -181,7 +204,7 @@ public class JcrCalendarStore implements CalendarStore<JcrCalendarCollection> {
     @Override
     public JcrCalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
-            JcrCalendarCollection collection = jcrom.fromNode(JcrCalendarCollection.class, session.getRootNode().getNode(id));
+            JcrCalendarCollection collection = jcrom.fromNode(JcrCalendarCollection.class, getNode().getNode(id));
             collection.setStore(this);
             return collection;
         }
@@ -201,7 +224,7 @@ public class JcrCalendarStore implements CalendarStore<JcrCalendarCollection> {
         JcrCalendarCollection collection = getCollection(id);
         Node collectionNode;
         try {
-            collectionNode = session.getRootNode().getNode(id);
+            collectionNode = getNode().getNode(id);
             collectionNode.remove();
             session.save();
         }
