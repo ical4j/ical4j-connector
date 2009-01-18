@@ -57,6 +57,18 @@ public class JcrCalendarCollectionTest extends AbstractRepositoryTest {
                 new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetDisplayName"), USERNAME, PASSWORD));
         suite.addTest(new CalendarCollectionTest("testGetCalendar",
                 new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetCalendar"), USERNAME, PASSWORD));
+        suite.addTest(new CalendarCollectionTest("testGetCalendars",
+                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetCalendars"), USERNAME, PASSWORD));
+//        suite.addTest(new CalendarCollectionTest("testGetMaxAttendeesPerInstance",
+//                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxAttendeesPerInstance"), USERNAME, PASSWORD));
+//        suite.addTest(new CalendarCollectionTest("testGetMaxDateTime",
+//                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxDateTime"), USERNAME, PASSWORD));
+//        suite.addTest(new CalendarCollectionTest("testGetMaxInstances",
+//                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxInstances"), USERNAME, PASSWORD));
+//        suite.addTest(new CalendarCollectionTest("testGetMaxResourceSize",
+//                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxResourceSize"), USERNAME, PASSWORD));
+//        suite.addTest(new CalendarCollectionTest("testGetMinDateTime",
+//                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMinDateTime"), USERNAME, PASSWORD));
         return suite;
     }
 }
