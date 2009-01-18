@@ -35,6 +35,7 @@ import org.apache.commons.httpclient.protocol.Protocol;
 
 import net.fortuna.ical4j.connector.CalendarStore;
 import net.fortuna.ical4j.connector.CalendarStoreLifecycle;
+import net.fortuna.ical4j.connector.dav.CalDavCalendarCollection;
 import net.fortuna.ical4j.connector.dav.CalDavCalendarStore;
 
 /**
@@ -57,7 +58,7 @@ public class CalDavCalendarStoreLifecycle implements CalendarStoreLifecycle {
 
     private String path;
     
-    private CalendarStore store;
+    private CalendarStore<CalDavCalendarCollection> store;
     
     /**
      * @param id
