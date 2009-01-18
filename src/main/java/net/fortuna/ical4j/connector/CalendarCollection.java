@@ -111,8 +111,9 @@ public interface CalendarCollection extends ObjectCollection {
     /**
      * Returns all calendar objects stored in the collection.
      * @return an array of calendars
+     * @throws ObjectStoreException 
      */
-    Calendar[] getCalendars();
+    Calendar[] getCalendars() throws ObjectStoreException;
     
     /**
      * Returns the calendar object with the specified UID.
