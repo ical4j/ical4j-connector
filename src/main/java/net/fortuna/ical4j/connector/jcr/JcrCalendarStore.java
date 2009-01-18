@@ -40,7 +40,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
-import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.CalendarStore;
 import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
@@ -56,7 +55,7 @@ import org.jcrom.Jcrom;
  * @author Ben
  *
  */
-public class JcrCalendarStore implements CalendarStore {
+public class JcrCalendarStore implements CalendarStore<JcrCalendarCollection> {
 
     private Repository repository;
 
@@ -70,19 +69,19 @@ public class JcrCalendarStore implements CalendarStore {
     public JcrCalendarStore(Repository repository) {
         this.repository = repository;
         
-        jcrom = new Jcrom();
+        jcrom = new Jcrom(true, true);
         jcrom.map(JcrCalendarCollection.class);
+        jcrom.map(JcrCalendar.class);
     }
     
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStore#addCollection(java.lang.String)
      */
     @Override
-    public CalendarCollection addCollection(String id) throws ObjectStoreException {
+    public JcrCalendarCollection addCollection(String id) throws ObjectStoreException {
         assertConnected();
         JcrCalendarCollection collection = new JcrCalendarCollection();
-        collection.setSession(session);
-        collection.setJcrom(jcrom);
+        collection.setStore(this);
         collection.setName(id);
         try {
             jcrom.addNode(session.getRootNode(), collection);
@@ -98,12 +97,11 @@ public class JcrCalendarStore implements CalendarStore {
      * @see net.fortuna.ical4j.connector.ObjectStore#addCollection(java.lang.String, java.lang.String, java.lang.String, java.lang.String[], net.fortuna.ical4j.model.Calendar)
      */
     @Override
-    public CalendarCollection addCollection(String id, String displayName,
+    public JcrCalendarCollection addCollection(String id, String displayName,
             String description, String[] supportedComponents, Calendar timezone)
             throws ObjectStoreException {
         JcrCalendarCollection collection = new JcrCalendarCollection();
-        collection.setSession(session);
-        collection.setJcrom(jcrom);
+        collection.setStore(this);
         collection.setName(id);
         collection.setDisplayName(displayName);
         collection.setDescription(description);
@@ -181,11 +179,10 @@ public class JcrCalendarStore implements CalendarStore {
      * @see net.fortuna.ical4j.connector.ObjectStore#getCollection(java.lang.String)
      */
     @Override
-    public CalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
+    public JcrCalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
             JcrCalendarCollection collection = jcrom.fromNode(JcrCalendarCollection.class, session.getRootNode().getNode(id));
-            collection.setSession(session);
-            collection.setJcrom(jcrom);
+            collection.setStore(this);
             return collection;
         }
         catch (PathNotFoundException e) {
@@ -200,8 +197,8 @@ public class JcrCalendarStore implements CalendarStore {
      * @see net.fortuna.ical4j.connector.ObjectStore#removeCollection(java.lang.String)
      */
     @Override
-    public CalendarCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
-        JcrCalendarCollection collection = (JcrCalendarCollection) getCollection(id);
+    public JcrCalendarCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
+        JcrCalendarCollection collection = getCollection(id);
         Node collectionNode;
         try {
             collectionNode = session.getRootNode().getNode(id);
@@ -215,6 +212,20 @@ public class JcrCalendarStore implements CalendarStore {
             throw new ObjectNotFoundException("Error retrieving collection", e);
         }
         return collection;
+    }
+
+    /**
+     * @return the session
+     */
+    final Session getSession() {
+        return session;
+    }
+
+    /**
+     * @return the jcrom
+     */
+    final Jcrom getJcrom() {
+        return jcrom;
     }
 
 }
