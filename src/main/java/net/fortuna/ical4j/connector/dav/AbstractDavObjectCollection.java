@@ -102,7 +102,7 @@ public abstract class AbstractDavObjectCollection implements ObjectCollection {
         DavPropertyNameSet set = new DavPropertyNameSet();
         set.add(propertyName);
 
-        PropFindMethod propFindMethod = new PropFindMethod(store.getPath() + id, set, DavConstants.DEPTH_0);
+        PropFindMethod propFindMethod = new PropFindMethod(getPath(), set, DavConstants.DEPTH_0);
         store.execute(propFindMethod);
 
         if (!propFindMethod.succeeded()) {
