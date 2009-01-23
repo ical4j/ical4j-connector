@@ -100,7 +100,7 @@
 		<dependency>
 			<groupId>net.fortuna.ical4j</groupId>
 			<artifactId>ical4j-vcard</artifactId>
-			<version>0.9</version>
+			<version>0.9.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.jcr</groupId>
