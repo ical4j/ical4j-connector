@@ -42,7 +42,9 @@ package net.fortuna.ical4j.connector;
  */
 public enum MediaType {
 
-    ICALENDAR_2_0("text/calendar", "2.0");
+    ICALENDAR_2_0("text/calendar", "2.0"),
+    
+    VCARD_4_0("text/vcard", "4.0");
     
     private String contentType;
     
