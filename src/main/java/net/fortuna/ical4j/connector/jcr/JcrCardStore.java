@@ -32,13 +32,10 @@
 
 package net.fortuna.ical4j.connector.jcr;
 
-import javax.jcr.PathNotFoundException;
+import javax.jcr.Node;
 import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
 
 import net.fortuna.ical4j.connector.CardStore;
-import net.fortuna.ical4j.connector.ObjectNotFoundException;
-import net.fortuna.ical4j.connector.ObjectStoreException;
 
 import org.jcrom.Jcrom;
 
@@ -68,28 +65,18 @@ public class JcrCardStore extends AbstractJcrObjectStore<JcrCardCollection>
     }
 
     /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStore#getCollection(java.lang.String)
-     */
-    @Override
-    public JcrCardCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
-        try {
-            JcrCardCollection collection = getJcrom().fromNode(JcrCardCollection.class, getNode().getNode(id));
-            collection.setStore(this);
-            return collection;
-        }
-        catch (PathNotFoundException e) {
-            throw new ObjectNotFoundException("Collection not found", e);
-        }
-        catch (RepositoryException e) {
-            throw new ObjectNotFoundException("Error retrieving collection", e);
-        }
-    }
-
-    /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.jcr.AbstractJcrObjectStore#newCollection()
      */
     @Override
     protected JcrCardCollection newCollection() {
         return new JcrCardCollection();
+    }
+    
+    /* (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.jcr.AbstractJcrObjectStore#getCollection(javax.jcr.Node)
+     */
+    @Override
+    protected JcrCardCollection getCollection(Node node) {
+        return getJcrom().fromNode(JcrCardCollection.class, node);
     }
 }

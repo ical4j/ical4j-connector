@@ -172,11 +172,10 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStore#getCollection(java.lang.String)
      */
-    /*
     @Override
-    public T getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
+    public final T getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
-            T collection = getJcrom().fromNode(Class<T>, getNode().getNode(id));
+            T collection = getCollection(getNode().getNode(id));
             collection.setStore(this);
             return collection;
         }
@@ -187,7 +186,6 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
             throw new ObjectNotFoundException("Error retrieving collection", e);
         }
     }
-    */
 
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStore#removeCollection(java.lang.String)
@@ -251,5 +249,14 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
         }
     }
     
+    /**
+     * @return
+     */
     protected abstract T newCollection();
+    
+    /**
+     * @param node
+     * @return
+     */
+    protected abstract T getCollection(Node node);
 }

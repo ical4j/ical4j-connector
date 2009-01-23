@@ -32,13 +32,10 @@
 
 package net.fortuna.ical4j.connector.jcr;
 
-import javax.jcr.PathNotFoundException;
+import javax.jcr.Node;
 import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
 
 import net.fortuna.ical4j.connector.CalendarStore;
-import net.fortuna.ical4j.connector.ObjectNotFoundException;
-import net.fortuna.ical4j.connector.ObjectStoreException;
 
 import org.jcrom.Jcrom;
 
@@ -63,24 +60,6 @@ public class JcrCalendarStore extends AbstractJcrObjectStore<JcrCalendarCollecti
         jcrom.map(JcrCalendarCollection.class);
         jcrom.map(JcrCalendar.class);
     }
-
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStore#getCollection(java.lang.String)
-     */
-    @Override
-    public JcrCalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
-        try {
-            JcrCalendarCollection collection = getJcrom().fromNode(JcrCalendarCollection.class, getNode().getNode(id));
-            collection.setStore(this);
-            return collection;
-        }
-        catch (PathNotFoundException e) {
-            throw new ObjectNotFoundException("Collection not found", e);
-        }
-        catch (RepositoryException e) {
-            throw new ObjectNotFoundException("Error retrieving collection", e);
-        }
-    }
     
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.jcr.AbstractJcrObjectStore#newCollection()
@@ -88,5 +67,13 @@ public class JcrCalendarStore extends AbstractJcrObjectStore<JcrCalendarCollecti
     @Override
     protected JcrCalendarCollection newCollection() {
         return new JcrCalendarCollection();
+    }
+    
+    /* (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.jcr.AbstractJcrObjectStore#getCollection(javax.jcr.Node)
+     */
+    @Override
+    protected JcrCalendarCollection getCollection(Node node) {
+        return getJcrom().fromNode(JcrCalendarCollection.class, node);
     }
 }
