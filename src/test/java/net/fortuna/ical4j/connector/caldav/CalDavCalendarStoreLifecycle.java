@@ -31,12 +31,13 @@
  */
 package net.fortuna.ical4j.connector.caldav;
 
-import org.apache.commons.httpclient.protocol.Protocol;
-
 import net.fortuna.ical4j.connector.CalendarStore;
-import net.fortuna.ical4j.connector.CalendarStoreLifecycle;
+import net.fortuna.ical4j.connector.ObjectStore;
+import net.fortuna.ical4j.connector.ObjectStoreLifecycle;
 import net.fortuna.ical4j.connector.dav.CalDavCalendarCollection;
 import net.fortuna.ical4j.connector.dav.CalDavCalendarStore;
+
+import org.apache.commons.httpclient.protocol.Protocol;
 
 /**
  * $Id$
@@ -46,7 +47,7 @@ import net.fortuna.ical4j.connector.dav.CalDavCalendarStore;
  * @author Ben
  *
  */
-public class CalDavCalendarStoreLifecycle implements CalendarStoreLifecycle {
+public class CalDavCalendarStoreLifecycle implements ObjectStoreLifecycle<CalDavCalendarCollection> {
 
     protected static final String PRODID = "-//Ben Fortuna//iCal4j Connector 1.0//EN";
 
@@ -82,21 +83,21 @@ public class CalDavCalendarStoreLifecycle implements CalendarStoreLifecycle {
     }
     
     /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStoreLifecycle#getCalendarStore()
+     * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#getCalendarStore()
      */
-    public CalendarStore getCalendarStore() {
+    public ObjectStore<CalDavCalendarCollection> getObjectStore() {
         return store;
     }
 
     /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStoreLifecycle#shutdown()
+     * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#shutdown()
      */
     public void shutdown() throws Exception {
         store = null;
     }
 
     /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStoreLifecycle#startup()
+     * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#startup()
      */
     public void startup() throws Exception {
         store = new CalDavCalendarStore(PRODID, host, port, protocol, path);

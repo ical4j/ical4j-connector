@@ -48,9 +48,9 @@ public class CalendarStoreTest extends TestCase {
 
     private static final Log LOG = LogFactory.getLog(CalendarStoreTest.class);
     
-    private CalendarStoreLifecycle lifecycle;
+    private ObjectStoreLifecycle<? extends CalendarCollection> lifecycle;
     
-    private CalendarStore<CalendarCollection> store;
+    private ObjectStore<? extends CalendarCollection> store;
     
     private String username;
     
@@ -61,7 +61,7 @@ public class CalendarStoreTest extends TestCase {
      * @param username
      * @param password
      */
-    public CalendarStoreTest(String testMethod, CalendarStoreLifecycle lifecycle, String username, char[] password) {
+    public CalendarStoreTest(String testMethod, ObjectStoreLifecycle<? extends CalendarCollection> lifecycle, String username, char[] password) {
         super(testMethod);
         this.lifecycle = lifecycle;
         this.username = username;
@@ -75,7 +75,7 @@ public class CalendarStoreTest extends TestCase {
         super.setUp();
 
         lifecycle.startup();
-        store = lifecycle.getCalendarStore();
+        store = lifecycle.getObjectStore();
         store.connect(username, password);
         
         LOG.info("Store connected");

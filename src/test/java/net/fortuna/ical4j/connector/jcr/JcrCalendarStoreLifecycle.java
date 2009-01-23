@@ -38,8 +38,8 @@ import javax.jcr.Repository;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-import net.fortuna.ical4j.connector.CalendarStore;
-import net.fortuna.ical4j.connector.CalendarStoreLifecycle;
+import net.fortuna.ical4j.connector.ObjectStore;
+import net.fortuna.ical4j.connector.ObjectStoreLifecycle;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.core.jndi.RegistryHelper;
@@ -52,7 +52,7 @@ import org.jcrom.Jcrom;
  *
  * @author Ben
  */
-public class JcrCalendarStoreLifecycle implements CalendarStoreLifecycle {
+public class JcrCalendarStoreLifecycle implements ObjectStoreLifecycle<JcrCalendarCollection> {
 
     private static final String BASE_TEST_DIR = System
             .getProperty("java.io.tmpdir")
@@ -80,15 +80,15 @@ public class JcrCalendarStoreLifecycle implements CalendarStoreLifecycle {
 
     /*
      * (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStoreLifecycle#getCalendarStore()
+     * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#getCalendarStore()
      */
-    public CalendarStore getCalendarStore() {
+    public ObjectStore<JcrCalendarCollection> getObjectStore() {
         return new JcrCalendarStore(jcrom, repository, "store");
     }
 
     /*
      * (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStoreLifecycle#shutdown()
+     * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#shutdown()
      */
     public void shutdown() throws Exception {
         RegistryHelper.unregisterRepository(context, repoName);
@@ -96,7 +96,7 @@ public class JcrCalendarStoreLifecycle implements CalendarStoreLifecycle {
 
     /*
      * (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStoreLifecycle#startup()
+     * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#startup()
      */
     @SuppressWarnings("unchecked")
     public void startup() throws Exception {

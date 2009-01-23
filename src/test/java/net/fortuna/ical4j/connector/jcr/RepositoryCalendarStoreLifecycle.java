@@ -39,7 +39,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import net.fortuna.ical4j.connector.CalendarStore;
-import net.fortuna.ical4j.connector.CalendarStoreLifecycle;
+import net.fortuna.ical4j.connector.ObjectStoreLifecycle;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.core.jndi.RegistryHelper;
@@ -51,7 +51,7 @@ import org.apache.jackrabbit.core.jndi.RegistryHelper;
  *
  * @author Ben
  */
-public class RepositoryCalendarStoreLifecycle implements CalendarStoreLifecycle {
+public class RepositoryCalendarStoreLifecycle implements ObjectStoreLifecycle {
 
     private static final String BASE_TEST_DIR = System
             .getProperty("java.io.tmpdir")
@@ -76,15 +76,15 @@ public class RepositoryCalendarStoreLifecycle implements CalendarStoreLifecycle 
 
     /*
      * (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStoreLifecycle#getCalendarStore()
+     * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#getCalendarStore()
      */
-    public CalendarStore getCalendarStore() {
+    public CalendarStore getObjectStore() {
         return store;
     }
 
     /*
      * (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStoreLifecycle#shutdown()
+     * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#shutdown()
      */
     public void shutdown() throws Exception {
         RegistryHelper.unregisterRepository(context, repoName);
@@ -92,7 +92,7 @@ public class RepositoryCalendarStoreLifecycle implements CalendarStoreLifecycle 
 
     /*
      * (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStoreLifecycle#startup()
+     * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#startup()
      */
     public void startup() throws Exception {
         // bind repository..

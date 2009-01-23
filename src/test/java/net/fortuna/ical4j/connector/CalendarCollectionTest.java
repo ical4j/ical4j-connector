@@ -51,9 +51,9 @@ import net.fortuna.ical4j.util.Calendars;
  */
 public class CalendarCollectionTest extends TestCase {
 
-    private CalendarStoreLifecycle lifecycle;
+    private ObjectStoreLifecycle<? extends CalendarCollection> lifecycle;
     
-    private CalendarStore<CalendarCollection> store;
+    private ObjectStore<? extends CalendarCollection> store;
     
     private String username;
     
@@ -76,7 +76,7 @@ public class CalendarCollectionTest extends TestCase {
      * @param username
      * @param password
      */
-    public CalendarCollectionTest(String testMethod, CalendarStoreLifecycle lifecycle, String username, char[] password) {
+    public CalendarCollectionTest(String testMethod, ObjectStoreLifecycle<? extends CalendarCollection> lifecycle, String username, char[] password) {
         super(testMethod);
         this.lifecycle = lifecycle;
         this.username = username;
@@ -90,7 +90,7 @@ public class CalendarCollectionTest extends TestCase {
         super.setUp();
         
         lifecycle.startup();
-        store = lifecycle.getCalendarStore();
+        store = lifecycle.getObjectStore();
         store.connect(username, password);
         
         // ensure collection doesn't exist prior to tests..
@@ -124,7 +124,7 @@ public class CalendarCollectionTest extends TestCase {
         
         // reconnect..
         store.disconnect();
-        store = lifecycle.getCalendarStore();
+        store = lifecycle.getObjectStore();
         store.connect(username, password);
         
         collection = store.getCollection(collectionId);
