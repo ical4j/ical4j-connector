@@ -106,7 +106,7 @@ public class JcrCalendar extends AbstractJcrEntity {
         this.calendar = calendar;
         
         file = new JcrFile();
-        file.setName("calendarData");
+        file.setName("data");
         file.setDataProvider(new JcrDataProviderImpl(TYPE.BYTES, calendar.toString().getBytes()));
         file.setMimeType(MediaType.ICALENDAR_2_0.getContentType());
         file.setLastModified(java.util.Calendar.getInstance());

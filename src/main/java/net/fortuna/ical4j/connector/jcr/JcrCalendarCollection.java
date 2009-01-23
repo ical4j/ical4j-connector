@@ -49,7 +49,6 @@ import net.fortuna.ical4j.util.Calendars;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jcrom.AbstractJcrEntity;
 import org.jcrom.JcrMappingException;
 import org.jcrom.annotations.JcrChildNode;
 import org.jcrom.annotations.JcrProperty;
@@ -62,7 +61,7 @@ import org.jcrom.annotations.JcrProperty;
  * @author Ben
  *
  */
-public class JcrCalendarCollection extends AbstractJcrEntity implements CalendarCollection {
+public class JcrCalendarCollection extends AbstractJcrObjectCollection implements CalendarCollection {
 
     /**
      * 
@@ -70,8 +69,6 @@ public class JcrCalendarCollection extends AbstractJcrEntity implements Calendar
     private static final long serialVersionUID = -3063963527215302278L;
 
     private static final Log LOG = LogFactory.getLog(JcrCalendarCollection.class);
-    
-    private JcrCalendarStore store;
 
     @JcrChildNode private List<JcrCalendar> calendars;
     
@@ -84,10 +81,6 @@ public class JcrCalendarCollection extends AbstractJcrEntity implements Calendar
     @JcrProperty private long maxResourceSize;
 
     @JcrProperty private Date minDateTime;
-
-    @JcrProperty private String description;
-
-    @JcrProperty private String displayName;
     
     /**
      * @param jcrom
@@ -97,20 +90,6 @@ public class JcrCalendarCollection extends AbstractJcrEntity implements Calendar
 //        calendars = new HashMap<String, Object>();
         calendars = new ArrayList<JcrCalendar>();
     }
-    
-    /**
-     * @return the store
-     */
-    public final JcrCalendarStore getStore() {
-        return store;
-    }
-
-    /**
-     * @param store the store to set
-     */
-    public final void setStore(JcrCalendarStore store) {
-        this.store = store;
-    }
 
     /**
      * @return
@@ -119,7 +98,7 @@ public class JcrCalendarCollection extends AbstractJcrEntity implements Calendar
      * @throws RepositoryException
      */
     private Node getNode() throws PathNotFoundException, JcrMappingException, RepositoryException {
-        return store.getSession().getRootNode().getNode(store.getJcrom().getPath(this).substring(1));
+        return getStore().getSession().getRootNode().getNode(getStore().getJcrom().getPath(this).substring(1));
     }
     
     /* (non-Javadoc)
@@ -320,22 +299,6 @@ public class JcrCalendarCollection extends AbstractJcrEntity implements Calendar
     }
 
     /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectCollection#getDescription()
-     */
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectCollection#getDisplayName()
-     */
-    @Override
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#merge(net.fortuna.ical4j.model.Calendar)
      */
     @Override
@@ -386,20 +349,6 @@ public class JcrCalendarCollection extends AbstractJcrEntity implements Calendar
     final void setMinDateTime(Date minDateTime) {
         this.minDateTime = minDateTime;
     }
-
-    /**
-     * @param description the description to set
-     */
-    final void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     * @param displayName the displayName to set
-     */
-    final void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
     
     /**
      * @throws ObjectStoreException
@@ -412,7 +361,7 @@ public class JcrCalendarCollection extends AbstractJcrEntity implements Calendar
 //                store.getJcrom().updateNode(node.getNode(((JcrCalendar) jcrCal).getPath()), jcrCal);
 //            }
             
-            store.getJcrom().updateNode(getNode(), this);
+            getStore().getJcrom().updateNode(getNode(), this);
             getNode().save();
         }
         catch (RepositoryException e) {
