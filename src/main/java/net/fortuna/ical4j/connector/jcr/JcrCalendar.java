@@ -32,15 +32,27 @@
 
 package net.fortuna.ical4j.connector.jcr;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import net.fortuna.ical4j.connector.MediaType;
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.Parameter;
+import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.PropertyList;
+import net.fortuna.ical4j.model.parameter.FmtType;
+import net.fortuna.ical4j.model.parameter.Value;
+import net.fortuna.ical4j.model.property.Attach;
+import net.fortuna.ical4j.model.property.Description;
+import net.fortuna.ical4j.model.property.Summary;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jcrom.AbstractJcrEntity;
@@ -48,6 +60,7 @@ import org.jcrom.JcrDataProviderImpl;
 import org.jcrom.JcrFile;
 import org.jcrom.JcrDataProvider.TYPE;
 import org.jcrom.annotations.JcrFileNode;
+import org.jcrom.annotations.JcrProperty;
 
 /**
  * 
@@ -69,9 +82,22 @@ public class JcrCalendar extends AbstractJcrEntity {
     private static final long serialVersionUID = -2711620225884358385L;
     
     @JcrFileNode private JcrFile file;
+    
+    @JcrProperty private String summary;
+    
+    @JcrProperty private String description;
+    
+    @JcrFileNode private List<JcrFile> attachments;
 
     private Calendar calendar;
 
+    /**
+     * 
+     */
+    public JcrCalendar() {
+        attachments = new ArrayList<JcrFile>();
+    }
+    
     /**
      * @return
      */
@@ -108,8 +134,53 @@ public class JcrCalendar extends AbstractJcrEntity {
         file = new JcrFile();
         file.setName("data");
         file.setDataProvider(new JcrDataProviderImpl(TYPE.BYTES, calendar.toString().getBytes()));
-        file.setMimeType(MediaType.ICALENDAR_2_0.getContentType());
+//        file.setMimeType(MediaType.ICALENDAR_2_0.getContentType());
+        file.setMimeType(Calendars.getContentType(calendar, null));
         file.setLastModified(java.util.Calendar.getInstance());
         setName(getUid().getValue());
+        
+        for (Object component : calendar.getComponents()) {
+            
+            // save first available summary..
+            if (summary == null) {
+                Summary summaryProp = (Summary) ((Component) component).getProperty(Property.SUMMARY);
+                if (summaryProp != null) {
+                    this.summary = summaryProp.getValue();
+                }
+            }
+            
+            // save first available description..
+            if (description == null) {
+                Description descriptionProp = (Description) ((Component) component).getProperty(Property.DESCRIPTION);
+                if (descriptionProp != null) {
+                    this.description = descriptionProp.getValue();
+                }
+            }
+            
+            // save attachments..
+            PropertyList attachments = ((Component) component).getProperties(Property.ATTACH);
+            for (Object attach : attachments) {
+                try {
+                    JcrFile attachment = new JcrFile();
+                    if (Value.BINARY.equals(((Property) attach).getParameter(Parameter.VALUE))) {
+                        attachment.setDataProvider(new JcrDataProviderImpl(TYPE.BYTES, ((Attach) attach).getBinary()));
+                        FmtType contentType = (FmtType) ((Property) attach).getParameter(Parameter.FMTTYPE);
+                        if (contentType != null) {
+                            attachment.setMimeType(contentType.getValue());
+                        }
+                    }
+                    else {
+                        ByteArrayOutputStream aout = new ByteArrayOutputStream();
+                        IOUtils.copy(((Attach) attach).getUri().toURL().openStream(), aout);
+                        attachment.setDataProvider(new JcrDataProviderImpl(TYPE.BYTES, aout.toByteArray()));
+                    }
+                    attachment.setLastModified(java.util.Calendar.getInstance());
+                    this.attachments.add(attachment);
+                }
+                catch (Exception e) {
+                    LOG.error("Error saving attachment", e);
+                }
+            }
+        }
     }
 }
