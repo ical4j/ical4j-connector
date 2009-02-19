@@ -111,6 +111,9 @@ public class CalendarCollectionTest extends TestCase {
             Calendar testCal = Calendars.load("etc/samples/valid/Australian32Holidays.ics");
             collection.merge(testCal);
             
+            testCal = Calendars.load("etc/samples/valid/OZMovies.ics");
+            collection.merge(testCal);
+            
             Set<String> uidList = new HashSet<String>();
             Calendar[] uidCals = Calendars.split(testCal);
             for (int i = 0; i < uidCals.length; i++) {
