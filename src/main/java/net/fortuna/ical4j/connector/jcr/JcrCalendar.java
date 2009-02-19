@@ -85,7 +85,7 @@ public class JcrCalendar extends AbstractJcrEntity {
     
     @JcrProperty private String summary;
     
-    @JcrProperty private String description;
+    @JcrFileNode private JcrFile description;
     
     @JcrFileNode private List<JcrFile> attachments;
 
@@ -153,7 +153,12 @@ public class JcrCalendar extends AbstractJcrEntity {
             if (description == null) {
                 Description descriptionProp = (Description) ((Component) component).getProperty(Property.DESCRIPTION);
                 if (descriptionProp != null) {
-                    this.description = descriptionProp.getValue();
+                    description = new JcrFile();
+                    description.setName("text");
+                    description.setMimeType("text/plain");
+                    description.setDataProvider(new JcrDataProviderImpl(TYPE.BYTES,
+                            descriptionProp.getValue().getBytes()));
+                    description.setLastModified(java.util.Calendar.getInstance());
                 }
             }
             
@@ -162,6 +167,7 @@ public class JcrCalendar extends AbstractJcrEntity {
             for (Object attach : attachments) {
                 try {
                     JcrFile attachment = new JcrFile();
+                    attachment.setName("attachment");
                     if (Value.BINARY.equals(((Property) attach).getParameter(Parameter.VALUE))) {
                         attachment.setDataProvider(new JcrDataProviderImpl(TYPE.BYTES, ((Attach) attach).getBinary()));
                         FmtType contentType = (FmtType) ((Property) attach).getParameter(Parameter.FMTTYPE);
