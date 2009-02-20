@@ -45,12 +45,12 @@ import net.fortuna.ical4j.connector.MediaType;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
+import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jcrom.JcrMappingException;
-import org.jcrom.annotations.JcrChildNode;
 import org.jcrom.annotations.JcrProperty;
 
 /**
@@ -70,7 +70,7 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
 
     private static final Log LOG = LogFactory.getLog(JcrCalendarCollection.class);
 
-    @JcrChildNode private List<JcrCalendar> calendars;
+//    @JcrChildNode private List<JcrCalendar> calendars;
     
     @JcrProperty private Integer maxAttendeesPerInstance;
 
@@ -82,13 +82,15 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
 
     @JcrProperty private Date minDateTime;
     
+    private JcrCalendarDao calendarDao;
+    
     /**
      * @param jcrom
      * @param node
      */
     public JcrCalendarCollection() {
 //        calendars = new HashMap<String, Object>();
-        calendars = new ArrayList<JcrCalendar>();
+//        calendars = new ArrayList<JcrCalendar>();
     }
 
     /**
@@ -99,6 +101,20 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
      */
     private Node getNode() throws PathNotFoundException, JcrMappingException, RepositoryException {
         return getStore().getSession().getRootNode().getNode(getStore().getJcrom().getPath(this).substring(1));
+    }
+    
+    /**
+     * @return
+     */
+    private JcrCalendarDao getCalendarDao() {
+        if (calendarDao == null) {
+            synchronized (this) {
+                if (calendarDao == null) {
+                    calendarDao = new JcrCalendarDao(getStore().getSession(), getStore().getJcrom());
+                }
+            }
+        }
+        return calendarDao;
     }
     
     /* (non-Javadoc)
@@ -116,10 +132,46 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
      * @throws ConstraintViolationException
      */
     private void addCalendar(Calendar calendar, boolean saveChanges) throws ObjectStoreException, ConstraintViolationException {
-        JcrCalendar jcrCal = new JcrCalendar();
-        jcrCal.setCalendar(calendar);
 //        calendars.put(jcrCal.getName(), jcrCal);
-        calendars.add(jcrCal);
+//        calendars.add(jcrCal);
+        
+        // initialise calendars node..
+        try {
+            try {
+                getNode().getNode("calendars");
+            }
+            catch (PathNotFoundException e) {
+                getNode().addNode("calendars");
+            }
+        }
+        catch (RepositoryException e) {
+            throw new ObjectStoreException("Unexpected error", e);
+        }
+        
+        JcrCalendar jcrCal = null;
+        boolean update = false;
+        
+        Uid uid = Calendars.getUid(calendar);
+        if (uid != null) {
+            List<JcrCalendar> jcrCalendars = getCalendarDao().findByUid(getStore().getJcrom().getPath(this) + "/calendars", uid.getValue());
+            if (!jcrCalendars.isEmpty()) {
+                jcrCal = jcrCalendars.get(0);
+                update = true;
+            }
+        }
+        
+        if (jcrCal == null) {
+            jcrCal = new JcrCalendar();
+        }
+        
+        jcrCal.setCalendar(calendar);
+        
+        if (update) {
+            getCalendarDao().update(jcrCal);
+        }
+        else {
+            getCalendarDao().create(getStore().getJcrom().getPath(this) + "/calendars", jcrCal);
+        }
 //        try {
 //            store.getJcrom().addNode(getNode(), jcrCal);
 //        }
@@ -137,6 +189,7 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     @Override
     public Calendar export() throws ObjectStoreException {
         Calendar exported = new Calendar();
+        List<JcrCalendar> calendars = getCalendarDao().findAll(getStore().getJcrom().getPath(this) + "/calendars");
         for (JcrCalendar jcrCal : calendars) {
             try {
 //            NodeIterator childNodes = getNode().getNodes();
@@ -159,14 +212,18 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     public Calendar getCalendar(String uid) {
         try {
 //            JcrCalendar jcrCal = (JcrCalendar) calendars.get(uid);
-//            JcrCalendar jcrCal = store.getJcrom().fromNode(JcrCalendar.class, getNode().getNode(uid));
+//            JcrCalendar jcrCal = getStore().getJcrom().fromNode(JcrCalendar.class, getNode().getNode("calendars").getNode(uid));
 //            if (jcrCal != null) {
 //                return jcrCal.getCalendar();
 //            }
-            for (JcrCalendar jcrCal : calendars) {
-                if (uid.equals(jcrCal.getUid().getValue())) {
-                    return jcrCal.getCalendar();
-                }
+            List<JcrCalendar> calendars = getCalendarDao().findByUid(getStore().getJcrom().getPath(this) + "/calendars", uid);
+//            for (JcrCalendar jcrCal : calendars) {
+//                if (uid.equals(jcrCal.getUid().getValue())) {
+//                    return jcrCal.getCalendar();
+//                }
+//            }
+            if (!calendars.isEmpty()) {
+                return calendars.get(0).getCalendar();
             }
         }
         catch (Exception e) {
@@ -187,6 +244,7 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
 //            childNodes = getNode().getNodes();
 //            while (childNodes.hasNext()) {
 //                JcrCalendar jcrCal = store.getJcrom().fromNode(JcrCalendar.class, (Node) childNodes.next());
+        List<JcrCalendar> calendars = getCalendarDao().findAll(getStore().getJcrom().getPath(this) + "/calendars");
         for (JcrCalendar jcrCal : calendars) {
             try {
                 retVal.add(jcrCal.getCalendar());
@@ -283,12 +341,22 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
         Calendar calendar = getCalendar(uid);
 //        calendars.remove(uid);
         Node calendarNode;
-        for (JcrCalendar jcrCal : calendars) {
+        List<JcrCalendar> calendars = getCalendarDao().findByUid(getStore().getJcrom().getPath(this) + "/calendars", uid);
+//        for (JcrCalendar jcrCal : calendars) {
+//            try {
+//                if (uid.equals(jcrCal.getUid().getValue())) {
+//                    calendarNode = getNode().getNode(jcrCal.getPath());
+//                    calendarNode.remove();
+//                }
+//            }
+//            catch (RepositoryException e) {
+//                throw new ObjectStoreException("Unexcepted error", e);
+//            }
+//        }
+        if (calendars.size() > 0) {
             try {
-                if (uid.equals(jcrCal.getUid().getValue())) {
-                    calendarNode = getNode().getNode(jcrCal.getPath());
-                    calendarNode.remove();
-                }
+                calendarNode = getNode().getNode(calendars.get(0).getPath());
+                calendarNode.remove();
             }
             catch (RepositoryException e) {
                 throw new ObjectStoreException("Unexcepted error", e);

@@ -32,75 +32,38 @@
 
 package net.fortuna.ical4j.connector.jcr;
 
-import net.fortuna.ical4j.connector.ObjectCollection;
+import java.util.List;
 
-import org.jcrom.AbstractJcrEntity;
-import org.jcrom.annotations.JcrProperty;
+import javax.jcr.Session;
+
+import org.jcrom.Jcrom;
+import org.jcrom.dao.AbstractJcrDAO;
 
 /**
  * 
  *
  * @author Ben
  *
- * Created on: 23/01/2009
+ * Created on: 20/02/2009
  *
  * $Id$
  */
-public abstract class AbstractJcrObjectCollection extends AbstractJcrEntity implements ObjectCollection {
+public class JcrCalendarDao extends AbstractJcrDAO<JcrCalendar> {
 
     /**
-     * 
+     * @param session
+     * @param jcrom
      */
-    private static final long serialVersionUID = -7943312823296190389L;
-
-    @JcrProperty private String description;
-
-    @JcrProperty private String displayName;
-
-    private AbstractJcrObjectStore<? extends AbstractJcrObjectCollection> store;
-    
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectCollection#getDescription()
-     */
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectCollection#getDisplayName()
-     */
-    @Override
-    public String getDisplayName() {
-        return displayName;
+    public JcrCalendarDao(Session session, Jcrom jcrom) {
+        super(JcrCalendar.class, session, jcrom, new String[] {"mix:versionable"});
     }
 
     /**
-     * @param description the description to set
+     * @param path
+     * @param uid
+     * @return
      */
-    public final void setDescription(String description) {
-        this.description = description;
+    public List<JcrCalendar> findByUid(String path, String uid) {
+        return super.findByXPath("/jcr:root" + path + "/*[@uid='" + uid + "']", "*", -1);
     }
-
-    /**
-     * @param displayName the displayName to set
-     */
-    public final void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    /**
-     * @return the store
-     */
-    public final AbstractJcrObjectStore<? extends AbstractJcrObjectCollection> getStore() {
-        return store;
-    }
-
-    /**
-     * @param store the store to set
-     */
-    public final void setStore(AbstractJcrObjectStore<? extends AbstractJcrObjectCollection> store) {
-        this.store = store;
-    }
-
 }

@@ -83,6 +83,8 @@ public class JcrCalendar extends AbstractJcrEntity {
     
     @JcrFileNode private JcrFile file;
     
+    @JcrProperty private String uid;
+    
     @JcrProperty private String summary;
     
     @JcrFileNode private JcrFile description;
@@ -130,6 +132,8 @@ public class JcrCalendar extends AbstractJcrEntity {
      */
     public final void setCalendar(final Calendar calendar) {
         this.calendar = calendar;
+        this.uid = getUid().getValue();
+        setName(getUid().getValue());
         
         file = new JcrFile();
         file.setName("data");
@@ -137,7 +141,6 @@ public class JcrCalendar extends AbstractJcrEntity {
 //        file.setMimeType(MediaType.ICALENDAR_2_0.getContentType());
         file.setMimeType(Calendars.getContentType(calendar, null));
         file.setLastModified(java.util.Calendar.getInstance());
-        setName(getUid().getValue());
         
         for (Object component : calendar.getComponents()) {
             
