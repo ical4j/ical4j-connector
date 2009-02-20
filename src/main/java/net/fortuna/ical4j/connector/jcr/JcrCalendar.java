@@ -166,6 +166,7 @@ public class JcrCalendar extends AbstractJcrEntity {
             }
             
             // save attachments..
+            attachments.clear();
             PropertyList attachments = ((Component) component).getProperties(Property.ATTACH);
             for (Object attach : attachments) {
                 try {
