@@ -94,11 +94,11 @@ public class CalendarCollectionTest extends TestCase {
         store.connect(username, password);
         
         // ensure collection doesn't exist prior to tests..
-        try {
-            store.removeCollection(collectionId);
-        }
-        catch (Exception e) {
-        }
+//        try {
+//            store.removeCollection(collectionId);
+//        }
+//        catch (Exception e) {
+//        }
         
         try {
             collection = store.getCollection(collectionId);
@@ -107,23 +107,23 @@ public class CalendarCollectionTest extends TestCase {
             collection = store.addCollection(collectionId, displayName, description, supportedComponents, null);
 //          collection.setDescription(description);
 //          collection.setDisplayName(displayName);
-            
-            Calendar testCal = Calendars.load("etc/samples/valid/Australian32Holidays.ics");
-            collection.merge(testCal);
-            
-            testCal = Calendars.load("etc/samples/valid/OZMovies.ics");
-            collection.merge(testCal);
-            
-            Set<String> uidList = new HashSet<String>();
-            Calendar[] uidCals = Calendars.split(testCal);
-            for (int i = 0; i < uidCals.length; i++) {
-                Uid uid = Calendars.getUid(uidCals[i]);
-                if (uid != null) {
-                    uidList.add(uid.getValue());
-                }
-            }
-            calendarUids = (String[]) uidList.toArray(new String[uidList.size()]);
         }
+        
+        Calendar testCal = Calendars.load("etc/samples/valid/Australian32Holidays.ics");
+        collection.merge(testCal);
+        
+        testCal = Calendars.load("etc/samples/valid/OZMovies.ics");
+        collection.merge(testCal);
+        
+        Set<String> uidList = new HashSet<String>();
+        Calendar[] uidCals = Calendars.split(testCal);
+        for (int i = 0; i < uidCals.length; i++) {
+            Uid uid = Calendars.getUid(uidCals[i]);
+            if (uid != null) {
+                uidList.add(uid.getValue());
+            }
+        }
+        calendarUids = (String[]) uidList.toArray(new String[uidList.size()]);
         
         // reconnect..
         store.disconnect();
