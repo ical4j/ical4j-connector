@@ -32,7 +32,6 @@
 
 package net.fortuna.ical4j.connector.jcr;
 
-import javax.jcr.Node;
 import javax.jcr.Repository;
 
 import net.fortuna.ical4j.connector.CardStore;
@@ -71,14 +70,6 @@ public class JcrCardStore extends AbstractJcrObjectStore<JcrCardCollection> impl
     @Override
     protected JcrCardCollection newCollection() {
         return new JcrCardCollection();
-    }
-    
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.jcr.AbstractJcrObjectStore#getCollection(javax.jcr.Node)
-     */
-    @Override
-    protected JcrCardCollection getCollection(Node node) {
-        return getJcrom().fromNode(JcrCardCollection.class, node);
     }
     
     /* (non-Javadoc)

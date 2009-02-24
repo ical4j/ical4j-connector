@@ -32,7 +32,6 @@
 
 package net.fortuna.ical4j.connector.jcr;
 
-import javax.jcr.Node;
 import javax.jcr.Repository;
 
 import net.fortuna.ical4j.connector.CalendarStore;
@@ -69,14 +68,6 @@ public class JcrCalendarStore extends AbstractJcrObjectStore<JcrCalendarCollecti
     @Override
     protected JcrCalendarCollection newCollection() {
         return new JcrCalendarCollection();
-    }
-    
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.jcr.AbstractJcrObjectStore#getCollection(javax.jcr.Node)
-     */
-    @Override
-    protected JcrCalendarCollection getCollection(Node node) {
-        return getJcrom().fromNode(JcrCalendarCollection.class, node);
     }
     
     /* (non-Javadoc)
