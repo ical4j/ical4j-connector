@@ -58,6 +58,8 @@ public class ObjectStoreTest<T extends ObjectCollection> extends TestCase {
     
     private char[] password;
     
+    private String collectionName = "myCollection";
+    
     /**
      * @param testMethod
      * @param lifecycle
@@ -85,7 +87,7 @@ public class ObjectStoreTest<T extends ObjectCollection> extends TestCase {
         
         // ensure collection doesn't exist prior to tests..
         try {
-            store.removeCollection("myCalendars");
+            store.removeCollection(collectionName);
         }
         catch (Exception e) {
         }
@@ -104,7 +106,7 @@ public class ObjectStoreTest<T extends ObjectCollection> extends TestCase {
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarStore#addCollection(java.lang.String)}.
      */
     public void testAddCollection() throws ObjectStoreException {
-        T collection = store.addCollection("myCalendars");
+        T collection = store.addCollection(collectionName);
         assertNotNull(collection);
     }
 
@@ -115,15 +117,15 @@ public class ObjectStoreTest<T extends ObjectCollection> extends TestCase {
     public void testGetCollection() throws ObjectStoreException, ObjectNotFoundException {
         T collection = null;
         try {
-            store.getCollection("myCalendars");
+            store.getCollection(collectionName);
             fail("Should throw " + ObjectNotFoundException.class.getSimpleName());
         }
         catch (ObjectNotFoundException onfe) {
             LOG.debug("Caught exception: " + onfe.getMessage());
         }
         
-        store.addCollection("myCalendars");
-        collection = store.getCollection("myCalendars");
+        store.addCollection(collectionName);
+        collection = store.getCollection(collectionName);
         assertNotNull(collection);
     }
 
@@ -132,14 +134,14 @@ public class ObjectStoreTest<T extends ObjectCollection> extends TestCase {
      * @throws ObjectNotFoundException 
      */
     public void testRemoveCollection() throws ObjectStoreException, ObjectNotFoundException {
-        store.addCollection("myCalendars");
-        T collection = store.getCollection("myCalendars");
+        store.addCollection(collectionName);
+        T collection = store.getCollection(collectionName);
         assertNotNull(collection);
-        collection = store.removeCollection("myCalendars");
+        collection = store.removeCollection(collectionName);
         assertNotNull(collection);
         
         try {
-            store.getCollection("myCalendars");
+            store.getCollection(collectionName);
             fail("Should throw " + ObjectNotFoundException.class.getSimpleName());
         }
         catch (ObjectNotFoundException onfe) {
