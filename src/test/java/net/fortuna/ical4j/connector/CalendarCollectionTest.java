@@ -35,7 +35,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.TestCase;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.property.Uid;
@@ -49,25 +48,9 @@ import net.fortuna.ical4j.util.Calendars;
  * @author Ben
  *
  */
-public class CalendarCollectionTest extends TestCase {
+public class CalendarCollectionTest<T extends CalendarCollection> extends ObjectCollectionTest<T> {
 
-    private ObjectStoreLifecycle<? extends CalendarCollection> lifecycle;
-    
-    private ObjectStore<? extends CalendarCollection> store;
-    
-    private String username;
-    
-    private char[] password;
-    
-    private CalendarCollection collection;
-    
-    private String collectionId = "myCalendars";
-    
-    private String description = "My collection of calendars";
-    
-    private String displayName = "My Calendars";
-
-    private String[] supportedComponents = {Component.VAVAILABILITY, Component.VJOURNAL, Component.VEVENT, Component.VFREEBUSY, Component.VTODO};
+    private static final String[] SUPPORTED_COMPONENTS = {Component.VAVAILABILITY, Component.VJOURNAL, Component.VEVENT, Component.VFREEBUSY, Component.VTODO};
     
     private String[] calendarUids;
     
@@ -76,11 +59,8 @@ public class CalendarCollectionTest extends TestCase {
      * @param username
      * @param password
      */
-    public CalendarCollectionTest(String testMethod, ObjectStoreLifecycle<? extends CalendarCollection> lifecycle, String username, char[] password) {
-        super(testMethod);
-        this.lifecycle = lifecycle;
-        this.username = username;
-        this.password = password;
+    public CalendarCollectionTest(String testMethod, ObjectStoreLifecycle<T> lifecycle, String username, char[] password) {
+        super(testMethod, lifecycle, username, password, SUPPORTED_COMPONENTS);
     }
     
     /* (non-Javadoc)
@@ -89,31 +69,11 @@ public class CalendarCollectionTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         
-        lifecycle.startup();
-        store = lifecycle.getObjectStore();
-        store.connect(username, password);
-        
-        // ensure collection doesn't exist prior to tests..
-//        try {
-//            store.removeCollection(collectionId);
-//        }
-//        catch (Exception e) {
-//        }
-        
-        try {
-            collection = store.getCollection(collectionId);
-        }
-        catch (ObjectNotFoundException onfe) {
-            collection = store.addCollection(collectionId, displayName, description, supportedComponents, null);
-//          collection.setDescription(description);
-//          collection.setDisplayName(displayName);
-        }
-        
         Calendar testCal = Calendars.load("etc/samples/valid/Australian32Holidays.ics");
-        collection.merge(testCal);
+        getCollection().merge(testCal);
         
         testCal = Calendars.load("etc/samples/valid/OZMovies.ics");
-        collection.merge(testCal);
+        getCollection().merge(testCal);
         
         Set<String> uidList = new HashSet<String>();
         Calendar[] uidCals = Calendars.split(testCal);
@@ -126,34 +86,7 @@ public class CalendarCollectionTest extends TestCase {
         calendarUids = (String[]) uidList.toArray(new String[uidList.size()]);
         
         // reconnect..
-        store.disconnect();
-        store = lifecycle.getObjectStore();
-        store.connect(username, password);
-        
-        collection = store.getCollection(collectionId);
-    }
-
-    /* (non-Javadoc)
-     * @see junit.framework.TestCase#tearDown()
-     */
-    protected void tearDown() throws Exception {
-//        store.removeCollection(collectionId);
-        store.disconnect();
-        super.tearDown();
-    }
-
-    /**
-     * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarCollection#getDescription()}.
-     */
-    public void testGetDescription() {
-        assertEquals(description, collection.getDescription());
-    }
-
-    /**
-     * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarCollection#getDisplayName()}.
-     */
-    public void testGetDisplayName() {
-        assertEquals(displayName, collection.getDisplayName());
+        reconnect();
     }
 
     /**
@@ -161,7 +94,7 @@ public class CalendarCollectionTest extends TestCase {
      */
     public void testGetMaxAttendeesPerInstance() {
 //        fail("Not yet implemented");
-        assertEquals(Integer.valueOf(0), collection.getMaxAttendeesPerInstance());
+        assertEquals(Integer.valueOf(0), getCollection().getMaxAttendeesPerInstance());
     }
 
     /**
@@ -169,7 +102,7 @@ public class CalendarCollectionTest extends TestCase {
      */
     public void testGetMaxDateTime() {
 //        fail("Not yet implemented");
-        assertEquals(0, collection.getMaxDateTime());
+        assertEquals(0, getCollection().getMaxDateTime());
     }
 
     /**
@@ -177,7 +110,7 @@ public class CalendarCollectionTest extends TestCase {
      */
     public void testGetMaxInstances() {
 //        fail("Not yet implemented");
-        assertEquals(Integer.valueOf(0), collection.getMaxInstances());
+        assertEquals(Integer.valueOf(0), getCollection().getMaxInstances());
     }
 
     /**
@@ -185,7 +118,7 @@ public class CalendarCollectionTest extends TestCase {
      */
     public void testGetMaxResourceSize() {
 //        fail("Not yet implemented");
-        assertEquals(10485760, collection.getMaxResourceSize());
+        assertEquals(10485760, getCollection().getMaxResourceSize());
     }
 
     /**
@@ -193,7 +126,7 @@ public class CalendarCollectionTest extends TestCase {
      */
     public void testGetMinDateTime() {
 //        fail("Not yet implemented");
-        assertEquals(0, collection.getMinDateTime());
+        assertEquals(0, getCollection().getMinDateTime());
     }
 
     /**
@@ -207,7 +140,7 @@ public class CalendarCollectionTest extends TestCase {
      * 
      */
     public void testGetSupportedComponentTypes() {
-        assertTrue(Arrays.equals(supportedComponents, collection.getSupportedComponentTypes()));
+        assertTrue(Arrays.equals(SUPPORTED_COMPONENTS, getCollection().getSupportedComponentTypes()));
     }
     
     /**
@@ -215,13 +148,16 @@ public class CalendarCollectionTest extends TestCase {
      */
     public void testGetCalendar() {
         for (int i = 0; i < calendarUids.length; i++) {
-            Calendar cal = collection.getCalendar(calendarUids[i]);
+            Calendar cal = getCollection().getCalendar(calendarUids[i]);
             assertNotNull("Calendar for uid: [" + calendarUids[i] + "] not found", cal);
         }
     }
     
+    /**
+     * @throws ObjectStoreException
+     */
     public void testGetCalendars() throws ObjectStoreException {
-        Calendar[] calendars = collection.getCalendars();
+        Calendar[] calendars = getCollection().getCalendars();
         assertNotNull(calendars);
     }
 }

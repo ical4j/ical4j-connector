@@ -51,12 +51,15 @@ public class RepositoryCalendarCollectionTest extends AbstractRepositoryTest {
     public static Test suite() {
         TestSuite suite = new TestSuite(RepositoryCalendarCollectionTest.class.getSimpleName());
         
-        suite.addTest(new CalendarCollectionTest("testGetDescription",
+        suite.addTest(new CalendarCollectionTest<RepositoryCalendarCollection>("testGetDescription",
                 new RepositoryCalendarStoreLifecycle("testGetDescription"), USERNAME, PASSWORD));
-        suite.addTest(new CalendarCollectionTest("testGetDisplayName",
+        
+        suite.addTest(new CalendarCollectionTest<RepositoryCalendarCollection>("testGetDisplayName",
                 new RepositoryCalendarStoreLifecycle("testGetDisplayName"), USERNAME, PASSWORD));
-        suite.addTest(new CalendarCollectionTest("testGetCalendar",
+        
+        suite.addTest(new CalendarCollectionTest<RepositoryCalendarCollection>("testGetCalendar",
                 new RepositoryCalendarStoreLifecycle("testGetCalendar"), USERNAME, PASSWORD));
+        
         return suite;
     }
 }

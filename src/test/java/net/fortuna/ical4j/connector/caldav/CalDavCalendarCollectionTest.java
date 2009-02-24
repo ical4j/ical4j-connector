@@ -34,6 +34,7 @@ package net.fortuna.ical4j.connector.caldav;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import net.fortuna.ical4j.connector.CalendarCollectionTest;
+import net.fortuna.ical4j.connector.dav.CalDavCalendarCollection;
 
 /**
  * $Id$
@@ -55,25 +56,34 @@ public class CalDavCalendarCollectionTest extends AbstractCalDavTest {
         int port = 8088;
         String path = "/chandler/dav/" + USERNAME + "/";
 
-        suite.addTest(new CalendarCollectionTest("testGetDescription",
+        suite.addTest(new CalendarCollectionTest<CalDavCalendarCollection>("testGetDescription",
                 new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
-        suite.addTest(new CalendarCollectionTest("testGetDisplayName",
+        
+        suite.addTest(new CalendarCollectionTest<CalDavCalendarCollection>("testGetDisplayName",
                 new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
-        suite.addTest(new CalendarCollectionTest("testGetCalendar",
+        
+        suite.addTest(new CalendarCollectionTest<CalDavCalendarCollection>("testGetCalendar",
                 new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
+        
 //        suite.addTest(new CalendarCollectionTest("testGetMaxAttendeesPerInstance",
 //                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
+        
 //        suite.addTest(new CalendarCollectionTest("testGetMaxDateTime",
 //                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
+        
 //        suite.addTest(new CalendarCollectionTest("testGetMaxInstances",
 //                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
-        suite.addTest(new CalendarCollectionTest("testGetMaxResourceSize",
+        
+        suite.addTest(new CalendarCollectionTest<CalDavCalendarCollection>("testGetMaxResourceSize",
                 new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
+        
 //        suite.addTest(new CalendarCollectionTest("testGetMinDateTime",
 //                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
-        suite.addTest(new CalendarCollectionTest("testGetSupportedComponentTypes",
+        
+        suite.addTest(new CalendarCollectionTest<CalDavCalendarCollection>("testGetSupportedComponentTypes",
                 new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
-        suite.addTest(new CalendarCollectionTest("testGetCalendars",
+        
+        suite.addTest(new CalendarCollectionTest<CalDavCalendarCollection>("testGetCalendars",
                 new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
 
         return suite;

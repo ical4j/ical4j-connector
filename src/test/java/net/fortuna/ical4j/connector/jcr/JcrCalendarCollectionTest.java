@@ -51,24 +51,33 @@ public class JcrCalendarCollectionTest extends AbstractRepositoryTest {
     public static Test suite() {
         TestSuite suite = new TestSuite(JcrCalendarCollectionTest.class.getSimpleName());
         
-        suite.addTest(new CalendarCollectionTest("testGetDescription",
+        suite.addTest(new CalendarCollectionTest<JcrCalendarCollection>("testGetDescription",
                 new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetDescription"), USERNAME, PASSWORD));
-        suite.addTest(new CalendarCollectionTest("testGetDisplayName",
+        
+        suite.addTest(new CalendarCollectionTest<JcrCalendarCollection>("testGetDisplayName",
                 new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetDisplayName"), USERNAME, PASSWORD));
-        suite.addTest(new CalendarCollectionTest("testGetCalendar",
+        
+        suite.addTest(new CalendarCollectionTest<JcrCalendarCollection>("testGetCalendar",
                 new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetCalendar"), USERNAME, PASSWORD));
-        suite.addTest(new CalendarCollectionTest("testGetCalendars",
+        
+        suite.addTest(new CalendarCollectionTest<JcrCalendarCollection>("testGetCalendars",
                 new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetCalendars"), USERNAME, PASSWORD));
+        
 //        suite.addTest(new CalendarCollectionTest("testGetMaxAttendeesPerInstance",
 //                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxAttendeesPerInstance"), USERNAME, PASSWORD));
+        
 //        suite.addTest(new CalendarCollectionTest("testGetMaxDateTime",
 //                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxDateTime"), USERNAME, PASSWORD));
+        
 //        suite.addTest(new CalendarCollectionTest("testGetMaxInstances",
 //                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxInstances"), USERNAME, PASSWORD));
+        
 //        suite.addTest(new CalendarCollectionTest("testGetMaxResourceSize",
 //                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxResourceSize"), USERNAME, PASSWORD));
+        
 //        suite.addTest(new CalendarCollectionTest("testGetMinDateTime",
 //                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMinDateTime"), USERNAME, PASSWORD));
+        
         return suite;
     }
 }

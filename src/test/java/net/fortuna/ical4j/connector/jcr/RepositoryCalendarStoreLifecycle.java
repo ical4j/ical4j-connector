@@ -65,7 +65,7 @@ public class RepositoryCalendarStoreLifecycle implements ObjectStoreLifecycle<Re
 
     private Repository repository;
 
-    private CalendarStore store;
+    private CalendarStore<RepositoryCalendarCollection> store;
 
     /**
      * @param id
@@ -78,7 +78,7 @@ public class RepositoryCalendarStoreLifecycle implements ObjectStoreLifecycle<Re
      * (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#getCalendarStore()
      */
-    public CalendarStore getObjectStore() {
+    public CalendarStore<RepositoryCalendarCollection> getObjectStore() {
         return store;
     }
 
@@ -94,6 +94,7 @@ public class RepositoryCalendarStoreLifecycle implements ObjectStoreLifecycle<Re
      * (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#startup()
      */
+    @SuppressWarnings("unchecked")
     public void startup() throws Exception {
         // bind repository..
         Hashtable env = new Hashtable();
