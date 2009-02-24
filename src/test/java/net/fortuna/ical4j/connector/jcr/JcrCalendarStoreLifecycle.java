@@ -32,17 +32,8 @@
 package net.fortuna.ical4j.connector.jcr;
 
 import java.io.File;
-import java.util.Hashtable;
-
-import javax.jcr.Repository;
-import javax.naming.Context;
-import javax.naming.InitialContext;
 
 import net.fortuna.ical4j.connector.ObjectStore;
-import net.fortuna.ical4j.connector.ObjectStoreLifecycle;
-
-import org.apache.jackrabbit.core.jndi.RegistryHelper;
-import org.jcrom.Jcrom;
 
 /**
  * $Id$
@@ -51,30 +42,17 @@ import org.jcrom.Jcrom;
  *
  * @author Ben
  */
-public class JcrCalendarStoreLifecycle implements ObjectStoreLifecycle<JcrCalendarCollection> {
+public class JcrCalendarStoreLifecycle extends AbstractJcrObjectStoreLifecycle<JcrCalendarCollection> {
 
     private static final String BASE_TEST_DIR = System
             .getProperty("java.io.tmpdir")
             + File.separator + JcrCalendarStoreLifecycle.class.getSimpleName() + File.separator;
 
-    private String name;
-
-    private Context context;
-    
-    private String repoName;
-
-    private Repository repository;
-
-//    private CalendarStore store;
-    
-    private Jcrom jcrom;
-
     /**
      * @param id
      */
     public JcrCalendarStoreLifecycle(String name) {
-        this.name = name;
-        this.jcrom = new Jcrom();
+        super(BASE_TEST_DIR, name);
     }
 
     /*
@@ -82,39 +60,7 @@ public class JcrCalendarStoreLifecycle implements ObjectStoreLifecycle<JcrCalend
      * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#getCalendarStore()
      */
     public ObjectStore<JcrCalendarCollection> getObjectStore() {
-        return new JcrCalendarStore(jcrom, repository, "store");
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#shutdown()
-     */
-    public void shutdown() throws Exception {
-        RegistryHelper.unregisterRepository(context, repoName);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#startup()
-     */
-    @SuppressWarnings("unchecked")
-    public void startup() throws Exception {
-        // bind repository..
-        Hashtable env = new Hashtable();
-        // env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.rmi.registry.RegistryContextFactory");
-        env.put(Context.PROVIDER_URL, "localhost");
-        context = new InitialContext(env);
-
-        repoName = name; // "Test Calendar Repository";
-
-        File testDir = new File(BASE_TEST_DIR, repoName);
-//        FileUtils.deleteQuietly(testDir);
-        RegistryHelper.registerRepository(context, repoName,
-                "src/test/resources/repository.xml", testDir.getAbsolutePath(), false);
-
-        repository = (Repository) context.lookup(repoName);
-        // repository = new TransientRepository("test/repository.xml", testDir.getAbsolutePath());
-//        store = new JcrCalendarStore(repository);
+        return new JcrCalendarStore(getJcrom(), getRepository(), "store");
     }
 
 }
