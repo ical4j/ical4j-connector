@@ -51,7 +51,7 @@ import org.apache.jackrabbit.core.jndi.RegistryHelper;
  *
  * @author Ben
  */
-public class RepositoryCalendarStoreLifecycle implements ObjectStoreLifecycle {
+public class RepositoryCalendarStoreLifecycle implements ObjectStoreLifecycle<RepositoryCalendarCollection> {
 
     private static final String BASE_TEST_DIR = System
             .getProperty("java.io.tmpdir")

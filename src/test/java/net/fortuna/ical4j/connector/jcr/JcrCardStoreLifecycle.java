@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2009, Ben Fortuna
  * All rights reserved.
  *
@@ -29,40 +29,42 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector.caldav;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import net.fortuna.ical4j.connector.ObjectStoreTest;
-import net.fortuna.ical4j.connector.dav.CalDavCalendarCollection;
+package net.fortuna.ical4j.connector.jcr;
+
+import java.io.File;
+
+import net.fortuna.ical4j.connector.ObjectStore;
 
 /**
- * $Id$
- *
- * Created on 01/03/2008
+ * 
  *
  * @author Ben
  *
+ * Created on: 24/02/2009
+ *
+ * $Id$
  */
-public class CalDavCalendarStoreTest extends AbstractCalDavTest {
-    
+public class JcrCardStoreLifecycle extends AbstractJcrObjectStoreLifecycle<JcrCardCollection> {
+
+    private static final String BASE_TEST_DIR = System
+            .getProperty("java.io.tmpdir")
+            + File.separator + JcrCardStoreLifecycle.class.getSimpleName() + File.separator;
+
     /**
-     * @return
+     * @param testDir
+     * @param name
      */
-    public static Test suite() {
-        TestSuite suite = new TestSuite(CalDavCalendarStoreTest.class.getSimpleName());
-        
-        String host = "mediabase.local";
-        int port = 8088;
-        String path = "/chandler/dav/" + USERNAME + "/";
-        
-        suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testAddCollection",
-                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
-        suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testGetCollection",
-                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
-        suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testRemoveCollection",
-                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
-        return suite;
+    public JcrCardStoreLifecycle(String name) {
+        super(BASE_TEST_DIR, name);
+    }
+
+    /* (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#getObjectStore()
+     */
+    @Override
+    public ObjectStore<JcrCardCollection> getObjectStore() {
+        return new JcrCardStore(getJcrom(), getRepository(), "contacts");
     }
 
 }

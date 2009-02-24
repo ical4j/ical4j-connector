@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2009, Ben Fortuna
  * All rights reserved.
  *
@@ -29,39 +29,42 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector;
 
-import junit.framework.TestCase;
+package net.fortuna.ical4j.connector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import junit.framework.TestCase;
+
 /**
- * $Id$
- *
- * Created on 24/02/2008
+ * 
  *
  * @author Ben
  *
+ * Created on: 24/02/2009
+ *
+ * $Id$
  */
-public class CalendarStoreTest extends TestCase {
+public class ObjectStoreTest<T extends ObjectCollection> extends TestCase {
 
-    private static final Log LOG = LogFactory.getLog(CalendarStoreTest.class);
+    private static final Log LOG = LogFactory.getLog(ObjectStoreTest.class);
     
-    private ObjectStoreLifecycle<? extends CalendarCollection> lifecycle;
+    private ObjectStoreLifecycle<T> lifecycle;
     
-    private ObjectStore<? extends CalendarCollection> store;
+    private ObjectStore<T> store;
     
     private String username;
     
     private char[] password;
     
     /**
-     * @param store
+     * @param testMethod
+     * @param lifecycle
      * @param username
      * @param password
      */
-    public CalendarStoreTest(String testMethod, ObjectStoreLifecycle<? extends CalendarCollection> lifecycle, String username, char[] password) {
+    public ObjectStoreTest(String testMethod, ObjectStoreLifecycle<T> lifecycle, String username, char[] password) {
         super(testMethod);
         this.lifecycle = lifecycle;
         this.username = username;
@@ -101,8 +104,8 @@ public class CalendarStoreTest extends TestCase {
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarStore#addCollection(java.lang.String)}.
      */
     public void testAddCollection() throws ObjectStoreException {
-        CalendarCollection cc = store.addCollection("myCalendars");
-        assertNotNull(cc);
+        T collection = store.addCollection("myCalendars");
+        assertNotNull(collection);
     }
 
     /**
@@ -110,7 +113,7 @@ public class CalendarStoreTest extends TestCase {
      * @throws ObjectNotFoundException 
      */
     public void testGetCollection() throws ObjectStoreException, ObjectNotFoundException {
-        CalendarCollection cc = null;
+        T collection = null;
         try {
             store.getCollection("myCalendars");
             fail("Should throw " + ObjectNotFoundException.class.getSimpleName());
@@ -120,8 +123,8 @@ public class CalendarStoreTest extends TestCase {
         }
         
         store.addCollection("myCalendars");
-        cc = store.getCollection("myCalendars");
-        assertNotNull(cc);
+        collection = store.getCollection("myCalendars");
+        assertNotNull(collection);
     }
 
     /**
@@ -130,10 +133,10 @@ public class CalendarStoreTest extends TestCase {
      */
     public void testRemoveCollection() throws ObjectStoreException, ObjectNotFoundException {
         store.addCollection("myCalendars");
-        CalendarCollection cc = store.getCollection("myCalendars");
-        assertNotNull(cc);
-        cc = store.removeCollection("myCalendars");
-        assertNotNull(cc);
+        T collection = store.getCollection("myCalendars");
+        assertNotNull(collection);
+        collection = store.removeCollection("myCalendars");
+        assertNotNull(collection);
         
         try {
             store.getCollection("myCalendars");

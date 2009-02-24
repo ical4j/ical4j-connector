@@ -33,7 +33,7 @@ package net.fortuna.ical4j.connector.jcr;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import net.fortuna.ical4j.connector.CalendarStoreTest;
+import net.fortuna.ical4j.connector.ObjectStoreTest;
 
 /**
  * $Id$
@@ -51,11 +51,11 @@ public class RepositoryCalendarStoreTest extends AbstractRepositoryTest {
     public static Test suite() {
         TestSuite suite = new TestSuite(RepositoryCalendarStoreTest.class.getSimpleName());
         
-        suite.addTest(new CalendarStoreTest("testAddCollection",
+        suite.addTest(new ObjectStoreTest<RepositoryCalendarCollection>("testAddCollection",
                 new RepositoryCalendarStoreLifecycle("testAddCollection"), USERNAME, PASSWORD));
-        suite.addTest(new CalendarStoreTest("testGetCollection",
+        suite.addTest(new ObjectStoreTest<RepositoryCalendarCollection>("testGetCollection",
                 new RepositoryCalendarStoreLifecycle("testGetCollection"), USERNAME, PASSWORD));
-        suite.addTest(new CalendarStoreTest("testRemoveCollection",
+        suite.addTest(new ObjectStoreTest<RepositoryCalendarCollection>("testRemoveCollection",
                 new RepositoryCalendarStoreLifecycle("testRemoveCollection"), USERNAME, PASSWORD));
         return suite;
     }
