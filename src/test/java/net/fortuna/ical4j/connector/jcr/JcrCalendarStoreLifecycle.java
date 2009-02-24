@@ -82,7 +82,7 @@ public class JcrCalendarStoreLifecycle implements ObjectStoreLifecycle<JcrCalend
      * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#getCalendarStore()
      */
     public ObjectStore<JcrCalendarCollection> getObjectStore() {
-        return new JcrCalendarStore(jcrom, repository, "/store");
+        return new JcrCalendarStore(jcrom, repository, "store");
     }
 
     /*
