@@ -35,8 +35,8 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import net.fortuna.ical4j.connector.caldav.CalDavCalendarCollectionTest;
 import net.fortuna.ical4j.connector.caldav.CalDavCalendarStoreTest;
-import net.fortuna.ical4j.connector.jcr.RepositoryCalendarCollectionTest;
-import net.fortuna.ical4j.connector.jcr.RepositoryCalendarStoreTest;
+import net.fortuna.ical4j.connector.jcr.JcrCalendarCollectionTest;
+import net.fortuna.ical4j.connector.jcr.JcrCalendarStoreTest;
 
 /**
  * $Id$
@@ -55,8 +55,8 @@ public class AllTests extends TestSuite {
         TestSuite suite = new TestSuite(AllTests.class.getSimpleName());
         
         // jcr tests..
-        suite.addTest(RepositoryCalendarStoreTest.suite());
-        suite.addTest(RepositoryCalendarCollectionTest.suite());
+        suite.addTest(JcrCalendarStoreTest.suite());
+        suite.addTest(JcrCalendarCollectionTest.suite());
         
         // caldav tests..
         suite.addTest(CalDavCalendarStoreTest.suite());
