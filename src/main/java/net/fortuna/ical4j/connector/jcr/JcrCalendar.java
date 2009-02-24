@@ -189,4 +189,11 @@ public class JcrCalendar extends AbstractJcrEntity {
             }
         }
     }
+
+    /**
+     * @return the uid
+     */
+    public final String getUid() {
+        return uid;
+    }
 }

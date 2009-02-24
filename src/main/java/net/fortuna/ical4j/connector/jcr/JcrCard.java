@@ -104,4 +104,11 @@ public final class JcrCard extends AbstractJcrEntity {
         file.setMimeType(MediaType.VCARD_4_0.getContentType());
         file.setLastModified(java.util.Calendar.getInstance());
     }
+
+    /**
+     * @return the uid
+     */
+    public final String getUid() {
+        return uid;
+    }
 }
