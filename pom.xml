@@ -52,6 +52,7 @@
 						<exclude>**/CardCollectionTest.java</exclude>
 						<exclude>**/ObjectCollectionTest.java</exclude>
 						<exclude>**/ObjectStoreTest.java</exclude>
+						<exclude>**/CalDavCalendarCollectionTest.java</exclude>
 					</excludes>
 					<forkMode>pertest</forkMode>
 				</configuration>
