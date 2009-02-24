@@ -53,8 +53,6 @@ import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.client.methods.DeleteMethod;
@@ -78,8 +76,6 @@ import org.w3c.dom.Node;
  *
  */
 public class CalDavCalendarCollection extends AbstractDavObjectCollection implements CalendarCollection {
-
-    private Log log = LogFactory.getLog(CalDavCalendarCollection.class);
     
     private String displayName;
     
