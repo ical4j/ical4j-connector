@@ -400,7 +400,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         }
         
         try {
-        	getStore().execute(putMethod);
+            getStore().execute(putMethod);
             if (putMethod.getStatusCode() != DavServletResponse.SC_CREATED) {
                 throw new ObjectStoreException("Error creating calendar on server: " + putMethod.getStatusLine());
             }
