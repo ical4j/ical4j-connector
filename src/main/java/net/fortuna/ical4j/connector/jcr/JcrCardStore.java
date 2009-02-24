@@ -56,7 +56,7 @@ public class JcrCardStore extends AbstractJcrObjectStore<JcrCardCollection> impl
      * @param path
      * @param jcrom
      */
-    public JcrCardStore(Repository repository, String path, Jcrom jcrom) {
+    public JcrCardStore(Jcrom jcrom, Repository repository, String path) {
         super(repository, path, jcrom);
         
         // ensure appropriate classes are mapped..
