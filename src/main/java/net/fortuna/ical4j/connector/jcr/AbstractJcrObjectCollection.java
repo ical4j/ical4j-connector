@@ -53,12 +53,28 @@ public abstract class AbstractJcrObjectCollection extends AbstractJcrEntity impl
      */
     private static final long serialVersionUID = -7943312823296190389L;
 
+    @JcrProperty private String collectionName;
+
     @JcrProperty private String description;
 
     @JcrProperty private String displayName;
 
     private AbstractJcrObjectStore<? extends AbstractJcrObjectCollection> store;
     
+    /**
+     * @return the collectionName
+     */
+    public final String getCollectionName() {
+        return collectionName;
+    }
+
+    /**
+     * @param collectionName the collectionName to set
+     */
+    public final void setCollectionName(String collectionName) {
+        this.collectionName = collectionName;
+    }
+
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectCollection#getDescription()
      */

@@ -32,9 +32,10 @@
 
 package net.fortuna.ical4j.connector.jcr;
 
+import java.util.List;
+
 import javax.jcr.LoginException;
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -132,17 +133,28 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
      * @see net.fortuna.ical4j.connector.ObjectStore#addCollection(java.lang.String)
      */
     @Override
-    public final T addCollection(String id) throws ObjectStoreException {
+    public final T addCollection(String name) throws ObjectStoreException {
         assertConnected();
-        T collection = newCollection();
-        collection.setStore(this);
-        collection.setName(id);
-        try {
-            getJcrom().addNode(getNode(), collection);
-            getSession().save();
+        
+        T collection = null;
+        boolean update = false;
+        List<T> collections = getCollectionDao().findByCollectionName(path, name);
+        if (!collections.isEmpty()) {
+            collection = collections.get(0);
+            update = true;
         }
-        catch (RepositoryException re) {
-            throw new ObjectStoreException("Error creating collection", re);
+        else {
+            collection = newCollection();
+        }
+        collection.setStore(this);
+        collection.setName(name);
+        collection.setCollectionName(name);
+
+        if (update) {
+            getCollectionDao().update(collection);
+        }
+        else {
+            getCollectionDao().create(path, collection);
         }
         return collection;
     }
@@ -151,21 +163,13 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
      * @see net.fortuna.ical4j.connector.ObjectStore#addCollection(java.lang.String, java.lang.String, java.lang.String, java.lang.String[], net.fortuna.ical4j.model.Calendar)
      */
     @Override
-    public final T addCollection(String id, String displayName,
-            String description, String[] supportedComponents, Calendar timezone)
-            throws ObjectStoreException {
-        T collection = newCollection();
-        collection.setStore(this);
-        collection.setName(id);
+    public final T addCollection(String name, String displayName,
+            String description, String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
+        
+        T collection = addCollection(name);
         collection.setDisplayName(displayName);
         collection.setDescription(description);
-        try {
-            getJcrom().addNode(getNode(), collection);
-            getSession().save();
-        }
-        catch (RepositoryException re) {
-            throw new ObjectStoreException("Error creating collection", re);
-        }
+        getCollectionDao().update(collection);
         return collection;
     }
 
@@ -173,57 +177,24 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
      * @see net.fortuna.ical4j.connector.ObjectStore#getCollection(java.lang.String)
      */
     @Override
-    public final T getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
-        try {
-            T collection = getCollection(getNode().getNode(id));
+    public final T getCollection(String name) throws ObjectStoreException, ObjectNotFoundException {
+        List<T> collections = getCollectionDao().findByCollectionName(path, name);
+        if (!collections.isEmpty()) {
+            T collection = collections.get(0);
             collection.setStore(this);
             return collection;
         }
-        catch (PathNotFoundException e) {
-            throw new ObjectNotFoundException("Collection not found", e);
-        }
-        catch (RepositoryException e) {
-            throw new ObjectNotFoundException("Error retrieving collection", e);
-        }
+        throw new ObjectNotFoundException("Error retrieving collection");
     }
 
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStore#removeCollection(java.lang.String)
      */
     @Override
-    public final T removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
-        T collection = getCollection(id);
-        Node collectionNode;
-        try {
-            collectionNode = getNode().getNode(id);
-            collectionNode.remove();
-            getSession().save();
-        }
-        catch (PathNotFoundException e) {
-            throw new ObjectNotFoundException("Collection not found", e);
-        }
-        catch (RepositoryException e) {
-            throw new ObjectNotFoundException("Error retrieving collection", e);
-        }
+    public final T removeCollection(String name) throws ObjectStoreException, ObjectNotFoundException {
+        T collection = getCollection(name);
+        getCollectionDao().remove(getJcrom().getPath(collection));
         return collection;
-    }
-    
-    /**
-     * @return
-     * @throws RepositoryException 
-     * @throws PathNotFoundException 
-     * @throws ObjectStoreException 
-     */
-    final Node getNode() throws PathNotFoundException, RepositoryException, ObjectStoreException {
-        assertConnected();
-        try {
-            return session.getRootNode().getNode(path);
-        }
-        catch (PathNotFoundException pnfe) {
-            session.getRootNode().addNode(path);
-            session.save();
-        }
-        return session.getRootNode().getNode(path);
     }
 
     /**
@@ -259,4 +230,9 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
      * @return
      */
     protected abstract T getCollection(Node node);
+    
+    /**
+     * @return
+     */
+    protected abstract AbstractJcrObjectCollectionDao<T> getCollectionDao();
 }

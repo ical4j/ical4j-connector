@@ -48,9 +48,10 @@ import org.jcrom.Jcrom;
  *
  * $Id$
  */
-public class JcrCardStore extends AbstractJcrObjectStore<JcrCardCollection>
-    implements CardStore<JcrCardCollection> {
+public class JcrCardStore extends AbstractJcrObjectStore<JcrCardCollection> implements CardStore<JcrCardCollection> {
 
+    private JcrCardCollectionDao collectionDao;
+    
     /**
      * @param repository
      * @param path
@@ -78,5 +79,20 @@ public class JcrCardStore extends AbstractJcrObjectStore<JcrCardCollection>
     @Override
     protected JcrCardCollection getCollection(Node node) {
         return getJcrom().fromNode(JcrCardCollection.class, node);
+    }
+    
+    /* (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.jcr.AbstractJcrObjectStore#getCollectionDao()
+     */
+    @Override
+    protected AbstractJcrObjectCollectionDao<JcrCardCollection> getCollectionDao() {
+        if (collectionDao == null) {
+            synchronized (this) {
+                if (collectionDao == null) {
+                    collectionDao = new JcrCardCollectionDao(getSession(), getJcrom());
+                }
+            }
+        }
+        return collectionDao;
     }
 }

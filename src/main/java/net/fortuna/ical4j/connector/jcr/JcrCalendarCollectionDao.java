@@ -32,65 +32,26 @@
 
 package net.fortuna.ical4j.connector.jcr;
 
-import javax.jcr.Node;
-import javax.jcr.Repository;
-
-import net.fortuna.ical4j.connector.CalendarStore;
+import javax.jcr.Session;
 
 import org.jcrom.Jcrom;
 
 /**
- * $Id$
- *
- * Created on: 15/01/2009
+ * 
  *
  * @author Ben
  *
+ * Created on: 24/02/2009
+ *
+ * $Id$
  */
-public class JcrCalendarStore extends AbstractJcrObjectStore<JcrCalendarCollection> 
-    implements CalendarStore<JcrCalendarCollection> {
-    
-    private JcrCalendarCollectionDao collectionDao;
-    
+public class JcrCalendarCollectionDao extends AbstractJcrObjectCollectionDao<JcrCalendarCollection> {
+
     /**
-     * 
+     * @param session
+     * @param jcrom
      */
-    public JcrCalendarStore(Jcrom jcrom, Repository repository, String path) {
-        super(repository, path, jcrom);
-        
-        // ensure appropriate classes are mapped..
-        jcrom.map(JcrCalendarCollection.class);
-        jcrom.map(JcrCalendar.class);
-    }
-    
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.jcr.AbstractJcrObjectStore#newCollection()
-     */
-    @Override
-    protected JcrCalendarCollection newCollection() {
-        return new JcrCalendarCollection();
-    }
-    
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.jcr.AbstractJcrObjectStore#getCollection(javax.jcr.Node)
-     */
-    @Override
-    protected JcrCalendarCollection getCollection(Node node) {
-        return getJcrom().fromNode(JcrCalendarCollection.class, node);
-    }
-    
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.jcr.AbstractJcrObjectStore#getCollectionDao()
-     */
-    @Override
-    protected AbstractJcrObjectCollectionDao<JcrCalendarCollection> getCollectionDao() {
-        if (collectionDao == null) {
-            synchronized (this) {
-                if (collectionDao == null) {
-                    collectionDao = new JcrCalendarCollectionDao(getSession(), getJcrom());
-                }
-            }
-        }
-        return collectionDao;
+    public JcrCalendarCollectionDao(Session session, Jcrom jcrom) {
+        super(JcrCalendarCollection.class, session, jcrom);
     }
 }
