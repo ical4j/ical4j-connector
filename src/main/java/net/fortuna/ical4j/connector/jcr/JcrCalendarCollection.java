@@ -84,6 +84,8 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     
     private JcrCalendarDao calendarDao;
     
+    private JcrCalendarCollectionDao collectionDao;
+    
     /**
      * @param jcrom
      * @param node
@@ -115,6 +117,20 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
             }
         }
         return calendarDao;
+    }
+    
+    /**
+     * @return
+     */
+    private JcrCalendarCollectionDao getCollectionDao() {
+        if (collectionDao == null) {
+            synchronized (this) {
+                if (collectionDao == null) {
+                    collectionDao = new JcrCalendarCollectionDao(getStore().getSession(), getStore().getJcrom());
+                }
+            }
+        }
+        return collectionDao;
     }
     
     /* (non-Javadoc)
@@ -339,28 +355,10 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     @Override
     public Calendar removeCalendar(String uid) throws ObjectStoreException {
         Calendar calendar = getCalendar(uid);
-//        calendars.remove(uid);
-        Node calendarNode;
+
         List<JcrCalendar> calendars = getCalendarDao().findByUid(getStore().getJcrom().getPath(this) + "/calendars", uid);
-//        for (JcrCalendar jcrCal : calendars) {
-//            try {
-//                if (uid.equals(jcrCal.getUid().getValue())) {
-//                    calendarNode = getNode().getNode(jcrCal.getPath());
-//                    calendarNode.remove();
-//                }
-//            }
-//            catch (RepositoryException e) {
-//                throw new ObjectStoreException("Unexcepted error", e);
-//            }
-//        }
         if (calendars.size() > 0) {
-            try {
-                calendarNode = getNode().getNode(calendars.get(0).getPath());
-                calendarNode.remove();
-            }
-            catch (RepositoryException e) {
-                throw new ObjectStoreException("Unexcepted error", e);
-            }
+            getCalendarDao().remove(getStore().getJcrom().getPath(calendars.get(0)));
         }
         saveChanges();
         return calendar;
@@ -422,18 +420,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
      * @throws ObjectStoreException
      */
     private void saveChanges() throws ObjectStoreException {
-        try {
-            
-            // update calendars..
-//            for (Object jcrCal : calendars.values()) {
-//                store.getJcrom().updateNode(node.getNode(((JcrCalendar) jcrCal).getPath()), jcrCal);
-//            }
-            
-            getStore().getJcrom().updateNode(getNode(), this);
-            getNode().save();
-        }
-        catch (RepositoryException e) {
-            throw new ObjectStoreException("Unexpected error", e);
-        }
+        getCollectionDao().update(this);
     }
 }
