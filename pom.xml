@@ -49,6 +49,7 @@
 					<excludes>
 						<exclude>**/AllTests.java</exclude>
 						<exclude>**/CalendarCollectionTest.java</exclude>
+						<exclude>**/CardCollectionTest.java</exclude>
 						<exclude>**/ObjectCollectionTest.java</exclude>
 						<exclude>**/ObjectStoreTest.java</exclude>
 					</excludes>
