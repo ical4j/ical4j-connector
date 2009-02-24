@@ -32,6 +32,13 @@
 
 package net.fortuna.ical4j.connector;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+
+import net.fortuna.ical4j.vcard.VCardBuilder;
+import net.fortuna.ical4j.vcard.VCardFileFilter;
+
 /**
  * 
  *
@@ -64,5 +71,11 @@ public class CardCollectionTest<T extends CardCollection> extends
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        
+        File[] samples = new File("etc/samples/cards/").listFiles((FilenameFilter) VCardFileFilter.INSTANCE);
+        for (File sample : samples) {
+            VCardBuilder builder = new VCardBuilder(new FileInputStream(sample));
+            getCollection().addCard(builder.build());
+        }
     }
 }

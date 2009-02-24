@@ -31,9 +31,14 @@
  */
 package net.fortuna.ical4j.connector;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.NotFileFilter;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
@@ -69,20 +74,22 @@ public class CalendarCollectionTest<T extends CalendarCollection> extends Object
     protected void setUp() throws Exception {
         super.setUp();
         
-        Calendar testCal = Calendars.load("etc/samples/valid/Australian32Holidays.ics");
-        getCollection().merge(testCal);
-        
-        testCal = Calendars.load("etc/samples/valid/OZMovies.ics");
-        getCollection().merge(testCal);
-        
         Set<String> uidList = new HashSet<String>();
-        Calendar[] uidCals = Calendars.split(testCal);
-        for (int i = 0; i < uidCals.length; i++) {
-            Uid uid = Calendars.getUid(uidCals[i]);
-            if (uid != null) {
-                uidList.add(uid.getValue());
+        
+        File[] samples = new File("etc/samples/calendars/").listFiles((FilenameFilter) new NotFileFilter(DirectoryFileFilter.INSTANCE));
+        for (File sample : samples) {
+            Calendar testCal = Calendars.load(sample.getAbsolutePath());
+            getCollection().merge(testCal);
+            
+            Calendar[] uidCals = Calendars.split(testCal);
+            for (int i = 0; i < uidCals.length; i++) {
+                Uid uid = Calendars.getUid(uidCals[i]);
+                if (uid != null) {
+                    uidList.add(uid.getValue());
+                }
             }
         }
+        
         calendarUids = (String[]) uidList.toArray(new String[uidList.size()]);
         
         // reconnect..
