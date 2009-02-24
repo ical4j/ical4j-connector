@@ -89,13 +89,6 @@ public class ObjectCollectionTest<T extends ObjectCollection> extends TestCase {
         store = lifecycle.getObjectStore();
         store.connect(username, password);
         
-        // ensure collection doesn't exist prior to tests..
-//        try {
-//            store.removeCollection(collectionId);
-//        }
-//        catch (Exception e) {
-//        }
-        
         try {
             collection = getStore().getCollection(collectionId);
         }
@@ -104,6 +97,15 @@ public class ObjectCollectionTest<T extends ObjectCollection> extends TestCase {
 //          collection.setDescription(description);
 //          collection.setDisplayName(displayName);
         }
+    }
+
+    /**
+     * @throws ObjectNotFoundException 
+     * @throws ObjectStoreException 
+     * 
+     */
+    protected void removeCollection() throws ObjectStoreException, ObjectNotFoundException {
+        getStore().removeCollection(collectionId);
     }
     
     /* (non-Javadoc)

@@ -72,6 +72,14 @@ public class CalendarCollectionTest<T extends CalendarCollection> extends Object
      * @see junit.framework.TestCase#setUp()
      */
     protected void setUp() throws Exception {
+        
+        // ensure collection doesn't exist prior to tests..
+        try {
+            removeCollection();
+        }
+        catch (Exception e) {
+        }
+
         super.setUp();
         
         Set<String> uidList = new HashSet<String>();
