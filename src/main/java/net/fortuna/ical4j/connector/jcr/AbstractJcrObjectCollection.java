@@ -32,9 +32,14 @@
 
 package net.fortuna.ical4j.connector.jcr;
 
+import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+
 import net.fortuna.ical4j.connector.ObjectCollection;
 
 import org.jcrom.AbstractJcrEntity;
+import org.jcrom.JcrMappingException;
 import org.jcrom.annotations.JcrProperty;
 
 /**
@@ -117,6 +122,16 @@ public abstract class AbstractJcrObjectCollection extends AbstractJcrEntity impl
      */
     public final void setStore(AbstractJcrObjectStore<? extends AbstractJcrObjectCollection> store) {
         this.store = store;
+    }
+
+    /**
+     * @return
+     * @throws PathNotFoundException
+     * @throws JcrMappingException
+     * @throws RepositoryException
+     */
+    protected final Node getNode() throws PathNotFoundException, JcrMappingException, RepositoryException {
+        return getStore().getSession().getRootNode().getNode(getStore().getJcrom().getPath(this).substring(1));
     }
 
 }

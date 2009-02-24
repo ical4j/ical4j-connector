@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
@@ -50,7 +49,6 @@ import net.fortuna.ical4j.util.Calendars;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jcrom.JcrMappingException;
 import org.jcrom.annotations.JcrProperty;
 
 /**
@@ -93,16 +91,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     public JcrCalendarCollection() {
 //        calendars = new HashMap<String, Object>();
 //        calendars = new ArrayList<JcrCalendar>();
-    }
-
-    /**
-     * @return
-     * @throws PathNotFoundException
-     * @throws JcrMappingException
-     * @throws RepositoryException
-     */
-    private Node getNode() throws PathNotFoundException, JcrMappingException, RepositoryException {
-        return getStore().getSession().getRootNode().getNode(getStore().getJcrom().getPath(this).substring(1));
     }
     
     /**
