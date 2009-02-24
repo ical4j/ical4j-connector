@@ -53,6 +53,7 @@
 						<exclude>**/ObjectCollectionTest.java</exclude>
 						<exclude>**/ObjectStoreTest.java</exclude>
 					</excludes>
+					<forkMode>pertest</forkMode>
 				</configuration>
 			</plugin>
 
