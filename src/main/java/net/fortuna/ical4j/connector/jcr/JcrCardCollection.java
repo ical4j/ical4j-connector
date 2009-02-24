@@ -35,9 +35,18 @@ package net.fortuna.ical4j.connector.jcr;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.fortuna.ical4j.connector.CardCollection;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
 
-import org.jcrom.annotations.JcrChildNode;
+import net.fortuna.ical4j.connector.CardCollection;
+import net.fortuna.ical4j.connector.ObjectStoreException;
+import net.fortuna.ical4j.model.ConstraintViolationException;
+import net.fortuna.ical4j.vcard.VCard;
+import net.fortuna.ical4j.vcard.Property.Id;
+import net.fortuna.ical4j.vcard.property.Uid;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 
@@ -50,7 +59,11 @@ import org.jcrom.annotations.JcrChildNode;
  */
 public class JcrCardCollection extends AbstractJcrObjectCollection implements CardCollection {
 
-    @JcrChildNode private List<JcrCard> cards;
+    private static final Log LOG = LogFactory.getLog(JcrCardCollection.class);
+    
+//    @JcrChildNode private List<JcrCard> cards;
+    
+    private JcrCardDao cardDao;
     
     /**
      * 
@@ -61,6 +74,83 @@ public class JcrCardCollection extends AbstractJcrObjectCollection implements Ca
      * 
      */
     public JcrCardCollection() {
-        cards = new ArrayList<JcrCard>();
+//        cards = new ArrayList<JcrCard>();
+    }
+
+    /* (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.CardCollection#addCard(net.fortuna.ical4j.vcard.VCard)
+     */
+    @Override
+    public void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
+        
+        // initialise cards node..
+        try {
+            try {
+                getNode().getNode("cards");
+            }
+            catch (PathNotFoundException e) {
+                getNode().addNode("cards");
+            }
+        }
+        catch (RepositoryException e) {
+            throw new ObjectStoreException("Unexpected error", e);
+        }
+        
+        JcrCard jcrCard = null;
+        boolean update = false;
+        
+        Uid uid = (Uid) card.getProperty(Id.UID);
+        if (uid != null) {
+            List<JcrCard> jcrCards = getCardDao().findByUid(getStore().getJcrom().getPath(this) + "/cards", uid.getValue());
+            if (!jcrCards.isEmpty()) {
+                jcrCard = jcrCards.get(0);
+                update = true;
+            }
+        }
+        
+        if (jcrCard == null) {
+            jcrCard = new JcrCard();
+        }
+        
+        jcrCard.setCard(card);
+        
+        if (update) {
+            getCardDao().update(jcrCard);
+        }
+        else {
+            getCardDao().create(getStore().getJcrom().getPath(this) + "/cards", jcrCard);
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.CardCollection#getCards()
+     */
+    @Override
+    public VCard[] getCards() throws ObjectStoreException {
+        List<VCard> cards = new ArrayList<VCard>();
+        List<JcrCard> jcrCards = getCardDao().findAll(getStore().getJcrom().getPath(this) + "/cards");
+        for (JcrCard card : jcrCards) {
+            try {
+                cards.add(card.getCard());
+            }
+            catch (Exception e) {
+                LOG.error("Unexcepted error", e);
+            }
+        }
+        return cards.toArray(new VCard[cards.size()]);
+    }
+    
+    /**
+     * @return
+     */
+    private JcrCardDao getCardDao() {
+        if (cardDao == null) {
+            synchronized (this) {
+                if (cardDao == null) {
+                    cardDao = new JcrCardDao(getStore().getSession(), getStore().getJcrom());
+                }
+            }
+        }
+        return cardDao;
     }
 }

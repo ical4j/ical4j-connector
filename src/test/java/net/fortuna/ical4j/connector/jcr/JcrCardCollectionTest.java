@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2009, Ben Fortuna
  * All rights reserved.
  *
@@ -29,30 +29,36 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector;
 
-import net.fortuna.ical4j.model.ConstraintViolationException;
-import net.fortuna.ical4j.vcard.VCard;
+package net.fortuna.ical4j.connector.jcr;
+
+import net.fortuna.ical4j.connector.CardCollectionTest;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
- * $Id$
- *
- * Created on 27/09/2008
+ * 
  *
  * @author Ben
  *
+ * Created on: 24/02/2009
+ *
+ * $Id$
  */
-public interface CardCollection extends ObjectCollection {
+public class JcrCardCollectionTest extends AbstractRepositoryTest {
 
-    /**
-     * @param card
-     * @throws ObjectStoreException
-     * @throws ConstraintViolationException
-     */
-    void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException;
-    
     /**
      * @return
      */
-    VCard[] getCards() throws ObjectStoreException;
+    public static Test suite() {
+        TestSuite suite = new TestSuite(JcrCardCollectionTest.class.getSimpleName());
+        
+        suite.addTest(new CardCollectionTest<JcrCardCollection>("testGetDescription",
+                new JcrCardStoreLifecycle("JcrCardCollection-testGetDescription"), USERNAME, PASSWORD));
+        
+        suite.addTest(new CardCollectionTest<JcrCardCollection>("testGetDisplayName",
+                new JcrCardStoreLifecycle("JcrCardCollection-testGetDisplayName"), USERNAME, PASSWORD));
+        
+        return suite;
+    }
 }

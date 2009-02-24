@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2009, Ben Fortuna
  * All rights reserved.
  *
@@ -29,30 +29,40 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package net.fortuna.ical4j.connector;
 
-import net.fortuna.ical4j.model.ConstraintViolationException;
-import net.fortuna.ical4j.vcard.VCard;
-
 /**
- * $Id$
- *
- * Created on 27/09/2008
+ * 
  *
  * @author Ben
  *
+ * Created on: 24/02/2009
+ *
+ * $Id$
  */
-public interface CardCollection extends ObjectCollection {
+public class CardCollectionTest<T extends CardCollection> extends
+        ObjectCollectionTest<T> {
 
-    /**
-     * @param card
-     * @throws ObjectStoreException
-     * @throws ConstraintViolationException
-     */
-    void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException;
+    private static final String[] SUPPORTED_COMPONENTS = {};
     
     /**
-     * @return
+     * @param testMethod
+     * @param lifecycle
+     * @param username
+     * @param password
+     * @param supportedComponents
      */
-    VCard[] getCards() throws ObjectStoreException;
+    public CardCollectionTest(String testMethod, ObjectStoreLifecycle<T> lifecycle, String username,
+            char[] password) {
+        super(testMethod, lifecycle, username, password, SUPPORTED_COMPONENTS);
+    }
+
+    /* (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.ObjectCollectionTest#setUp()
+     */
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+    }
 }

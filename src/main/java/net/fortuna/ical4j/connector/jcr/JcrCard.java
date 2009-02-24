@@ -46,6 +46,7 @@ import org.jcrom.JcrDataProviderImpl;
 import org.jcrom.JcrFile;
 import org.jcrom.JcrDataProvider.TYPE;
 import org.jcrom.annotations.JcrFileNode;
+import org.jcrom.annotations.JcrProperty;
 
 /**
  * 
@@ -62,6 +63,8 @@ public final class JcrCard extends AbstractJcrEntity {
      * 
      */
     private static final long serialVersionUID = -3268553509872379349L;
+    
+    @JcrProperty private String uid;
     
     @JcrFileNode private JcrFile file;
 
@@ -86,18 +89,19 @@ public final class JcrCard extends AbstractJcrEntity {
     public void setCard(VCard card) {
         this.card = card;
         
+        Uid uidProp = (Uid) card.getProperty(Id.UID);
+        if (uidProp != null) {
+            setName(uidProp.getValue());
+            this.uid = uidProp.getValue();
+        }
+        else {
+            setName("card");
+        }
+        
         file = new JcrFile();
         file.setName("data");
         file.setDataProvider(new JcrDataProviderImpl(TYPE.BYTES, card.toString().getBytes()));
         file.setMimeType(MediaType.VCARD_4_0.getContentType());
         file.setLastModified(java.util.Calendar.getInstance());
-        setName(getUid().getValue());
-    }
-    
-    /**
-     * @return
-     */
-    public Uid getUid() {
-        return (Uid) card.getProperty(Id.UID);
     }
 }

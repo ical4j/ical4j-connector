@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2009, Ben Fortuna
  * All rights reserved.
  *
@@ -29,30 +29,43 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector;
 
-import net.fortuna.ical4j.model.ConstraintViolationException;
-import net.fortuna.ical4j.vcard.VCard;
+package net.fortuna.ical4j.connector.jcr;
+
+import java.util.List;
+
+import javax.jcr.Session;
+
+import org.jcrom.Jcrom;
+import org.jcrom.dao.AbstractJcrDAO;
 
 /**
- * $Id$
- *
- * Created on 27/09/2008
+ * 
  *
  * @author Ben
  *
+ * Created on: 24/02/2009
+ *
+ * $Id$
  */
-public interface CardCollection extends ObjectCollection {
+public class JcrCardDao extends AbstractJcrDAO<JcrCard> {
 
     /**
-     * @param card
-     * @throws ObjectStoreException
-     * @throws ConstraintViolationException
+     * @param entityClass
+     * @param session
+     * @param jcrom
      */
-    void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException;
-    
+    public JcrCardDao(Session session, Jcrom jcrom) {
+        super(JcrCard.class, session, jcrom, new String[] {"mix:versionable"});
+    }
+
     /**
+     * @param path
+     * @param uid
      * @return
      */
-    VCard[] getCards() throws ObjectStoreException;
+    public List<JcrCard> findByUid(String path, String uid) {
+        return super.findByXPath("/jcr:root" + path + "/*[@uid='" + uid + "']", "*", -1);
+    }
+
 }
