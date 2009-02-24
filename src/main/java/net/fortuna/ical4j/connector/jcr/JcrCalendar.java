@@ -41,6 +41,7 @@ import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
@@ -101,19 +102,6 @@ public class JcrCalendar extends AbstractJcrEntity {
     }
     
     /**
-     * @return
-     */
-    public final Uid getUid() {
-        try {
-            return Calendars.getUid(getCalendar());
-        }
-        catch (Exception e) {
-            LOG.error("Unexcepted error", e);
-        }
-        return null;
-    }
-    
-    /**
      * @return the calendar
      * @throws ParserException 
      * @throws IOException 
@@ -132,8 +120,16 @@ public class JcrCalendar extends AbstractJcrEntity {
      */
     public final void setCalendar(final Calendar calendar) {
         this.calendar = calendar;
-        this.uid = getUid().getValue();
-        setName(getUid().getValue());
+        
+        try {
+            Uid uidProp = Calendars.getUid(calendar);
+            this.uid = uidProp.getValue();
+            setName(uidProp.getValue());
+        }
+        catch (ConstraintViolationException e) {
+            LOG.error("Invalid UID", e);
+            setName("calendar");
+        }
         
         file = new JcrFile();
         file.setName("data");
