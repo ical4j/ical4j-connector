@@ -41,6 +41,7 @@ import javax.naming.InitialContext;
 
 import net.fortuna.ical4j.connector.ObjectStoreLifecycle;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.jackrabbit.core.jndi.RegistryHelper;
 import org.jcrom.Jcrom;
 
@@ -99,7 +100,7 @@ public abstract class AbstractJcrObjectStoreLifecycle<T extends AbstractJcrObjec
         repoName = name; // "Test Calendar Repository";
 
         File testDir = new File(testDirString, repoName);
-//        FileUtils.deleteQuietly(testDir);
+        FileUtils.deleteQuietly(testDir);
         RegistryHelper.registerRepository(context, repoName,
                 "src/test/resources/repository.xml", testDir.getAbsolutePath(), false);
 
