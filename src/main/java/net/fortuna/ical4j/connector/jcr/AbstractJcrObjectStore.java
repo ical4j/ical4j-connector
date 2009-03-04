@@ -155,6 +155,9 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
         if (!collections.isEmpty()) {
             collection = collections.get(0);
             update = true;
+            
+            // if collection exists throw exception..
+            throw new ObjectStoreException("Collection already exists: " + name);
         }
         else {
             collection = newCollection();
@@ -197,7 +200,7 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
             collection.setStore(this);
             return collection;
         }
-        throw new ObjectNotFoundException("Error retrieving collection");
+        throw new ObjectNotFoundException("Collection doesn't exist: " + name);
     }
 
     /* (non-Javadoc)
