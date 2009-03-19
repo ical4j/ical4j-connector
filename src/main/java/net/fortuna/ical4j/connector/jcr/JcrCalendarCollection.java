@@ -80,9 +80,9 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
 
     @JcrProperty private Date minDateTime;
     
-    private JcrCalendarDao calendarDao;
+    private volatile JcrCalendarDao calendarDao;
     
-    private JcrCalendarCollectionDao collectionDao;
+    private volatile JcrCalendarCollectionDao collectionDao;
     
     /**
      * @param jcrom
