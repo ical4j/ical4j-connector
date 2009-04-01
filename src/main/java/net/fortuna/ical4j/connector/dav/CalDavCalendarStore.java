@@ -56,7 +56,7 @@ import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyIterator;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
-import org.apache.xerces.dom.DeferredElementNSImpl;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
@@ -179,8 +179,8 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCo
 		    			if (name.getValue() instanceof ArrayList) {
 		    				for (Iterator<?> iter = ((ArrayList<?>)name.getValue()).iterator(); iter.hasNext();) {
 		    					Object child = iter.next();
-		    					if (child instanceof DeferredElementNSImpl) {
-		    						String calendarHomeSetUri = ((DeferredElementNSImpl)child).getTextContent();
+		    					if (child instanceof Element) {
+		    						String calendarHomeSetUri = ((Element)child).getTextContent();
 		    						/*
 		    						 * If the trailing slash is not there, CalendarServer will return a 301 status code
 		    						 * and we will get a nice DavException with "Moved Permanently" as the error
@@ -237,8 +237,8 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCo
 		    				if (((ArrayList<?>)name.getValue()).size() == 5) {
 		    					for (Iterator<?> iter = ((ArrayList<?>)name.getValue()).iterator(); iter.hasNext();) {
 		    						Object child = iter.next();
-		    						if (child instanceof DeferredElementNSImpl) {
-		    							Node node = ((DeferredElementNSImpl)child);
+		    						if (child instanceof Node) {
+		    							Node node = ((Node)child);
 		    							if ((node.getLocalName().equals("calendar")) && (node.getNamespaceURI().equals(CalDavConstants.NAMESPACE.getURI()))) {
 		    								collections.add(new CalDavCalendarCollection(this, collectionUri));
 		    							}
