@@ -53,9 +53,9 @@ import org.apache.commons.httpclient.protocol.Protocol;
  */
 public abstract class AbstractDavObjectStore<T extends ObjectCollection> implements ObjectStore<T> {
 
-    private HttpClient httpClient;
+    protected HttpClient httpClient;
 
-    private HostConfiguration hostConfiguration;
+    protected HostConfiguration hostConfiguration;
 
     private String path;
 
@@ -81,7 +81,6 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
      * (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStore#connect()
      */
-    @Override
     public final boolean connect() throws ObjectStoreException {
         httpClient = new HttpClient();
         httpClient.getParams().setAuthenticationPreemptive(true);
@@ -92,7 +91,6 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
      * (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStore#connect(java.lang.String, char[])
      */
-    @Override
     public final boolean connect(String username, char[] password) throws ObjectStoreException {
         connect();
         // httpClient = new HttpClient();
@@ -106,7 +104,6 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
      * (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStore#disconnect()
      */
-    @Override
     public final void disconnect() throws ObjectStoreException {
         httpClient = null;
     }
@@ -125,5 +122,14 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
      */
     int execute(HttpMethodBase method) throws HttpException, IOException {
         return httpClient.executeMethod(hostConfiguration, method);
+    }
+    
+    /**
+     * This method is needed to "propfind" the user's principals
+     * @return the username stored in the HTTP credentials
+     * @author Pascal Robert
+     */
+    protected String getUserName() {
+    	return ((UsernamePasswordCredentials)httpClient.getState().getCredentials(AuthScope.ANY)).getUserName();
     }
 }

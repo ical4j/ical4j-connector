@@ -31,6 +31,7 @@
  */
 package net.fortuna.ical4j.connector.dav;
 
+import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
 /**
@@ -44,5 +45,8 @@ import org.apache.jackrabbit.webdav.xml.Namespace;
 public class CalDavConstants {
 
     public static final Namespace NAMESPACE = Namespace.getNamespace("C", "urn:ietf:params:xml:ns:caldav");
-
+    // Namespace used by CalendarServer (calendarserver.org)
+    public static final Namespace CS_NAMESPACE = Namespace.getNamespace("S", "http://calendarserver.org/ns/");
+    // Namespace used by the iCal client from Apple
+    public static final Namespace ICAL_NAMESPACE = Namespace.getNamespace("I", "http://apple.com/ns/ical/");    
 }

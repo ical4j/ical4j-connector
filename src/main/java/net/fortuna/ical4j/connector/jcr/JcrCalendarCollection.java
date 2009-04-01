@@ -124,7 +124,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#addCalendar(net.fortuna.ical4j.model.Calendar)
      */
-    @Override
     public void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
         addCalendar(calendar, true);
     }
@@ -190,7 +189,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#export()
      */
-    @Override
     public Calendar export() throws ObjectStoreException {
         Calendar exported = new Calendar();
         List<JcrCalendar> calendars = getCalendarDao().findAll(getStore().getJcrom().getPath(this) + "/calendars");
@@ -212,7 +210,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#getCalendar(java.lang.String)
      */
-    @Override
     public Calendar getCalendar(String uid) {
         try {
 //            JcrCalendar jcrCal = (JcrCalendar) calendars.get(uid);
@@ -239,7 +236,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#getCalendars()
      */
-    @Override
     public Calendar[] getCalendars() throws ObjectStoreException {
         List<Calendar> retVal = new ArrayList<Calendar>();
 //        for (Object jcrCal : calendars.values()) {
@@ -267,7 +263,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxAttendeesPerInstance()
      */
-    @Override
     public Integer getMaxAttendeesPerInstance() {
         return maxAttendeesPerInstance;
     }
@@ -275,7 +270,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxDateTime()
      */
-    @Override
     public String getMaxDateTime() {
         if (maxDateTime != null) {
             return maxDateTime.toString();
@@ -286,7 +280,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxInstances()
      */
-    @Override
     public Integer getMaxInstances() {
         return maxInstances;
     }
@@ -294,7 +287,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxResourceSize()
      */
-    @Override
     public long getMaxResourceSize() {
         return maxResourceSize;
     }
@@ -302,7 +294,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#getMinDateTime()
      */
-    @Override
     public String getMinDateTime() {
         if (minDateTime != null) {
             return minDateTime.toString();
@@ -313,7 +304,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#getSupportedComponentTypes()
      */
-    @Override
     public String[] getSupportedComponentTypes() {
         // TODO Auto-generated method stub
         return null;
@@ -322,7 +312,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#getSupportedMediaTypes()
      */
-    @Override
     public MediaType[] getSupportedMediaTypes() {
         // TODO Auto-generated method stub
         return null;
@@ -331,7 +320,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#getTimeZone()
      */
-    @Override
     public Calendar getTimeZone() {
         // TODO Auto-generated method stub
         return null;
@@ -340,7 +328,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#removeCalendar(java.lang.String)
      */
-    @Override
     public Calendar removeCalendar(String uid) throws ObjectStoreException {
         Calendar calendar = getCalendar(uid);
 
@@ -355,7 +342,6 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#merge(net.fortuna.ical4j.model.Calendar)
      */
-    @Override
     public void merge(Calendar calendar) throws ObjectStoreException {
         try {
             Calendar[] uidCalendars = Calendars.split(calendar);

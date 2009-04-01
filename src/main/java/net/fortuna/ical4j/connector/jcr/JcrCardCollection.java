@@ -80,7 +80,6 @@ public class JcrCardCollection extends AbstractJcrObjectCollection implements Ca
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CardCollection#addCard(net.fortuna.ical4j.vcard.VCard)
      */
-    @Override
     public void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
         
         // initialise cards node..
@@ -125,7 +124,6 @@ public class JcrCardCollection extends AbstractJcrObjectCollection implements Ca
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CardCollection#getCards()
      */
-    @Override
     public VCard[] getCards() throws ObjectStoreException {
         List<VCard> cards = new ArrayList<VCard>();
         List<JcrCard> jcrCards = getCardDao().findAll(getStore().getJcrom().getPath(this) + "/cards");

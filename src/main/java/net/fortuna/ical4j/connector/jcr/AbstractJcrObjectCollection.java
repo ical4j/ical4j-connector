@@ -83,7 +83,6 @@ public abstract class AbstractJcrObjectCollection extends AbstractJcrEntity impl
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectCollection#getDescription()
      */
-    @Override
     public String getDescription() {
         return description;
     }
@@ -91,7 +90,6 @@ public abstract class AbstractJcrObjectCollection extends AbstractJcrEntity impl
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectCollection#getDisplayName()
      */
-    @Override
     public String getDisplayName() {
         return displayName;
     }

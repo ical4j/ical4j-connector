@@ -81,7 +81,6 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStore#connect()
      */
-    @Override
     public final boolean connect() throws ObjectStoreException {
         if (repository == null) {
             throw new ObjectStoreException("Repository not configured");
@@ -102,7 +101,6 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStore#connect(java.lang.String, char[])
      */
-    @Override
     public final boolean connect(String username, char[] password) throws ObjectStoreException {
         if (repository == null) {
             throw new ObjectStoreException("Repository not configured");
@@ -123,7 +121,6 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStore#disconnect()
      */
-    @Override
     public final void disconnect() throws ObjectStoreException {
         assertConnected();
         session.logout();
@@ -132,7 +129,6 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStore#addCollection(java.lang.String)
      */
-    @Override
     public final T addCollection(String name) throws ObjectStoreException {
         assertConnected();
         
@@ -178,7 +174,6 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStore#addCollection(java.lang.String, java.lang.String, java.lang.String, java.lang.String[], net.fortuna.ical4j.model.Calendar)
      */
-    @Override
     public final T addCollection(String name, String displayName,
             String description, String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
         
@@ -192,7 +187,6 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStore#getCollection(java.lang.String)
      */
-    @Override
     public final T getCollection(String name) throws ObjectStoreException, ObjectNotFoundException {
         List<T> collections = getCollectionDao().findByCollectionName("/" + path + "/collections", name);
         if (!collections.isEmpty()) {
@@ -206,7 +200,6 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.ObjectStore#removeCollection(java.lang.String)
      */
-    @Override
     public final T removeCollection(String name) throws ObjectStoreException, ObjectNotFoundException {
         T collection = getCollection(name);
         getCollectionDao().remove(getJcrom().getPath(collection));
