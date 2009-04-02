@@ -69,7 +69,6 @@ public class MkCalendar implements XmlSerializable {
     /* (non-Javadoc)
      * @see org.apache.jackrabbit.webdav.xml.XmlSerializable#toXml(org.w3c.dom.Document)
      */
-    @Override
     public Element toXml(Document document) {
         Element set = DomUtil.createElement(document, DavConstants.XML_SET, DavConstants.NAMESPACE);
         set.appendChild(properties.toXml(document));
