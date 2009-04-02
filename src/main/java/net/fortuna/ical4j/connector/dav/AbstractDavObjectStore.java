@@ -48,6 +48,7 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
 
 /**
@@ -109,7 +110,7 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
         
         // This is to get the Digest from the user
         try {
-        	PropFindMethod aGet = new PropFindMethod(pathResolver.getPrincipalPath(username));
+        	PropFindMethod aGet = new PropFindMethod(pathResolver.getPrincipalPath(username), DavConstants.PROPFIND_ALL_PROP, 0);
         	aGet.setDoAuthentication(true);
         	int status = httpClient.executeMethod(hostConfiguration,aGet);
         	if (status >= 300) {
