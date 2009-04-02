@@ -79,8 +79,7 @@ public abstract class PathResolver {
 		 */
 		@Override
 		public String getPrincipalPath(String username) {
-			// TODO Auto-generated method stub
-			return null;
+			return "/chandler/dav/users/" + username;
 		}
 		
 		/* (non-Javadoc)
