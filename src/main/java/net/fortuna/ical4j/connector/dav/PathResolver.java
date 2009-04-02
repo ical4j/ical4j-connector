@@ -87,7 +87,7 @@ public abstract class PathResolver {
 		 */
 		@Override
 		public String getUserPath(String username) {
-			return "/chandler/dav/" + username;
+			return "/chandler/dav/" + username + "/";
 		}
 	}
 	
@@ -173,7 +173,7 @@ public abstract class PathResolver {
 		 */
 		@Override
 		public String getUserPath(String username) {
-			return "/dav/" + username;
+			return "/dav/" + username + "/";
 		}
 	}
 
