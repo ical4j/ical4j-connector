@@ -48,6 +48,7 @@ import net.fortuna.ical4j.connector.dav.method.ReportMethod;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
@@ -123,10 +124,24 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         }
     }
     
-    /* (non-Javadoc)
+    /** (non-Javadoc)
+     * @deprecated Use the getEvents() method
      * @see net.fortuna.ical4j.connector.CalendarCollection#getCalendars()
      */
+    @Deprecated 
     public Calendar[] getCalendars() {
+    	return getComponentsByType(Component.VEVENT);
+    }   
+    
+    public Calendar[] getEvents() {
+    	return getComponentsByType(Component.VEVENT);
+    }
+    
+    public Calendar[] getTasks() {
+    	return getComponentsByType(Component.VTODO);
+    }
+    
+    public Calendar[] getComponentsByType(String componentType) {
         try {
             DavPropertyNameSet properties = new DavPropertyNameSet();
             properties.add(DavPropertyName.GETETAG);
@@ -137,7 +152,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
             Element calFilter = DomUtil.createElement(document, "comp-filter", CalDavConstants.NAMESPACE); 
             calFilter.setAttribute("name", "VCALENDAR"); 
             Element eventFilter = DomUtil.createElement(document, "comp-filter", CalDavConstants.NAMESPACE); 
-            eventFilter.setAttribute("name", "VEVENT"); 
+            eventFilter.setAttribute("name", componentType); 
             calFilter.appendChild(eventFilter); 
             filter.appendChild(calFilter);
             
@@ -483,4 +498,12 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         // TODO Auto-generated method stub
         return null;
     }
+
+	/* (non-Javadoc)
+	 * @see net.fortuna.ical4j.connector.CalendarCollection#getComponents()
+	 */
+	public Calendar[] getComponents() throws ObjectStoreException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

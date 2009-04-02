@@ -236,7 +236,7 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
     /* (non-Javadoc)
      * @see net.fortuna.ical4j.connector.CalendarCollection#getCalendars()
      */
-    public Calendar[] getCalendars() throws ObjectStoreException {
+    public Calendar[] getComponents() throws ObjectStoreException {
         List<Calendar> retVal = new ArrayList<Calendar>();
 //        for (Object jcrCal : calendars.values()) {
 //        NodeIterator childNodes;

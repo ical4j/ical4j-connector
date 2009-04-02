@@ -172,7 +172,7 @@ public class CalendarCollectionTest<T extends CalendarCollection> extends Object
      * @throws ObjectStoreException
      */
     public void testGetCalendars() throws ObjectStoreException {
-        Calendar[] calendars = getCollection().getCalendars();
+        Calendar[] calendars = getCollection().getComponents();
         assertNotNull(calendars);
     }
 }

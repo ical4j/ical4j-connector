@@ -35,6 +35,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import net.fortuna.ical4j.connector.ObjectStoreTest;
 import net.fortuna.ical4j.connector.dav.CalDavCalendarCollection;
+import net.fortuna.ical4j.connector.dav.PathResolver;
 
 /**
  * $Id$
@@ -54,14 +55,13 @@ public class CalDavCalendarStoreTest extends AbstractCalDavTest {
         
         String host = "mediabase.local";
         int port = 8088;
-        String path = "/chandler/dav/" + USERNAME + "/";
         
         suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testAddCollection",
-                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
+                new CalDavCalendarStoreLifecycle(host, port, PathResolver.CHANDLER), USERNAME, PASSWORD));
         suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testGetCollection",
-                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
+                new CalDavCalendarStoreLifecycle(host, port, PathResolver.CHANDLER), USERNAME, PASSWORD));
         suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testRemoveCollection",
-                new CalDavCalendarStoreLifecycle(host, port, path), USERNAME, PASSWORD));
+                new CalDavCalendarStoreLifecycle(host, port, PathResolver.CHANDLER), USERNAME, PASSWORD));
         return suite;
     }
 

@@ -113,7 +113,7 @@ public interface CalendarCollection extends ObjectCollection {
      * @return an array of calendars
      * @throws ObjectStoreException 
      */
-    Calendar[] getCalendars() throws ObjectStoreException;
+    Calendar[] getComponents() throws ObjectStoreException;
     
     /**
      * Returns the calendar object with the specified UID.

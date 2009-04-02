@@ -32,6 +32,8 @@
 package net.fortuna.ical4j.connector.dav;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.fortuna.ical4j.connector.ObjectCollection;
 import net.fortuna.ical4j.connector.ObjectStore;
@@ -43,8 +45,10 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
 
 /**
  * Created: [20/11/2008]
@@ -57,24 +61,24 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
 
     protected HostConfiguration hostConfiguration;
 
-    private String path;
+    protected PathResolver pathResolver;
 
     /**
      * @param host
      * @param port
      * @param protocol
      */
-    public AbstractDavObjectStore(String host, int port, Protocol protocol, String path) {
+    public AbstractDavObjectStore(String host, int port, Protocol protocol, PathResolver pathResolver) {
         hostConfiguration = new HostConfiguration();
         hostConfiguration.setHost(host, port, protocol);
-        this.path = path;
+        this.pathResolver = pathResolver;
     }
 
     /**
      * @return the path
      */
     public final String getPath() {
-        return path;
+        return pathResolver.getUserPath(getUserName());
     }
 
     /*
@@ -83,7 +87,7 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
      */
     public final boolean connect() throws ObjectStoreException {
         httpClient = new HttpClient();
-        httpClient.getParams().setAuthenticationPreemptive(true);
+        httpClient.getParams().setAuthenticationPreemptive(false);
         return true;
     }
 
@@ -96,6 +100,25 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
         // httpClient = new HttpClient();
         Credentials credentials = new UsernamePasswordCredentials(username, new String(password));
         httpClient.getState().setCredentials(AuthScope.ANY, credentials);
+        
+        // Added to support iCal Server, who don't support Basic auth at all, only Kerberos and Digest
+        List<String> authPrefs = new ArrayList<String>(2);
+        authPrefs.add(org.apache.commons.httpclient.auth.AuthPolicy.DIGEST);
+        authPrefs.add(org.apache.commons.httpclient.auth.AuthPolicy.BASIC);
+        httpClient.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY,authPrefs);
+        
+        // This is to get the Digest from the user
+        try {
+        	PropFindMethod aGet = new PropFindMethod(pathResolver.getPrincipalPath(username));
+        	aGet.setDoAuthentication(true);
+        	int status = httpClient.executeMethod(hostConfiguration,aGet);
+        	if (status >= 300) {
+        		throw new ObjectStoreException("Principals not found");
+        	}
+        } catch (Exception ex) {
+        	throw new ObjectStoreException(ex.getMessage());
+        }
+        
         // httpClient.getParams().setAuthenticationPreemptive(true);
         return true;
     }
@@ -122,7 +145,7 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
      */
     int execute(HttpMethodBase method) throws HttpException, IOException {
         return httpClient.executeMethod(hostConfiguration, method);
-    }
+    }    
     
     /**
      * This method is needed to "propfind" the user's principals

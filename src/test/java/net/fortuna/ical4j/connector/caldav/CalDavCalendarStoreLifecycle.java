@@ -36,6 +36,7 @@ import net.fortuna.ical4j.connector.ObjectStore;
 import net.fortuna.ical4j.connector.ObjectStoreLifecycle;
 import net.fortuna.ical4j.connector.dav.CalDavCalendarCollection;
 import net.fortuna.ical4j.connector.dav.CalDavCalendarStore;
+import net.fortuna.ical4j.connector.dav.PathResolver;
 
 import org.apache.commons.httpclient.protocol.Protocol;
 
@@ -57,15 +58,15 @@ public class CalDavCalendarStoreLifecycle implements ObjectStoreLifecycle<CalDav
     
     private Protocol protocol;
 
-    private String path;
+    private PathResolver pathResolver;
     
     private CalendarStore<CalDavCalendarCollection> store;
     
     /**
      * @param id
      */
-    public CalDavCalendarStoreLifecycle(String host, int port, String path) {
-        this(host, port, Protocol.getProtocol("http"), path);
+    public CalDavCalendarStoreLifecycle(String host, int port, PathResolver pathResolver) {
+        this(host, port, Protocol.getProtocol("http"), pathResolver);
     }
     
     /**
@@ -74,11 +75,11 @@ public class CalDavCalendarStoreLifecycle implements ObjectStoreLifecycle<CalDav
      * @param protocol
      * @param path
      */
-    public CalDavCalendarStoreLifecycle(String host, int port, Protocol protocol, String path) {
+    public CalDavCalendarStoreLifecycle(String host, int port, Protocol protocol, PathResolver pathResolver) {
         this.host = host;
         this.port = port;
         this.protocol = protocol;
-        this.path = path;
+        this.pathResolver = pathResolver;
 //        storePath = BASE_STORE_PATH + id + "/";
     }
     
@@ -100,7 +101,7 @@ public class CalDavCalendarStoreLifecycle implements ObjectStoreLifecycle<CalDav
      * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#startup()
      */
     public void startup() throws Exception {
-        store = new CalDavCalendarStore(PRODID, host, port, protocol, path);
+        store = new CalDavCalendarStore(PRODID, host, port, protocol, pathResolver);
     }
 
 }

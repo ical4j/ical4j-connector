@@ -34,7 +34,6 @@ package net.fortuna.ical4j.connector.dav;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -45,6 +44,7 @@ import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.model.Calendar;
 
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
@@ -67,7 +67,7 @@ import org.w3c.dom.Node;
  * @author Ben
  *
  */
-public class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCollection> implements CalendarStore<CalDavCalendarCollection> {
+public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCollection> implements CalendarStore<CalDavCalendarCollection> {
 
     private String prodId;
     
@@ -75,8 +75,8 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCo
      * @param host
      * @param port
      */
-    public CalDavCalendarStore(String prodId, String host, int port, Protocol protocol, String path) {
-    	super(host, port, protocol, path);
+    public CalDavCalendarStore(String prodId, String host, int port, Protocol protocol, PathResolver pathResolver) {
+    	super(host, port, protocol, pathResolver);
         this.prodId = prodId;
     }
     
@@ -152,16 +152,10 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCo
      * @throws DavException
      */
 	private String findCalendarHomeSet() throws ParserConfigurationException, IOException, DavException {
-	    /* 
-	     * Principals in Zimbra (5.0.x) and Calendar Server are stored in /principal/users/USER/
-	     * The calendar-home-set attribute is part of OpenDirectory schema with iCal Server, need a ICalServerCalendarStore class
-	     * The principals in Kerio Mail Server are stored in http://server/caldav, , need a KMSCalendarStore class
-	     * The principals in CommuniGate Pro are stored in http://server/CalDAV, , need a CGPCalendarStore class
-	     */
-		String propfindUri = hostConfiguration.getHostURL() + "/principals/users/" + getUserName() + "/";
+		String propfindUri = hostConfiguration.getHostURL() + pathResolver.getPrincipalPath(getUserName());
 
 		DavPropertyNameSet principalsProps = new DavPropertyNameSet();
-		principalsProps.add(DavPropertyName.create("calendar-home-set", CalDavConstants.NAMESPACE));
+		principalsProps.add(DavPropertyName.create(CalDavConstants.PROPERTY_HOME_SET, CalDavConstants.NAMESPACE));
 		principalsProps.add(DavPropertyName.DISPLAYNAME);
 
 		PropFindMethod method = new PropFindMethod(propfindUri, principalsProps, PropFindMethod.DEPTH_0);
@@ -174,9 +168,8 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCo
 	    		Status status = responses[i].getStatus()[j];
 	    		for (DavPropertyIterator iNames = responses[i].getProperties(status.getStatusCode()).iterator(); iNames.hasNext();) {
 	    			DavProperty name = iNames.nextProperty();
-	    	
-	    			if ((name.getName().getName().equals("calendar-home-set"))  && (CalDavConstants.NAMESPACE.isSame(name.getName().getNamespace().getURI()))) {
-		    			if (name.getValue() instanceof ArrayList) {
+	    			if ((name.getName().getName().equals(CalDavConstants.PROPERTY_HOME_SET))  && (CalDavConstants.NAMESPACE.isSame(name.getName().getNamespace().getURI()))) {
+	    				if (name.getValue() instanceof ArrayList) {
 		    				for (Iterator<?> iter = ((ArrayList<?>)name.getValue()).iterator(); iter.hasNext();) {
 		    					Object child = iter.next();
 		    					if (child instanceof Element) {
@@ -192,6 +185,23 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCo
 		    					}
 		    				}
 		    			}
+	    				/*
+	    				 * This is for Kerio Mail Server implementation...
+	    				 */
+	    				if (name.getValue() instanceof Node) {
+	    					Node child = (Node)name.getValue();
+	    					if (child instanceof Element) {
+	    						String calendarHomeSetUri = ((Element)child).getTextContent();
+	    						/*
+	    						 * If the trailing slash is not there, CalendarServer will return a 301 status code
+	    						 * and we will get a nice DavException with "Moved Permanently" as the error
+	    						 */
+	    						if (!(calendarHomeSetUri.endsWith("/"))) {
+	    							calendarHomeSetUri += "/"; 
+	    						}
+	    						return calendarHomeSetUri;
+	    					}
+	    				}
 	    			}
 	    		}
 	    	}
@@ -208,18 +218,22 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCo
 	 * @throws IOException
 	 * @throws DavException
 	 */
-	public List<CalDavCalendarCollection> getCollections() throws ParserConfigurationException, IOException, DavException {
+	public ArrayList<CalDavCalendarCollection> getCollections() throws ParserConfigurationException, IOException, DavException, Exception {
 		ArrayList<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
 		
 		DavPropertyNameSet principalsProps = new DavPropertyNameSet();
 		principalsProps.add(DavPropertyName.DISPLAYNAME);
 		principalsProps.add(DavPropertyName.RESOURCETYPE);
-		principalsProps.add(DavPropertyName.create("getctag", CalDavConstants.CS_NAMESPACE));
-		principalsProps.add(DavPropertyName.create("calendar-description", CalDavConstants.NAMESPACE));
-		principalsProps.add(DavPropertyName.create("calendar-color", CalDavConstants.ICAL_NAMESPACE));
-		principalsProps.add(DavPropertyName.create("calendar-order", CalDavConstants.ICAL_NAMESPACE));
-		principalsProps.add(DavPropertyName.create("calendar-free-busy-set", CalDavConstants.NAMESPACE));
+		principalsProps.add(DavPropertyName.create(CalDavConstants.PROPERTY_CTAG, CalDavConstants.CS_NAMESPACE));
+		principalsProps.add(DavPropertyName.create(CalDavConstants.PROPERTY_CALENDAR_DESCRIPTION, CalDavConstants.NAMESPACE));
+		principalsProps.add(DavPropertyName.create(CalDavConstants.PROPERTY_CALENDAR_COLOR, CalDavConstants.ICAL_NAMESPACE));
+		principalsProps.add(DavPropertyName.create(CalDavConstants.PROPERTY_CALENDAR_ORDER, CalDavConstants.ICAL_NAMESPACE));
+		principalsProps.add(DavPropertyName.create(CalDavConstants.PROPERTY_FREE_BUSY_SET, CalDavConstants.NAMESPACE));
 
+		String calHomeSetUri = findCalendarHomeSet();
+		if (calHomeSetUri == null) {
+			throw new DavException(HttpStatus.SC_NOT_FOUND,"No calendar-home-set attribute found for the user");
+		}
 		String urlForcalendarHomeSet = hostConfiguration.getHostURL() + findCalendarHomeSet();
 		PropFindMethod method = new PropFindMethod(urlForcalendarHomeSet, principalsProps, PropFindMethod.DEPTH_1);
 		httpClient.executeMethod(hostConfiguration,method);
@@ -234,17 +248,15 @@ public class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCo
 	    			DavProperty name = iNames.nextProperty();
 	    			if (name.getName().getName().equals("resourcetype") && (DavConstants.NAMESPACE.isSame(name.getName().getNamespace().getURI()))) {
 	    				if (name.getValue() instanceof ArrayList) {
-		    				if (((ArrayList<?>)name.getValue()).size() == 5) {
-		    					for (Iterator<?> iter = ((ArrayList<?>)name.getValue()).iterator(); iter.hasNext();) {
-		    						Object child = iter.next();
-		    						if (child instanceof Node) {
-		    							Node node = ((Node)child);
-		    							if ((node.getLocalName().equals("calendar")) && (node.getNamespaceURI().equals(CalDavConstants.NAMESPACE.getURI()))) {
-		    								collections.add(new CalDavCalendarCollection(this, collectionUri));
-		    							}
-		    						}
-		    					}
-		    				}
+	    					for (Iterator<?> iter = ((ArrayList<?>)name.getValue()).iterator(); iter.hasNext();) {
+	    						Object child = iter.next();
+	    						if (child instanceof Node) {
+	    							Node node = ((Node)child);
+	    							if ((node.getLocalName().equals(CalDavConstants.PROPERTY_RESOURCETYPE_CALENDAR)) && (node.getNamespaceURI().equals(CalDavConstants.NAMESPACE.getURI()))) {
+	    								collections.add(new CalDavCalendarCollection(this, collectionUri));
+	    							}
+	    						}
+	    					}
 		    			}
 	    			}
 	    		}
