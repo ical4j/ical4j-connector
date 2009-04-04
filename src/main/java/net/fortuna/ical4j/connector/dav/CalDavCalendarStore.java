@@ -252,7 +252,8 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
 	    						Object child = iter.next();
 	    						if (child instanceof Node) {
 	    							Node node = ((Node)child);
-	    							if ((node.getLocalName().equals(CalDavConstants.PROPERTY_RESOURCETYPE_CALENDAR)) && (node.getNamespaceURI().equals(CalDavConstants.NAMESPACE.getURI()))) {
+	    							if (CalDavConstants.PROPERTY_RESOURCETYPE_CALENDAR.equals(node.getLocalName())
+	    									&& CalDavConstants.NAMESPACE.getURI().equals(node.getNamespaceURI())) {
 	    								collections.add(new CalDavCalendarCollection(this, collectionUri));
 	    							}
 	    						}
