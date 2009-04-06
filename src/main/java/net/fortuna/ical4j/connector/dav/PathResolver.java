@@ -51,6 +51,11 @@ public abstract class PathResolver {
 
 	public static final PathResolver ZIMBRA = new ZimbraPathResolver();
 	
+	public static final PathResolver ICAL_SERVER = new ICalServerPathResolver();
+
+	public static final PathResolver CALENDAR_SERVER = new CalendarServerPathResolver();
+
+	
 	/**
 	 * Resolves the path component for a user's calendar store URL.
 	 * @return
@@ -159,6 +164,58 @@ public abstract class PathResolver {
 	 * $Id$
 	 */
 	private static class ZimbraPathResolver extends PathResolver {
+		
+		/* (non-Javadoc)
+		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getPrincipalPath(java.lang.String)
+		 */
+		@Override
+		public String getPrincipalPath(String username) {
+	    	return "/principals/users/" + username + "/";
+		}
+		
+		/* (non-Javadoc)
+		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getUserPath(java.lang.String)
+		 */
+		@Override
+		public String getUserPath(String username) {
+			return "/dav/" + username + "/";
+		}
+	}
+	
+	/**
+	 * A {@link PathResolver} implementation for connecting to iCal Server (Mac OS X Server) instances.
+	 *
+	 * @author Pascal Robert
+	 *
+	 * Created on: 05/04/2009
+	 */
+	private static class ICalServerPathResolver extends PathResolver {
+		
+		/* (non-Javadoc)
+		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getPrincipalPath(java.lang.String)
+		 */
+		@Override
+		public String getPrincipalPath(String username) {
+	    	return "/principals/users/" + username + "/";
+		}
+		
+		/* (non-Javadoc)
+		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getUserPath(java.lang.String)
+		 */
+		@Override
+		public String getUserPath(String username) {
+			return "/dav/" + username + "/";
+		}
+	}
+	
+	/**
+	 * A {@link PathResolver} implementation for connecting to Calendar Server (open source version of iCal Server) instances.
+	 *
+	 * @author Pascal Robert
+	 *
+	 * Created on: 05/04/2009
+	 */
+	private static class CalendarServerPathResolver extends PathResolver {
 		
 		/* (non-Javadoc)
 		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getPrincipalPath(java.lang.String)

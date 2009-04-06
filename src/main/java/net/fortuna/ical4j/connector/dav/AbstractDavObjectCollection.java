@@ -88,7 +88,7 @@ public abstract class AbstractDavObjectCollection implements ObjectCollection {
      * @return
      */
     public final String getPath() {
-        return getStore().getPath() + getId();
+        return getId();
     }
 
     /**
