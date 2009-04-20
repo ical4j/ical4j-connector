@@ -31,7 +31,6 @@
  */
 package net.fortuna.ical4j.connector.dav;
 
-import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
 /**

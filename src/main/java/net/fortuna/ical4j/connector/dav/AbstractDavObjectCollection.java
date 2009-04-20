@@ -98,7 +98,8 @@ public abstract class AbstractDavObjectCollection implements ObjectCollection {
      * @throws ObjectStoreException
      * @throws DavException
      */
-    public final <T> T getProperty(DavPropertyName propertyName, Class<T> type) throws IOException, ObjectStoreException, DavException {
+    @SuppressWarnings("unchecked")
+	public final <T> T getProperty(DavPropertyName propertyName, Class<T> type) throws IOException, ObjectStoreException, DavException {
         DavPropertyNameSet set = new DavPropertyNameSet();
         set.add(propertyName);
 
