@@ -72,15 +72,17 @@ public class CalendarCollectionTest<T extends CalendarCollection> extends Object
      * @see junit.framework.TestCase#setUp()
      */
     protected void setUp() throws Exception {
+        super.setUp();
         
         // ensure collection doesn't exist prior to tests..
         try {
             removeCollection();
         }
         catch (Exception e) {
+        	if (!(e instanceof ObjectNotFoundException)) {
+        		throw e;
+        	}
         }
-
-        super.setUp();
         
         Set<String> uidList = new HashSet<String>();
         
@@ -106,40 +108,45 @@ public class CalendarCollectionTest<T extends CalendarCollection> extends Object
 
     /**
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarCollection#getMaxAttendeesPerInstance()}.
+     * @throws ObjectStoreException 
      */
-    public void testGetMaxAttendeesPerInstance() {
+    public void testGetMaxAttendeesPerInstance() throws ObjectStoreException {
 //        fail("Not yet implemented");
         assertEquals(Integer.valueOf(0), getCollection().getMaxAttendeesPerInstance());
     }
 
     /**
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarCollection#getMaxDateTime()}.
+     * @throws ObjectStoreException 
      */
-    public void testGetMaxDateTime() {
+    public void testGetMaxDateTime() throws ObjectStoreException {
 //        fail("Not yet implemented");
         assertEquals(0, getCollection().getMaxDateTime());
     }
 
     /**
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarCollection#getMaxInstances()}.
+     * @throws ObjectStoreException 
      */
-    public void testGetMaxInstances() {
+    public void testGetMaxInstances() throws ObjectStoreException {
 //        fail("Not yet implemented");
         assertEquals(Integer.valueOf(0), getCollection().getMaxInstances());
     }
 
     /**
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarCollection#getMaxResourceSize()}.
+     * @throws ObjectStoreException 
      */
-    public void testGetMaxResourceSize() {
+    public void testGetMaxResourceSize() throws ObjectStoreException {
 //        fail("Not yet implemented");
         assertEquals(10485760, getCollection().getMaxResourceSize());
     }
 
     /**
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarCollection#getMinDateTime()}.
+     * @throws ObjectStoreException 
      */
-    public void testGetMinDateTime() {
+    public void testGetMinDateTime() throws ObjectStoreException {
 //        fail("Not yet implemented");
         assertEquals(0, getCollection().getMinDateTime());
     }
@@ -152,16 +159,18 @@ public class CalendarCollectionTest<T extends CalendarCollection> extends Object
     }
 
     /**
+     * @throws ObjectStoreException 
      * 
      */
-    public void testGetSupportedComponentTypes() {
+    public void testGetSupportedComponentTypes() throws ObjectStoreException {
         assertTrue(Arrays.equals(SUPPORTED_COMPONENTS, getCollection().getSupportedComponentTypes()));
     }
     
     /**
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarCollection#getCalendar(String)}.
+     * @throws ObjectStoreException 
      */
-    public void testGetCalendar() {
+    public void testGetCalendar() throws ObjectStoreException {
         for (int i = 0; i < calendarUids.length; i++) {
             Calendar cal = getCollection().getCalendar(calendarUids[i]);
             assertNotNull("Calendar for uid: [" + calendarUids[i] + "] not found", cal);

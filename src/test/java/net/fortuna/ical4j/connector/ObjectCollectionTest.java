@@ -83,20 +83,9 @@ public class ObjectCollectionTest<T extends ObjectCollection> extends TestCase {
      */
     @Override
     protected void setUp() throws Exception {
-        super.setUp();
-        
         lifecycle.startup();
         store = lifecycle.getObjectStore();
         store.connect(username, password);
-        
-        try {
-            collection = getStore().getCollection(collectionId);
-        }
-        catch (ObjectNotFoundException onfe) {
-            collection = getStore().addCollection(collectionId, displayName, description, supportedComponents, null);
-//          collection.setDescription(description);
-//          collection.setDisplayName(displayName);
-        }
     }
 
     /**
@@ -138,22 +127,35 @@ public class ObjectCollectionTest<T extends ObjectCollection> extends TestCase {
 
     /**
      * @return the collection
+     * @throws ObjectStoreException 
      */
-    protected final T getCollection() {
+    protected final T getCollection() throws ObjectStoreException {
+    	if (collection == null) {
+            try {
+                collection = getStore().getCollection(collectionId);
+            }
+            catch (ObjectNotFoundException onfe) {
+                collection = getStore().addCollection(collectionId, displayName, description, supportedComponents, null);
+//              collection.setDescription(description);
+//              collection.setDisplayName(displayName);
+            }
+    	}
         return collection;
     }
 
     /**
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarCollection#getDescription()}.
+     * @throws ObjectStoreException 
      */
-    public void testGetDescription() {
+    public void testGetDescription() throws ObjectStoreException {
         assertEquals(description, getCollection().getDescription());
     }
 
     /**
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarCollection#getDisplayName()}.
+     * @throws ObjectStoreException 
      */
-    public void testGetDisplayName() {
+    public void testGetDisplayName() throws ObjectStoreException {
         assertEquals(displayName, getCollection().getDisplayName());
     }
 }
