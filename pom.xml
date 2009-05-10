@@ -1,7 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
 		<artifactId>modularity-parent</artifactId>
 		<groupId>net.modularity</groupId>
@@ -11,7 +8,7 @@
 	<groupId>net.fortuna.ical4j</groupId>
 	<artifactId>ical4j-connector</artifactId>
 	<name>iCal4j Connector</name>
-	<version>0.9-SNAPSHOT</version>
+	<version>0.9</version>
 	<description>
 		A Java library for accessing iCalendar data stores
 	</description>
@@ -39,7 +36,8 @@
 		<url>
 			http://ical4j.cvs.sourceforge.net/ical4j/ical4j-connector
 		</url>
-	</scm>
+	  <tag>ical4j-connector-0_9</tag>
+  </scm>
 
 	<build>
 		<plugins>
@@ -271,12 +269,10 @@
 						<configuration>
 							<type>tag</type>
 							<tags>
-								<tag
-									implementation="java.lang.String">
+								<tag implementation="java.lang.String">
 									ical4j-1_0-beta3
 								</tag>
-								<tag
-									implementation="java.lang.String">
+								<tag implementation="java.lang.String">
 									ical4j-1_0-beta4
 								</tag>
 							</tags>
