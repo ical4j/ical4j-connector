@@ -503,7 +503,6 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
 	 * @see net.fortuna.ical4j.connector.CalendarCollection#getComponents()
 	 */
 	public Calendar[] getComponents() throws ObjectStoreException {
-		// TODO Auto-generated method stub
-		return null;
+		return getComponentsByType("VEVENT");
 	}
 }
