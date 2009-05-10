@@ -8,7 +8,7 @@
 	<groupId>net.fortuna.ical4j</groupId>
 	<artifactId>ical4j-connector</artifactId>
 	<name>iCal4j Connector</name>
-	<version>0.9</version>
+	<version>0.9.1-SNAPSHOT</version>
 	<description>
 		A Java library for accessing iCalendar data stores
 	</description>
@@ -27,16 +27,9 @@
 	</licenses>
 
 	<scm>
-		<connection>
-			scm:cvs:pserver:anonymous:@ical4j.cvs.sourceforge.net:/cvsroot/ical4j:ical4j-connector
-		</connection>
-		<developerConnection>
-			scm:cvs:ext:fortuna@ical4j.cvs.sourceforge.net:/cvsroot/ical4j:ical4j-connector
-		</developerConnection>
-		<url>
-			http://ical4j.cvs.sourceforge.net/ical4j/ical4j-connector
-		</url>
-	  <tag>ical4j-connector-0_9</tag>
+		<connection>scm:cvs:pserver:anonymous:@ical4j.cvs.sourceforge.net:/cvsroot/ical4j:ical4j-connector</connection>
+		<developerConnection>scm:cvs:ext:fortuna@ical4j.cvs.sourceforge.net:/cvsroot/ical4j:ical4j-connector</developerConnection>
+		<url>http://ical4j.cvs.sourceforge.net/ical4j/ical4j-connector</url>
   </scm>
 
 	<build>
