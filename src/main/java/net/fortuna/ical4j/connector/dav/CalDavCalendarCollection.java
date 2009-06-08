@@ -83,20 +83,22 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
     private String description;
     
     /**
+     * Only {@link CalDavCalendarStore} should be calling this, so default modifier is applied.
      * @param store
      * @param path
      */
-    public CalDavCalendarCollection(CalDavCalendarStore store, String id) {
+    CalDavCalendarCollection(CalDavCalendarStore store, String id) {
         this(store, id, null, null);
     }
     
     /**
+     * Only {@link CalDavCalendarStore} should be calling this, so default modifier is applied.
      * @param store
      * @param id
      * @param displayName
      * @param description
      */
-    public CalDavCalendarCollection(CalDavCalendarStore store, String id, String displayName, String description) {
+    CalDavCalendarCollection(CalDavCalendarStore store, String id, String displayName, String description) {
     	super(store, id);
         this.displayName = displayName;
         this.description = description;
@@ -107,7 +109,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
      * @throws IOException 
      * @throws ObjectStoreException 
      */
-    void create() throws IOException, ObjectStoreException {
+    final void create() throws IOException, ObjectStoreException {
         MkCalendarMethod mkCalendarMethod = new MkCalendarMethod(getPath());
         
         DavPropertySet properties = new DavPropertySet();
