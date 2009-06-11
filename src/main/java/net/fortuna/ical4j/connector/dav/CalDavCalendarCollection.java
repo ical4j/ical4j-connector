@@ -167,7 +167,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
                 return method.getCalendars();
             }
             else if (method.getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
-                return null;
+                return new Calendar[0];
             }
         }
         catch (IOException e) {
@@ -189,7 +189,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        return null;
+        return new Calendar[0];
     }
 
     /* (non-Javadoc)
@@ -375,7 +375,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        return null;
+        return new String[0];
     }
 
     /* (non-Javadoc)
@@ -383,7 +383,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
      */
     public MediaType[] getSupportedMediaTypes() {
         // TODO Auto-generated method stub
-        return null;
+        return new MediaType[0];
     }
 
     /* (non-Javadoc)
