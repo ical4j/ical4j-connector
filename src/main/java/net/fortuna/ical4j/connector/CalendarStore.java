@@ -33,6 +33,10 @@ package net.fortuna.ical4j.connector;
 
 
 /**
+ * Design contract for calendar collection stores.
+ * 
+ * @param <T> a calendar collection implementation supported by the calendar store
+ * 
  * $Id$
  *
  * Created on 20/02/2008

@@ -45,7 +45,7 @@ import net.fortuna.ical4j.connector.dav.PathResolver;
  * @author Ben
  *
  */
-public class CalDavCalendarStoreTest extends AbstractCalDavTest {
+public class CalDavCalendarStoreTest extends TestSuite {
     
     /**
      * @return
@@ -55,13 +55,15 @@ public class CalDavCalendarStoreTest extends AbstractCalDavTest {
         
         String host = "mediabase.local";
         int port = 8088;
+        String username = "fortuna";
+        char[] password = "connector".toCharArray();
         
         suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testAddCollection",
-                new CalDavCalendarStoreLifecycle(host, port, PathResolver.CHANDLER), USERNAME, PASSWORD));
+                new CalDavCalendarStoreLifecycle(host, port, PathResolver.CHANDLER), username, password));
         suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testGetCollection",
-                new CalDavCalendarStoreLifecycle(host, port, PathResolver.CHANDLER), USERNAME, PASSWORD));
+                new CalDavCalendarStoreLifecycle(host, port, PathResolver.CHANDLER), username, password));
         suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testRemoveCollection",
-                new CalDavCalendarStoreLifecycle(host, port, PathResolver.CHANDLER), USERNAME, PASSWORD));
+                new CalDavCalendarStoreLifecycle(host, port, PathResolver.CHANDLER), username, password));
         return suite;
     }
 

@@ -45,19 +45,23 @@ import junit.framework.TestSuite;
  *
  * $Id$
  */
-public class JcrCardCollectionTest extends AbstractRepositoryTest {
+public class JcrCardCollectionTest extends TestSuite {
 
     /**
      * @return
      */
     public static Test suite() {
+        final String username = "fortuna";
+        
+        final char[] password = "connector".toCharArray();
+
         TestSuite suite = new TestSuite(JcrCardCollectionTest.class.getSimpleName());
         
         suite.addTest(new CardCollectionTest<JcrCardCollection>("testGetDescription",
-                new JcrCardStoreLifecycle("JcrCardCollection-testGetDescription"), USERNAME, PASSWORD));
+                new JcrCardStoreLifecycle("JcrCardCollection-testGetDescription"), username, password));
         
         suite.addTest(new CardCollectionTest<JcrCardCollection>("testGetDisplayName",
-                new JcrCardStoreLifecycle("JcrCardCollection-testGetDisplayName"), USERNAME, PASSWORD));
+                new JcrCardStoreLifecycle("JcrCardCollection-testGetDisplayName"), username, password));
         
         return suite;
     }

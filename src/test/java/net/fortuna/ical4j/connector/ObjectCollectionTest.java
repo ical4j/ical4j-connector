@@ -36,41 +36,41 @@ import junit.framework.TestCase;
 
 /**
  * 
- *
+ * 
  * @author Ben
- *
- * Created on: 24/02/2009
- *
- * $Id$
+ * 
+ *         Created on: 24/02/2009
+ * 
+ *         $Id$
  */
 public class ObjectCollectionTest<T extends ObjectCollection> extends TestCase {
 
     private ObjectStoreLifecycle<T> lifecycle;
-    
+
     private ObjectStore<T> store;
-    
+
     private String username;
-    
+
     private char[] password;
-    
+
     private T collection;
-    
+
     private String collectionId = "myCollection";
-    
+
     private String description = "My collection of objects";
-    
+
     private String displayName = "My Collection";
-    
+
     private String[] supportedComponents;
-    
+
     /**
      * @param testMethod
      * @param lifecycle
      * @param username
      * @param password
      */
-    public ObjectCollectionTest(String testMethod, ObjectStoreLifecycle<T> lifecycle,
-            String username, char[] password, String[] supportedComponents) {
+    public ObjectCollectionTest(String testMethod, ObjectStoreLifecycle<T> lifecycle, String username, char[] password,
+            String[] supportedComponents) {
         super(testMethod);
         this.lifecycle = lifecycle;
         this.username = username;
@@ -78,7 +78,8 @@ public class ObjectCollectionTest<T extends ObjectCollection> extends TestCase {
         this.supportedComponents = supportedComponents;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see junit.framework.TestCase#setUp()
      */
     @Override
@@ -89,20 +90,21 @@ public class ObjectCollectionTest<T extends ObjectCollection> extends TestCase {
     }
 
     /**
-     * @throws ObjectNotFoundException 
-     * @throws ObjectStoreException 
+     * @throws ObjectNotFoundException
+     * @throws ObjectStoreException
      * 
      */
     protected void removeCollection() throws ObjectStoreException, ObjectNotFoundException {
         getStore().removeCollection(collectionId);
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
      * @see junit.framework.TestCase#tearDown()
      */
     @Override
     protected void tearDown() throws Exception {
-//      store.removeCollection(collectionId);
+        // store.removeCollection(collectionId);
         store.disconnect();
         super.tearDown();
     }
@@ -115,9 +117,10 @@ public class ObjectCollectionTest<T extends ObjectCollection> extends TestCase {
         store.disconnect();
         store = lifecycle.getObjectStore();
         store.connect(username, password);
-        
+
         collection = store.getCollection(collectionId);
     }
+
     /**
      * @return the store
      */
@@ -127,25 +130,26 @@ public class ObjectCollectionTest<T extends ObjectCollection> extends TestCase {
 
     /**
      * @return the collection
-     * @throws ObjectStoreException 
+     * @throws ObjectStoreException
      */
     protected final T getCollection() throws ObjectStoreException {
-    	if (collection == null) {
+        if (collection == null) {
             try {
                 collection = getStore().getCollection(collectionId);
+            } catch (ObjectNotFoundException onfe) {
+                collection = getStore()
+                        .addCollection(collectionId, displayName, description, supportedComponents, null);
+                // collection.setDescription(description);
+                // collection.setDisplayName(displayName);
             }
-            catch (ObjectNotFoundException onfe) {
-                collection = getStore().addCollection(collectionId, displayName, description, supportedComponents, null);
-//              collection.setDescription(description);
-//              collection.setDisplayName(displayName);
-            }
-    	}
+        }
         return collection;
     }
 
     /**
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarCollection#getDescription()}.
-     * @throws ObjectStoreException 
+     * 
+     * @throws ObjectStoreException
      */
     public void testGetDescription() throws ObjectStoreException {
         assertEquals(description, getCollection().getDescription());
@@ -153,7 +157,8 @@ public class ObjectCollectionTest<T extends ObjectCollection> extends TestCase {
 
     /**
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarCollection#getDisplayName()}.
-     * @throws ObjectStoreException 
+     * 
+     * @throws ObjectStoreException
      */
     public void testGetDisplayName() throws ObjectStoreException {
         assertEquals(displayName, getCollection().getDisplayName());

@@ -45,20 +45,24 @@ import net.fortuna.ical4j.connector.ObjectStoreTest;
  *
  * $Id$
  */
-public class JcrCardStoreTest extends AbstractRepositoryTest {
+public class JcrCardStoreTest extends TestSuite {
     
     /**
      * @return
      */
     public static Test suite() {
+        final String username = "fortuna";
+        
+        final char[] password = "connector".toCharArray();
+
         TestSuite suite = new TestSuite(JcrCardStoreTest.class.getSimpleName());
         
         suite.addTest(new ObjectStoreTest<JcrCardCollection>("testAddCollection",
-                new JcrCardStoreLifecycle("JcrCardStore-testAddCollection"), USERNAME, PASSWORD));
+                new JcrCardStoreLifecycle("JcrCardStore-testAddCollection"), username, password));
         suite.addTest(new ObjectStoreTest<JcrCardCollection>("testGetCollection",
-                new JcrCardStoreLifecycle("JcrCardStore-testGetCollection"), USERNAME, PASSWORD));
+                new JcrCardStoreLifecycle("JcrCardStore-testGetCollection"), username, password));
         suite.addTest(new ObjectStoreTest<JcrCardCollection>("testRemoveCollection",
-                new JcrCardStoreLifecycle("JcrCardStore-testRemoveCollection"), USERNAME, PASSWORD));
+                new JcrCardStoreLifecycle("JcrCardStore-testRemoveCollection"), username, password));
         return suite;
     }
 

@@ -43,20 +43,24 @@ import net.fortuna.ical4j.connector.ObjectStoreTest;
  * @author Ben
  *
  */
-public class JcrCalendarStoreTest extends AbstractRepositoryTest {
+public class JcrCalendarStoreTest extends TestSuite {
     
     /**
      * @return
      */
     public static Test suite() {
+        final String username = "fortuna";
+        
+        final char[] password = "connector".toCharArray();
+
         TestSuite suite = new TestSuite(JcrCalendarStoreTest.class.getSimpleName());
         
         suite.addTest(new ObjectStoreTest<JcrCalendarCollection>("testAddCollection",
-                new JcrCalendarStoreLifecycle("JcrCalendarStore-testAddCollection"), USERNAME, PASSWORD));
+                new JcrCalendarStoreLifecycle("JcrCalendarStore-testAddCollection"), username, password));
         suite.addTest(new ObjectStoreTest<JcrCalendarCollection>("testGetCollection",
-                new JcrCalendarStoreLifecycle("JcrCalendarStore-testGetCollection"), USERNAME, PASSWORD));
+                new JcrCalendarStoreLifecycle("JcrCalendarStore-testGetCollection"), username, password));
         suite.addTest(new ObjectStoreTest<JcrCalendarCollection>("testRemoveCollection",
-                new JcrCalendarStoreLifecycle("JcrCalendarStore-testRemoveCollection"), USERNAME, PASSWORD));
+                new JcrCalendarStoreLifecycle("JcrCalendarStore-testRemoveCollection"), username, password));
         return suite;
     }
 }

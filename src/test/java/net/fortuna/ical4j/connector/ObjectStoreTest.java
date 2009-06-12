@@ -39,27 +39,27 @@ import junit.framework.TestCase;
 
 /**
  * 
- *
+ * 
  * @author Ben
- *
- * Created on: 24/02/2009
- *
- * $Id$
+ * 
+ *         Created on: 24/02/2009
+ * 
+ *         $Id$
  */
 public class ObjectStoreTest<T extends ObjectCollection> extends TestCase {
 
     private static final Log LOG = LogFactory.getLog(ObjectStoreTest.class);
-    
+
     private ObjectStoreLifecycle<T> lifecycle;
-    
+
     private ObjectStore<T> store;
-    
+
     private String username;
-    
+
     private char[] password;
-    
+
     private String collectionName = "myCollection";
-    
+
     /**
      * @param testMethod
      * @param lifecycle
@@ -72,8 +72,9 @@ public class ObjectStoreTest<T extends ObjectCollection> extends TestCase {
         this.username = username;
         this.password = password;
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
      * @see junit.framework.TestCase#setUp()
      */
     protected void setUp() throws Exception {
@@ -82,18 +83,18 @@ public class ObjectStoreTest<T extends ObjectCollection> extends TestCase {
         lifecycle.startup();
         store = lifecycle.getObjectStore();
         store.connect(username, password);
-        
+
         LOG.info("Store connected");
-        
+
         // ensure collection doesn't exist prior to tests..
         try {
             store.removeCollection(collectionName);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see junit.framework.TestCase#tearDown()
      */
     protected void tearDown() throws Exception {
@@ -101,7 +102,7 @@ public class ObjectStoreTest<T extends ObjectCollection> extends TestCase {
         lifecycle.shutdown();
         super.tearDown();
     }
-    
+
     /**
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarStore#addCollection(java.lang.String)}.
      */
@@ -112,26 +113,28 @@ public class ObjectStoreTest<T extends ObjectCollection> extends TestCase {
 
     /**
      * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarStore#getCollection(java.lang.String)}.
-     * @throws ObjectNotFoundException 
+     * 
+     * @throws ObjectNotFoundException
      */
     public void testGetCollection() throws ObjectStoreException, ObjectNotFoundException {
         T collection = null;
         try {
             store.getCollection(collectionName);
             fail("Should throw " + ObjectNotFoundException.class.getSimpleName());
-        }
-        catch (ObjectNotFoundException onfe) {
+        } catch (ObjectNotFoundException onfe) {
             LOG.debug("Caught exception: " + onfe.getMessage());
         }
-        
+
         store.addCollection(collectionName);
         collection = store.getCollection(collectionName);
         assertNotNull(collection);
     }
 
     /**
-     * Test method for {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarStore#removeCollection(java.lang.String)}.
-     * @throws ObjectNotFoundException 
+     * Test method for
+     * {@link net.fortuna.ical4j.connector.jcr.RepositoryCalendarStore#removeCollection(java.lang.String)}.
+     * 
+     * @throws ObjectNotFoundException
      */
     public void testRemoveCollection() throws ObjectStoreException, ObjectNotFoundException {
         store.addCollection(collectionName);
@@ -139,12 +142,11 @@ public class ObjectStoreTest<T extends ObjectCollection> extends TestCase {
         assertNotNull(collection);
         collection = store.removeCollection(collectionName);
         assertNotNull(collection);
-        
+
         try {
             store.getCollection(collectionName);
             fail("Should throw " + ObjectNotFoundException.class.getSimpleName());
-        }
-        catch (ObjectNotFoundException onfe) {
+        } catch (ObjectNotFoundException onfe) {
             LOG.debug("Caught exception: " + onfe.getMessage());
         }
     }

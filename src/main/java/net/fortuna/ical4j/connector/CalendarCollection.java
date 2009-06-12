@@ -102,7 +102,7 @@ public interface CalendarCollection extends ObjectCollection {
     
     /**
      * Stores the specified calendar in this collection.
-     * @param calendar
+     * @param calendar a calendar object instance to be added to the collection
      * @throws ObjectStoreException when an unexpected error occurs (implementation-specific)
      * @throws ConstraintViolationException if the specified calendar has no single unique identifier (UID)
      */
@@ -111,19 +111,21 @@ public interface CalendarCollection extends ObjectCollection {
     /**
      * Returns all calendar objects stored in the collection.
      * @return an array of calendars
-     * @throws ObjectStoreException 
+     * @throws ObjectStoreException where an unexpected error occurs
      */
     Calendar[] getComponents() throws ObjectStoreException;
     
     /**
      * Returns the calendar object with the specified UID.
+     * @param uid the UID associated with the returned calendar
      * @return a calendar object or null if no calendar with the specified UID exists
      */
     Calendar getCalendar(String uid);
     
     /**
-     * @param uid
-     * @return
+     * @param uid the UID of the calendar to remove
+     * @return the calendar that was successfully removed from the collection
+     * @throws ObjectStoreException where an unexpected error occurs
      */
     Calendar removeCalendar(String uid) throws ObjectStoreException;
     
@@ -131,15 +133,15 @@ public interface CalendarCollection extends ObjectCollection {
      * Merges the specified calendar object with this collecton. This is done by
      * decomposing the calendar object into a set of objects per unique identifier (UID)
      * and adding these objects to the collection.
-     * @param calendar
-     * @throws ObjectStoreException
+     * @param calendar a calendar object instance to merge into the collection
+     * @throws ObjectStoreException where an unexpected error occurs
      */
     void merge(Calendar calendar) throws ObjectStoreException;
     
     /**
      * Exports the entire collection as a single calendar object.
-     * @return
-     * @throws ObjectStoreException
+     * @return a calendar object instance that contains all calendars in the collection
+     * @throws ObjectStoreException where an unexpected error occurs
      */
     Calendar export() throws ObjectStoreException;
 }

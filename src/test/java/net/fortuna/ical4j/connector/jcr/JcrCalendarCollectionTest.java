@@ -37,47 +37,51 @@ import net.fortuna.ical4j.connector.CalendarCollectionTest;
 
 /**
  * $Id$
- *
+ * 
  * Created on 27/02/2008
- *
+ * 
  * @author Ben
- *
+ * 
  */
-public class JcrCalendarCollectionTest extends AbstractRepositoryTest {
-    
+public class JcrCalendarCollectionTest extends TestSuite {
+
     /**
      * @return
      */
     public static Test suite() {
+        final String username = "fortuna";
+
+        final char[] password = "connector".toCharArray();
+
         TestSuite suite = new TestSuite(JcrCalendarCollectionTest.class.getSimpleName());
-        
+
         suite.addTest(new CalendarCollectionTest<JcrCalendarCollection>("testGetDescription",
-                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetDescription"), USERNAME, PASSWORD));
-        
+                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetDescription"), username, password));
+
         suite.addTest(new CalendarCollectionTest<JcrCalendarCollection>("testGetDisplayName",
-                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetDisplayName"), USERNAME, PASSWORD));
-        
+                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetDisplayName"), username, password));
+
         suite.addTest(new CalendarCollectionTest<JcrCalendarCollection>("testGetCalendar",
-                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetCalendar"), USERNAME, PASSWORD));
-        
+                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetCalendar"), username, password));
+
         suite.addTest(new CalendarCollectionTest<JcrCalendarCollection>("testGetCalendars",
-                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetCalendars"), USERNAME, PASSWORD));
-        
-//        suite.addTest(new CalendarCollectionTest("testGetMaxAttendeesPerInstance",
-//                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxAttendeesPerInstance"), USERNAME, PASSWORD));
-        
-//        suite.addTest(new CalendarCollectionTest("testGetMaxDateTime",
-//                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxDateTime"), USERNAME, PASSWORD));
-        
-//        suite.addTest(new CalendarCollectionTest("testGetMaxInstances",
-//                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxInstances"), USERNAME, PASSWORD));
-        
-//        suite.addTest(new CalendarCollectionTest("testGetMaxResourceSize",
-//                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxResourceSize"), USERNAME, PASSWORD));
-        
-//        suite.addTest(new CalendarCollectionTest("testGetMinDateTime",
-//                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMinDateTime"), USERNAME, PASSWORD));
-        
+                new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetCalendars"), username, password));
+
+        // suite.addTest(new CalendarCollectionTest("testGetMaxAttendeesPerInstance",
+        // new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxAttendeesPerInstance"), USERNAME, PASSWORD));
+
+        // suite.addTest(new CalendarCollectionTest("testGetMaxDateTime",
+        // new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxDateTime"), USERNAME, PASSWORD));
+
+        // suite.addTest(new CalendarCollectionTest("testGetMaxInstances",
+        // new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxInstances"), USERNAME, PASSWORD));
+
+        // suite.addTest(new CalendarCollectionTest("testGetMaxResourceSize",
+        // new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMaxResourceSize"), USERNAME, PASSWORD));
+
+        // suite.addTest(new CalendarCollectionTest("testGetMinDateTime",
+        // new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetMinDateTime"), USERNAME, PASSWORD));
+
         return suite;
     }
 }

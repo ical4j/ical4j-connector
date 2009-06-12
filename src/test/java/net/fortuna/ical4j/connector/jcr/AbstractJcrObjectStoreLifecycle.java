@@ -47,25 +47,26 @@ import org.jcrom.Jcrom;
 
 /**
  * 
- *
+ * 
  * @author Ben
- *
- * Created on: 24/02/2009
- *
- * $Id$
+ * 
+ *         Created on: 24/02/2009
+ * 
+ *         $Id$
  */
-public abstract class AbstractJcrObjectStoreLifecycle<T extends AbstractJcrObjectCollection> implements ObjectStoreLifecycle<T> {
+public abstract class AbstractJcrObjectStoreLifecycle<T extends AbstractJcrObjectCollection> implements
+        ObjectStoreLifecycle<T> {
 
     private String testDirString;
-    
+
     private String name;
 
     private Context context;
-    
+
     private String repoName;
 
     private Repository repository;
-    
+
     private Jcrom jcrom;
 
     /**
@@ -101,12 +102,12 @@ public abstract class AbstractJcrObjectStoreLifecycle<T extends AbstractJcrObjec
 
         File testDir = new File(testDirString, repoName);
         FileUtils.deleteQuietly(testDir);
-        RegistryHelper.registerRepository(context, repoName,
-                "src/test/resources/repository.xml", testDir.getAbsolutePath(), false);
+        RegistryHelper.registerRepository(context, repoName, "src/test/resources/repository.xml", testDir
+                .getAbsolutePath(), false);
 
         repository = (Repository) context.lookup(repoName);
         // repository = new TransientRepository("test/repository.xml", testDir.getAbsolutePath());
-//        store = new JcrCalendarStore(repository);
+        // store = new JcrCalendarStore(repository);
     }
 
     /**
