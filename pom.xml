@@ -30,7 +30,6 @@
 		<developerConnection>scm:cvs:ext:fortuna@ical4j.cvs.sourceforge.net:/cvsroot/ical4j:ical4j-connector</developerConnection>
 		<url>http://ical4j.cvs.sourceforge.net/ical4j/ical4j-connector</url>
 	</scm>
-	
 	<build>
 		<plugins>
 			<plugin>
@@ -57,7 +56,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>failsafe-maven-plugin</artifactId>
@@ -65,7 +63,7 @@
 					<includes>
 						<include>**/*IntegrationTest.java</include>
 					</includes>
-                    <forkMode>pertest</forkMode>
+					<forkMode>pertest</forkMode>
 				</configuration>
 				<executions>
 					<execution>
@@ -236,6 +234,45 @@
 	-->
 	<reporting>
 		<plugins>
+		    <!-- Unit test reports.. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <id>integration-tests</id>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                        <configuration>
+                            <outputName>surefire-report</outputName>
+                            <reportsDirectories>
+                                <reportsDirectory>${baseDir}/target/surefire-reports</reportsDirectory>
+                            </reportsDirectories>
+                        </configuration>
+                    </reportSet>
+                </reportSets>
+			</plugin>
+			
+            <!-- Integration test reports.. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<reportSets>
+					<reportSet>
+						<id>integration-tests</id>
+						<reports>
+							<report>report-only</report>
+						</reports>
+						<configuration>
+							<outputName>failsafe-report</outputName>
+							<reportsDirectories>
+								<reportsDirectory>${baseDir}/target/failsafe-reports</reportsDirectory>
+							</reportsDirectories>
+						</configuration>
+					</reportSet>
+				</reportSets>
+			</plugin>
 
             <!-- Override default suppressions.. -->
 			<plugin>
