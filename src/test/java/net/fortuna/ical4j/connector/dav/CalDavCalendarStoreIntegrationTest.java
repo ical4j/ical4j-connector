@@ -29,14 +29,13 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector;
+package net.fortuna.ical4j.connector.dav;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import net.fortuna.ical4j.connector.caldav.CalDavCalendarCollectionTest;
-import net.fortuna.ical4j.connector.caldav.CalDavCalendarStoreTest;
-import net.fortuna.ical4j.connector.jcr.JcrCalendarCollectionTest;
-import net.fortuna.ical4j.connector.jcr.JcrCalendarStoreTest;
+import net.fortuna.ical4j.connector.ObjectStoreTest;
+import net.fortuna.ical4j.connector.dav.CalDavCalendarCollection;
+import net.fortuna.ical4j.connector.dav.PathResolver;
 
 /**
  * $Id$
@@ -46,22 +45,26 @@ import net.fortuna.ical4j.connector.jcr.JcrCalendarStoreTest;
  * @author Ben
  *
  */
-public class AllTests extends TestSuite {
-
+public class CalDavCalendarStoreIntegrationTest extends TestSuite {
+    
     /**
      * @return
      */
     public static Test suite() {
-        TestSuite suite = new TestSuite(AllTests.class.getSimpleName());
+        TestSuite suite = new TestSuite(CalDavCalendarStoreIntegrationTest.class.getSimpleName());
         
-        // jcr tests..
-        suite.addTest(JcrCalendarStoreTest.suite());
-        suite.addTest(JcrCalendarCollectionTest.suite());
+        String host = "mediabase.local";
+        int port = 8088;
+        String username = "fortuna";
+        char[] password = "connector".toCharArray();
         
-        // caldav tests..
-        suite.addTest(CalDavCalendarStoreTest.suite());
-        suite.addTest(CalDavCalendarCollectionTest.suite());
-        
+        suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testAddCollection",
+                new CalDavCalendarStoreLifecycle(host, port, PathResolver.CHANDLER), username, password));
+        suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testGetCollection",
+                new CalDavCalendarStoreLifecycle(host, port, PathResolver.CHANDLER), username, password));
+        suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testRemoveCollection",
+                new CalDavCalendarStoreLifecycle(host, port, PathResolver.CHANDLER), username, password));
         return suite;
     }
+
 }

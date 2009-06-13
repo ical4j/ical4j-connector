@@ -45,7 +45,7 @@ import junit.framework.TestSuite;
  *
  * $Id$
  */
-public class JcrCardCollectionTest extends TestSuite {
+public class JcrCardCollectionIntegrationTest extends TestSuite {
 
     /**
      * @return
@@ -55,7 +55,7 @@ public class JcrCardCollectionTest extends TestSuite {
         
         final char[] password = "connector".toCharArray();
 
-        TestSuite suite = new TestSuite(JcrCardCollectionTest.class.getSimpleName());
+        TestSuite suite = new TestSuite(JcrCardCollectionIntegrationTest.class.getSimpleName());
         
         suite.addTest(new CardCollectionTest<JcrCardCollection>("testGetDescription",
                 new JcrCardStoreLifecycle("JcrCardCollection-testGetDescription"), username, password));

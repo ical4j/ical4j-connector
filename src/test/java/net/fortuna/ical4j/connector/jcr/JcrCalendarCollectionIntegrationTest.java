@@ -43,7 +43,7 @@ import net.fortuna.ical4j.connector.CalendarCollectionTest;
  * @author Ben
  * 
  */
-public class JcrCalendarCollectionTest extends TestSuite {
+public class JcrCalendarCollectionIntegrationTest extends TestSuite {
 
     /**
      * @return
@@ -53,7 +53,7 @@ public class JcrCalendarCollectionTest extends TestSuite {
 
         final char[] password = "connector".toCharArray();
 
-        TestSuite suite = new TestSuite(JcrCalendarCollectionTest.class.getSimpleName());
+        TestSuite suite = new TestSuite(JcrCalendarCollectionIntegrationTest.class.getSimpleName());
 
         suite.addTest(new CalendarCollectionTest<JcrCalendarCollection>("testGetDescription",
                 new JcrCalendarStoreLifecycle("JcrCalendarCollection-testGetDescription"), username, password));
