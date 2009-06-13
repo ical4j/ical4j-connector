@@ -194,6 +194,12 @@
 	      <artifactId>servlet-api</artifactId>
 			<version>2.4</version>
 	      <scope>provided</scope>
+	    </dependency>
+	    <dependency>
+	    	<groupId>org.jmock</groupId>
+	    	<artifactId>jmock</artifactId>
+	    	<version>2.5.1</version>
+	    	<scope>test</scope>
 	    </dependency>		
 	</dependencies>
 
@@ -240,12 +246,17 @@
  
 	<reporting>
 		<plugins>
-			<plugin>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<configuration>
-					<configLocation>etc/checkstyle.xml</configLocation>
-				</configuration>
-			</plugin>
+
+            <!-- Override default suppressions.. -->        
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                   <configLocation>http://svn.mnode.org/tools/checkstyle/mnode_checks.xml</configLocation>
+                   <suppressionsFile>etc/checkstyle-suppressions.xml</suppressionsFile>
+                </configuration>
+            </plugin>
+
 			<plugin>
 				<artifactId>maven-clover-plugin</artifactId>
 				<configuration>
