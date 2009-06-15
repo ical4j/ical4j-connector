@@ -34,6 +34,8 @@ package net.fortuna.ical4j.connector;
 import net.fortuna.ical4j.model.Calendar;
 
 /**
+ * @param <T> the type of collection supported by the store
+ * 
  * $Id$
  *
  * Created on 27/09/2008
@@ -45,58 +47,62 @@ public interface ObjectStore<T extends ObjectCollection> {
 
     /**
      * Connect to a object store anonymously.
-     * @return
-     * @throws ObjectStoreException
+     * @return true if connection is successful, otherwise false
+     * @throws ObjectStoreException where an unexpected error occurs
      */
     boolean connect() throws ObjectStoreException;
     
     /**
      * Connect to a object store using the specified credentials.
-     * @param username
-     * @param password
-     * @return
-     * @throws ObjectStoreException
+     * @param username connection username
+     * @param password connection password
+     * @return true if connection is successful, otherwise false
+     * @throws ObjectStoreException where an unexpected error occurs
      */
     boolean connect(String username, char[] password) throws ObjectStoreException;
     
     /**
-     * @throws ObjectStoreException
+     * @throws ObjectStoreException where an unexpected error occurs
      */
     void disconnect() throws ObjectStoreException;
     
     /**
      * Adds the specified collection to the store.
-     * @param id
+     * @param id a collection identifier
+     * @return the new collection instance
      * @throws ObjectStoreException if a calendar with the specified id already
      * exists in the store
      */
     T addCollection(String id) throws ObjectStoreException;
     
     /**
-     * @param id
-     * @param displayName
-     * @param description
-     * @param supportedComponents
-     * @param timezone
-     * @return
-     * @throws ObjectStoreException
+     * @param id a collection identifier
+     * @param displayName the collection name
+     * @param description the collection description
+     * @param supportedComponents supported collection objects
+     * @param timezone collection timezone
+     * @return the new collection instance
+     * @throws ObjectStoreException where an unexpected error occurs
      */
     T addCollection(String id, String displayName, String description,
             String[] supportedComponents, Calendar timezone) throws ObjectStoreException;
     
     /**
      * Removes the collection with specified id from the store.
-     * @param id
+     * @param id a collection identifier
      * @return if a collection with the specified id exists in the store it is
      * returned. Otherwise returns null.
-     * @throws ObjectNotFoundException 
+     * @throws ObjectStoreException where an unexpected error occurs
+     * @throws ObjectNotFoundException if a collection with the specified identifier doesn't exist
      */
     T removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException;
     
     /**
-     * @param id
+     * @param id a collection identifier
      * @return an object collection with the specified id. If no collection with the specified id
      * is found in this store, an {@link ObjectNotFoundException} is thrown.
+     * @throws ObjectStoreException where an unexpected error occurs
+     * @throws ObjectNotFoundException if a collection with the specified identifier doesn't exist
      */
     T getCollection(String id) throws ObjectStoreException, ObjectNotFoundException;
 

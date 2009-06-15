@@ -42,7 +42,7 @@ import net.fortuna.ical4j.model.ConstraintViolationException;
  * @author Ben
  *
  */
-public interface CalendarCollection extends ObjectCollection {
+public interface CalendarCollection extends ObjectCollection<Calendar> {
     
     /**
      * Specified calendar must be an iCalendar object with exactly one VTIMEZONE component.
@@ -107,13 +107,6 @@ public interface CalendarCollection extends ObjectCollection {
      * @throws ConstraintViolationException if the specified calendar has no single unique identifier (UID)
      */
     void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException;
-    
-    /**
-     * Returns all calendar objects stored in the collection.
-     * @return an array of calendars
-     * @throws ObjectStoreException where an unexpected error occurs
-     */
-    Calendar[] getComponents() throws ObjectStoreException;
     
     /**
      * Returns the calendar object with the specified UID.

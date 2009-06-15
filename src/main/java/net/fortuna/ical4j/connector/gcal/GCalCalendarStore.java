@@ -63,8 +63,8 @@ public class GCalCalendarStore implements CalendarStore {
 //        service = new CalendarService("ical4j-connector");
     }
     
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStore#addCollection(java.lang.String)
+    /**
+     * {@inheritDoc}
      */
     public CalendarCollection addCollection(String id)
             throws ObjectStoreException {
@@ -72,8 +72,8 @@ public class GCalCalendarStore implements CalendarStore {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStore#addCollection(java.lang.String, java.lang.String, java.lang.String, java.lang.String[], net.fortuna.ical4j.model.Calendar)
+    /**
+     * {@inheritDoc}
      */
     public CalendarCollection addCollection(String id, String displayName,
             String description, String[] supportedComponents, Calendar timezone)
@@ -82,16 +82,16 @@ public class GCalCalendarStore implements CalendarStore {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStore#connect()
+    /**
+     * {@inheritDoc}
      */
     public boolean connect() throws ObjectStoreException {
         // Unauthenticated connections not supported..
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStore#connect(java.lang.String, char[])
+    /**
+     * {@inheritDoc}
      */
     public boolean connect(String username, char[] password)
             throws ObjectStoreException {
@@ -105,16 +105,16 @@ public class GCalCalendarStore implements CalendarStore {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStore#disconnect()
+    /**
+     * {@inheritDoc}
      */
     public void disconnect() throws ObjectStoreException {
         // TODO Auto-generated method stub
 
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStore#getCollection(java.lang.String)
+    /**
+     * {@inheritDoc}
      */
     public CalendarCollection getCollection(String id)
             throws ObjectStoreException {
@@ -122,8 +122,8 @@ public class GCalCalendarStore implements CalendarStore {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarStore#removeCollection(java.lang.String)
+    /**
+     * {@inheritDoc}
      */
     public CalendarCollection removeCollection(String id)
             throws ObjectStoreException {

@@ -52,22 +52,34 @@ import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
 
 /**
+ * @param <T> the supported collection type
+ * 
  * Created: [20/11/2008]
  * 
  * @author fortuna
  */
 public abstract class AbstractDavObjectStore<T extends ObjectCollection> implements ObjectStore<T> {
 
+    /**
+     * The underlying HTTP client.
+     */
     protected HttpClient httpClient;
 
+    /**
+     * The HTTP client configuration.
+     */
     protected HostConfiguration hostConfiguration;
 
+    /**
+     * Server implementation-specific path resolution.
+     */
     protected PathResolver pathResolver;
 
     /**
-     * @param host
-     * @param port
-     * @param protocol
+     * @param host the server host name
+     * @param port the server port
+     * @param protocol the HTTP protocol variant
+     * @param pathResolver Server implementation-specific path resolution.
      */
     public AbstractDavObjectStore(String host, int port, Protocol protocol, PathResolver pathResolver) {
         hostConfiguration = new HostConfiguration();
@@ -82,9 +94,8 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
         return pathResolver.getUserPath(getUserName());
     }
 
-    /*
-     * (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStore#connect()
+    /**
+     * {@inheritDoc}
      */
     public final boolean connect() throws ObjectStoreException {
         httpClient = new HttpClient();
@@ -92,9 +103,8 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStore#connect(java.lang.String, char[])
+    /**
+     * {@inheritDoc}
      */
     public final boolean connect(String username, char[] password) throws ObjectStoreException {
         connect();
@@ -110,7 +120,8 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
         
         // This is to get the Digest from the user
         try {
-        	PropFindMethod aGet = new PropFindMethod(pathResolver.getPrincipalPath(username), DavConstants.PROPFIND_ALL_PROP, 0);
+        	PropFindMethod aGet = new PropFindMethod(pathResolver.getPrincipalPath(username),
+        	        DavConstants.PROPFIND_ALL_PROP, 0);
         	aGet.setDoAuthentication(true);
         	int status = httpClient.executeMethod(hostConfiguration,aGet);
         	if (status >= 300) {
@@ -124,16 +135,15 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStore#disconnect()
+    /**
+     * {@inheritDoc}
      */
     public final void disconnect() throws ObjectStoreException {
         httpClient = null;
     }
 
     /**
-     * @return
+     * @return true if connected to the server, otherwise false
      */
     public final boolean isConnected() {
         return httpClient != null;

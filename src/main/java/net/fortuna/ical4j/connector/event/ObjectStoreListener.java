@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2009, Ben Fortuna
  * All rights reserved.
  *
@@ -29,42 +29,29 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector.dav.method;
 
-import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.client.methods.DavMethodBase;
+package net.fortuna.ical4j.connector.event;
+
+import java.util.EventListener;
 
 /**
+ * 
+ *
+ * @author fortuna
+ *
+ * Created on: 29/05/2009
+ *
  * $Id$
- *
- * Created on 19/11/2008
- *
- * @author Ben
- *
  */
-public class MkCalendarMethod extends DavMethodBase {
+public interface ObjectStoreListener extends EventListener {
 
     /**
-     * @param uri a new calendar URI
+     * @param event an event instance
      */
-    public MkCalendarMethod(String uri) {
-        super(uri);
-    }
-
+    void collectionAdded(ObjectStoreEvent event);
+    
     /**
-     * {@inheritDoc}
+     * @param event an event instance
      */
-    @Override
-    public String getName() {
-        return CalDavMethods.METHOD_MKCALENDAR;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean isSuccess(int statusCode) {
-        return statusCode == DavServletResponse.SC_CREATED;
-    }
-
+    void collectionRemoved(ObjectStoreEvent event);
 }

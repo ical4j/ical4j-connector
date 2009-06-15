@@ -43,12 +43,24 @@ import org.apache.jackrabbit.webdav.DavMethods;
  */
 public class CalDavMethods extends DavMethods {
     
+    /**
+     * 
+     */
     public static final String METHOD_MKCALENDAR = "MKCALENDAR";
     
+    /**
+     * 
+     */
     public static final String METHOD_REPORT = "REPORT";
     
+    /**
+     * 
+     */
     public static final String METHOD_MKTICKET = "MKTICKET";
     
+    /**
+     * 
+     */
     public static final String METHOD_DELTICKET = "DELTICKET";
     
 }

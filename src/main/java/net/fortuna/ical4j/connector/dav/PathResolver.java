@@ -34,204 +34,188 @@ package net.fortuna.ical4j.connector.dav;
 
 /**
  * Implementations resolve host path elements.
- *
+ * 
  * @author fortuna
- *
- * Created on: 02/04/2009
- *
- * $Id$
+ * 
+ *         Created on: 02/04/2009
+ * 
+ *         $Id$
  */
 public abstract class PathResolver {
 
-	public static final PathResolver CHANDLER = new ChandlerPathResolver();
+    /**
+	 * 
+	 */
+    public static final PathResolver CHANDLER = new ChandlerPathResolver();
 
-	public static final PathResolver CGP = new CgpPathResolver();
+    /**
+	 * 
+	 */
+    public static final PathResolver CGP = new CgpPathResolver();
 
-	public static final PathResolver KMS = new KmsPathResolver();
+    /**
+	 * 
+	 */
+    public static final PathResolver KMS = new KmsPathResolver();
 
-	public static final PathResolver ZIMBRA = new ZimbraPathResolver();
-	
-	public static final PathResolver ICAL_SERVER = new ICalServerPathResolver();
+    /**
+	 * 
+	 */
+    public static final PathResolver ZIMBRA = new ZimbraPathResolver();
 
-	public static final PathResolver CALENDAR_SERVER = new CalendarServerPathResolver();
+    /**
+	 * 
+	 */
+    public static final PathResolver ICAL_SERVER = new ICalServerPathResolver();
 
-	
-	/**
-	 * Resolves the path component for a user's calendar store URL.
-	 * @return
+    /**
+	 * 
 	 */
-	public abstract String getUserPath(String username);
-	
-	/**
-	 * Resolves the path component for a principal URL.
-	 * @return
-	 */
-	public abstract String getPrincipalPath(String username);
-	
-	/**
-	 * A {@link PathResolver} implementation for connecting to Chandler Server instances.
-	 *
-	 * @author fortuna
-	 *
-	 * Created on: 02/04/2009
-	 *
-	 * $Id$
-	 */
-	private static class ChandlerPathResolver extends PathResolver {
-		
-		/* (non-Javadoc)
-		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getPrincipalPath(java.lang.String)
-		 */
-		@Override
-		public String getPrincipalPath(String username) {
-			return "/chandler/dav/users/" + username;
-		}
-		
-		/* (non-Javadoc)
-		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getUserPath(java.lang.String)
-		 */
-		@Override
-		public String getUserPath(String username) {
-			return "/chandler/dav/" + username + "/";
-		}
-	}
-	
-	/**
-	 * A {@link PathResolver} implementation for connecting to CommuniGate Pro instances.
-	 *
-	 * @author fortuna
-	 *
-	 * Created on: 02/04/2009
-	 *
-	 * $Id$
-	 */
-	private static class CgpPathResolver extends PathResolver {
-		
-		/* (non-Javadoc)
-		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getPrincipalPath(java.lang.String)
-		 */
-		@Override
-		public String getPrincipalPath(String username) {
-	    	return "/CalDAV/";
-		}
-		
-		/* (non-Javadoc)
-		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getUserPath(java.lang.String)
-		 */
-		@Override
-		public String getUserPath(String arg0) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-	}
-	
-	/**
-	 * A {@link PathResolver} implementation for connecting to Kerio MailServer instances.
-	 *
-	 * @author fortuna
-	 *
-	 * Created on: 02/04/2009
-	 *
-	 * $Id$
-	 */
-	private static class KmsPathResolver extends PathResolver {
-		
-		/* (non-Javadoc)
-		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getPrincipalPath(java.lang.String)
-		 */
-		@Override
-		public String getPrincipalPath(String username) {
-	    	return "/caldav/";
-		}
-		
-		/* (non-Javadoc)
-		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getUserPath(java.lang.String)
-		 */
-		@Override
-		public String getUserPath(String arg0) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-	}
-	
-	/**
-	 * A {@link PathResolver} implementation for connecting to Zimbra instances.
-	 *
-	 * @author fortuna
-	 *
-	 * Created on: 02/04/2009
-	 *
-	 * $Id$
-	 */
-	private static class ZimbraPathResolver extends PathResolver {
-		
-		/* (non-Javadoc)
-		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getPrincipalPath(java.lang.String)
-		 */
-		@Override
-		public String getPrincipalPath(String username) {
-	    	return "/principals/users/" + username + "/";
-		}
-		
-		/* (non-Javadoc)
-		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getUserPath(java.lang.String)
-		 */
-		@Override
-		public String getUserPath(String username) {
-			return "/dav/" + username + "/";
-		}
-	}
-	
-	/**
-	 * A {@link PathResolver} implementation for connecting to iCal Server (Mac OS X Server) instances.
-	 *
-	 * @author Pascal Robert
-	 *
-	 * Created on: 05/04/2009
-	 */
-	private static class ICalServerPathResolver extends PathResolver {
-		
-		/* (non-Javadoc)
-		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getPrincipalPath(java.lang.String)
-		 */
-		@Override
-		public String getPrincipalPath(String username) {
-	    	return "/principals/users/" + username + "/";
-		}
-		
-		/* (non-Javadoc)
-		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getUserPath(java.lang.String)
-		 */
-		@Override
-		public String getUserPath(String username) {
-			return "/dav/" + username + "/";
-		}
-	}
-	
-	/**
-	 * A {@link PathResolver} implementation for connecting to Calendar Server (open source version of iCal Server) instances.
-	 *
-	 * @author Pascal Robert
-	 *
-	 * Created on: 05/04/2009
-	 */
-	private static class CalendarServerPathResolver extends PathResolver {
-		
-		/* (non-Javadoc)
-		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getPrincipalPath(java.lang.String)
-		 */
-		@Override
-		public String getPrincipalPath(String username) {
-	    	return "/principals/users/" + username + "/";
-		}
-		
-		/* (non-Javadoc)
-		 * @see net.fortuna.ical4j.connector.dav.PathResolver#getUserPath(java.lang.String)
-		 */
-		@Override
-		public String getUserPath(String username) {
-			return "/dav/" + username + "/";
-		}
-	}
+    public static final PathResolver CALENDAR_SERVER = new CalendarServerPathResolver();
+
+    /**
+     * Resolves the path component for a user's calendar store URL.
+     * @param username a username
+     * @return the user path for a server implementation
+     */
+    public abstract String getUserPath(String username);
+
+    /**
+     * Resolves the path component for a principal URL.
+     * @param username a username
+     * @return the principal path for a server implementation
+     */
+    public abstract String getPrincipalPath(String username);
+
+    /**
+     * A {@link PathResolver} implementation for connecting to Chandler Server instances.
+     * 
+     * @author fortuna
+     * 
+     *         Created on: 02/04/2009
+     * 
+     *         $Id$
+     */
+    private static class ChandlerPathResolver extends PathResolver {
+
+        @Override
+        public String getPrincipalPath(String username) {
+            return "/chandler/dav/users/" + username;
+        }
+
+        @Override
+        public String getUserPath(String username) {
+            return "/chandler/dav/" + username + "/";
+        }
+    }
+
+    /**
+     * A {@link PathResolver} implementation for connecting to CommuniGate Pro instances.
+     * 
+     * @author fortuna
+     * 
+     *         Created on: 02/04/2009
+     * 
+     *         $Id$
+     */
+    private static class CgpPathResolver extends PathResolver {
+
+        @Override
+        public String getPrincipalPath(String username) {
+            return "/CalDAV/";
+        }
+
+        @Override
+        public String getUserPath(String arg0) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+    }
+
+    /**
+     * A {@link PathResolver} implementation for connecting to Kerio MailServer instances.
+     * 
+     * @author fortuna
+     * 
+     *         Created on: 02/04/2009
+     * 
+     *         $Id$
+     */
+    private static class KmsPathResolver extends PathResolver {
+
+        @Override
+        public String getPrincipalPath(String username) {
+            return "/caldav/";
+        }
+
+        @Override
+        public String getUserPath(String arg0) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+    }
+
+    /**
+     * A {@link PathResolver} implementation for connecting to Zimbra instances.
+     * 
+     * @author fortuna
+     * 
+     *         Created on: 02/04/2009
+     * 
+     *         $Id$
+     */
+    private static class ZimbraPathResolver extends PathResolver {
+
+        @Override
+        public String getPrincipalPath(String username) {
+            return "/principals/users/" + username + "/";
+        }
+
+        @Override
+        public String getUserPath(String username) {
+            return "/dav/" + username + "/";
+        }
+    }
+
+    /**
+     * A {@link PathResolver} implementation for connecting to iCal Server (Mac OS X Server) instances.
+     * 
+     * @author Pascal Robert
+     * 
+     *         Created on: 05/04/2009
+     */
+    private static class ICalServerPathResolver extends PathResolver {
+
+        @Override
+        public String getPrincipalPath(String username) {
+            return "/principals/users/" + username + "/";
+        }
+
+        @Override
+        public String getUserPath(String username) {
+            return "/dav/" + username + "/";
+        }
+    }
+
+    /**
+     * A {@link PathResolver} implementation for connecting to Calendar Server (open source version of iCal Server)
+     * instances.
+     * 
+     * @author Pascal Robert
+     * 
+     *         Created on: 05/04/2009
+     */
+    private static class CalendarServerPathResolver extends PathResolver {
+
+        @Override
+        public String getPrincipalPath(String username) {
+            return "/principals/users/" + username + "/";
+        }
+
+        @Override
+        public String getUserPath(String username) {
+            return "/dav/" + username + "/";
+        }
+    }
 
 }

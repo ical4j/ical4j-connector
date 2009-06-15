@@ -32,7 +32,10 @@
 package net.fortuna.ical4j.connector;
 
 
+
 /**
+ * @param <T> the object type stored by the collection
+ * 
  * $Id$
  *
  * Created on 27/09/2008
@@ -40,17 +43,24 @@ package net.fortuna.ical4j.connector;
  * @author Ben
  *
  */
-public interface ObjectCollection {
+public interface ObjectCollection<T> {
     
     /**
-     * @return
+     * @return the collection name
      */
     String getDisplayName();
     
     /**
-     * @return
+     * @return the collection description
      */
     String getDescription();
+    
+    /**
+     * Returns all objects stored in the collection.
+     * @return an array of collection objects
+     * @throws ObjectStoreException where an unexpected error occurs
+     */
+    T[] getComponents() throws ObjectStoreException;
 
     /**
      * Returns a property value for the collection.

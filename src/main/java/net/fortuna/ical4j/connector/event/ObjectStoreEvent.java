@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2009, Ben Fortuna
  * All rights reserved.
  *
@@ -29,42 +29,52 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector.dav.method;
 
-import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.client.methods.DavMethodBase;
+package net.fortuna.ical4j.connector.event;
+
+import java.util.EventObject;
+
+import net.fortuna.ical4j.connector.ObjectCollection;
+import net.fortuna.ical4j.connector.ObjectStore;
 
 /**
+ * 
+ *
+ * @author fortuna
+ *
+ * Created on: 29/05/2009
+ *
  * $Id$
- *
- * Created on 19/11/2008
- *
- * @author Ben
- *
  */
-public class MkCalendarMethod extends DavMethodBase {
+public class ObjectStoreEvent extends EventObject {
 
     /**
-     * @param uri a new calendar URI
+     * 
      */
-    public MkCalendarMethod(String uri) {
-        super(uri);
+    private static final long serialVersionUID = 2827740666506079428L;
+
+    private ObjectCollection collection;
+    
+    /**
+     * @param source the event source
+     * @param collection the affected collection
+     */
+    public ObjectStoreEvent(ObjectStore<?> source, ObjectCollection collection) {
+        super(source);
+        this.collection = collection;
     }
 
     /**
-     * {@inheritDoc}
+     * @return the serialVersionUID
      */
-    @Override
-    public String getName() {
-        return CalDavMethods.METHOD_MKCALENDAR;
+    public static final long getSerialVersionUID() {
+        return serialVersionUID;
     }
 
     /**
-     * {@inheritDoc}
+     * @return the collection
      */
-    @Override
-    protected boolean isSuccess(int statusCode) {
-        return statusCode == DavServletResponse.SC_CREATED;
+    public final ObjectCollection getCollection() {
+        return collection;
     }
-
 }

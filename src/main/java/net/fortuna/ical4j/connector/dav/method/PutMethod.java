@@ -53,7 +53,7 @@ public class PutMethod extends org.apache.jackrabbit.webdav.client.methods.PutMe
     private CalendarOutputter outputter;
     
     /**
-     * @param uri
+     * @param uri a calendar URI
      */
     public PutMethod(String uri) {
         super(uri);
@@ -61,9 +61,9 @@ public class PutMethod extends org.apache.jackrabbit.webdav.client.methods.PutMe
     }
 
     /**
-     * @param calendar
-     * @throws IOException
-     * @throws ValidationException
+     * @param calendar a calendar object instance
+     * @throws IOException where communication fails
+     * @throws ValidationException where the specified calendar is not valid
      */
     public void setCalendar(Calendar calendar) throws IOException, ValidationException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();

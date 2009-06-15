@@ -45,23 +45,63 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
  */
 public class CalDavPropertyName {
 
-    public static final DavPropertyName CALENDAR_DESCRIPTION = DavPropertyName.create("calendar-description", CalDavConstants.NAMESPACE);
+    /**
+     * 
+     */
+    public static final DavPropertyName CALENDAR_DESCRIPTION = DavPropertyName.create("calendar-description",
+            CalDavConstants.NAMESPACE);
 
-    public static final DavPropertyName CALENDAR_TIMEZONE = DavPropertyName.create("calendar-timezone", CalDavConstants.NAMESPACE);
+    /**
+     * 
+     */
+    public static final DavPropertyName CALENDAR_TIMEZONE = DavPropertyName.create("calendar-timezone",
+            CalDavConstants.NAMESPACE);
 
-    public static final DavPropertyName SUPPORTED_CALENDAR_COMPONENT_SET = DavPropertyName.create("supported-calendar-component-set", CalDavConstants.NAMESPACE);
+    /**
+     * 
+     */
+    public static final DavPropertyName SUPPORTED_CALENDAR_COMPONENT_SET = DavPropertyName.create(
+            "supported-calendar-component-set", CalDavConstants.NAMESPACE);
 
-    public static final DavPropertyName SUPPORTED_CALENDAR_DATA = DavPropertyName.create("supported-calendar-data", CalDavConstants.NAMESPACE);
+    /**
+     * 
+     */
+    public static final DavPropertyName SUPPORTED_CALENDAR_DATA = DavPropertyName.create("supported-calendar-data",
+            CalDavConstants.NAMESPACE);
 
-    public static final DavPropertyName MAX_RESOURCE_SIZE = DavPropertyName.create("max-resource-size", CalDavConstants.NAMESPACE);
+    /**
+     * 
+     */
+    public static final DavPropertyName MAX_RESOURCE_SIZE = DavPropertyName.create("max-resource-size",
+            CalDavConstants.NAMESPACE);
 
-    public static final DavPropertyName MIN_DATE_TIME = DavPropertyName.create("min-date-time", CalDavConstants.NAMESPACE);
+    /**
+     * 
+     */
+    public static final DavPropertyName MIN_DATE_TIME = DavPropertyName.create("min-date-time",
+            CalDavConstants.NAMESPACE);
 
-    public static final DavPropertyName MAX_DATE_TIME = DavPropertyName.create("max-date-time", CalDavConstants.NAMESPACE);
+    /**
+     * 
+     */
+    public static final DavPropertyName MAX_DATE_TIME = DavPropertyName.create("max-date-time",
+            CalDavConstants.NAMESPACE);
 
-    public static final DavPropertyName MAX_INSTANCES = DavPropertyName.create("max-instances", CalDavConstants.NAMESPACE);
+    /**
+     * 
+     */
+    public static final DavPropertyName MAX_INSTANCES = DavPropertyName.create("max-instances",
+            CalDavConstants.NAMESPACE);
 
-    public static final DavPropertyName MAX_ATTENDEES_PER_INSTANCE = DavPropertyName.create("max-attendees-per-instance", CalDavConstants.NAMESPACE);
+    /**
+     * 
+     */
+    public static final DavPropertyName MAX_ATTENDEES_PER_INSTANCE = DavPropertyName.create(
+            "max-attendees-per-instance", CalDavConstants.NAMESPACE);
 
-    public static final DavPropertyName CALENDAR_DATA = DavPropertyName.create("calendar-data", CalDavConstants.NAMESPACE);
+    /**
+     * 
+     */
+    public static final DavPropertyName CALENDAR_DATA = DavPropertyName.create("calendar-data",
+            CalDavConstants.NAMESPACE);
 }

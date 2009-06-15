@@ -54,16 +54,16 @@ public class GetMethod extends org.apache.commons.httpclient.methods.GetMethod {
     }
 
     /**
-     * @param uri
+     * @param uri a calendar URI
      */
     public GetMethod(String uri) {
         super(uri);
     }
 
     /**
-     * @return
-     * @throws IOException
-     * @throws ParserException
+     * @return a calendar object instance
+     * @throws IOException where a communication error occurs
+     * @throws ParserException where calendar parsing fails
      */
     public Calendar getCalendar() throws IOException, ParserException {
         String contentType = getResponseHeader("Content-Type").getValue();

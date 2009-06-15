@@ -48,6 +48,9 @@ import org.w3c.dom.Element;
  */
 public class MkCalendar implements XmlSerializable {
 
+    /**
+     * 
+     */
     public static final String XML_MKCALENDAR = "mkcalendar";
     
     private DavPropertySet properties;
@@ -66,8 +69,8 @@ public class MkCalendar implements XmlSerializable {
         this.properties = properties;
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.jackrabbit.webdav.xml.XmlSerializable#toXml(org.w3c.dom.Document)
+    /**
+     * {@inheritDoc}
      */
     public Element toXml(Document document) {
         Element set = DomUtil.createElement(document, DavConstants.XML_SET, DavConstants.NAMESPACE);

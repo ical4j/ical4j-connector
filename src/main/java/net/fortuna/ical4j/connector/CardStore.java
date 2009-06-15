@@ -32,6 +32,8 @@
 package net.fortuna.ical4j.connector;
 
 /**
+ * @param <T> the collection type supported by the store
+ * 
  * $Id$
  *
  * Created on 27/09/2008

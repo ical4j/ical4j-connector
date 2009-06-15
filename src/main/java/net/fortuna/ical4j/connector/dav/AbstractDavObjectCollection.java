@@ -52,18 +52,21 @@ import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 
 /**
+ * @param <T> the supported collection object type
+ * 
  * Created: [20/11/2008]
  *
  * @author fortuna
  */
-public abstract class AbstractDavObjectCollection implements ObjectCollection {
+public abstract class AbstractDavObjectCollection<T> implements ObjectCollection<T> {
 
     private AbstractDavObjectStore<?> store;
 
     private String id;
 
     /**
-     * @param id
+     * @param store the container store for the collection
+     * @param id collection identifier
      */
     public AbstractDavObjectCollection(AbstractDavObjectStore<?> store, String id) {
         this.store = store;
@@ -85,21 +88,25 @@ public abstract class AbstractDavObjectCollection implements ObjectCollection {
     }
 
     /**
-     * @return
+     * @return the absolute collection path
      */
     public final String getPath() {
         return getStore().getPath() + getId();
     }
 
     /**
-     * @param propertyName
-     * @return
-     * @throws IOException
-     * @throws ObjectStoreException
-     * @throws DavException
+     * @param <T> the property type
+     * @param propertyName a property name
+     * @param type the class for the property type returned (HACK!!)
+     * @return the value for the specified property name
+     * @throws IOException if there is a communication error
+     * @throws ObjectStoreException where an unexpected error occurs
+     * @throws DavException where an error occurs calling the DAV method
      */
     @SuppressWarnings("unchecked")
-	public final <T> T getProperty(DavPropertyName propertyName, Class<T> type) throws IOException, ObjectStoreException, DavException {
+	public final <T> T getProperty(DavPropertyName propertyName, Class<T> type)
+        throws IOException, ObjectStoreException, DavException {
+        
         DavPropertyNameSet set = new DavPropertyNameSet();
         set.add(propertyName);
 
@@ -157,9 +164,9 @@ public abstract class AbstractDavObjectCollection implements ObjectCollection {
     }
 
     /**
-     * @throws HttpException
-     * @throws IOException
-     * @throws ObjectStoreException
+     * @throws HttpException where an error occurs calling the HTTP method
+     * @throws IOException if there is a communication error
+     * @throws ObjectStoreException where an unexpected error occurs
      */
     public final void delete() throws HttpException, IOException, ObjectStoreException {
         DeleteMethod deleteMethod = new DeleteMethod(getPath());
@@ -171,10 +178,10 @@ public abstract class AbstractDavObjectCollection implements ObjectCollection {
     }
 
     /**
-     * @return
-     * @throws HttpException
-     * @throws IOException
-     * @throws ObjectStoreException
+     * @return true if the collection exists, otherwise false
+     * @throws HttpException where an error occurs calling the HTTP method
+     * @throws IOException if there is a communication error
+     * @throws ObjectStoreException where an unexpected error occurs
      */
     public final boolean exists() throws HttpException, IOException, ObjectStoreException {
         GetMethod getMethod = new GetMethod(getPath());

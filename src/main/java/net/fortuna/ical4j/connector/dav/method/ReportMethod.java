@@ -62,23 +62,27 @@ import org.w3c.dom.DOMException;
  */
 public class ReportMethod extends org.apache.jackrabbit.webdav.client.methods.ReportMethod {
 
-    public static final ReportType CALENDAR_QUERY = ReportType.register("calendar-query", CalDavConstants.NAMESPACE, PrincipalMatchReport.class);
+    /**
+     * 
+     */
+    public static final ReportType CALENDAR_QUERY = ReportType.register("calendar-query",
+            CalDavConstants.NAMESPACE, PrincipalMatchReport.class);
     
     /**
-     * @param uri
-     * @param reportInfo
-     * @throws IOException
+     * @param uri a calendar collection URI
+     * @param reportInfo report configuration
+     * @throws IOException where communication fails
      */
     public ReportMethod(String uri, ReportInfo reportInfo) throws IOException {
         super(uri, reportInfo);
     }
 
     /**
-     * @return
-     * @throws IOException
-     * @throws DavException
-     * @throws DOMException
-     * @throws ParserException
+     * @return an array of calendar objects
+     * @throws IOException where communication fails
+     * @throws DavException where the DAV method fails
+     * @throws DOMException where XML parsing fails
+     * @throws ParserException where calendar parsing fails
      */
     public Calendar[] getCalendars() throws IOException, DavException, DOMException, ParserException {
         List<Calendar> calendars = new ArrayList<Calendar>();

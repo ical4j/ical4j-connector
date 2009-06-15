@@ -53,22 +53,22 @@ public class ObjectStoreException extends Exception {
     }
 
     /**
-     * @param message
+     * @param message error message
      */
     public ObjectStoreException(String message) {
         super(message);
     }
 
     /**
-     * @param cause
+     * @param cause the cause exception
      */
     public ObjectStoreException(Throwable cause) {
         super(cause);
     }
 
     /**
-     * @param message
-     * @param cause
+     * @param message error message
+     * @param cause the cause exception
      */
     public ObjectStoreException(String message, Throwable cause) {
         super(message, cause);

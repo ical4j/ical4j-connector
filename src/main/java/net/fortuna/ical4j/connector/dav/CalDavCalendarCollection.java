@@ -76,7 +76,7 @@ import org.w3c.dom.Node;
  * @author Ben
  *
  */
-public class CalDavCalendarCollection extends AbstractDavObjectCollection implements CalendarCollection {
+public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calendar> implements CalendarCollection {
     
     private String displayName;
     
@@ -126,7 +126,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         }
     }
     
-    /** (non-Javadoc)
+    /**
+     * @return an array of calendar objects
      * @deprecated Use the getEvents() method
      * @see net.fortuna.ical4j.connector.CalendarCollection#getCalendars()
      */
@@ -135,14 +136,24 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
     	return getComponentsByType(Component.VEVENT);
     }   
     
+    /**
+     * @return and array of calendar objects
+     */
     public Calendar[] getEvents() {
     	return getComponentsByType(Component.VEVENT);
     }
     
+    /**
+     * @return and array of calendar objects
+     */
     public Calendar[] getTasks() {
     	return getComponentsByType(Component.VTODO);
     }
     
+    /**
+     * @param componentType the type of component
+     * @return and array of calendar objects
+     */
     public Calendar[] getComponentsByType(String componentType) {
         try {
             DavPropertyNameSet properties = new DavPropertyNameSet();
@@ -192,8 +203,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         return new Calendar[0];
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getDescription()
+    /**
+     * {@inheritDoc}
      */
     public String getDescription() {
         try {
@@ -214,8 +225,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getDisplayName()
+    /**
+     * {@inheritDoc}
      */
     public String getDisplayName() {
         try {
@@ -236,8 +247,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         return null;
     }
     
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxAttendeesPerInstance()
+    /**
+     * {@inheritDoc}
      */
     public Integer getMaxAttendeesPerInstance() {
         try {
@@ -258,8 +269,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxDateTime()
+    /**
+     * {@inheritDoc}
      */
     public String getMaxDateTime() {
         try {
@@ -280,8 +291,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxInstances()
+    /**
+     * {@inheritDoc}
      */
     public Integer getMaxInstances() {
         try {
@@ -302,8 +313,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxResourceSize()
+    /**
+     * {@inheritDoc}
      */
     public long getMaxResourceSize() {
         try {
@@ -324,8 +335,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getMinDateTime()
+    /**
+     * {@inheritDoc}
      */
     public String getMinDateTime() {
         try {
@@ -346,12 +357,13 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getSupportedComponentTypes()
+    /**
+     * {@inheritDoc}
      */
     public String[] getSupportedComponentTypes() {
         try {
-            List<Node> supportedComponentNodes = getProperty(CalDavPropertyName.SUPPORTED_CALENDAR_COMPONENT_SET, ArrayList.class);
+            List<Node> supportedComponentNodes = getProperty(CalDavPropertyName.SUPPORTED_CALENDAR_COMPONENT_SET,
+                    ArrayList.class);
             List<String> supportedComponents = new ArrayList<String>();
             for (Node node : supportedComponentNodes) {
                 if (node.getAttributes() != null) {
@@ -378,24 +390,24 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         return new String[0];
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getSupportedMediaTypes()
+    /**
+     * {@inheritDoc}
      */
     public MediaType[] getSupportedMediaTypes() {
         // TODO Auto-generated method stub
         return new MediaType[0];
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getTimeZone()
+    /**
+     * {@inheritDoc}
      */
     public Calendar getTimeZone() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#addCalendar(net.fortuna.ical4j.model.Calendar)
+    /**
+     * {@inheritDoc}
      */
     public void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
         Uid uid = Calendars.getUid(calendar);
@@ -423,8 +435,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         }
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getCalendar(net.fortuna.ical4j.model.property.Uid)
+    /**
+     * {@inheritDoc}
      */
     public Calendar getCalendar(String uid) {
         GetMethod method = new GetMethod(getPath() + "/" + uid + ".ics");
@@ -453,8 +465,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#removeCalendar(net.fortuna.ical4j.model.property.Uid)
+    /**
+     * {@inheritDoc}
      */
     public Calendar removeCalendar(String uid) throws ObjectStoreException {
         Calendar calendar = getCalendar(uid);
@@ -478,8 +490,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         return calendar;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#merge(net.fortuna.ical4j.model.Calendar)
+    /**
+     * {@inheritDoc}
      */
     public final void merge(Calendar calendar) throws ObjectStoreException {
         try {
@@ -493,17 +505,17 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection implem
         }
     }
     
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#export()
+    /**
+     * {@inheritDoc}
      */
     public Calendar export() throws ObjectStoreException {
         // TODO Auto-generated method stub
         return null;
     }
 
-	/* (non-Javadoc)
-	 * @see net.fortuna.ical4j.connector.CalendarCollection#getComponents()
-	 */
+    /**
+     * {@inheritDoc}
+     */
 	public Calendar[] getComponents() throws ObjectStoreException {
 		return getComponentsByType("VEVENT");
 	}

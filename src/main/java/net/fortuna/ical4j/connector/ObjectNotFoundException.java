@@ -53,22 +53,22 @@ public class ObjectNotFoundException extends Exception {
     }
 
     /**
-     * @param message
+     * @param message error message
      */
     public ObjectNotFoundException(String message) {
         super(message);
     }
 
     /**
-     * @param cause
+     * @param cause the cause exception
      */
     public ObjectNotFoundException(Throwable cause) {
         super(cause);
     }
 
     /**
-     * @param message
-     * @param cause
+     * @param message error message
+     * @param cause the cause exception
      */
     public ObjectNotFoundException(String message, Throwable cause) {
         super(message, cause);

@@ -42,17 +42,12 @@ import net.fortuna.ical4j.vcard.VCard;
  * @author Ben
  *
  */
-public interface CardCollection extends ObjectCollection {
+public interface CardCollection extends ObjectCollection<VCard> {
 
     /**
-     * @param card
-     * @throws ObjectStoreException
-     * @throws ConstraintViolationException
+     * @param card a vCard object instance
+     * @throws ObjectStoreException where an unexpected error occurs
+     * @throws ConstraintViolationException where the specified object is not valid
      */
     void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException;
-    
-    /**
-     * @return
-     */
-    VCard[] getCards() throws ObjectStoreException;
 }
