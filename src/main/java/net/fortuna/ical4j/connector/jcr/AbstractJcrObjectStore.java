@@ -49,7 +49,7 @@ import net.fortuna.ical4j.model.Calendar;
 import org.jcrom.Jcrom;
 
 /**
- * 
+ * @param <T> the supported collection type
  *
  * @author Ben
  *
@@ -68,18 +68,18 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     private Jcrom jcrom;
 
     /**
-     * @param repoitory
-     * @param path
-     * @param jcrom
+     * @param repository a repository instance
+     * @param path a repository store path
+     * @param jcrom a JCROM instance
      */
-    public AbstractJcrObjectStore(Repository repoitory, String path, Jcrom jcrom) {
-        this.repository = repoitory;
+    public AbstractJcrObjectStore(Repository repository, String path, Jcrom jcrom) {
+        this.repository = repository;
         this.path = path;
         this.jcrom = jcrom;
     }
     
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStore#connect()
+    /**
+     * {@inheritDoc}
      */
     public final boolean connect() throws ObjectStoreException {
         if (repository == null) {
@@ -98,8 +98,8 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
         return session != null;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStore#connect(java.lang.String, char[])
+    /**
+     * {@inheritDoc}
      */
     public final boolean connect(String username, char[] password) throws ObjectStoreException {
         if (repository == null) {
@@ -118,16 +118,16 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
         return session != null;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStore#disconnect()
+    /**
+     * {@inheritDoc}
      */
     public final void disconnect() throws ObjectStoreException {
         assertConnected();
         session.logout();
     }
     
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStore#addCollection(java.lang.String)
+    /**
+     * {@inheritDoc}
      */
     public final T addCollection(String name) throws ObjectStoreException {
         assertConnected();
@@ -171,8 +171,8 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
         return collection;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStore#addCollection(java.lang.String, java.lang.String, java.lang.String, java.lang.String[], net.fortuna.ical4j.model.Calendar)
+    /**
+     * {@inheritDoc}
      */
     public final T addCollection(String name, String displayName,
             String description, String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
@@ -184,8 +184,8 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
         return collection;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStore#getCollection(java.lang.String)
+    /**
+     * {@inheritDoc}
      */
     public final T getCollection(String name) throws ObjectStoreException, ObjectNotFoundException {
         List<T> collections = getCollectionDao().findByCollectionName("/" + path + "/collections", name);
@@ -197,8 +197,8 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
         throw new ObjectNotFoundException("Collection doesn't exist: " + name);
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStore#removeCollection(java.lang.String)
+    /**
+     * {@inheritDoc}
      */
     public final T removeCollection(String name) throws ObjectStoreException, ObjectNotFoundException {
         T collection = getCollection(name);
@@ -221,7 +221,7 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     }
 
     /**
-     * @throws ObjectStoreException
+     * @throws ObjectStoreException where the store is not connected
      */
     protected final void assertConnected() throws ObjectStoreException {
         if (session == null) {
@@ -230,12 +230,12 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     }
     
     /**
-     * @return
+     * @return a new collection instance
      */
     protected abstract T newCollection();
     
     /**
-     * @return
+     * @return the underlying collection DAO
      */
     protected abstract AbstractJcrObjectCollectionDao<T> getCollectionDao();
 }

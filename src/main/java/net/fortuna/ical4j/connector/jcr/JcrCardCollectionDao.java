@@ -48,8 +48,8 @@ import org.jcrom.Jcrom;
 public class JcrCardCollectionDao extends AbstractJcrObjectCollectionDao<JcrCardCollection> {
 
     /**
-     * @param session
-     * @param jcrom
+     * @param session a repository session
+     * @param jcrom a JCROM instance
      */
     public JcrCardCollectionDao(Session session, Jcrom jcrom) {
         super(JcrCardCollection.class, session, jcrom);

@@ -40,7 +40,7 @@ import org.jcrom.Jcrom;
 import org.jcrom.dao.AbstractJcrDAO;
 
 /**
- * 
+ * @param <T> the object type supported by the collection DAO
  *
  * @author Ben
  *
@@ -51,18 +51,18 @@ import org.jcrom.dao.AbstractJcrDAO;
 public abstract class AbstractJcrObjectCollectionDao<T extends AbstractJcrObjectCollection> extends AbstractJcrDAO<T> {
 
     /**
-     * @param entityClass
-     * @param session
-     * @param jcrom
+     * @param entityClass the class of the object type supported by the collection DAO
+     * @param session a JCR session
+     * @param jcrom a JCROM instance
      */
     public AbstractJcrObjectCollectionDao(Class<T> entityClass, Session session, Jcrom jcrom) {
         super(entityClass, session, jcrom);
     }
 
     /**
-     * @param path
-     * @param name
-     * @return
+     * @param path a repository path
+     * @param name a collection name
+     * @return a list of collections with the specified name
      */
     public List<T> findByCollectionName(String path, String name) {
         return super.findByXPath("/jcr:root" + path + "/*[@collectionName='" + name + "']", "*", -1);

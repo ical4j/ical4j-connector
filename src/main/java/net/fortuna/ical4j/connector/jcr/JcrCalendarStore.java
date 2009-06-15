@@ -52,7 +52,9 @@ public class JcrCalendarStore extends AbstractJcrObjectStore<JcrCalendarCollecti
     private JcrCalendarCollectionDao collectionDao;
     
     /**
-     * 
+     * @param jcrom a JCROM instance
+     * @param repository a repository instance
+     * @param path the store repository path
      */
     public JcrCalendarStore(Jcrom jcrom, Repository repository, String path) {
         super(repository, path, jcrom);
@@ -62,25 +64,25 @@ public class JcrCalendarStore extends AbstractJcrObjectStore<JcrCalendarCollecti
         jcrom.map(JcrCalendar.class);
     }
     
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.jcr.AbstractJcrObjectStore#newCollection()
+    /**
+     * {@inheritDoc}
      */
     @Override
     protected JcrCalendarCollection newCollection() {
         return new JcrCalendarCollection();
     }
     
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.jcr.AbstractJcrObjectStore#getCollectionDao()
+    /**
+     * {@inheritDoc}
      */
     @Override
     protected AbstractJcrObjectCollectionDao<JcrCalendarCollection> getCollectionDao() {
         if (collectionDao == null) {
-            synchronized (this) {
-                if (collectionDao == null) {
+//            synchronized (this) {
+//                if (collectionDao == null) {
                     collectionDao = new JcrCalendarCollectionDao(getSession(), getJcrom());
-                }
-            }
+//                }
+//            }
         }
         return collectionDao;
     }

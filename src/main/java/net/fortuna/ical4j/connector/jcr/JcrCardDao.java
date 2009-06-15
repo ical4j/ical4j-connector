@@ -51,18 +51,17 @@ import org.jcrom.dao.AbstractJcrDAO;
 public class JcrCardDao extends AbstractJcrDAO<JcrCard> {
 
     /**
-     * @param entityClass
-     * @param session
-     * @param jcrom
+     * @param session a repository session
+     * @param jcrom a JCROM instance
      */
     public JcrCardDao(Session session, Jcrom jcrom) {
         super(JcrCard.class, session, jcrom, new String[] {"mix:versionable"});
     }
 
     /**
-     * @param path
-     * @param uid
-     * @return
+     * @param path the root repository path
+     * @param uid a UID
+     * @return a list of cards with the specified UID
      */
     public List<JcrCard> findByUid(String path, String uid) {
         return super.findByXPath("/jcr:root" + path + "/*[@uid='" + uid + "']", "*", -1);

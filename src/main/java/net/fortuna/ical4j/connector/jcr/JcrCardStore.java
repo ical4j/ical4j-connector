@@ -52,9 +52,9 @@ public class JcrCardStore extends AbstractJcrObjectStore<JcrCardCollection> impl
     private JcrCardCollectionDao collectionDao;
     
     /**
-     * @param repository
-     * @param path
-     * @param jcrom
+     * @param repository a repository instance
+     * @param path the store repository path
+     * @param jcrom a JCROM instance
      */
     public JcrCardStore(Jcrom jcrom, Repository repository, String path) {
         super(repository, path, jcrom);
@@ -64,25 +64,25 @@ public class JcrCardStore extends AbstractJcrObjectStore<JcrCardCollection> impl
         jcrom.map(JcrCard.class);
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.jcr.AbstractJcrObjectStore#newCollection()
+    /**
+     * {@inheritDoc}
      */
     @Override
     protected JcrCardCollection newCollection() {
         return new JcrCardCollection();
     }
     
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.jcr.AbstractJcrObjectStore#getCollectionDao()
+    /**
+     * {@inheritDoc}
      */
     @Override
     protected AbstractJcrObjectCollectionDao<JcrCardCollection> getCollectionDao() {
         if (collectionDao == null) {
-            synchronized (this) {
-                if (collectionDao == null) {
+//            synchronized (this) {
+//                if (collectionDao == null) {
                     collectionDao = new JcrCardCollectionDao(getSession(), getJcrom());
-                }
-            }
+//                }
+//            }
         }
         return collectionDao;
     }

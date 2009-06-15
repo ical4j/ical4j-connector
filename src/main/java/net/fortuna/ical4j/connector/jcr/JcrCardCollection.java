@@ -57,7 +57,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * $Id$
  */
-public class JcrCardCollection extends AbstractJcrObjectCollection implements CardCollection {
+public class JcrCardCollection extends AbstractJcrObjectCollection<VCard> implements CardCollection {
 
     private static final Log LOG = LogFactory.getLog(JcrCardCollection.class);
     
@@ -77,8 +77,8 @@ public class JcrCardCollection extends AbstractJcrObjectCollection implements Ca
 //        cards = new ArrayList<JcrCard>();
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CardCollection#addCard(net.fortuna.ical4j.vcard.VCard)
+    /**
+     * {@inheritDoc}
      */
     public void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
         
@@ -100,7 +100,8 @@ public class JcrCardCollection extends AbstractJcrObjectCollection implements Ca
         
         Uid uid = (Uid) card.getProperty(Id.UID);
         if (uid != null) {
-            List<JcrCard> jcrCards = getCardDao().findByUid(getStore().getJcrom().getPath(this) + "/cards", uid.getValue());
+            List<JcrCard> jcrCards = getCardDao().findByUid(
+                    getStore().getJcrom().getPath(this) + "/cards", uid.getValue());
             if (!jcrCards.isEmpty()) {
                 jcrCard = jcrCards.get(0);
                 update = true;
@@ -121,10 +122,10 @@ public class JcrCardCollection extends AbstractJcrObjectCollection implements Ca
         }
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CardCollection#getCards()
+    /**
+     * {@inheritDoc}
      */
-    public VCard[] getCards() throws ObjectStoreException {
+    public VCard[] getComponents() throws ObjectStoreException {
         List<VCard> cards = new ArrayList<VCard>();
         List<JcrCard> jcrCards = getCardDao().findAll(getStore().getJcrom().getPath(this) + "/cards");
         for (JcrCard card : jcrCards) {
@@ -143,11 +144,11 @@ public class JcrCardCollection extends AbstractJcrObjectCollection implements Ca
      */
     private JcrCardDao getCardDao() {
         if (cardDao == null) {
-            synchronized (this) {
-                if (cardDao == null) {
+//            synchronized (this) {
+//                if (cardDao == null) {
                     cardDao = new JcrCardDao(getStore().getSession(), getStore().getJcrom());
-                }
-            }
+//                }
+//            }
         }
         return cardDao;
     }

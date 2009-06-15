@@ -48,8 +48,8 @@ import org.jcrom.Jcrom;
 public class JcrCalendarCollectionDao extends AbstractJcrObjectCollectionDao<JcrCalendarCollection> {
 
     /**
-     * @param session
-     * @param jcrom
+     * @param session a repository session
+     * @param jcrom a JCROM instance
      */
     public JcrCalendarCollectionDao(Session session, Jcrom jcrom) {
         super(JcrCalendarCollection.class, session, jcrom);

@@ -43,7 +43,7 @@ import org.jcrom.JcrMappingException;
 import org.jcrom.annotations.JcrProperty;
 
 /**
- * 
+ * @param <T> the type of object supported by the collection
  *
  * @author Ben
  *
@@ -51,7 +51,7 @@ import org.jcrom.annotations.JcrProperty;
  *
  * $Id$
  */
-public abstract class AbstractJcrObjectCollection extends AbstractJcrEntity implements ObjectCollection {
+public abstract class AbstractJcrObjectCollection<T> extends AbstractJcrEntity implements ObjectCollection<T> {
 
     /**
      * 
@@ -80,15 +80,15 @@ public abstract class AbstractJcrObjectCollection extends AbstractJcrEntity impl
         this.collectionName = collectionName;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectCollection#getDescription()
+    /**
+     * {@inheritDoc}
      */
     public String getDescription() {
         return description;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectCollection#getDisplayName()
+    /**
+     * {@inheritDoc}
      */
     public String getDisplayName() {
         return displayName;
@@ -123,10 +123,10 @@ public abstract class AbstractJcrObjectCollection extends AbstractJcrEntity impl
     }
 
     /**
-     * @return
-     * @throws PathNotFoundException
-     * @throws JcrMappingException
-     * @throws RepositoryException
+     * @return the underlying node
+     * @throws PathNotFoundException where the repository path does not exist
+     * @throws JcrMappingException where an error with object mapping occurs
+     * @throws RepositoryException where an unexpected repository problem is encountered
      */
     protected final Node getNode() throws PathNotFoundException, JcrMappingException, RepositoryException {
         return getStore().getSession().getRootNode().getNode(getStore().getJcrom().getPath(this).substring(1));

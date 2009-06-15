@@ -71,9 +71,9 @@ public final class JcrCard extends AbstractJcrEntity {
     private VCard card;
     
     /**
-     * @return
-     * @throws IOException
-     * @throws ParserException
+     * @return the underlying vCard object instance
+     * @throws IOException where a communication error occurs
+     * @throws ParserException where vCard parsing fails
      */
     public VCard getCard() throws IOException, ParserException {
         if (card == null) {
@@ -84,7 +84,7 @@ public final class JcrCard extends AbstractJcrEntity {
     }
     
     /**
-     * @param card
+     * @param card a vCard object instance
      */
     public void setCard(VCard card) {
         this.card = card;

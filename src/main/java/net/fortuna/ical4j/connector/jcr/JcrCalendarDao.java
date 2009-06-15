@@ -51,17 +51,17 @@ import org.jcrom.dao.AbstractJcrDAO;
 public class JcrCalendarDao extends AbstractJcrDAO<JcrCalendar> {
 
     /**
-     * @param session
-     * @param jcrom
+     * @param session a repository session
+     * @param jcrom a JCROM instance
      */
     public JcrCalendarDao(Session session, Jcrom jcrom) {
         super(JcrCalendar.class, session, jcrom, new String[] {"mix:versionable"});
     }
 
     /**
-     * @param path
-     * @param uid
-     * @return
+     * @param path a root repository path
+     * @param uid a calendar UID
+     * @return a list of calendars with the specified UID
      */
     public List<JcrCalendar> findByUid(String path, String uid) {
         return super.findByXPath("/jcr:root" + path + "/*[@uid='" + uid + "']", "*", -1);

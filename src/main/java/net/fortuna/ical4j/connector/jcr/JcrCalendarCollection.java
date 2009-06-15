@@ -59,7 +59,7 @@ import org.jcrom.annotations.JcrProperty;
  * @author Ben
  *
  */
-public class JcrCalendarCollection extends AbstractJcrObjectCollection implements CalendarCollection {
+public class JcrCalendarCollection extends AbstractJcrObjectCollection<Calendar> implements CalendarCollection {
 
     /**
      * 
@@ -80,9 +80,9 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
 
     @JcrProperty private Date minDateTime;
     
-    private volatile JcrCalendarDao calendarDao;
+    private JcrCalendarDao calendarDao;
     
-    private volatile JcrCalendarCollectionDao collectionDao;
+    private JcrCalendarCollectionDao collectionDao;
     
     /**
      * @param jcrom
@@ -98,11 +98,11 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
      */
     private JcrCalendarDao getCalendarDao() {
         if (calendarDao == null) {
-            synchronized (this) {
-                if (calendarDao == null) {
+//            synchronized (this) {
+//                if (calendarDao == null) {
                     calendarDao = new JcrCalendarDao(getStore().getSession(), getStore().getJcrom());
-                }
-            }
+//                }
+//            }
         }
         return calendarDao;
     }
@@ -112,29 +112,24 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
      */
     private JcrCalendarCollectionDao getCollectionDao() {
         if (collectionDao == null) {
-            synchronized (this) {
-                if (collectionDao == null) {
+//            synchronized (this) {
+//                if (collectionDao == null) {
                     collectionDao = new JcrCalendarCollectionDao(getStore().getSession(), getStore().getJcrom());
-                }
-            }
+//                }
+//            }
         }
         return collectionDao;
     }
     
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#addCalendar(net.fortuna.ical4j.model.Calendar)
+    /**
+     * {@inheritDoc}
      */
     public void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
         addCalendar(calendar, true);
     }
     
-    /**
-     * @param calendar
-     * @param saveChanges
-     * @throws ObjectStoreException
-     * @throws ConstraintViolationException
-     */
-    private void addCalendar(Calendar calendar, boolean saveChanges) throws ObjectStoreException, ConstraintViolationException {
+    private void addCalendar(Calendar calendar, boolean saveChanges)
+        throws ObjectStoreException, ConstraintViolationException {
 //        calendars.put(jcrCal.getName(), jcrCal);
 //        calendars.add(jcrCal);
         
@@ -156,7 +151,8 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
         
         Uid uid = Calendars.getUid(calendar);
         if (uid != null) {
-            List<JcrCalendar> jcrCalendars = getCalendarDao().findByUid(getStore().getJcrom().getPath(this) + "/calendars", uid.getValue());
+            List<JcrCalendar> jcrCalendars = getCalendarDao().findByUid(
+                    getStore().getJcrom().getPath(this) + "/calendars", uid.getValue());
             if (!jcrCalendars.isEmpty()) {
                 jcrCal = jcrCalendars.get(0);
                 update = true;
@@ -186,8 +182,8 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
         }
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#export()
+    /**
+     * {@inheritDoc}
      */
     public Calendar export() throws ObjectStoreException {
         Calendar exported = new Calendar();
@@ -207,17 +203,19 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
         return exported;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getCalendar(java.lang.String)
+    /**
+     * {@inheritDoc}
      */
     public Calendar getCalendar(String uid) {
         try {
 //            JcrCalendar jcrCal = (JcrCalendar) calendars.get(uid);
-//            JcrCalendar jcrCal = getStore().getJcrom().fromNode(JcrCalendar.class, getNode().getNode("calendars").getNode(uid));
+//            JcrCalendar jcrCal = getStore().getJcrom().fromNode(
+//            JcrCalendar.class, getNode().getNode("calendars").getNode(uid));
 //            if (jcrCal != null) {
 //                return jcrCal.getCalendar();
 //            }
-            List<JcrCalendar> calendars = getCalendarDao().findByUid(getStore().getJcrom().getPath(this) + "/calendars", uid);
+            List<JcrCalendar> calendars = getCalendarDao().findByUid(
+                    getStore().getJcrom().getPath(this) + "/calendars", uid);
 //            for (JcrCalendar jcrCal : calendars) {
 //                if (uid.equals(jcrCal.getUid().getValue())) {
 //                    return jcrCal.getCalendar();
@@ -233,8 +231,8 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getCalendars()
+    /**
+     * {@inheritDoc}
      */
     public Calendar[] getComponents() throws ObjectStoreException {
         List<Calendar> retVal = new ArrayList<Calendar>();
@@ -260,15 +258,15 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
         return retVal.toArray(new Calendar[retVal.size()]);
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxAttendeesPerInstance()
+    /**
+     * {@inheritDoc}
      */
     public Integer getMaxAttendeesPerInstance() {
         return maxAttendeesPerInstance;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxDateTime()
+    /**
+     * {@inheritDoc}
      */
     public String getMaxDateTime() {
         if (maxDateTime != null) {
@@ -277,22 +275,22 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxInstances()
+    /**
+     * {@inheritDoc}
      */
     public Integer getMaxInstances() {
         return maxInstances;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getMaxResourceSize()
+    /**
+     * {@inheritDoc}
      */
     public long getMaxResourceSize() {
         return maxResourceSize;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getMinDateTime()
+    /**
+     * {@inheritDoc}
      */
     public String getMinDateTime() {
         if (minDateTime != null) {
@@ -301,37 +299,38 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getSupportedComponentTypes()
+    /**
+     * {@inheritDoc}
      */
     public String[] getSupportedComponentTypes() {
         // TODO Auto-generated method stub
-        return null;
+        return new String[0];
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getSupportedMediaTypes()
+    /**
+     * {@inheritDoc}
      */
     public MediaType[] getSupportedMediaTypes() {
         // TODO Auto-generated method stub
-        return null;
+        return new MediaType[0];
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getTimeZone()
+    /**
+     * {@inheritDoc}
      */
     public Calendar getTimeZone() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#removeCalendar(java.lang.String)
+    /**
+     * {@inheritDoc}
      */
     public Calendar removeCalendar(String uid) throws ObjectStoreException {
         Calendar calendar = getCalendar(uid);
 
-        List<JcrCalendar> calendars = getCalendarDao().findByUid(getStore().getJcrom().getPath(this) + "/calendars", uid);
+        List<JcrCalendar> calendars = getCalendarDao().findByUid(
+                getStore().getJcrom().getPath(this) + "/calendars", uid);
         if (calendars.size() > 0) {
             getCalendarDao().remove(getStore().getJcrom().getPath(calendars.get(0)));
         }
@@ -339,8 +338,8 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection implement
         return calendar;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.CalendarCollection#merge(net.fortuna.ical4j.model.Calendar)
+    /**
+     * {@inheritDoc}
      */
     public void merge(Calendar calendar) throws ObjectStoreException {
         try {

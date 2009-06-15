@@ -103,8 +103,8 @@ public class JcrCalendar extends AbstractJcrEntity {
     
     /**
      * @return the calendar
-     * @throws ParserException 
-     * @throws IOException 
+     * @throws ParserException where calendar parsing fails
+     * @throws IOException where a communication error occurs
      */
     public final Calendar getCalendar() throws IOException, ParserException {
         if (calendar == null) {
