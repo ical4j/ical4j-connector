@@ -50,15 +50,15 @@ public class ObjectStoreTest<T extends ObjectCollection> extends TestCase {
 
     private static final Log LOG = LogFactory.getLog(ObjectStoreTest.class);
 
-    private ObjectStoreLifecycle<T> lifecycle;
+    private final ObjectStoreLifecycle<T> lifecycle;
 
     private ObjectStore<T> store;
 
-    private String username;
+    private final String username;
 
-    private char[] password;
+    private final char[] password;
 
-    private String collectionName = "myCollection";
+    private final String collectionName = "myCollection";
 
     /**
      * @param testMethod

@@ -50,7 +50,7 @@ import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
  */
 public class PutMethod extends org.apache.jackrabbit.webdav.client.methods.PutMethod {
 
-    private CalendarOutputter outputter;
+    private final CalendarOutputter outputter;
     
     /**
      * @param uri a calendar URI

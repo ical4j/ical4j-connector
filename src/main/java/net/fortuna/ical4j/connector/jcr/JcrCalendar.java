@@ -90,7 +90,7 @@ public class JcrCalendar extends AbstractJcrEntity {
     
     @JcrFileNode private JcrFile description;
     
-    @JcrFileNode private List<JcrFile> attachments;
+    @JcrFileNode private final List<JcrFile> attachments;
 
     private Calendar calendar;
 

@@ -60,9 +60,9 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
  */
 public abstract class AbstractDavObjectCollection<T> implements ObjectCollection<T> {
 
-    private AbstractDavObjectStore<?> store;
+    private final AbstractDavObjectStore<?> store;
 
-    private String id;
+    private final String id;
 
     /**
      * @param store the container store for the collection

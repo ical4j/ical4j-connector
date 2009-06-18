@@ -52,7 +52,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class GCalCalendarStore implements CalendarStore {
 
-    private Log log = LogFactory.getLog(GCalCalendarStore.class);
+    private final Log log = LogFactory.getLog(GCalCalendarStore.class);
 
 //    private CalendarService service;
     

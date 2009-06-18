@@ -53,7 +53,7 @@ public class ObjectStoreEvent extends EventObject {
      */
     private static final long serialVersionUID = 2827740666506079428L;
 
-    private ObjectCollection collection;
+    private final ObjectCollection collection;
     
     /**
      * @param source the event source

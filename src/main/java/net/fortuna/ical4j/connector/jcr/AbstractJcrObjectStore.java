@@ -59,13 +59,13 @@ import org.jcrom.Jcrom;
  */
 public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollection> implements ObjectStore<T> {
 
-    private Repository repository;
+    private final Repository repository;
 
-    private String path;
+    private final String path;
     
     private Session session;
 
-    private Jcrom jcrom;
+    private final Jcrom jcrom;
 
     /**
      * @param repository a repository instance

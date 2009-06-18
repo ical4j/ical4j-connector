@@ -45,23 +45,23 @@ import junit.framework.TestCase;
  */
 public class ObjectCollectionTest<T extends ObjectCollection> extends TestCase {
 
-    private ObjectStoreLifecycle<T> lifecycle;
+    private final ObjectStoreLifecycle<T> lifecycle;
 
     private ObjectStore<T> store;
 
-    private String username;
+    private final String username;
 
-    private char[] password;
+    private final char[] password;
 
     private T collection;
 
-    private String collectionId = "myCollection";
+    private final String collectionId = "myCollection";
 
-    private String description = "My collection of objects";
+    private final String description = "My collection of objects";
 
-    private String displayName = "My Collection";
+    private final String displayName = "My Collection";
 
-    private String[] supportedComponents;
+    private final String[] supportedComponents;
 
     /**
      * @param testMethod

@@ -57,9 +57,9 @@ import org.jcrom.Jcrom;
 public abstract class AbstractJcrObjectStoreLifecycle<T extends AbstractJcrObjectCollection> implements
         ObjectStoreLifecycle<T> {
 
-    private String testDirString;
+    private final String testDirString;
 
-    private String name;
+    private final String name;
 
     private Context context;
 
@@ -67,7 +67,7 @@ public abstract class AbstractJcrObjectStoreLifecycle<T extends AbstractJcrObjec
 
     private Repository repository;
 
-    private Jcrom jcrom;
+    private final Jcrom jcrom;
 
     /**
      * 
