@@ -84,22 +84,24 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     
     /**
      * Only {@link CalDavCalendarStore} should be calling this, so default modifier is applied.
-     * @param store
+     * @param calDavCalendarStore
      * @param path
      */
-    CalDavCalendarCollection(CalDavCalendarStore store, String id) {
-        this(store, id, null, null);
+    CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id) {
+        this(calDavCalendarStore, id, null, null);
     }
     
     /**
      * Only {@link CalDavCalendarStore} should be calling this, so default modifier is applied.
-     * @param store
+     * @param calDavCalendarStore
      * @param id
      * @param displayName
      * @param description
      */
-    CalDavCalendarCollection(CalDavCalendarStore store, String id, String displayName, String description) {
-    	super(store, id);
+    CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore,
+            String id, String displayName, String description) {
+        
+    	super(calDavCalendarStore, id);
         this.displayName = displayName;
         this.description = description;
     }

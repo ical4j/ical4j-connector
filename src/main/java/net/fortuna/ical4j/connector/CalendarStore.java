@@ -32,10 +32,11 @@
 package net.fortuna.ical4j.connector;
 
 
+
 /**
  * Design contract for calendar collection stores.
  * 
- * @param <T> a calendar collection implementation supported by the calendar store
+ * @param <C> a calendar collection implementation supported by the calendar store
  * 
  * $Id$
  *
@@ -44,7 +45,7 @@ package net.fortuna.ical4j.connector;
  * @author Ben
  *
  */
-public interface CalendarStore<T extends CalendarCollection> extends ObjectStore<T> {
+public interface CalendarStore<C extends CalendarCollection> extends ObjectStore<C> {
     
     /**
      * Merges the specified calendar with an existing calendar in the store with the

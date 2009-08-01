@@ -34,7 +34,7 @@ package net.fortuna.ical4j.connector;
 import net.fortuna.ical4j.model.Calendar;
 
 /**
- * @param <T> the type of collection supported by the store
+ * @param <C> the type of collection supported by the store
  * 
  * $Id$
  *
@@ -43,7 +43,7 @@ import net.fortuna.ical4j.model.Calendar;
  * @author Ben
  *
  */
-public interface ObjectStore<T extends ObjectCollection> {
+public interface ObjectStore<C extends ObjectCollection<?>> {
 
     /**
      * Connect to a object store anonymously.
@@ -73,7 +73,7 @@ public interface ObjectStore<T extends ObjectCollection> {
      * @throws ObjectStoreException if a calendar with the specified id already
      * exists in the store
      */
-    T addCollection(String id) throws ObjectStoreException;
+    C addCollection(String id) throws ObjectStoreException;
     
     /**
      * @param id a collection identifier
@@ -84,7 +84,7 @@ public interface ObjectStore<T extends ObjectCollection> {
      * @return the new collection instance
      * @throws ObjectStoreException where an unexpected error occurs
      */
-    T addCollection(String id, String displayName, String description,
+    C addCollection(String id, String displayName, String description,
             String[] supportedComponents, Calendar timezone) throws ObjectStoreException;
     
     /**
@@ -95,7 +95,7 @@ public interface ObjectStore<T extends ObjectCollection> {
      * @throws ObjectStoreException where an unexpected error occurs
      * @throws ObjectNotFoundException if a collection with the specified identifier doesn't exist
      */
-    T removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException;
+    C removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException;
     
     /**
      * @param id a collection identifier
@@ -104,6 +104,6 @@ public interface ObjectStore<T extends ObjectCollection> {
      * @throws ObjectStoreException where an unexpected error occurs
      * @throws ObjectNotFoundException if a collection with the specified identifier doesn't exist
      */
-    T getCollection(String id) throws ObjectStoreException, ObjectNotFoundException;
+    C getCollection(String id) throws ObjectStoreException, ObjectNotFoundException;
 
 }

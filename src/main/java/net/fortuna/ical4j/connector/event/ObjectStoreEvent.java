@@ -38,7 +38,7 @@ import net.fortuna.ical4j.connector.ObjectCollection;
 import net.fortuna.ical4j.connector.ObjectStore;
 
 /**
- * 
+ * @param <T> the object collection type supported by the event source
  *
  * @author fortuna
  *
@@ -46,20 +46,20 @@ import net.fortuna.ical4j.connector.ObjectStore;
  *
  * $Id$
  */
-public class ObjectStoreEvent extends EventObject {
+public class ObjectStoreEvent<T> extends EventObject {
 
     /**
      * 
      */
     private static final long serialVersionUID = 2827740666506079428L;
 
-    private final ObjectCollection collection;
+    private final ObjectCollection<T> collection;
     
     /**
      * @param source the event source
      * @param collection the affected collection
      */
-    public ObjectStoreEvent(ObjectStore<?> source, ObjectCollection collection) {
+    public ObjectStoreEvent(ObjectStore<ObjectCollection<T>> source, ObjectCollection<T> collection) {
         super(source);
         this.collection = collection;
     }
@@ -74,7 +74,7 @@ public class ObjectStoreEvent extends EventObject {
     /**
      * @return the collection
      */
-    public final ObjectCollection getCollection() {
+    public final ObjectCollection<T> getCollection() {
         return collection;
     }
 }

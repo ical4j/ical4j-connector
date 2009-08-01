@@ -43,7 +43,7 @@ import junit.framework.TestCase;
  * 
  *         $Id$
  */
-public class ObjectCollectionTest<T extends ObjectCollection> extends TestCase {
+public class ObjectCollectionTest<T extends ObjectCollection<?>> extends TestCase {
 
     private final ObjectStoreLifecycle<T> lifecycle;
 

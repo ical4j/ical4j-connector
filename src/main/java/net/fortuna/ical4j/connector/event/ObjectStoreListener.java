@@ -35,7 +35,7 @@ package net.fortuna.ical4j.connector.event;
 import java.util.EventListener;
 
 /**
- * 
+ * @param <T> the object type supported by the event source
  *
  * @author fortuna
  *
@@ -43,15 +43,15 @@ import java.util.EventListener;
  *
  * $Id$
  */
-public interface ObjectStoreListener extends EventListener {
+public interface ObjectStoreListener<T> extends EventListener {
 
     /**
      * @param event an event instance
      */
-    void collectionAdded(ObjectStoreEvent event);
+    void collectionAdded(ObjectStoreEvent<T> event);
     
     /**
      * @param event an event instance
      */
-    void collectionRemoved(ObjectStoreEvent event);
+    void collectionRemoved(ObjectStoreEvent<T> event);
 }

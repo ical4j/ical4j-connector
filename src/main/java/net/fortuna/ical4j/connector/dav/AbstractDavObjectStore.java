@@ -42,7 +42,6 @@ import net.fortuna.ical4j.connector.ObjectStoreException;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthPolicy;
@@ -52,13 +51,14 @@ import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
 
 /**
- * @param <T> the supported collection type
+ * @param <C>
+ *            the supported collection type
  * 
- * Created: [20/11/2008]
+ *            Created: [20/11/2008]
  * 
  * @author fortuna
  */
-public abstract class AbstractDavObjectStore<T extends ObjectCollection> implements ObjectStore<T> {
+public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> implements ObjectStore<C> {
 
     /**
      * The underlying HTTP client.
@@ -76,10 +76,14 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
     protected PathResolver pathResolver;
 
     /**
-     * @param host the server host name
-     * @param port the server port
-     * @param protocol the HTTP protocol variant
-     * @param pathResolver Server implementation-specific path resolution.
+     * @param host
+     *            the server host name
+     * @param port
+     *            the server port
+     * @param protocol
+     *            the HTTP protocol variant
+     * @param pathResolver
+     *            Server implementation-specific path resolution.
      */
     public AbstractDavObjectStore(String host, int port, Protocol protocol, PathResolver pathResolver) {
         hostConfiguration = new HostConfiguration();
@@ -111,26 +115,26 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
         // httpClient = new HttpClient();
         Credentials credentials = new UsernamePasswordCredentials(username, new String(password));
         httpClient.getState().setCredentials(AuthScope.ANY, credentials);
-        
+
         // Added to support iCal Server, who don't support Basic auth at all, only Kerberos and Digest
         List<String> authPrefs = new ArrayList<String>(2);
         authPrefs.add(org.apache.commons.httpclient.auth.AuthPolicy.DIGEST);
         authPrefs.add(org.apache.commons.httpclient.auth.AuthPolicy.BASIC);
-        httpClient.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY,authPrefs);
-        
+        httpClient.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authPrefs);
+
         // This is to get the Digest from the user
         try {
-        	PropFindMethod aGet = new PropFindMethod(pathResolver.getPrincipalPath(username),
-        	        DavConstants.PROPFIND_ALL_PROP, 0);
-        	aGet.setDoAuthentication(true);
-        	int status = httpClient.executeMethod(hostConfiguration,aGet);
-        	if (status >= 300) {
-        		throw new ObjectStoreException("Principals not found");
-        	}
+            PropFindMethod aGet = new PropFindMethod(pathResolver.getPrincipalPath(username),
+                    DavConstants.PROPFIND_ALL_PROP, 0);
+            aGet.setDoAuthentication(true);
+            int status = httpClient.executeMethod(hostConfiguration, aGet);
+            if (status >= 300) {
+                throw new ObjectStoreException("Principals not found");
+            }
         } catch (Exception ex) {
-        	throw new ObjectStoreException(ex.getMessage());
+            throw new ObjectStoreException(ex.getMessage());
         }
-        
+
         // httpClient.getParams().setAuthenticationPreemptive(true);
         return true;
     }
@@ -149,21 +153,17 @@ public abstract class AbstractDavObjectStore<T extends ObjectCollection> impleme
         return httpClient != null;
     }
 
-    /**
-     * @param method
-     * @throws HttpException
-     * @throws IOException
-     */
-    int execute(HttpMethodBase method) throws HttpException, IOException {
+    int execute(HttpMethodBase method) throws IOException {
         return httpClient.executeMethod(hostConfiguration, method);
-    }    
-    
+    }
+
     /**
-     * This method is needed to "propfind" the user's principals
+     * This method is needed to "propfind" the user's principals.
+     * 
      * @return the username stored in the HTTP credentials
      * @author Pascal Robert
      */
     protected String getUserName() {
-    	return ((UsernamePasswordCredentials)httpClient.getState().getCredentials(AuthScope.ANY)).getUserName();
+        return ((UsernamePasswordCredentials) httpClient.getState().getCredentials(AuthScope.ANY)).getUserName();
     }
 }

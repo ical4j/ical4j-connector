@@ -46,7 +46,7 @@ import junit.framework.TestCase;
  * 
  *         $Id$
  */
-public class ObjectStoreTest<T extends ObjectCollection> extends TestCase {
+public class ObjectStoreTest<T extends ObjectCollection<?>> extends TestCase {
 
     private static final Log LOG = LogFactory.getLog(ObjectStoreTest.class);
 

@@ -49,7 +49,7 @@ import net.fortuna.ical4j.model.Calendar;
 import org.jcrom.Jcrom;
 
 /**
- * @param <T> the supported collection type
+ * @param <C> the supported collection type
  *
  * @author Ben
  *
@@ -57,7 +57,7 @@ import org.jcrom.Jcrom;
  *
  * $Id$
  */
-public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollection> implements ObjectStore<T> {
+public abstract class AbstractJcrObjectStore<C extends AbstractJcrObjectCollection<?>> implements ObjectStore<C> {
 
     private final Repository repository;
 
@@ -129,7 +129,7 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     /**
      * {@inheritDoc}
      */
-    public final T addCollection(String name) throws ObjectStoreException {
+    public final C addCollection(String name) throws ObjectStoreException {
         assertConnected();
         
         // initialise store..
@@ -145,9 +145,9 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
             throw new ObjectStoreException("Unexpected error", e);
         }
         
-        T collection = null;
+        C collection = null;
         boolean update = false;
-        List<T> collections = getCollectionDao().findByCollectionName("/" + path + "/collections", name);
+        List<C> collections = getCollectionDao().findByCollectionName("/" + path + "/collections", name);
         if (!collections.isEmpty()) {
             collection = collections.get(0);
             update = true;
@@ -174,10 +174,10 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     /**
      * {@inheritDoc}
      */
-    public final T addCollection(String name, String displayName,
+    public final C addCollection(String name, String displayName,
             String description, String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
         
-        T collection = addCollection(name);
+        C collection = addCollection(name);
         collection.setDisplayName(displayName);
         collection.setDescription(description);
         getCollectionDao().update(collection);
@@ -187,10 +187,10 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     /**
      * {@inheritDoc}
      */
-    public final T getCollection(String name) throws ObjectStoreException, ObjectNotFoundException {
-        List<T> collections = getCollectionDao().findByCollectionName("/" + path + "/collections", name);
+    public final C getCollection(String name) throws ObjectStoreException, ObjectNotFoundException {
+        List<C> collections = getCollectionDao().findByCollectionName("/" + path + "/collections", name);
         if (!collections.isEmpty()) {
-            T collection = collections.get(0);
+            C collection = collections.get(0);
             collection.setStore(this);
             return collection;
         }
@@ -200,8 +200,8 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     /**
      * {@inheritDoc}
      */
-    public final T removeCollection(String name) throws ObjectStoreException, ObjectNotFoundException {
-        T collection = getCollection(name);
+    public final C removeCollection(String name) throws ObjectStoreException, ObjectNotFoundException {
+        C collection = getCollection(name);
         getCollectionDao().remove(getJcrom().getPath(collection));
         return collection;
     }
@@ -232,10 +232,10 @@ public abstract class AbstractJcrObjectStore<T extends AbstractJcrObjectCollecti
     /**
      * @return a new collection instance
      */
-    protected abstract T newCollection();
+    protected abstract C newCollection();
     
     /**
      * @return the underlying collection DAO
      */
-    protected abstract AbstractJcrObjectCollectionDao<T> getCollectionDao();
+    protected abstract AbstractJcrObjectCollectionDao<C> getCollectionDao();
 }

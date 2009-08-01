@@ -39,7 +39,7 @@ package net.fortuna.ical4j.connector;
  * @author Ben
  *
  */
-public interface ObjectStoreLifecycle<T extends ObjectCollection> {
+public interface ObjectStoreLifecycle<T extends ObjectCollection<?>> {
 
     /**
      * Initialise the calendar store.

@@ -31,8 +31,9 @@
  */
 package net.fortuna.ical4j.connector;
 
+
 /**
- * @param <T> the collection type supported by the store
+ * @param <C> the collection type supported by the store
  * 
  * $Id$
  *
@@ -41,6 +42,6 @@ package net.fortuna.ical4j.connector;
  * @author Ben
  *
  */
-public interface CardStore<T extends CardCollection> extends ObjectStore<T> {
+public interface CardStore<C extends CardCollection> extends ObjectStore<C> {
 
 }

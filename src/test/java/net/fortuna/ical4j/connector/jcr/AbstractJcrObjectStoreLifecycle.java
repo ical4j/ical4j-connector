@@ -54,7 +54,7 @@ import org.jcrom.Jcrom;
  * 
  *         $Id$
  */
-public abstract class AbstractJcrObjectStoreLifecycle<T extends AbstractJcrObjectCollection> implements
+public abstract class AbstractJcrObjectStoreLifecycle<T extends AbstractJcrObjectCollection<?>> implements
         ObjectStoreLifecycle<T> {
 
     private final String testDirString;

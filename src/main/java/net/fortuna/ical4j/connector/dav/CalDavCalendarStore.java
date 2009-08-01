@@ -67,8 +67,8 @@ import org.w3c.dom.Node;
  * @author Ben
  * 
  */
-public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCollection> implements
-        CalendarStore<CalDavCalendarCollection> {
+public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCollection>
+    implements CalendarStore<CalDavCalendarCollection> {
 
     private final String prodId;
 
