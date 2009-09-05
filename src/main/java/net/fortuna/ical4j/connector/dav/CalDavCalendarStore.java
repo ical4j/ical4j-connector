@@ -34,6 +34,7 @@ package net.fortuna.ical4j.connector.dav;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -225,9 +226,10 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      * @throws IOException where a communications error occurs
      * @throws DavException where an error occurs calling the DAV method
      */
-    public ArrayList<CalDavCalendarCollection> getCollections() throws ParserConfigurationException, IOException,
-            DavException {
-        ArrayList<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
+    public List<CalDavCalendarCollection> getCollections() throws ParserConfigurationException,
+        IOException, DavException {
+        
+        List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
 
         DavPropertyNameSet principalsProps = new DavPropertyNameSet();
         principalsProps.add(DavPropertyName.DISPLAYNAME);
