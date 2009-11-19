@@ -132,7 +132,12 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
                 throw new ObjectStoreException("Principals not found");
             }
         } catch (Exception ex) {
-            throw new ObjectStoreException(ex.getMessage());
+            if (ex instanceof ObjectStoreException) {
+                throw (ObjectStoreException) ex;
+            }
+            else {
+                throw new ObjectStoreException(ex.getMessage(), ex);
+            }
         }
 
         // httpClient.getParams().setAuthenticationPreemptive(true);
