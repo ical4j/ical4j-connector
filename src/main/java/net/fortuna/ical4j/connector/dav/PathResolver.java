@@ -72,6 +72,8 @@ public abstract class PathResolver {
 	 * 
 	 */
     public static final PathResolver CALENDAR_SERVER = new CalendarServerPathResolver();
+    
+    public static final PathResolver GCAL = new GCalPathResolver();
 
     /**
      * Resolves the path component for a user's calendar store URL.
@@ -218,4 +220,16 @@ public abstract class PathResolver {
         }
     }
 
+    private static class GCalPathResolver extends PathResolver {
+
+        @Override
+        public String getPrincipalPath(String username) {
+            return "/calendar/dav/" + username + "/events/";
+        }
+
+        @Override
+        public String getUserPath(String username) {
+            return "/calendar/dav/" + username + "/user/";
+        }
+    }
 }
