@@ -31,14 +31,11 @@
  */
 package net.fortuna.ical4j.connector.dav;
 
+import java.net.URL;
+
 import net.fortuna.ical4j.connector.CalendarStore;
 import net.fortuna.ical4j.connector.ObjectStore;
 import net.fortuna.ical4j.connector.ObjectStoreLifecycle;
-import net.fortuna.ical4j.connector.dav.CalDavCalendarCollection;
-import net.fortuna.ical4j.connector.dav.CalDavCalendarStore;
-import net.fortuna.ical4j.connector.dav.PathResolver;
-
-import org.apache.commons.httpclient.protocol.Protocol;
 
 /**
  * $Id$
@@ -52,56 +49,28 @@ public class CalDavCalendarStoreLifecycle implements ObjectStoreLifecycle<CalDav
 
     protected static final String PRODID = "-//Ben Fortuna//iCal4j Connector 1.0//EN";
 
-    private String host;
-    
-    private int port;
-    
-    private Protocol protocol;
+    private URL url;
 
     private PathResolver pathResolver;
     
     private CalendarStore<CalDavCalendarCollection> store;
     
-    /**
-     * @param id
-     */
-    public CalDavCalendarStoreLifecycle(String host, int port, PathResolver pathResolver) {
-        this(host, port, Protocol.getProtocol("http"), pathResolver);
-    }
-    
-    /**
-     * @param host
-     * @param port
-     * @param protocol
-     * @param path
-     */
-    public CalDavCalendarStoreLifecycle(String host, int port, Protocol protocol, PathResolver pathResolver) {
-        this.host = host;
-        this.port = port;
-        this.protocol = protocol;
+    public CalDavCalendarStoreLifecycle(URL url, PathResolver pathResolver) {
+        this.url = url;
         this.pathResolver = pathResolver;
 //        storePath = BASE_STORE_PATH + id + "/";
     }
     
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#getCalendarStore()
-     */
     public ObjectStore<CalDavCalendarCollection> getObjectStore() {
         return store;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#shutdown()
-     */
     public void shutdown() throws Exception {
         store = null;
     }
 
-    /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#startup()
-     */
     public void startup() throws Exception {
-        store = new CalDavCalendarStore(PRODID, host, port, protocol, pathResolver);
+        store = new CalDavCalendarStore(PRODID, url, pathResolver);
     }
 
 }

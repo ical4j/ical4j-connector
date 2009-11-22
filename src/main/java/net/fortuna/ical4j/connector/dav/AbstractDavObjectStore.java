@@ -32,6 +32,7 @@
 package net.fortuna.ical4j.connector.dav;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,18 +77,13 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
     protected PathResolver pathResolver;
 
     /**
-     * @param host
-     *            the server host name
-     * @param port
-     *            the server port
-     * @param protocol
-     *            the HTTP protocol variant
-     * @param pathResolver
-     *            Server implementation-specific path resolution.
+     * @param url the URL of a CalDAV server instance
+     * @param pathResolver the path resolver for the CalDAV server type
      */
-    public AbstractDavObjectStore(String host, int port, Protocol protocol, PathResolver pathResolver) {
+    public AbstractDavObjectStore(URL url, PathResolver pathResolver) {
+        final Protocol protocol = Protocol.getProtocol(url.getProtocol());
         hostConfiguration = new HostConfiguration();
-        hostConfiguration.setHost(host, port, protocol);
+        hostConfiguration.setHost(url.getHost(), url.getPort(), protocol);
         this.pathResolver = pathResolver;
     }
 

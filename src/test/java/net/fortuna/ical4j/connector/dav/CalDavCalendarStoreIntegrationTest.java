@@ -31,11 +31,12 @@
  */
 package net.fortuna.ical4j.connector.dav;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import net.fortuna.ical4j.connector.ObjectStoreTest;
-import net.fortuna.ical4j.connector.dav.CalDavCalendarCollection;
-import net.fortuna.ical4j.connector.dav.PathResolver;
 
 /**
  * $Id$
@@ -47,23 +48,19 @@ import net.fortuna.ical4j.connector.dav.PathResolver;
  */
 public class CalDavCalendarStoreIntegrationTest extends TestSuite {
     
-    /**
-     * @return
-     */
-    public static Test suite() {
+    public static Test suite() throws MalformedURLException {
         TestSuite suite = new TestSuite(CalDavCalendarStoreIntegrationTest.class.getSimpleName());
         
-        String host = "mediabase.local";
-        int port = 8088;
+        final URL url = new URL("http://mediabase.local:8088");
         String username = "fortuna";
         char[] password = "connector".toCharArray();
         
         suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testAddCollection",
-                new CalDavCalendarStoreLifecycle(host, port, PathResolver.CHANDLER), username, password));
+                new CalDavCalendarStoreLifecycle(url, PathResolver.CHANDLER), username, password));
         suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testGetCollection",
-                new CalDavCalendarStoreLifecycle(host, port, PathResolver.CHANDLER), username, password));
+                new CalDavCalendarStoreLifecycle(url, PathResolver.CHANDLER), username, password));
         suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testRemoveCollection",
-                new CalDavCalendarStoreLifecycle(host, port, PathResolver.CHANDLER), username, password));
+                new CalDavCalendarStoreLifecycle(url, PathResolver.CHANDLER), username, password));
         return suite;
     }
 

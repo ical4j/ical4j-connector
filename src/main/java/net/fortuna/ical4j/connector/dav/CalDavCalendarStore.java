@@ -32,6 +32,7 @@
 package net.fortuna.ical4j.connector.dav;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -46,7 +47,6 @@ import net.fortuna.ical4j.model.Calendar;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.MultiStatus;
@@ -74,19 +74,12 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     private final String prodId;
 
     /**
-     * @param prodId
-     *            product identifier
-     * @param host
-     *            the server host
-     * @param port
-     *            the server port
-     * @param protocol
-     *            HTTP protocol variant
-     * @param pathResolver
-     *            server implementation-specific path
+     * @param prodId application product identifier
+     * @param url the URL of a CalDAV server instance
+     * @param pathResolver the path resolver for the CalDAV server type
      */
-    public CalDavCalendarStore(String prodId, String host, int port, Protocol protocol, PathResolver pathResolver) {
-        super(host, port, protocol, pathResolver);
+    public CalDavCalendarStore(String prodId, URL url, PathResolver pathResolver) {
+        super(url, pathResolver);
         this.prodId = prodId;
     }
 
