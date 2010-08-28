@@ -152,6 +152,8 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      */
     private String findCalendarHomeSet() throws ParserConfigurationException, IOException, DavException {
         String propfindUri = hostConfiguration.getHostURL() + pathResolver.getPrincipalPath(getUserName());
+        // GAUTAM UPDATED FOLLOWING LINE with port configuration
+//        String propfindUri = hostConfiguration.getHostURL() + ":" + hostConfiguration.getPort() + pathResolver.getPrincipalPath(getUserName());
 
         DavPropertyNameSet principalsProps = new DavPropertyNameSet();
         principalsProps.add(DavPropertyName.create(CalDavConstants.PROPERTY_HOME_SET, CalDavConstants.NAMESPACE));
