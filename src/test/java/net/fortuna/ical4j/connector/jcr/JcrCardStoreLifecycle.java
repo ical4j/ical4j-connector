@@ -63,7 +63,7 @@ public class JcrCardStoreLifecycle extends AbstractJcrObjectStoreLifecycle<JcrCa
      * @see net.fortuna.ical4j.connector.ObjectStoreLifecycle#getObjectStore()
      */
     public ObjectStore<JcrCardCollection> getObjectStore() {
-        return new JcrCardStore(getJcrom(), getRepository(), "contacts");
+        return new JcrCardStore(getJcrom(), getRepository(), "/contacts");
     }
 
 }

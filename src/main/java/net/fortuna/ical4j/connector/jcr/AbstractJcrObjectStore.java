@@ -35,7 +35,7 @@ package net.fortuna.ical4j.connector.jcr;
 import java.util.List;
 
 import javax.jcr.LoginException;
-import javax.jcr.PathNotFoundException;
+import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -134,12 +134,17 @@ public abstract class AbstractJcrObjectStore<C extends AbstractJcrObjectCollecti
         
         // initialise store..
         try {
-            try {
-                session.getRootNode().getNode(path).getNode("collections");
-            }
-            catch (PathNotFoundException e) {
-                session.getRootNode().addNode(path).addNode("collections");
-            }
+        	Node pathNode;
+        	if (!session.nodeExists(path)) {
+        		pathNode = session.getRootNode().addNode(path.substring(1));
+        	}
+        	else {
+        		pathNode = session.getNode(path);
+        	}
+        	
+        	if (!pathNode.hasNode("collections")) {
+        		pathNode.addNode("collections");
+        	}
         }
         catch (RepositoryException e) {
             throw new ObjectStoreException("Unexpected error", e);
@@ -147,7 +152,7 @@ public abstract class AbstractJcrObjectStore<C extends AbstractJcrObjectCollecti
         
         C collection = null;
         boolean update = false;
-        List<C> collections = getCollectionDao().findByCollectionName("/" + path + "/collections", name);
+        List<C> collections = getCollectionDao().findByCollectionName(path + "/collections", name);
         if (!collections.isEmpty()) {
             collection = collections.get(0);
             update = true;
@@ -166,7 +171,7 @@ public abstract class AbstractJcrObjectStore<C extends AbstractJcrObjectCollecti
             getCollectionDao().update(collection);
         }
         else {
-            getCollectionDao().create("/" + path + "/collections", collection);
+            getCollectionDao().create(path + "/collections", collection);
         }
         return collection;
     }
@@ -188,7 +193,7 @@ public abstract class AbstractJcrObjectStore<C extends AbstractJcrObjectCollecti
      * {@inheritDoc}
      */
     public final C getCollection(String name) throws ObjectStoreException, ObjectNotFoundException {
-        List<C> collections = getCollectionDao().findByCollectionName("/" + path + "/collections", name);
+        List<C> collections = getCollectionDao().findByCollectionName(path + "/collections", name);
         if (!collections.isEmpty()) {
             C collection = collections.get(0);
             collection.setStore(this);
