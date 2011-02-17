@@ -98,17 +98,16 @@
             virtual file system of the workspace:
             class: FQN of class implementing the FileSystem interface
         -->
-        <FileSystem class="org.apache.jackrabbit.core.fs.local.LocalFileSystem">
-            <param name="path" value="${wsp.home}"/>
-        </FileSystem>
+        <FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem"/>
+        
         <!--
             persistence manager of the workspace:
             class: FQN of class implementing the PersistenceManager interface
         -->
-        <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.DerbyPersistenceManager">
-          <param name="url" value="jdbc:derby:${wsp.home}/db;create=true"/>
-          <param name="schemaObjectPrefix" value="${wsp.name}_"/>
-        </PersistenceManager>
+	    <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.BundleFsPersistenceManager"> 
+	      	<param name="blobFSBlockSize" value="1" /><!-- store in memory --> 
+	    </PersistenceManager> 
+        
         <!--
             Search index and the file system it uses.
             class: FQN of class implementing the QueryHandler interface
@@ -118,6 +117,8 @@
             <param name="textFilterClasses" value="org.apache.jackrabbit.extractor.PlainTextExtractor,org.apache.jackrabbit.extractor.MsWordTextExtractor,org.apache.jackrabbit.extractor.MsExcelTextExtractor,org.apache.jackrabbit.extractor.MsPowerPointTextExtractor,org.apache.jackrabbit.extractor.PdfTextExtractor,org.apache.jackrabbit.extractor.OpenOfficeTextExtractor,org.apache.jackrabbit.extractor.RTFTextExtractor,org.apache.jackrabbit.extractor.HTMLTextExtractor,org.apache.jackrabbit.extractor.XMLTextExtractor"/>
             <param name="extractorPoolSize" value="2"/>
             <param name="supportHighlighting" value="true"/>
+      		<param name="directoryManagerClass" value="org.apache.jackrabbit.core.query.lucene.directory.RAMDirectoryManager" /> 
+	        <FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem"/>
         </SearchIndex>
     </Workspace>
 
@@ -139,10 +140,9 @@
             a 'normal' persistence manager, but this could change in future
             implementations.
         -->
-        <PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.DerbyPersistenceManager">
-          <param name="url" value="jdbc:derby:${rep.home}/version/db;create=true"/>
-          <param name="schemaObjectPrefix" value="version_"/>
-        </PersistenceManager>
+		<PersistenceManager class="org.apache.jackrabbit.core.persistence.bundle.BundleFsPersistenceManager"> 
+      		<param name="blobFSBlockSize" value="1" /><!-- store in memory --> 
+    	</PersistenceManager>
     </Versioning>
 
     <!--
