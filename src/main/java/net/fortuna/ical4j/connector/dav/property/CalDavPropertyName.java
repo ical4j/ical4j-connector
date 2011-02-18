@@ -37,11 +37,11 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 
 /**
  * $Id$
- *
+ * 
  * Created on 19/11/2008
- *
+ * 
  * @author Ben
- *
+ * 
  */
 public class CalDavPropertyName {
 
@@ -104,4 +104,21 @@ public class CalDavPropertyName {
      */
     public static final DavPropertyName CALENDAR_DATA = DavPropertyName.create("calendar-data",
             CalDavConstants.NAMESPACE);
+
+    /**
+     * 
+     */
+    public static final DavPropertyName RECIPIENT = DavPropertyName.create("recipient", CalDavConstants.NAMESPACE);
+
+    /**
+     * 
+     */
+    public static final DavPropertyName REQUEST_STATUS = DavPropertyName.create("request-status",
+            CalDavConstants.NAMESPACE);
+
+    /**
+     * 
+     */
+    public static final DavPropertyName CALENDAR_COLOR = DavPropertyName.create(
+            CalDavConstants.PROPERTY_CALENDAR_COLOR, CalDavConstants.ICAL_NAMESPACE);
 }

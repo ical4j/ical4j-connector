@@ -91,7 +91,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      * @return the absolute collection path
      */
     public final String getPath() {
-        return getStore().getPath() + getId();
+        return getId();
     }
 
     /**

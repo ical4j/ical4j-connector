@@ -223,12 +223,12 @@ public abstract class PathResolver {
 
         @Override
         public String getPrincipalPath(String username) {
-            return "/calendar/dav/" + username + "/events/";
+          return "/calendar/dav/" + username + "/user/";
         }
 
         @Override
         public String getUserPath(String username) {
-            return "/calendar/dav/" + username + "/user/";
+            return "/calendar/dav/" + username + "/events/";
         }
     }
 }
