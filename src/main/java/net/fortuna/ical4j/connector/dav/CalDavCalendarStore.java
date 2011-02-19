@@ -242,7 +242,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         if (calHomeSetUri == null) {
             throw new DavException(HttpStatus.SC_NOT_FOUND, "No calendar-home-set attribute found for the user");
         }
-        String urlForcalendarHomeSet = hostConfiguration.getHostURL() + findCalendarHomeSet();
+        String urlForcalendarHomeSet = hostConfiguration.getHostURL() + calHomeSetUri;
         PropFindMethod method = new PropFindMethod(urlForcalendarHomeSet, principalsProps, PropFindMethod.DEPTH_1);
         httpClient.executeMethod(hostConfiguration, method);
 
