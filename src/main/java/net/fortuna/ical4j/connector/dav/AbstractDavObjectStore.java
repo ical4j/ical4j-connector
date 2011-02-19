@@ -132,7 +132,8 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
                 throw (ObjectStoreException) ex;
             }
             else {
-                throw new ObjectStoreException(ex.getMessage(), ex);
+                throw new ObjectStoreException(String.format("Error connecting to [%s]: %s",
+                		getPath(), ex.getMessage()), ex);
             }
         }
 
