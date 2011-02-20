@@ -101,12 +101,12 @@ public abstract class PathResolver {
 
         @Override
         public String getPrincipalPath(String username) {
-            return "/chandler/dav/users/" + username;
+            return "/dav/users/" + username;
         }
 
         @Override
         public String getUserPath(String username) {
-            return "/chandler/dav/" + username + "/";
+            return "/dav/" + username + "/";
         }
     }
 
