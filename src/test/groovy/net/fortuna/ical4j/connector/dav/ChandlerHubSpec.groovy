@@ -32,6 +32,7 @@
 package net.fortuna.ical4j.connector.dav
 
 import net.fortuna.ical4j.connector.CalendarStore;
+import spock.lang.Ignore;
 import spock.lang.Shared;
 import spock.lang.Specification;
 
@@ -55,6 +56,7 @@ class ChandlerHubSpec extends Specification {
 		calendarStore.disconnect()
 	}
 	
+	@Ignore
 	def 'verify successful connection'() {
 		setup: 'connect to chandler hub'
 		assert calendarStore.connect(username, password.toCharArray())
@@ -63,6 +65,7 @@ class ChandlerHubSpec extends Specification {
 		assert calendarStore.isConnected()
 	}
 	
+	@Ignore
 	def 'retrieve collections from store'() {
 		expect:
 		calendarStore.getCollections().each {
