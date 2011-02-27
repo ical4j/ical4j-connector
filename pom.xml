@@ -127,8 +127,14 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.gmaven</groupId>
+				<artifactId>gmaven-plugin</artifactId>
+			</plugin>
 		</plugins>
 	</build>
+	
 	<dependencies>
 		<dependency>
 			<groupId>net.fortuna.ical4j</groupId>
@@ -204,7 +210,14 @@
 			<version>2.5.1</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.spockframework</groupId>
+			<artifactId>spock-core</artifactId>
+			<version>0.5-groovy-1.7</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
+	
 	<repositories>
 		<repository>
 			<id>modularity-releases</id>
