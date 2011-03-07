@@ -151,7 +151,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      * @throws DavException
      */
     private String findCalendarHomeSet() throws ParserConfigurationException, IOException, DavException {
-        String propfindUri = hostConfiguration.getHostURL() + pathResolver.getPrincipalPath(getUserName());
+        String propfindUri = getHostURL() + pathResolver.getPrincipalPath(getUserName());
         // GAUTAM UPDATED FOLLOWING LINE with port configuration
 //        String propfindUri = hostConfiguration.getHostURL() + ":" + hostConfiguration.getPort() + pathResolver.getPrincipalPath(getUserName());
 
@@ -160,7 +160,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         principalsProps.add(DavPropertyName.DISPLAYNAME);
 
         PropFindMethod method = new PropFindMethod(propfindUri, principalsProps, PropFindMethod.DEPTH_0);
-        httpClient.executeMethod(hostConfiguration, method);
+        getClient().execute(method);
 
         MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
         MultiStatusResponse[] responses = multiStatus.getResponses();
@@ -242,9 +242,9 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         if (calHomeSetUri == null) {
             throw new DavException(HttpStatus.SC_NOT_FOUND, "No calendar-home-set attribute found for the user");
         }
-        String urlForcalendarHomeSet = hostConfiguration.getHostURL() + calHomeSetUri;
+        String urlForcalendarHomeSet = getHostURL() + calHomeSetUri;
         PropFindMethod method = new PropFindMethod(urlForcalendarHomeSet, principalsProps, PropFindMethod.DEPTH_1);
-        httpClient.executeMethod(hostConfiguration, method);
+        getClient().execute(method);
 
         MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
         MultiStatusResponse[] responses = multiStatus.getResponses();

@@ -31,25 +31,11 @@
  */
 package net.fortuna.ical4j.connector.dav;
 
-import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import net.fortuna.ical4j.connector.ObjectCollection;
 import net.fortuna.ical4j.connector.ObjectStore;
 import net.fortuna.ical4j.connector.ObjectStoreException;
-
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthPolicy;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.jackrabbit.webdav.DavConstants;
-import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
 
 /**
  * @param <C>
@@ -61,29 +47,23 @@ import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
  */
 public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> implements ObjectStore<C> {
 
-    /**
-     * The underlying HTTP client.
-     */
-    protected HttpClient httpClient;
-
-    /**
-     * The HTTP client configuration.
-     */
-    protected HostConfiguration hostConfiguration;
-
+	private DavClient davClient;
+	
+	private String username;
+	
+	private final URL rootUrl;
+	
     /**
      * Server implementation-specific path resolution.
      */
-    protected PathResolver pathResolver;
+    protected final PathResolver pathResolver;
 
     /**
      * @param url the URL of a CalDAV server instance
      * @param pathResolver the path resolver for the CalDAV server type
      */
     public AbstractDavObjectStore(URL url, PathResolver pathResolver) {
-        final Protocol protocol = Protocol.getProtocol(url.getProtocol());
-        hostConfiguration = new HostConfiguration();
-        hostConfiguration.setHost(url.getHost(), url.getPort(), protocol);
+    	this.rootUrl = url;
         this.pathResolver = pathResolver;
     }
 
@@ -98,8 +78,17 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
      * {@inheritDoc}
      */
     public final boolean connect() throws ObjectStoreException {
-        httpClient = new HttpClient();
-        httpClient.getParams().setAuthenticationPreemptive(false);
+//    	try {
+//        	davClient = SardineFactory.begin();
+        	
+        	final String principalPath = pathResolver.getPrincipalPath(username);
+        	final String userPath = pathResolver.getUserPath(getUserName());
+        	davClient = new DavClient(rootUrl, principalPath, userPath);
+        	davClient.begin();
+//    	}
+//    	catch (SardineException se) {
+//    		throw new ObjectStoreException(se);
+//    	}
         return true;
     }
 
@@ -107,37 +96,21 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
      * {@inheritDoc}
      */
     public final boolean connect(String username, char[] password) throws ObjectStoreException {
-        connect();
-        // httpClient = new HttpClient();
-        Credentials credentials = new UsernamePasswordCredentials(username, new String(password));
-        httpClient.getState().setCredentials(AuthScope.ANY, credentials);
+//    	try {
+//        	davClient = SardineFactory.begin(username, new String(password));
+        	
+        	final String principalPath = pathResolver.getPrincipalPath(username);
+        	final String userPath = pathResolver.getUserPath(getUserName());
+        	davClient = new DavClient(rootUrl, principalPath, userPath);
+        	davClient.begin(username, password);
 
-        // Added to support iCal Server, who don't support Basic auth at all, only Kerberos and Digest
-        List<String> authPrefs = new ArrayList<String>(2);
-        authPrefs.add(org.apache.commons.httpclient.auth.AuthPolicy.DIGEST);
-        authPrefs.add(org.apache.commons.httpclient.auth.AuthPolicy.BASIC);
-        httpClient.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authPrefs);
+        	
+        	this.username = username;
+//    	}
+//    	catch (SardineException se) {
+//    		throw new ObjectStoreException(se);
+//    	}
 
-        // This is to get the Digest from the user
-        try {
-            PropFindMethod aGet = new PropFindMethod(pathResolver.getPrincipalPath(username),
-                    DavConstants.PROPFIND_ALL_PROP, 0);
-            aGet.setDoAuthentication(true);
-            int status = httpClient.executeMethod(hostConfiguration, aGet);
-            if (status >= 300) {
-                throw new ObjectStoreException("Principals not found");
-            }
-        } catch (Exception ex) {
-            if (ex instanceof ObjectStoreException) {
-                throw (ObjectStoreException) ex;
-            }
-            else {
-                throw new ObjectStoreException(String.format("Error connecting to [%s]: %s",
-                		getPath(), ex.getMessage()), ex);
-            }
-        }
-
-        // httpClient.getParams().setAuthenticationPreemptive(true);
         return true;
     }
 
@@ -145,18 +118,15 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
      * {@inheritDoc}
      */
     public final void disconnect() throws ObjectStoreException {
-        httpClient = null;
+    	davClient = null;
+    	username = null;
     }
 
     /**
      * @return true if connected to the server, otherwise false
      */
     public final boolean isConnected() {
-        return httpClient != null;
-    }
-
-    int execute(HttpMethodBase method) throws IOException {
-        return httpClient.executeMethod(hostConfiguration, method);
+    	return davClient != null;
     }
 
     /**
@@ -166,6 +136,14 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
      * @author Pascal Robert
      */
     protected String getUserName() {
-        return ((UsernamePasswordCredentials) httpClient.getState().getCredentials(AuthScope.ANY)).getUserName();
+    	return username;
+    }
+    
+    public DavClient getClient() {
+    	return davClient;
+    }
+    
+    public URL getHostURL() {
+    	return rootUrl;
     }
 }

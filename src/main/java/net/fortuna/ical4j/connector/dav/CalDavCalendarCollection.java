@@ -122,7 +122,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         mkcalendar.setProperties(properties);
         mkCalendarMethod.setRequestBody(mkcalendar);
 
-        getStore().execute(mkCalendarMethod);
+        getStore().getClient().execute(mkCalendarMethod);
         if (!mkCalendarMethod.succeeded()) {
             throw new ObjectStoreException(mkCalendarMethod.getStatusCode() + ": " + mkCalendarMethod.getStatusText());
         }
@@ -175,7 +175,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
             info.setContentElement(filter);
             
             ReportMethod method = new ReportMethod(getPath(), info);
-            getStore().execute(method);
+            getStore().getClient().execute(method);
             if (method.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
                 return method.getCalendars();
             }
@@ -427,7 +427,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         }
         
         try {
-            getStore().execute(putMethod);
+            getStore().getClient().execute(putMethod);
             if (putMethod.getStatusCode() != DavServletResponse.SC_CREATED) {
                 throw new ObjectStoreException("Error creating calendar on server: " + putMethod.getStatusLine());
             }
@@ -443,7 +443,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     public Calendar getCalendar(String uid) {
         GetMethod method = new GetMethod(getPath() + "/" + uid + ".ics");
         try {
-            getStore().execute(method);
+            getStore().getClient().execute(method);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -475,7 +475,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         
         DeleteMethod deleteMethod = new DeleteMethod(getPath() + "/" + uid + ".ics");
         try {
-            getStore().execute(deleteMethod);
+            getStore().getClient().execute(deleteMethod);
         }
         catch (HttpException e) {
             // TODO Auto-generated catch block

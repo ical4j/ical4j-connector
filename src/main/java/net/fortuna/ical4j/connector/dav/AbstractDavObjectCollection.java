@@ -111,7 +111,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
         set.add(propertyName);
 
         PropFindMethod propFindMethod = new PropFindMethod(getPath(), set, DavConstants.DEPTH_0);
-        store.execute(propFindMethod);
+        store.getClient().execute(propFindMethod);
 
         if (!propFindMethod.succeeded()) {
             throw new ObjectStoreException(propFindMethod.getStatusLine().toString());
@@ -170,7 +170,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      */
     public final void delete() throws HttpException, IOException, ObjectStoreException {
         DeleteMethod deleteMethod = new DeleteMethod(getPath());
-        getStore().execute(deleteMethod);
+        getStore().getClient().execute(deleteMethod);
         if (!deleteMethod.succeeded()) {
             throw new ObjectStoreException(deleteMethod.getStatusCode() + ": "
                     + deleteMethod.getStatusText());
@@ -185,7 +185,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      */
     public final boolean exists() throws HttpException, IOException, ObjectStoreException {
         GetMethod getMethod = new GetMethod(getPath());
-        getStore().execute(getMethod);
+        getStore().getClient().execute(getMethod);
         if (getMethod.getStatusCode() == DavServletResponse.SC_OK) {
             return true;
         }
