@@ -125,6 +125,10 @@ public abstract class AbstractJcrObjectStore<C extends AbstractJcrObjectCollecti
         session.logout();
     }
     
+    public boolean isConnected() {
+    	return session != null && session.isLive();
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -201,6 +205,10 @@ public abstract class AbstractJcrObjectStore<C extends AbstractJcrObjectCollecti
         throw new ObjectNotFoundException("Collection doesn't exist: " + name);
     }
 
+    public List<C> getCollections() throws ObjectStoreException, ObjectNotFoundException {
+    	return getCollectionDao().findAll(path);
+    }
+    
     /**
      * {@inheritDoc}
      */

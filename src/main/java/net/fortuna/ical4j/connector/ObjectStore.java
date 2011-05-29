@@ -31,6 +31,8 @@
  */
 package net.fortuna.ical4j.connector;
 
+import java.util.List;
+
 import net.fortuna.ical4j.model.Calendar;
 
 /**
@@ -65,6 +67,8 @@ public interface ObjectStore<C extends ObjectCollection<?>> {
      * @throws ObjectStoreException where an unexpected error occurs
      */
     void disconnect() throws ObjectStoreException;
+    
+    boolean isConnected();
     
     /**
      * Adds the specified collection to the store.
@@ -106,4 +110,5 @@ public interface ObjectStore<C extends ObjectCollection<?>> {
      */
     C getCollection(String id) throws ObjectStoreException, ObjectNotFoundException;
 
+    List<C> getCollections() throws ObjectStoreException, ObjectNotFoundException;
 }

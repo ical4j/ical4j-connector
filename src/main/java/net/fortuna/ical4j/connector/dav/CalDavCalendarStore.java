@@ -46,7 +46,6 @@ import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.model.Calendar;
 
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.MultiStatus;
@@ -221,8 +220,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      * @throws IOException where a communications error occurs
      * @throws DavException where an error occurs calling the DAV method
      */
-    public List<CalDavCalendarCollection> getCollections() throws ParserConfigurationException,
-        IOException, DavException {
+    public List<CalDavCalendarCollection> getCollections() throws ObjectStoreException, ObjectNotFoundException {
         
         List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
 
@@ -238,33 +236,35 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                 CalDavConstants.ICAL_NAMESPACE));
         principalsProps.add(DavPropertyName.create(CalDavConstants.PROPERTY_FREE_BUSY_SET, CalDavConstants.NAMESPACE));
 
-        String calHomeSetUri = findCalendarHomeSet();
-        if (calHomeSetUri == null) {
-            throw new DavException(HttpStatus.SC_NOT_FOUND, "No calendar-home-set attribute found for the user");
-        }
-        String urlForcalendarHomeSet = getHostURL() + calHomeSetUri;
-        PropFindMethod method = new PropFindMethod(urlForcalendarHomeSet, principalsProps, PropFindMethod.DEPTH_1);
-        getClient().execute(method);
+        try {
+            String calHomeSetUri = findCalendarHomeSet();
+            if (calHomeSetUri == null) {
+                throw new ObjectNotFoundException("No calendar-home-set attribute found for the user");
+            }
+            String urlForcalendarHomeSet = getHostURL() + calHomeSetUri;
+            PropFindMethod method = new PropFindMethod(urlForcalendarHomeSet, principalsProps, PropFindMethod.DEPTH_1);
+            getClient().execute(method);
 
-        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
-        MultiStatusResponse[] responses = multiStatus.getResponses();
-        for (int i = 0; i < responses.length; i++) {
-            String collectionUri = responses[i].getHref();
-            for (int j = 0; j < responses[i].getStatus().length; j++) {
-                Status status = responses[i].getStatus()[j];
-                for (DavPropertyIterator iNames = responses[i].getProperties(status.getStatusCode()).iterator(); iNames
-                        .hasNext();) {
-                    DavProperty name = iNames.nextProperty();
-                    if (name.getName().getName().equals("resourcetype")
-                            && (DavConstants.NAMESPACE.isSame(name.getName().getNamespace().getURI()))) {
-                        if (name.getValue() instanceof ArrayList) {
-                            for (Iterator<?> iter = ((ArrayList<?>) name.getValue()).iterator(); iter.hasNext();) {
-                                Object child = iter.next();
-                                if (child instanceof Node) {
-                                    Node node = ((Node) child);
-                                    if (CalDavConstants.PROPERTY_RESOURCETYPE_CALENDAR.equals(node.getLocalName())
-                                            && CalDavConstants.NAMESPACE.getURI().equals(node.getNamespaceURI())) {
-                                        collections.add(new CalDavCalendarCollection(this, collectionUri));
+            MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
+            MultiStatusResponse[] responses = multiStatus.getResponses();
+            for (int i = 0; i < responses.length; i++) {
+                String collectionUri = responses[i].getHref();
+                for (int j = 0; j < responses[i].getStatus().length; j++) {
+                    Status status = responses[i].getStatus()[j];
+                    for (DavPropertyIterator iNames = responses[i].getProperties(status.getStatusCode()).iterator(); iNames
+                            .hasNext();) {
+                        DavProperty name = iNames.nextProperty();
+                        if (name.getName().getName().equals("resourcetype")
+                                && (DavConstants.NAMESPACE.isSame(name.getName().getNamespace().getURI()))) {
+                            if (name.getValue() instanceof ArrayList) {
+                                for (Iterator<?> iter = ((ArrayList<?>) name.getValue()).iterator(); iter.hasNext();) {
+                                    Object child = iter.next();
+                                    if (child instanceof Node) {
+                                        Node node = ((Node) child);
+                                        if (CalDavConstants.PROPERTY_RESOURCETYPE_CALENDAR.equals(node.getLocalName())
+                                                && CalDavConstants.NAMESPACE.getURI().equals(node.getNamespaceURI())) {
+                                            collections.add(new CalDavCalendarCollection(this, collectionUri));
+                                        }
                                     }
                                 }
                             }
@@ -272,6 +272,15 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                     }
                 }
             }
+        }
+        catch (DavException de) {
+        	throw new ObjectStoreException(de);
+        }
+        catch (IOException ioe) {
+        	throw new ObjectStoreException(ioe);
+        }
+        catch (ParserConfigurationException pce) {
+        	throw new ObjectStoreException(pce);
         }
         return collections;
     }
