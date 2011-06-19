@@ -36,7 +36,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.fortuna.ical4j.connector.ObjectStoreException;
+import net.fortuna.ical4j.connector.FailedOperationException;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HostConfiguration;
@@ -79,7 +79,7 @@ public class DavClient {
 		httpClient.getParams().setAuthenticationPreemptive(false);
 	}
 
-	void begin(String username, char[] password) throws ObjectStoreException {
+	void begin(String username, char[] password) throws IOException, FailedOperationException {
 		begin();
 		Credentials credentials = new UsernamePasswordCredentials(username,
 				new String(password));
@@ -90,26 +90,14 @@ public class DavClient {
 		List<String> authPrefs = new ArrayList<String>(2);
 		authPrefs.add(org.apache.commons.httpclient.auth.AuthPolicy.DIGEST);
 		authPrefs.add(org.apache.commons.httpclient.auth.AuthPolicy.BASIC);
-		httpClient.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY,
-				authPrefs);
+		httpClient.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authPrefs);
 
 		// This is to get the Digest from the user
-		try {
-			PropFindMethod aGet = new PropFindMethod(principalPath,
-					DavConstants.PROPFIND_ALL_PROP, 0);
-			aGet.setDoAuthentication(true);
-			int status = httpClient.executeMethod(hostConfiguration, aGet);
-			if (status >= 300) {
-				throw new ObjectStoreException("Principals not found");
-			}
-		} catch (Exception ex) {
-			if (ex instanceof ObjectStoreException) {
-				throw (ObjectStoreException) ex;
-			} else {
-				throw new ObjectStoreException(String.format(
-						"Error connecting to [%s]: %s", userPath,
-						ex.getMessage()), ex);
-			}
+		PropFindMethod aGet = new PropFindMethod(principalPath, DavConstants.PROPFIND_ALL_PROP, 0);
+		aGet.setDoAuthentication(true);
+		int status = httpClient.executeMethod(hostConfiguration, aGet);
+		if (status >= 300) {
+			throw new FailedOperationException(String.format("Principals not found at [%s]", userPath));
 		}
 	}
 

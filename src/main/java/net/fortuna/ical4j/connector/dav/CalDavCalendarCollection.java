@@ -39,6 +39,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import net.fortuna.ical4j.connector.CalendarCollection;
+import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.MediaType;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.method.GetMethod;
@@ -53,7 +54,6 @@ import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 
-import org.apache.commons.httpclient.HttpException;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.client.methods.DeleteMethod;
@@ -470,23 +470,18 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     /**
      * {@inheritDoc}
      */
-    public Calendar removeCalendar(String uid) throws ObjectStoreException {
+    public Calendar removeCalendar(String uid) throws FailedOperationException, ObjectStoreException {
         Calendar calendar = getCalendar(uid);
         
         DeleteMethod deleteMethod = new DeleteMethod(getPath() + "/" + uid + ".ics");
         try {
             getStore().getClient().execute(deleteMethod);
         }
-        catch (HttpException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        	throw new ObjectStoreException(e);
         }
         if (!deleteMethod.succeeded()) {
-            throw new ObjectStoreException(deleteMethod.getStatusLine().toString());
+            throw new FailedOperationException(deleteMethod.getStatusLine().toString());
         }
         
         return calendar;
@@ -495,7 +490,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     /**
      * {@inheritDoc}
      */
-    public final void merge(Calendar calendar) throws ObjectStoreException {
+    public final void merge(Calendar calendar) throws FailedOperationException, ObjectStoreException {
         try {
             Calendar[] uidCalendars = Calendars.split(calendar);
             for (int i = 0; i < uidCalendars.length; i++) {
@@ -503,7 +498,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
             }
         }
         catch (ConstraintViolationException cve) {
-            throw new ObjectStoreException("Invalid calendar format", cve);
+            throw new FailedOperationException("Invalid calendar format", cve);
         }
     }
     

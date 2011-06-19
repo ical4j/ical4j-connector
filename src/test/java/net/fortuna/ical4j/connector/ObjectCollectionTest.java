@@ -31,6 +31,8 @@
  */
 package net.fortuna.ical4j.connector;
 
+import java.io.IOException;
+
 import junit.framework.TestCase;
 
 /**
@@ -111,8 +113,10 @@ public class ObjectCollectionTest<T extends ObjectCollection<?>> extends TestCas
     /**
      * @throws ObjectStoreException
      * @throws ObjectNotFoundException
+     * @throws FailedOperationException 
+     * @throws IOException 
      */
-    protected void reconnect() throws ObjectStoreException, ObjectNotFoundException {
+    protected void reconnect() throws ObjectStoreException, ObjectNotFoundException, IOException, FailedOperationException {
         store.disconnect();
         store = lifecycle.getObjectStore();
         store.connect(username, password);

@@ -120,16 +120,16 @@ public interface CalendarCollection extends ObjectCollection<Calendar> {
      * @return the calendar that was successfully removed from the collection
      * @throws ObjectStoreException where an unexpected error occurs
      */
-    Calendar removeCalendar(String uid) throws ObjectStoreException;
+    Calendar removeCalendar(String uid) throws FailedOperationException, ObjectStoreException;
     
     /**
      * Merges the specified calendar object with this collecton. This is done by
      * decomposing the calendar object into a set of objects per unique identifier (UID)
      * and adding these objects to the collection.
      * @param calendar a calendar object instance to merge into the collection
-     * @throws ObjectStoreException where an unexpected error occurs
+     * @throws FailedOperationException where the merge operation fails
      */
-    void merge(Calendar calendar) throws ObjectStoreException;
+    void merge(Calendar calendar) throws FailedOperationException, ObjectStoreException;
     
     /**
      * Exports the entire collection as a single calendar object.

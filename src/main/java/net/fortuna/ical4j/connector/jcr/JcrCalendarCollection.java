@@ -39,6 +39,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
 import net.fortuna.ical4j.connector.CalendarCollection;
+import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.MediaType;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.model.Calendar;
@@ -340,7 +341,7 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection<Calendar>
     /**
      * {@inheritDoc}
      */
-    public void merge(Calendar calendar) throws ObjectStoreException {
+    public void merge(Calendar calendar) throws FailedOperationException, ObjectStoreException {
         try {
             Calendar[] uidCalendars = Calendars.split(calendar);
             for (int i = 0; i < uidCalendars.length; i++) {
@@ -349,7 +350,7 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection<Calendar>
             saveChanges();
         }
         catch (ConstraintViolationException cve) {
-            throw new ObjectStoreException("Invalid calendar format", cve);
+            throw new FailedOperationException("Invalid calendar format", cve);
         }
     }
 

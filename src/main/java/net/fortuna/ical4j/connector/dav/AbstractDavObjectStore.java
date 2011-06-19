@@ -31,8 +31,10 @@
  */
 package net.fortuna.ical4j.connector.dav;
 
+import java.io.IOException;
 import java.net.URL;
 
+import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.ObjectCollection;
 import net.fortuna.ical4j.connector.ObjectStore;
 import net.fortuna.ical4j.connector.ObjectStoreException;
@@ -94,9 +96,11 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
 
     /**
      * {@inheritDoc}
+     * @throws FailedOperationException 
+     * @throws IOException 
      */
     public final boolean connect(String username, char[] password) throws ObjectStoreException {
-//    	try {
+    	try {
 //        	davClient = SardineFactory.begin(username, new String(password));
         	
         	final String principalPath = pathResolver.getPrincipalPath(username);
@@ -106,7 +110,13 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
 
         	
         	this.username = username;
-//    	}
+    	}
+    	catch (IOException ioe) {
+    		throw new ObjectStoreException(ioe);
+    	}
+    	catch (FailedOperationException foe) {
+    		throw new ObjectStoreException(foe);
+    	}
 //    	catch (SardineException se) {
 //    		throw new ObjectStoreException(se);
 //    	}
@@ -117,7 +127,7 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
     /**
      * {@inheritDoc}
      */
-    public final void disconnect() throws ObjectStoreException {
+    public final void disconnect() {
     	davClient = null;
     	username = null;
     }
