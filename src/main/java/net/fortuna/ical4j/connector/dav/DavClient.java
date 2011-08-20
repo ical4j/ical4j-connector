@@ -47,6 +47,7 @@ import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.jackrabbit.webdav.DavConstants;
+import org.apache.jackrabbit.webdav.client.methods.DavMethodBase;
 import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
 
 public class DavClient {
@@ -103,6 +104,10 @@ public class DavClient {
 
 	public int execute(HttpMethodBase method) throws IOException {
 		return httpClient.executeMethod(hostConfiguration, method);
+	}
+
+	public int execute(HostConfiguration _hostConfiguration, DavMethodBase method) throws IOException {
+	    return httpClient.executeMethod(_hostConfiguration, method);
 	}
 
 	protected String getUserName() {

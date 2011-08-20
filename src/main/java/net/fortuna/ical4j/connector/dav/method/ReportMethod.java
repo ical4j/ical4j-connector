@@ -64,9 +64,11 @@ public class ReportMethod extends org.apache.jackrabbit.webdav.client.methods.Re
     /**
      * 
      */
-    public static final ReportType CALENDAR_QUERY = ReportType.register("calendar-query",
-            CalDavConstants.NAMESPACE, PrincipalMatchReport.class);
-    
+    public static final ReportType CALENDAR_QUERY = ReportType.register("calendar-query", CalDavConstants.NAMESPACE,
+            PrincipalMatchReport.class);
+    public static final ReportType FREEBUSY_QUERY = ReportType.register("free-busy-query", CalDavConstants.NAMESPACE,
+            PrincipalMatchReport.class);
+
     /**
      * @param uri a calendar collection URI
      * @param reportInfo report configuration

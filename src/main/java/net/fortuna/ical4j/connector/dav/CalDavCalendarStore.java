@@ -33,31 +33,61 @@ package net.fortuna.ical4j.connector.dav;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.CalendarStore;
 import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
+import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.component.VFreeBusy;
+import net.fortuna.ical4j.model.property.Attendee;
+import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.DtEnd;
+import net.fortuna.ical4j.model.property.DtStart;
+import net.fortuna.ical4j.model.property.Method;
+import net.fortuna.ical4j.model.property.Organizer;
+import net.fortuna.ical4j.model.property.ProdId;
+import net.fortuna.ical4j.model.property.Version;
+import net.fortuna.ical4j.util.UidGenerator;
 
+import org.apache.commons.httpclient.ChunkedInputStream;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.MultiStatus;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.Status;
+import org.apache.jackrabbit.webdav.client.methods.DavMethodBase;
 import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
+import org.apache.jackrabbit.webdav.client.methods.ReportMethod;
 import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyIterator;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
+import org.apache.jackrabbit.webdav.security.SecurityConstants;
+import org.apache.jackrabbit.webdav.version.DeltaVConstants;
+import org.apache.jackrabbit.webdav.version.report.ReportInfo;
+import org.apache.jackrabbit.webdav.version.report.ReportType;
+import org.apache.jackrabbit.webdav.xml.DomUtil;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
 
 /**
  * $Id$
@@ -274,14 +304,144 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
             }
         }
         catch (DavException de) {
-        	throw new ObjectStoreException(de);
+            throw new ObjectStoreException(de);
         }
         catch (IOException ioe) {
-        	throw new ObjectStoreException(ioe);
+            throw new ObjectStoreException(ioe);
         }
         catch (ParserConfigurationException pce) {
-        	throw new ObjectStoreException(pce);
+            throw new ObjectStoreException(pce);
         }
+        return collections;
+    }
+
+    /**
+     * Get the list of available delegated collections, Apple's iCal style
+     * 
+     * @return
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws DavException
+     */
+    public List<CalDavCalendarCollection> getDelegatedCollections() throws ParserConfigurationException, IOException,
+            DavException {
+
+        List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
+
+        String methodUri = this.pathResolver.getPrincipalPath(getUserName());
+
+        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+
+        Element writeDisplayNameProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
+        writeDisplayNameProperty.setAttribute("name", DavConstants.PROPERTY_DISPLAYNAME);
+
+        Element writePrincipalUrlProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
+        writePrincipalUrlProperty.setAttribute("name", SecurityConstants.PRINCIPAL_URL.getName());
+
+        Element writeUserAddressSetProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
+        writeUserAddressSetProperty.setAttribute("name", CalDavConstants.PROPERTY_USER_ADDRESS_SET);
+        writeUserAddressSetProperty.setAttribute("namespace", CalDavConstants.NAMESPACE.getURI());
+
+        Element proxyWriteForElement = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
+        proxyWriteForElement.setAttribute("name", CalDavConstants.PROPERTY_PROXY_WRITE_FOR);
+        proxyWriteForElement.setAttribute("namespace", CalDavConstants.CS_NAMESPACE.getURI());
+        proxyWriteForElement.appendChild(writeDisplayNameProperty);
+        proxyWriteForElement.appendChild(writePrincipalUrlProperty);
+        proxyWriteForElement.appendChild(writeUserAddressSetProperty);
+
+        Element readDisplayNameProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
+        readDisplayNameProperty.setAttribute("name", DavConstants.PROPERTY_DISPLAYNAME);
+
+        Element readPrincipalUrlProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
+        readPrincipalUrlProperty.setAttribute("name", SecurityConstants.PRINCIPAL_URL.getName());
+
+        Element readUserAddressSetProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
+        readUserAddressSetProperty.setAttribute("name", CalDavConstants.PROPERTY_USER_ADDRESS_SET);
+        readUserAddressSetProperty.setAttribute("namespace", CalDavConstants.NAMESPACE.getURI());
+
+        Element proxyReadForElement = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
+        proxyReadForElement.setAttribute("name", CalDavConstants.PROPERTY_PROXY_READ_FOR);
+        proxyReadForElement.setAttribute("namespace", CalDavConstants.CS_NAMESPACE.getURI());
+        proxyReadForElement.appendChild(readDisplayNameProperty);
+        proxyReadForElement.appendChild(readPrincipalUrlProperty);
+        proxyReadForElement.appendChild(readUserAddressSetProperty);
+
+        ReportInfo rinfo = new ReportInfo(ReportType.register(DeltaVConstants.XML_EXPAND_PROPERTY,
+                DeltaVConstants.NAMESPACE, org.apache.jackrabbit.webdav.version.report.ExpandPropertyReport.class), 1);
+        rinfo.setContentElement(proxyWriteForElement);
+        rinfo.setContentElement(proxyReadForElement);
+
+        DavMethodBase method = new ReportMethod(methodUri, rinfo);
+        getClient().execute(getClient().hostConfiguration, method);
+
+        // FIXME: same code as getCollections, so if it's really the same code, centralize!
+        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
+        MultiStatusResponse[] responses = multiStatus.getResponses();
+        for (int i = 0; i < responses.length; i++) {
+            String collectionUri = responses[i].getHref();
+            for (int j = 0; j < responses[i].getStatus().length; j++) {
+                Status status = responses[i].getStatus()[j];
+                for (DavPropertyIterator iNames = responses[i].getProperties(status.getStatusCode()).iterator(); iNames
+                        .hasNext();) {
+                    DavProperty name = iNames.nextProperty();
+                    if (((name.getName().getName().equals(CalDavConstants.PROPERTY_PROXY_WRITE_FOR) || (name.getName()
+                            .getName().equals(CalDavConstants.PROPERTY_PROXY_READ_FOR))))
+                            && (CalDavConstants.CS_NAMESPACE.isSame(name.getName().getNamespace().getURI()))) {
+                        if (name.getValue() instanceof ArrayList) {
+                            for (Iterator<?> iter = ((ArrayList<?>) name.getValue()).iterator(); iter.hasNext();) {
+                                Object child = iter.next();
+                                if (child instanceof Node) {
+                                    Node node = ((Node) child);
+                                    if ((DavConstants.XML_RESPONSE.equals(node.getLocalName()))
+                                            && (DavConstants.NAMESPACE.getURI().equals(node.getNamespaceURI()))) {
+                                        NodeList responseChilds = node.getChildNodes();
+                                        for (int responseIter = 0; responseIter < responseChilds.getLength(); responseIter++) {
+                                            Object responseChild = responseChilds.item(responseIter);
+                                            if (responseChild instanceof Node) {
+                                                Node nodeResponseChild = ((Node) responseChild);
+                                                if (DavConstants.XML_PROPSTAT.equals(nodeResponseChild.getLocalName())) {
+                                                    NodeList propstatChilds = nodeResponseChild.getChildNodes();
+                                                    for (int propstatIter = 0; propstatIter < propstatChilds
+                                                            .getLength(); propstatIter++) {
+                                                        Object propstatChild = propstatChilds.item(propstatIter);
+                                                        if (propstatChild instanceof Node) {
+                                                            Node nodePropstatChild = (Node) propstatChild;
+                                                            // FIXME: we should make sure D:status is 200 OK before
+                                                            // adding it to the collections list
+                                                            if (DavConstants.XML_STATUS.equals(nodePropstatChild
+                                                                    .getLocalName())) {
+
+                                                            }
+                                                            if (DavConstants.XML_PROP.equals(nodePropstatChild
+                                                                    .getLocalName())) {
+                                                                NodeList propChilds = nodePropstatChild.getChildNodes();
+                                                                for (int propIter = 0; propIter < propChilds
+                                                                        .getLength(); propIter++) {
+                                                                    Object propChild = propChilds.item(propstatIter);
+                                                                    Node nodePropChild = (Node) propChild;
+                                                                    if (SecurityConstants.PRINCIPAL_URL.getName()
+                                                                            .equals(nodePropChild.getLocalName())) {
+                                                                        Node nodeHref = nodePropChild.getFirstChild().getNextSibling();
+                                                                        collectionUri = nodeHref.getTextContent();
+                                                                        collections.add(new CalDavCalendarCollection(
+                                                                                this, collectionUri));
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         return collections;
     }
 
@@ -312,6 +472,145 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      */
     final String getProdId() {
         return prodId;
+    }
+
+    private String findScheduleOutbox() throws ParserConfigurationException, IOException, DavException {
+        String propfindUri = getClient().hostConfiguration.getHostURL() + pathResolver.getPrincipalPath(getUserName());
+
+        DavPropertyNameSet principalsProps = new DavPropertyNameSet();
+        principalsProps.add(DavPropertyName.create("schedule-outbox-URL", CalDavConstants.NAMESPACE));
+
+        PropFindMethod method = new PropFindMethod(propfindUri, principalsProps, PropFindMethod.DEPTH_0);
+        method.setDoAuthentication(true);
+        getClient().execute(getClient().hostConfiguration, method);
+
+        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
+        MultiStatusResponse[] responses = multiStatus.getResponses();
+        for (int i = 0; i < responses.length; i++) {
+            for (int j = 0; j < responses[i].getStatus().length; j++) {
+                Status status = responses[i].getStatus()[j];
+                for (DavPropertyIterator iNames = responses[i].getProperties(status.getStatusCode()).iterator(); iNames
+                .hasNext();) {
+                    DavProperty name = iNames.nextProperty();
+                    if ((name.getName().getName().equals("schedule-outbox-URL"))
+                            && (CalDavConstants.NAMESPACE.isSame(name.getName().getNamespace().getURI()))) {
+                        if (name.getValue() instanceof ArrayList) {
+                            for (Iterator<?> iter = ((ArrayList<?>) name.getValue()).iterator(); iter.hasNext();) {
+                                Object child = iter.next();
+                                if (child instanceof Element) {
+                                    String calendarHomeSetUri = ((Element) child).getTextContent();
+                                    /*
+                                     * If the trailing slash is not there, CalendarServer will return a 301 status code
+                                     * and we will get a nice DavException with "Moved Permanently" as the error
+                                     */
+                                    if (!(calendarHomeSetUri.endsWith("/"))) {
+                                        calendarHomeSetUri += "/";
+                                    }
+                                    return calendarHomeSetUri;
+                                }
+                            }
+                        }
+                        /*
+                         * This is for Kerio Mail Server implementation...
+                         */
+                        if (name.getValue() instanceof Node) {
+                            Node child = (Node) name.getValue();
+                            if (child instanceof Element) {
+                                String calendarHomeSetUri = ((Element) child).getTextContent();
+                                /*
+                                 * If the trailing slash is not there, CalendarServer will return a 301 status code and
+                                 * we will get a nice DavException with "Moved Permanently" as the error
+                                 */
+                                if (!(calendarHomeSetUri.endsWith("/"))) {
+                                    calendarHomeSetUri += "/";
+                                }
+                                return calendarHomeSetUri;
+                            }
+                        }
+                        if (name.getValue() instanceof String) {
+                            String calendarHomeSetUri = (String) name.getValue();
+                            if (!(calendarHomeSetUri.endsWith("/"))) {
+                                calendarHomeSetUri += "/";
+                            }
+                            return calendarHomeSetUri;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * This method will return free-busy information for each attendee. If the free-busy information can't be retrieve
+     * (for example, users on an foreign server), check the isSuccess method to see if free-busy lookup was successful.
+     * 
+     * @author probert
+     */
+    public ArrayList<ScheduleResponse> findFreeBusyInfoForAttendees(Organizer organizer, ArrayList<Attendee> attendees,
+            DtStart startTime, DtEnd endTime) throws ParserConfigurationException, IOException, DavException,
+            ParseException, ParserException, SAXException {
+        Random ramdomizer = new Random();
+        ArrayList<ScheduleResponse> responses = new ArrayList<ScheduleResponse>();
+
+        PostMethod postMethod = new PostMethod(findScheduleOutbox());
+        postMethod.addRequestHeader(new Header(DavConstants.HEADER_CONTENT_TYPE, "text/calendar; charset=utf-8"));
+
+        Calendar calendar = new Calendar();
+        calendar.getProperties().add(new ProdId(getProdId()));
+        calendar.getProperties().add(Version.VERSION_2_0);
+        calendar.getProperties().add(CalScale.GREGORIAN);
+        calendar.getProperties().add(Method.REQUEST);
+
+        VFreeBusy fbComponent = new VFreeBusy();
+
+        fbComponent.getProperties().add(organizer);
+        // Was removed from the draft, but some servers still need it
+        postMethod.addRequestHeader(new Header("Originator", organizer.getValue()));
+
+        fbComponent.getProperties().add(startTime);
+        fbComponent.getProperties().add(endTime);
+
+        String strAttendee = "";
+        if (attendees != null) {
+            for (Iterator<Attendee> itrAttendee = attendees.iterator(); itrAttendee.hasNext();) {
+                Attendee attendee = itrAttendee.next();
+                fbComponent.getProperties().add(attendee);
+                strAttendee += attendee.getValue() + ",";
+            }
+            strAttendee = strAttendee.substring(0, strAttendee.length() - 1);
+            // Was removed from the draft, but some servers still need it
+            postMethod.addRequestHeader(new Header("Recipient", strAttendee));
+        }
+
+        UidGenerator ug = new UidGenerator(ramdomizer.nextInt() + "");
+        fbComponent.getProperties().add(ug.generateUid());
+        calendar.getComponents().add(fbComponent);
+
+        postMethod.setRequestBody(calendar.toString());
+        int httpCode = getClient().execute(postMethod);
+        if (httpCode < 300) {
+            // Zimbra's response is chunked
+            if ((postMethod.getResponseContentLength() < 0)
+                    && ("chunked".equals(postMethod.getResponseHeader("Transfer-Encoding")))) {
+                ChunkedInputStream chunkedIS = new ChunkedInputStream(postMethod.getResponseBodyAsStream(), postMethod);
+                int c;
+                while ((c = chunkedIS.read()) != -1) {
+                    System.out.println(c);
+                }
+            } else {
+                DocumentBuilderFactoryImpl xmlFactory = new DocumentBuilderFactoryImpl();
+                xmlFactory.setNamespaceAware(true);
+                DocumentBuilder xmlBuilder = xmlFactory.newDocumentBuilder();
+                Document xmlDoc = xmlBuilder.parse(postMethod.getResponseBodyAsStream());
+                NodeList nodes = xmlDoc.getElementsByTagNameNS(CalDavConstants.NAMESPACE.getURI(),
+                        DavPropertyName.XML_RESPONSE);
+                for (int nodeItr = 0; nodeItr < nodes.getLength(); nodeItr++) {
+                    responses.add(new ScheduleResponse((Element) nodes.item(nodeItr)));
+                }
+            }
+        }
+        return responses;
     }
 
 }

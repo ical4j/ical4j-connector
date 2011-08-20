@@ -91,6 +91,10 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      * @return the absolute collection path
      */
     public final String getPath() {
+// FIXME fix for CGP...
+        if (!getId().endsWith("/")) {
+            return getId() + "/";
+        }
         return getId();
     }
 

@@ -333,6 +333,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         catch (DavException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
         return 0;
     }
@@ -496,12 +498,11 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
             for (int i = 0; i < uidCalendars.length; i++) {
                 addCalendar(uidCalendars[i]);
             }
-        }
-        catch (ConstraintViolationException cve) {
+        } catch (ConstraintViolationException cve) {
             throw new FailedOperationException("Invalid calendar format", cve);
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
