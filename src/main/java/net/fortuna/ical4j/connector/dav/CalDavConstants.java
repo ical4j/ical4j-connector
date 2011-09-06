@@ -82,7 +82,7 @@ public class CalDavConstants {
 
     /**
      * Purpose: Identify the calendars that contribute to the free-busy information for the owner of the scheduling
-     * Inbox. RFC : draft-desruisseaux-caldav-sched-01
+     * http://www.ietf.org/id/draft-desruisseaux-caldav-sched-09.txt
      */
     public static final String PROPERTY_FREE_BUSY_SET = "calendar-free-busy-set";
 
@@ -100,8 +100,8 @@ public class CalDavConstants {
     /**
      * TODO: description missing. Stuff coming from Apple's Calendar Server
      */
-
     public static final String PROPERTY_PROXY_WRITE_FOR = "calendar-proxy-write-for";
+    
     /**
      * TODO: description missing. Stuff coming from Apple's Calendar Server
      */
@@ -112,4 +112,64 @@ public class CalDavConstants {
      * http://www.ietf.org/id/draft-desruisseaux-caldav-sched-09.txt
      */
     public static final String PROPERTY_USER_ADDRESS_SET = "calendar-user-address-set";
+    
+    /**
+     * Identify the URL of the scheduling Inbox collection owned by the associated principal resource.
+     * http://www.ietf.org/id/draft-desruisseaux-caldav-sched-09.txt
+     */
+    public static final String PROPERTY_SCHEDULE_INBOX_URL = "schedule-inbox-URL";
+    
+    /**
+     * Identify the URL of the scheduling Outbox collection owned by the associated principal resource.
+     * http://www.ietf.org/id/draft-desruisseaux-caldav-sched-09.txt
+     */
+    public static final String PROPERTY_SCHEDULE_OUTBOX_URL = "schedule-outbox-URL";
+    
+    /**
+     * Specific to CalendarServer, but I can't find the description
+     */
+    public static final String PROPERTY_DROP_HOME_URL = "dropbox-home-URL";
+    
+    /**
+     * Provides the URI of the pubsub node to subscribe to in order to receive a notification whenever a 
+     * resource within this calendar home has changed.
+     * http://svn.calendarserver.org/repository/calendarserver/CalendarServer/trunk/doc/Extensions/caldav-pubsubdiscovery.txt
+     */
+    public static final String PROPERTY_XMPP_URI = "xmpp-uri";
+    
+    /**
+     * Identify the URL of the notification collection owned by the associated principal resource.
+     * http://svn.calendarserver.org/repository/calendarserver/CalendarServer/trunk/doc/Extensions/caldav-sharing-02.txt
+     */
+    public static final String PROPERTY_NOTIFICATION_URL = "notification-URL";
+    
+    /**
+     * Provides the hostname of the XMPP server a client should connect to for subscribing to notifications.
+     * http://svn.calendarserver.org/repository/calendarserver/CalendarServer/trunk/doc/Extensions/caldav-pubsubdiscovery.txt
+     */
+    public static final String PROPERTY_XMPP_SERVER = "xmpp-server";
+    
+    /**
+     * Specifies the calendar component types (e.g., VEVENT, VTODO, etc.) that calendar object resources can 
+     * contain in the calendar collection.
+     */
+    public static final String PROPERTY_SUPPORTED_CALENDAR_COMPONENT_SET = "supported-calendar-component-set";
+    
+    /**
+     * Determines whether the calendar object resources in a calendar collection will affect the owner's freebusy.
+     */
+    public static final String PROPERTY_SCHEDULE_CALENDAR_TRANSP = "schedule-calendar-transp";
+    
+    /**
+     * Specifies a default calendar for an attendee that will automatically have new scheduling messages 
+     * deposited into it when they arrive.
+     */
+    public static final String PROPERTY_SCHEDULE_DEFAULT_CALENDAR_URL = "schedule-default-calendar-URL";
+    
+    /**
+     * The CALDAV:calendar-timezone property is used to specify the time zone the server should 
+     * rely on to resolve "date" values and "date with local time" values (i.e., floating time) to 
+     * "date with UTC time" values.
+     */
+    public static final String PROPERTY_CALENDAR_TIMEZONE = "calendar-timezone";
 }
