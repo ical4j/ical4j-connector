@@ -27,7 +27,7 @@
 	</licenses>
 	<scm>
 		<connection>scm:hg:http://ical4j.hg.sourceforge.net:8000/hgroot/ical4j/ical4j-connector</connection>
-		<developerConnection>scm:hg:ssh://ical4j.hg.sourceforge.net/hgroot/ical4j/ical4j-connector</developerConnection>
+		<developerConnection>scm:hg:ssh://fortuna@ical4j.hg.sourceforge.net/hgroot/ical4j/ical4j-connector</developerConnection>
 		<url>http://ical4j.hg.sourceforge.net/hgweb/ical4j/ical4j-connector/</url>
 	</scm>
 	<build>
