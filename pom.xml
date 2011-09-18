@@ -9,7 +9,7 @@
 	<artifactId>ical4j-connector</artifactId>
 	<packaging>bundle</packaging>
 	<name>iCal4j Connector</name>
-	<version>0.9.1a-SNAPSHOT</version>
+	<version>0.9.1</version>
 	<description> A Java library for accessing iCalendar data stores 
 	</description>
 	<url>http://ical4j.sourceforge.net</url>
@@ -93,6 +93,8 @@
 					</instructions>
 				</configuration>
 			</plugin>
+			
+<!-- 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-clover-plugin</artifactId>
@@ -108,6 +110,8 @@
 					</execution>
 				</executions>
 			</plugin>
+ -->
+			
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
