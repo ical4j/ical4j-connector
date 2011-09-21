@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
-		<artifactId>modularity-parent</artifactId>
-		<groupId>net.modularity</groupId>
-		<version>1.0.11</version>
+		<artifactId>mnode-parent</artifactId>
+		<groupId>org.mnode</groupId>
+		<version>1.3-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>net.fortuna.ical4j</groupId>
+	<groupId>org.mnode.ical4j</groupId>
 	<artifactId>ical4j-connector</artifactId>
 	<packaging>bundle</packaging>
 	<name>iCal4j Connector</name>
@@ -140,14 +140,14 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>net.fortuna.ical4j</groupId>
+			<groupId>org.mnode.ical4j</groupId>
 			<artifactId>ical4j</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.2</version>
 		</dependency>
 		<dependency>
-			<groupId>net.fortuna.ical4j</groupId>
+			<groupId>org.mnode.ical4j</groupId>
 			<artifactId>ical4j-vcard</artifactId>
-			<version>0.9.3</version>
+			<version>0.9.4-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
@@ -248,28 +248,6 @@
 	</dependencies>
 	
 	<repositories>
-		<repository>
-			<id>modularity-releases</id>
-			<name>Modularity Maven Repository</name>
-			<url>http://m2.modularity.net.au/releases</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>modularity-snapshots</id>
-			<name>Modularity Snapshot Repository</name>
-			<url>http://m2.modularity.net.au/snapshots</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
 	</repositories>
 	<!--
 		<repositories> <repository> <id>osaf</id> <name>OSAF Maven
