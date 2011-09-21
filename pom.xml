@@ -29,6 +29,16 @@
 		<developerConnection>scm:hg:ssh://fortuna@ical4j.hg.sourceforge.net/hgroot/ical4j/ical4j-connector</developerConnection>
 		<url>http://ical4j.hg.sourceforge.net/hgweb/ical4j/ical4j-connector/</url>
 	</scm>
+	
+	<distributionManagement>
+	   <relocation>
+	       <artifactId>ical4j-connector</artifactId>
+	       <groupId>org.mnode.ical4j</groupId>
+	       <version>0.9.2</version>
+	       <message>Changed group ID for upload to Maven central</message>
+	   </relocation>
+	</distributionManagement>
+	
 	<build>
 		<plugins>
 			<plugin>
