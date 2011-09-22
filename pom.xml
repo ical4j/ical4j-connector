@@ -152,12 +152,12 @@
 		<dependency>
 			<groupId>net.fortuna.ical4j</groupId>
 			<artifactId>ical4j</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>net.fortuna.ical4j</groupId>
 			<artifactId>ical4j-vcard</artifactId>
-			<version>0.9.3</version>
+			<version>0.9.4</version>
 		</dependency>
 		
 		<dependency>
