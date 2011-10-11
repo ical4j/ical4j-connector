@@ -156,6 +156,11 @@ public class CalDavConstants {
     public static final String PROPERTY_SUPPORTED_CALENDAR_COMPONENT_SET = "supported-calendar-component-set";
     
     /**
+     * Specifies a supported component type (e.g., VEVENT, VTODO, etc.)
+     */
+    public static final String PROPERTY_COMPONENT = "comp";
+
+    /**
      * Determines whether the calendar object resources in a calendar collection will affect the owner's freebusy.
      */
     public static final String PROPERTY_SCHEDULE_CALENDAR_TRANSP = "schedule-calendar-transp";

@@ -77,11 +77,7 @@ import org.w3c.dom.Node;
  *
  */
 public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calendar> implements CalendarCollection {
-    
-    private String displayName;
-    
-    private String description;
-    
+      
     /**
      * Only {@link CalDavCalendarStore} should be calling this, so default modifier is applied.
      * @param calDavCalendarStore
@@ -102,8 +98,13 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
             String id, String displayName, String description) {
         
     	super(calDavCalendarStore, id);
-        this.displayName = displayName;
-        this.description = description;
+    	properties.add(new DefaultDavProperty(DavPropertyName.DISPLAYNAME, displayName));
+    	properties.add(new DefaultDavProperty(CalDavPropertyName.CALENDAR_DESCRIPTION, description));
+    }
+    
+    CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id, DavPropertySet _properties) {
+      this(calDavCalendarStore, id, null, null);
+      this.properties = _properties;
     }
     
     /**
@@ -113,13 +114,10 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      */
     final void create() throws IOException, ObjectStoreException {
         MkCalendarMethod mkCalendarMethod = new MkCalendarMethod(getPath());
-        
-        DavPropertySet properties = new DavPropertySet();
-        properties.add(new DefaultDavProperty(DavPropertyName.DISPLAYNAME, displayName));
-        properties.add(new DefaultDavProperty(CalDavPropertyName.CALENDAR_DESCRIPTION, description));
-        
+                
         MkCalendar mkcalendar = new MkCalendar();
         mkcalendar.setProperties(properties);
+        System.out.println("properties: " + properties.getContentSize());
         mkCalendarMethod.setRequestBody(mkcalendar);
 
         getStore().getClient().execute(mkCalendarMethod);

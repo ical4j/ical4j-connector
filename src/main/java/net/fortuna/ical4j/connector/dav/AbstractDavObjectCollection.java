@@ -63,6 +63,8 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
     private final AbstractDavObjectStore<?> store;
 
     private final String id;
+    
+    protected DavPropertySet properties;
 
     /**
      * @param store the container store for the collection
@@ -71,6 +73,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
     public AbstractDavObjectCollection(AbstractDavObjectStore<?> store, String id) {
         this.store = store;
         this.id = id;
+        this.properties = new DavPropertySet();
     }
 
     /**

@@ -121,4 +121,16 @@ public class CalDavPropertyName {
      */
     public static final DavPropertyName CALENDAR_COLOR = DavPropertyName.create(
             CalDavConstants.PROPERTY_CALENDAR_COLOR, CalDavConstants.ICAL_NAMESPACE);
+    
+    /**
+     * 
+     */
+    public static final DavPropertyName CALENDAR_ORDER = DavPropertyName.create(
+        CalDavConstants.PROPERTY_CALENDAR_ORDER, CalDavConstants.ICAL_NAMESPACE);
+    
+    /**
+     * 
+     */
+    public static final DavPropertyName COMPONENT = DavPropertyName.create(
+        CalDavConstants.PROPERTY_COMPONENT, CalDavConstants.NAMESPACE);
 }
