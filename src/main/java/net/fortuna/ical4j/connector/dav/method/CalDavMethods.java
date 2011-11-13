@@ -31,7 +31,6 @@
  */
 package net.fortuna.ical4j.connector.dav.method;
 
-import org.apache.jackrabbit.webdav.DavMethods;
 
 /**
  * $Id$
@@ -41,7 +40,7 @@ import org.apache.jackrabbit.webdav.DavMethods;
  * @author Ben
  *
  */
-public class CalDavMethods extends DavMethods {
+public class CalDavMethods {
     
     /**
      * 
