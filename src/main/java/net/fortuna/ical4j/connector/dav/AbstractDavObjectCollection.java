@@ -38,7 +38,6 @@ import java.util.Collection;
 
 import net.fortuna.ical4j.connector.ObjectCollection;
 import net.fortuna.ical4j.connector.ObjectStoreException;
-import net.fortuna.ical4j.connector.dav.method.GetMethod;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.jackrabbit.webdav.DavConstants;
@@ -102,7 +101,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
     }
 
     /**
-     * @param <T> the property type
+     * @param <P> the property type
      * @param propertyName a property name
      * @param type the class for the property type returned (HACK!!)
      * @return the value for the specified property name
@@ -110,8 +109,8 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      * @throws ObjectStoreException where an unexpected error occurs
      * @throws DavException where an error occurs calling the DAV method
      */
-    @SuppressWarnings("unchecked")
-	public final <T> T getProperty(DavPropertyName propertyName, Class<T> type)
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public final <P> P getProperty(DavPropertyName propertyName, Class<P> type)
         throws IOException, ObjectStoreException, DavException {
         
         DavPropertyNameSet set = new DavPropertyNameSet();
@@ -130,14 +129,14 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
             Object value = props.get(propertyName).getValue();
             try {
                 if (Collection.class.isAssignableFrom(type)) {
-                    T result = type.newInstance();
+                    P result = type.newInstance();
                     if (value instanceof Collection<?>) {
                         ((Collection<?>) result).addAll((Collection) value);
                     }
                     return result;
                 }
                 else {
-                    Constructor<T> constructor = type.getConstructor(value.getClass());
+                    Constructor<P> constructor = type.getConstructor(value.getClass());
                     return constructor.newInstance(value);
                 }
             }
@@ -165,7 +164,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            return (T) props.get(propertyName).getValue();
+            return (P) props.get(propertyName).getValue();
         }
         return null;
     }
@@ -191,9 +190,15 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      * @throws ObjectStoreException where an unexpected error occurs
      */
     public final boolean exists() throws HttpException, IOException, ObjectStoreException {
-        GetMethod getMethod = new GetMethod(getPath());
+        DavPropertyNameSet principalsProps = new DavPropertyNameSet();
+        principalsProps.add(DavPropertyName.DISPLAYNAME);
+
+        PropFindMethod getMethod = new PropFindMethod(getPath(), principalsProps, PropFindMethod.DEPTH_0);
         getStore().getClient().execute(getMethod);
-        if (getMethod.getStatusCode() == DavServletResponse.SC_OK) {
+        if (getMethod.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
+            return true;
+        }
+        else if (getMethod.getStatusCode() == DavServletResponse.SC_OK) {
             return true;
         }
         else if (getMethod.getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
