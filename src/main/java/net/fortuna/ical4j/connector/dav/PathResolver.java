@@ -73,6 +73,8 @@ public abstract class PathResolver {
     public static final PathResolver CALENDAR_SERVER = new CalendarServerPathResolver();
     
     public static final PathResolver GCAL = new GCalPathResolver();
+
+    public static final PathResolver SOGO = new SOGoPathResolver();
     
     public static final PathResolver GENERIC = new GenericPathResolver();
 
@@ -212,7 +214,7 @@ public abstract class PathResolver {
 
         @Override
         public String getPrincipalPath(String username) {
-            return "/principals/users/" + username + "/";
+          return "/dav/" + username + "/";
         }
 
         @Override
@@ -232,6 +234,19 @@ public abstract class PathResolver {
         public String getUserPath(String username) {
             return "/calendar/dav/" + username + "/events/";
         }
+    }
+    
+    private static class SOGoPathResolver extends PathResolver {
+
+      @Override
+      public String getPrincipalPath(String username) {
+        return "/calendar/dav/" + username + "/user/";
+      }
+
+      @Override
+      public String getUserPath(String username) {
+        return "/SOGo/dav/" + username + "/";
+      }
     }
     
     public static class GenericPathResolver extends PathResolver {
