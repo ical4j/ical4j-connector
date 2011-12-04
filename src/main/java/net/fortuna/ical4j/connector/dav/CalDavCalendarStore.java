@@ -32,6 +32,7 @@
 package net.fortuna.ical4j.connector.dav;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -84,6 +85,8 @@ import org.apache.jackrabbit.webdav.version.DeltaVConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -351,17 +354,64 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         }
         return collections;
     }
+    
+    protected List<CalDavCalendarCollection> getDelegateCollections(DavProperty<?> proxyDavProperty) throws ParserConfigurationException, IOException, DavException {
+      ArrayList<Node> response = (ArrayList)proxyDavProperty.getValue();
+
+      if (response != null) {
+        for (Node objectInArray: response) {
+          if (objectInArray instanceof Element) {
+            DefaultDavProperty<?> newProperty = DefaultDavProperty.createFromXml((Element)objectInArray);
+            if ((newProperty.getName().getName().equals((DavConstants.XML_RESPONSE))) && (newProperty.getName().getNamespace().equals(DavConstants.NAMESPACE))) {
+              ArrayList<Node> responseChilds = (ArrayList)newProperty.getValue();
+              for (Node responseChild: responseChilds) {
+                if (responseChild instanceof Element) {
+                  DefaultDavProperty<?> responseChildElement = DefaultDavProperty.createFromXml((Element)responseChild);                  
+                  if (responseChildElement.getName().getName().equals(DavConstants.XML_PROPSTAT)) {
+                    ArrayList<Node> propStatChilds = (ArrayList)responseChildElement.getValue();
+                    for (Node propStatChild: propStatChilds) {
+                      if (propStatChild instanceof Element) {
+                        DefaultDavProperty<?> propStatChildElement = DefaultDavProperty.createFromXml((Element)propStatChild);                  
+                        if (propStatChildElement.getName().getName().equals(DavConstants.XML_PROP)) {
+                          ArrayList<Node> propChilds = (ArrayList)propStatChildElement.getValue(); 
+                          for (Node propChild: propChilds) {
+                            if (propChild instanceof Element) {
+                              DefaultDavProperty<?> propChildElement = DefaultDavProperty.createFromXml((Element)propChild);
+                              if (propChildElement.getName().equals(SecurityConstants.PRINCIPAL_URL)) {
+                                ArrayList<Node> principalUrlChilds = (ArrayList)propChildElement.getValue();
+                                for (Node principalUrlChild: principalUrlChilds) {
+                                  if (principalUrlChild instanceof Element) {
+                                    DefaultDavProperty<?> principalUrlElement = DefaultDavProperty.createFromXml((Element)principalUrlChild);
+                                    if (principalUrlElement.getName().getName().equals(DavConstants.XML_HREF)) {
+                                      String principalsUri = (String)principalUrlElement.getValue();
+                                      String urlForcalendarHomeSet = findCalendarHomeSet(getHostURL() + principalsUri);
+                                      return getCollectionsForHomeSet(this,urlForcalendarHomeSet);
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      return new ArrayList<CalDavCalendarCollection>();
+    }
 
     /**
      * Get the list of available delegated collections, Apple's iCal style
      * 
      * @return
-     * @throws ParserConfigurationException
-     * @throws IOException
-     * @throws DavException
+     * @throws Exception 
      */
-    public List<CalDavCalendarCollection> getDelegatedCollections() throws ParserConfigurationException, IOException,
-            DavException {
+    public List<CalDavCalendarCollection> getDelegatedCollections() throws Exception {
 
         List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
 
@@ -411,75 +461,15 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         DavMethodBase method = new ReportMethod(methodUri, rinfo);
         getClient().execute(getClient().hostConfiguration, method);
 
-        // FIXME: same code as getCollections, so if it's really the same code, centralize!
         if (method.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
           MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
           MultiStatusResponse[] responses = multiStatus.getResponses();
           for (int i = 0; i < responses.length; i++) {
-            String collectionUri = responses[i].getHref();
-            for (int j = 0; j < responses[i].getStatus().length; j++) {
-              Status status = responses[i].getStatus()[j];
-              for (DavPropertyIterator iNames = responses[i].getProperties(status.getStatusCode()).iterator(); iNames
-                  .hasNext();) {
-                DavProperty name = iNames.nextProperty();
-                if (((name.getName().getName().equals(CalDavConstants.PROPERTY_PROXY_WRITE_FOR) || (name.getName()
-                    .getName().equals(CalDavConstants.PROPERTY_PROXY_READ_FOR))))
-                    && (CalDavConstants.CS_NAMESPACE.isSame(name.getName().getNamespace().getURI()))) {
-                  if (name.getValue() instanceof ArrayList) {
-                    for (Iterator<?> iter = ((ArrayList<?>) name.getValue()).iterator(); iter.hasNext();) {
-                      Object child = iter.next();
-                      if (child instanceof Node) {
-                        Node node = ((Node) child);
-                        if ((DavConstants.XML_RESPONSE.equals(node.getLocalName()))
-                            && (DavConstants.NAMESPACE.getURI().equals(node.getNamespaceURI()))) {
-                          NodeList responseChilds = node.getChildNodes();
-                          for (int responseIter = 0; responseIter < responseChilds.getLength(); responseIter++) {
-                            Object responseChild = responseChilds.item(responseIter);
-                            if (responseChild instanceof Node) {
-                              Node nodeResponseChild = ((Node) responseChild);
-                              if (DavConstants.XML_PROPSTAT.equals(nodeResponseChild.getLocalName())) {
-                                NodeList propstatChilds = nodeResponseChild.getChildNodes();
-                                for (int propstatIter = 0; propstatIter < propstatChilds
-                                    .getLength(); propstatIter++) {
-                                  Object propstatChild = propstatChilds.item(propstatIter);
-                                  if (propstatChild instanceof Node) {
-                                    Node nodePropstatChild = (Node) propstatChild;
-                                    // FIXME: we should make sure D:status is 200 OK before
-                                    // adding it to the collections list
-                                    if (DavConstants.XML_STATUS.equals(nodePropstatChild
-                                        .getLocalName())) {
-
-                                    }
-                                    if (DavConstants.XML_PROP.equals(nodePropstatChild
-                                        .getLocalName())) {
-                                      NodeList propChilds = nodePropstatChild.getChildNodes();
-                                      for (int propIter = 0; propIter < propChilds
-                                          .getLength(); propIter++) {
-                                        Object propChild = propChilds.item(propstatIter);
-                                        Node nodePropChild = (Node) propChild;
-                                        System.out.println("getLocalName : " + nodePropChild.getLocalName());
-                                        if (SecurityConstants.PRINCIPAL_URL.getName()
-                                            .equals(nodePropChild.getLocalName())) {
-                                          Node nodeHref = nodePropChild.getFirstChild();
-                                          System.out.println("nodeHref : " + nodeHref.getLocalName());
-                                          collectionUri = nodeHref.getTextContent();
-                                          collections.add(new CalDavCalendarCollection(
-                                              this, collectionUri));
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
+            DavPropertySet properties = responses[i].getProperties(DavServletResponse.SC_OK);
+            DavProperty<?> writeForProperty = properties.get(CalDavConstants.PROPERTY_PROXY_WRITE_FOR, CalDavConstants.CS_NAMESPACE);
+            collections.addAll(getDelegateCollections(writeForProperty));
+            DavProperty<?> readForProperty = properties.get(CalDavConstants.PROPERTY_PROXY_READ_FOR, CalDavConstants.CS_NAMESPACE);
+            collections.addAll(getDelegateCollections(readForProperty));
           }
         }
         return collections;
