@@ -229,6 +229,13 @@
 			<artifactId>spock-core</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+		<!-- XML handling -->
+		<dependency>
+    		<groupId>org.simpleframework</groupId>
+    		<artifactId>simple-xml</artifactId>
+    		<version>2.6.2</version>
+		</dependency>
 	</dependencies>
 	
 	<repositories>

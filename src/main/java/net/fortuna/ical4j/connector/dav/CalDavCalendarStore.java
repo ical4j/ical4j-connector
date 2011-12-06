@@ -66,6 +66,7 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
+import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatus;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.Status;
@@ -403,7 +404,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         proxyReadForElement.appendChild(readUserAddressSetProperty);
 
         ReportInfo rinfo = new ReportInfo(ReportType.register(DeltaVConstants.XML_EXPAND_PROPERTY,
-                DeltaVConstants.NAMESPACE, org.apache.jackrabbit.webdav.version.report.ExpandPropertyReport.class), 1);
+                DeltaVConstants.NAMESPACE, org.apache.jackrabbit.webdav.version.report.ExpandPropertyReport.class), 0);
         rinfo.setContentElement(proxyWriteForElement);
         rinfo.setContentElement(proxyReadForElement);
 
@@ -411,71 +412,73 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         getClient().execute(getClient().hostConfiguration, method);
 
         // FIXME: same code as getCollections, so if it's really the same code, centralize!
-        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
-        MultiStatusResponse[] responses = multiStatus.getResponses();
-        for (int i = 0; i < responses.length; i++) {
+        if (method.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
+          MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
+          MultiStatusResponse[] responses = multiStatus.getResponses();
+          for (int i = 0; i < responses.length; i++) {
             String collectionUri = responses[i].getHref();
             for (int j = 0; j < responses[i].getStatus().length; j++) {
-                Status status = responses[i].getStatus()[j];
-                for (DavPropertyIterator iNames = responses[i].getProperties(status.getStatusCode()).iterator(); iNames
-                        .hasNext();) {
-                    DavProperty name = iNames.nextProperty();
-                    if (((name.getName().getName().equals(CalDavConstants.PROPERTY_PROXY_WRITE_FOR) || (name.getName()
-                            .getName().equals(CalDavConstants.PROPERTY_PROXY_READ_FOR))))
-                            && (CalDavConstants.CS_NAMESPACE.isSame(name.getName().getNamespace().getURI()))) {
-                        if (name.getValue() instanceof ArrayList) {
-                            for (Iterator<?> iter = ((ArrayList<?>) name.getValue()).iterator(); iter.hasNext();) {
-                                Object child = iter.next();
-                                if (child instanceof Node) {
-                                    Node node = ((Node) child);
-                                    if ((DavConstants.XML_RESPONSE.equals(node.getLocalName()))
-                                            && (DavConstants.NAMESPACE.getURI().equals(node.getNamespaceURI()))) {
-                                        NodeList responseChilds = node.getChildNodes();
-                                        for (int responseIter = 0; responseIter < responseChilds.getLength(); responseIter++) {
-                                            Object responseChild = responseChilds.item(responseIter);
-                                            if (responseChild instanceof Node) {
-                                                Node nodeResponseChild = ((Node) responseChild);
-                                                if (DavConstants.XML_PROPSTAT.equals(nodeResponseChild.getLocalName())) {
-                                                    NodeList propstatChilds = nodeResponseChild.getChildNodes();
-                                                    for (int propstatIter = 0; propstatIter < propstatChilds
-                                                            .getLength(); propstatIter++) {
-                                                        Object propstatChild = propstatChilds.item(propstatIter);
-                                                        if (propstatChild instanceof Node) {
-                                                            Node nodePropstatChild = (Node) propstatChild;
-                                                            // FIXME: we should make sure D:status is 200 OK before
-                                                            // adding it to the collections list
-                                                            if (DavConstants.XML_STATUS.equals(nodePropstatChild
-                                                                    .getLocalName())) {
+              Status status = responses[i].getStatus()[j];
+              for (DavPropertyIterator iNames = responses[i].getProperties(status.getStatusCode()).iterator(); iNames
+                  .hasNext();) {
+                DavProperty name = iNames.nextProperty();
+                if (((name.getName().getName().equals(CalDavConstants.PROPERTY_PROXY_WRITE_FOR) || (name.getName()
+                    .getName().equals(CalDavConstants.PROPERTY_PROXY_READ_FOR))))
+                    && (CalDavConstants.CS_NAMESPACE.isSame(name.getName().getNamespace().getURI()))) {
+                  if (name.getValue() instanceof ArrayList) {
+                    for (Iterator<?> iter = ((ArrayList<?>) name.getValue()).iterator(); iter.hasNext();) {
+                      Object child = iter.next();
+                      if (child instanceof Node) {
+                        Node node = ((Node) child);
+                        if ((DavConstants.XML_RESPONSE.equals(node.getLocalName()))
+                            && (DavConstants.NAMESPACE.getURI().equals(node.getNamespaceURI()))) {
+                          NodeList responseChilds = node.getChildNodes();
+                          for (int responseIter = 0; responseIter < responseChilds.getLength(); responseIter++) {
+                            Object responseChild = responseChilds.item(responseIter);
+                            if (responseChild instanceof Node) {
+                              Node nodeResponseChild = ((Node) responseChild);
+                              if (DavConstants.XML_PROPSTAT.equals(nodeResponseChild.getLocalName())) {
+                                NodeList propstatChilds = nodeResponseChild.getChildNodes();
+                                for (int propstatIter = 0; propstatIter < propstatChilds
+                                    .getLength(); propstatIter++) {
+                                  Object propstatChild = propstatChilds.item(propstatIter);
+                                  if (propstatChild instanceof Node) {
+                                    Node nodePropstatChild = (Node) propstatChild;
+                                    // FIXME: we should make sure D:status is 200 OK before
+                                    // adding it to the collections list
+                                    if (DavConstants.XML_STATUS.equals(nodePropstatChild
+                                        .getLocalName())) {
 
-                                                            }
-                                                            if (DavConstants.XML_PROP.equals(nodePropstatChild
-                                                                    .getLocalName())) {
-                                                                NodeList propChilds = nodePropstatChild.getChildNodes();
-                                                                for (int propIter = 0; propIter < propChilds
-                                                                        .getLength(); propIter++) {
-                                                                    Object propChild = propChilds.item(propstatIter);
-                                                                    Node nodePropChild = (Node) propChild;
-                                                                    if (SecurityConstants.PRINCIPAL_URL.getName()
-                                                                            .equals(nodePropChild.getLocalName())) {
-                                                                        Node nodeHref = nodePropChild.getFirstChild().getFirstChild();
-                                                                        collectionUri = nodeHref.getTextContent();
-                                                                        collections.add(new CalDavCalendarCollection(
-                                                                                this, collectionUri));
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
                                     }
+                                    if (DavConstants.XML_PROP.equals(nodePropstatChild
+                                        .getLocalName())) {
+                                      NodeList propChilds = nodePropstatChild.getChildNodes();
+                                      for (int propIter = 0; propIter < propChilds
+                                          .getLength(); propIter++) {
+                                        Object propChild = propChilds.item(propstatIter);
+                                        Node nodePropChild = (Node) propChild;
+                                        if (SecurityConstants.PRINCIPAL_URL.getName()
+                                            .equals(nodePropChild.getLocalName())) {
+                                          Node nodeHref = nodePropChild.getFirstChild().getFirstChild();
+                                          collectionUri = nodeHref.getTextContent();
+                                          collections.add(new CalDavCalendarCollection(
+                                              this, collectionUri));
+                                        }
+                                      }
+                                    }
+                                  }
                                 }
+                              }
                             }
+                          }
                         }
+                      }
                     }
+                  }
                 }
+              }
             }
+          }
         }
         return collections;
     }
