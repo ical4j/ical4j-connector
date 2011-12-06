@@ -32,7 +32,6 @@
 package net.fortuna.ical4j.connector.dav;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -85,8 +84,6 @@ import org.apache.jackrabbit.webdav.version.DeltaVConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -356,36 +353,46 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     }
     
     protected List<CalDavCalendarCollection> getDelegateCollections(DavProperty<?> proxyDavProperty) throws ParserConfigurationException, IOException, DavException {
-      ArrayList<Node> response = (ArrayList)proxyDavProperty.getValue();
+      /* 
+       * Zimbra check: Zimbra advertise calendar-proxy, but it will return 404 in propstat if 
+       * Enable delegation for Apple iCal CalDAV client is not enabled
+       */
+      if (proxyDavProperty != null) {
+        Object propertyValue = proxyDavProperty.getValue();
+        ArrayList<Node> response; 
 
-      if (response != null) {
-        for (Node objectInArray: response) {
-          if (objectInArray instanceof Element) {
-            DefaultDavProperty<?> newProperty = DefaultDavProperty.createFromXml((Element)objectInArray);
-            if ((newProperty.getName().getName().equals((DavConstants.XML_RESPONSE))) && (newProperty.getName().getNamespace().equals(DavConstants.NAMESPACE))) {
-              ArrayList<Node> responseChilds = (ArrayList)newProperty.getValue();
-              for (Node responseChild: responseChilds) {
-                if (responseChild instanceof Element) {
-                  DefaultDavProperty<?> responseChildElement = DefaultDavProperty.createFromXml((Element)responseChild);                  
-                  if (responseChildElement.getName().getName().equals(DavConstants.XML_PROPSTAT)) {
-                    ArrayList<Node> propStatChilds = (ArrayList)responseChildElement.getValue();
-                    for (Node propStatChild: propStatChilds) {
-                      if (propStatChild instanceof Element) {
-                        DefaultDavProperty<?> propStatChildElement = DefaultDavProperty.createFromXml((Element)propStatChild);                  
-                        if (propStatChildElement.getName().getName().equals(DavConstants.XML_PROP)) {
-                          ArrayList<Node> propChilds = (ArrayList)propStatChildElement.getValue(); 
-                          for (Node propChild: propChilds) {
-                            if (propChild instanceof Element) {
-                              DefaultDavProperty<?> propChildElement = DefaultDavProperty.createFromXml((Element)propChild);
-                              if (propChildElement.getName().equals(SecurityConstants.PRINCIPAL_URL)) {
-                                ArrayList<Node> principalUrlChilds = (ArrayList)propChildElement.getValue();
-                                for (Node principalUrlChild: principalUrlChilds) {
-                                  if (principalUrlChild instanceof Element) {
-                                    DefaultDavProperty<?> principalUrlElement = DefaultDavProperty.createFromXml((Element)principalUrlChild);
-                                    if (principalUrlElement.getName().getName().equals(DavConstants.XML_HREF)) {
-                                      String principalsUri = (String)principalUrlElement.getValue();
-                                      String urlForcalendarHomeSet = findCalendarHomeSet(getHostURL() + principalsUri);
-                                      return getCollectionsForHomeSet(this,urlForcalendarHomeSet);
+        if (propertyValue instanceof ArrayList) {
+          response = (ArrayList)proxyDavProperty.getValue();
+          if (response != null) {
+            for (Node objectInArray: response) {
+              if (objectInArray instanceof Element) {
+                DefaultDavProperty<?> newProperty = DefaultDavProperty.createFromXml((Element)objectInArray);
+                if ((newProperty.getName().getName().equals((DavConstants.XML_RESPONSE))) && (newProperty.getName().getNamespace().equals(DavConstants.NAMESPACE))) {
+                  ArrayList<Node> responseChilds = (ArrayList)newProperty.getValue();
+                  for (Node responseChild: responseChilds) {
+                    if (responseChild instanceof Element) {
+                      DefaultDavProperty<?> responseChildElement = DefaultDavProperty.createFromXml((Element)responseChild);                  
+                      if (responseChildElement.getName().getName().equals(DavConstants.XML_PROPSTAT)) {
+                        ArrayList<Node> propStatChilds = (ArrayList)responseChildElement.getValue();
+                        for (Node propStatChild: propStatChilds) {
+                          if (propStatChild instanceof Element) {
+                            DefaultDavProperty<?> propStatChildElement = DefaultDavProperty.createFromXml((Element)propStatChild);                  
+                            if (propStatChildElement.getName().getName().equals(DavConstants.XML_PROP)) {
+                              ArrayList<Node> propChilds = (ArrayList)propStatChildElement.getValue(); 
+                              for (Node propChild: propChilds) {
+                                if (propChild instanceof Element) {
+                                  DefaultDavProperty<?> propChildElement = DefaultDavProperty.createFromXml((Element)propChild);
+                                  if (propChildElement.getName().equals(SecurityConstants.PRINCIPAL_URL)) {
+                                    ArrayList<Node> principalUrlChilds = (ArrayList)propChildElement.getValue();
+                                    for (Node principalUrlChild: principalUrlChilds) {
+                                      if (principalUrlChild instanceof Element) {
+                                        DefaultDavProperty<?> principalUrlElement = DefaultDavProperty.createFromXml((Element)principalUrlChild);
+                                        if (principalUrlElement.getName().getName().equals(DavConstants.XML_HREF)) {
+                                          String principalsUri = (String)principalUrlElement.getValue();
+                                          String urlForcalendarHomeSet = findCalendarHomeSet(getHostURL() + principalsUri);
+                                          return getCollectionsForHomeSet(this,urlForcalendarHomeSet);
+                                        }
+                                      }
                                     }
                                   }
                                 }
