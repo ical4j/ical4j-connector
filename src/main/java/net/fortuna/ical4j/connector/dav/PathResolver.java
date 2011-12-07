@@ -78,6 +78,8 @@ public abstract class PathResolver {
     
     public static final PathResolver DAVICAL = new DAViCalPathResolver();
     
+    public static final PathResolver BEDEWORK = new BedeworkPathResolver();
+
     public static final PathResolver GENERIC = new GenericPathResolver();
 
 
@@ -261,6 +263,19 @@ public abstract class PathResolver {
       @Override
       public String getUserPath(String username) {
         return "/caldav.php/" + username + "/";
+      }
+    }
+    
+    private static class BedeworkPathResolver extends PathResolver {
+
+      @Override
+      public String getPrincipalPath(String username) {
+        return "/ucaldav/principals/users/" + username + "/";
+      }
+
+      @Override
+      public String getUserPath(String username) {
+        return "/ucaldav/users/" + username + "/";
       }
     }
     
