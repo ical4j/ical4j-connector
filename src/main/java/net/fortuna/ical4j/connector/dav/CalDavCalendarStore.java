@@ -457,9 +457,11 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                                           .getLength(); propIter++) {
                                         Object propChild = propChilds.item(propstatIter);
                                         Node nodePropChild = (Node) propChild;
+                                        System.out.println("getLocalName : " + nodePropChild.getLocalName());
                                         if (SecurityConstants.PRINCIPAL_URL.getName()
                                             .equals(nodePropChild.getLocalName())) {
-                                          Node nodeHref = nodePropChild.getFirstChild().getFirstChild();
+                                          Node nodeHref = nodePropChild.getFirstChild();
+                                          System.out.println("nodeHref : " + nodeHref.getLocalName());
                                           collectionUri = nodeHref.getTextContent();
                                           collections.add(new CalDavCalendarCollection(
                                               this, collectionUri));

@@ -240,7 +240,7 @@ public abstract class PathResolver {
 
       @Override
       public String getPrincipalPath(String username) {
-        return "/calendar/dav/" + username + "/user/";
+        return "/SOGo/dav/" + username + "/";
       }
 
       @Override
