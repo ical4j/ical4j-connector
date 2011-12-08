@@ -2,7 +2,7 @@
 	<parent>
 		<artifactId>mnode-parent</artifactId>
 		<groupId>org.mnode</groupId>
-		<version>1.4</version>
+		<version>1.5</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.mnode.ical4j</groupId>
@@ -126,7 +126,7 @@
 		<dependency>
 			<groupId>org.mnode.ical4j</groupId>
 			<artifactId>ical4j</artifactId>
-			<version>[1.0.2,)</version>
+			<version>[1.0.2,2.0-SNAPSHOT)</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mnode.ical4j</groupId>
