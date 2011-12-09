@@ -80,6 +80,8 @@ public abstract class PathResolver {
     
     public static final PathResolver BEDEWORK = new BedeworkPathResolver();
 
+    public static final PathResolver ORACLE_CS = new OracleCalendarServerPathResolver();
+    
     public static final PathResolver GENERIC = new GenericPathResolver();
 
 
@@ -276,6 +278,19 @@ public abstract class PathResolver {
       @Override
       public String getUserPath(String username) {
         return "/ucaldav/users/" + username + "/";
+      }
+    }
+    
+    private static class OracleCalendarServerPathResolver extends PathResolver {
+
+      @Override
+      public String getPrincipalPath(String username) {
+        return "/dav/principals/" + username + "/";
+      }
+
+      @Override
+      public String getUserPath(String username) {
+        return "/dav/home/" + username + "/";
       }
     }
     
