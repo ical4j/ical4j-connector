@@ -414,7 +414,11 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     public void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
         Uid uid = Calendars.getUid(calendar);
 
-        PutMethod putMethod = new PutMethod(getPath() + "/" + uid.getValue() + ".ics");
+        String path = getPath();
+        if (!path.endsWith("/")) {
+          path = path.concat("/");
+        }
+        PutMethod putMethod = new PutMethod(path + uid.getValue() + ".ics");
 //        putMethod.setAllEtags(true);
 //        putMethod.setIfNoneMatch(true);
 //        putMethod.setRequestBody(calendar);
