@@ -76,7 +76,7 @@ public class MkCalendar implements XmlSerializable {
         Element set = DomUtil.createElement(document, DavConstants.XML_SET, DavConstants.NAMESPACE);
         set.appendChild(properties.toXml(document));
         
-        Element mkcalendar = DomUtil.createElement(document, XML_MKCALENDAR, CalDavConstants.NAMESPACE);
+        Element mkcalendar = DomUtil.createElement(document, XML_MKCALENDAR, CalDavConstants.CALDAV_NAMESPACE);
         mkcalendar.appendChild(set);
         return mkcalendar;
     }

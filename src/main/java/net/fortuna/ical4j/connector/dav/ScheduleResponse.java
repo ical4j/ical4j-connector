@@ -81,11 +81,11 @@ public class ScheduleResponse {
      * ]]></calendar-data> <responsedescription xmlns='DAV:'>OK</responsedescription> </response> </schedule-response>
      */
     public ScheduleResponse(Element responseNode) throws IOException, ParserException {
-        NodeList recipients = responseNode.getElementsByTagNameNS(CalDavConstants.NAMESPACE.getURI(),
+        NodeList recipients = responseNode.getElementsByTagNameNS(CalDavConstants.CALDAV_NAMESPACE.getURI(),
                 CalDavPropertyName.RECIPIENT.getName());
-        NodeList status = responseNode.getElementsByTagNameNS(CalDavConstants.NAMESPACE.getURI(),
+        NodeList status = responseNode.getElementsByTagNameNS(CalDavConstants.CALDAV_NAMESPACE.getURI(),
                 CalDavPropertyName.REQUEST_STATUS.getName());
-        NodeList calendars = responseNode.getElementsByTagNameNS(CalDavConstants.NAMESPACE.getURI(),
+        NodeList calendars = responseNode.getElementsByTagNameNS(CalDavConstants.CALDAV_NAMESPACE.getURI(),
                 CalDavPropertyName.CALENDAR_DATA.getName());
 
         for (int nodesIndex = 0; nodesIndex < calendars.getLength(); nodesIndex++) {
