@@ -33,11 +33,13 @@ package net.fortuna.ical4j.connector.dav;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.ObjectCollection;
 import net.fortuna.ical4j.connector.ObjectStore;
 import net.fortuna.ical4j.connector.ObjectStoreException;
+import net.fortuna.ical4j.connector.dav.enums.SupportedFeature;
 
 /**
  * @param <C>
@@ -54,6 +56,8 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
 	private String username;
 	
 	private final URL rootUrl;
+	
+	private ArrayList<SupportedFeature> supportedFeatures;
 	
     /**
      * Server implementation-specific path resolution.
@@ -106,9 +110,8 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
         	final String principalPath = pathResolver.getPrincipalPath(username);
         	final String userPath = pathResolver.getUserPath(getUserName());
         	davClient = new DavClient(rootUrl, principalPath, userPath);
-        	davClient.begin(username, password);
+        	supportedFeatures = davClient.begin(username, password);
 
-        	
         	this.username = username;
     	}
     	catch (IOException ioe) {
@@ -156,4 +159,18 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
     public URL getHostURL() {
     	return rootUrl;
     }
+    
+    /**
+     * Returns a list of supported features, based on the DAV header in the response 
+     * of the connect call.
+     * @return
+     */
+    public ArrayList<SupportedFeature> supportedFeatures() {
+        return supportedFeatures;
+    }
+    
+    public boolean isSupportCalendarProxy() {
+        return supportedFeatures.contains(SupportedFeature.CALENDAR_PROXY) ? true: false;
+    }
+    
 }

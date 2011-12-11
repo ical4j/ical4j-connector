@@ -37,8 +37,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.fortuna.ical4j.connector.FailedOperationException;
+import net.fortuna.ical4j.connector.dav.enums.SupportedFeature;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HeaderElement;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
@@ -80,8 +83,10 @@ public class DavClient {
 		httpClient.getParams().setAuthenticationPreemptive(false);
 	}
 
-	void begin(String username, char[] password) throws IOException, FailedOperationException {
-		begin();
+	ArrayList<SupportedFeature> begin(String username, char[] password) throws IOException, FailedOperationException {
+	    ArrayList<SupportedFeature> supportedFeatures = new ArrayList<SupportedFeature>();
+	    
+	    begin();
 		Credentials credentials = new UsernamePasswordCredentials(username,
 				new String(password));
 		httpClient.getState().setCredentials(AuthScope.ANY, credentials);
@@ -99,7 +104,23 @@ public class DavClient {
 		int status = httpClient.executeMethod(hostConfiguration, aGet);
 		if (status >= 300) {
 			throw new FailedOperationException(String.format("Principals not found at [%s]", userPath));
+		} else {
+		    Header[] davHeaders = aGet.getResponseHeaders(net.fortuna.ical4j.connector.dav.DavConstants.HEADER_DAV);
+		    for (int headerIndex = 0; headerIndex < davHeaders.length; headerIndex++) {
+		        Header header = davHeaders[headerIndex];
+		        HeaderElement[] elements = header.getElements();
+		        for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+		            String feature = elements[elementIndex].getName();
+		            if (feature != null) {
+		                SupportedFeature supportedFeature = SupportedFeature.findByDescription(feature);
+		                if (supportedFeature != null) {
+		                    supportedFeatures.add(supportedFeature);
+		                }
+		            }
+		        }
+		    }
 		}
+		return supportedFeatures;
 	}
 
 	public int execute(HttpMethodBase method) throws IOException {
