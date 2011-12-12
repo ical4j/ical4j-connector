@@ -295,23 +295,25 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
 
         DavPropertyNameSet principalsProps = new DavPropertyNameSet();
-        principalsProps.add(CSDavPropertyName.XMPP_SERVER);
-        principalsProps.add(CSDavPropertyName.XMPP_URI);
-        principalsProps.add(CSDavPropertyName.CTAG);
-        principalsProps.add(DavPropertyName.DISPLAYNAME);
-        principalsProps.add(CalDavPropertyName.CALENDAR_DESCRIPTION);
-        principalsProps.add(ICalPropertyName.CALENDAR_COLOR);
-        principalsProps.add(ICalPropertyName.CALENDAR_ORDER);
-        principalsProps.add(CalDavPropertyName.SUPPORTED_CALENDAR_COMPONENT_SET);
+
+        principalsProps.add(BaseDavPropertyName.QUOTA_AVAILABLE_BYTES);
+        principalsProps.add(BaseDavPropertyName.QUOTA_USED_BYTES);
+        principalsProps.add(BaseDavPropertyName.CURRENT_USER_PRIVILEGE_SET);
+        principalsProps.add(BaseDavPropertyName.PROP);
         principalsProps.add(BaseDavPropertyName.RESOURCETYPE);
+        principalsProps.add(DavPropertyName.DISPLAYNAME);
         principalsProps.add(SecurityConstants.OWNER);
+
+        principalsProps.add(CalDavPropertyName.CALENDAR_DESCRIPTION);
+        principalsProps.add(CalDavPropertyName.SUPPORTED_CALENDAR_COMPONENT_SET);
         principalsProps.add(CalDavPropertyName.FREE_BUSY_SET);
         principalsProps.add(CalDavPropertyName.SCHEDULE_CALENDAR_TRANSP);
         principalsProps.add(CalDavPropertyName.SCHEDULE_DEFAULT_CALENDAR_URL);
         principalsProps.add(CalDavPropertyName.CALENDAR_TIMEZONE);
-        principalsProps.add(BaseDavPropertyName.QUOTA_AVAILABLE_BYTES);
-        principalsProps.add(BaseDavPropertyName.QUOTA_USED_BYTES);
-        principalsProps.add(BaseDavPropertyName.CURRENT_USER_PRIVILEGE_SET);
+
+        principalsProps.add(CSDavPropertyName.XMPP_SERVER);
+        principalsProps.add(CSDavPropertyName.XMPP_URI);
+        principalsProps.add(CSDavPropertyName.CTAG);
         principalsProps.add(CSDavPropertyName.SOURCE);
         principalsProps.add(CSDavPropertyName.SUBSCRIBED_STRIP_ALARMS);
         principalsProps.add(CSDavPropertyName.SUBSCRIBED_STRIP_ATTACHMENTS);
@@ -319,7 +321,9 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         principalsProps.add(CSDavPropertyName.REFRESHRATE);
         principalsProps.add(CSDavPropertyName.PUSH_TRANSPORTS);
         principalsProps.add(CSDavPropertyName.PUSHKEY);
-        principalsProps.add(BaseDavPropertyName.PROP);
+
+        principalsProps.add(ICalPropertyName.CALENDAR_COLOR);
+        principalsProps.add(ICalPropertyName.CALENDAR_ORDER);
 
         PropFindMethod method = new PropFindMethod(urlForcalendarHomeSet, principalsProps, PropFindMethod.DEPTH_1);
         getClient().execute(method);
