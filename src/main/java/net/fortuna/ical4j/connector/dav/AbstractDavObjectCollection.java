@@ -76,6 +76,8 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
     private final String id;
     
     protected DavPropertySet properties;
+    
+    private String _ownerName = null;
 
     /**
      * @param store the container store for the collection
@@ -251,8 +253,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      * Name of the owner of this collection. Will be retrieved by the owner href
      */
     public String getOwnerName() {
-        String ownerName = null;
-        if (getOwnerHref() != null) {
+        if ((_ownerName == null) && (getOwnerHref() != null)) {
             try {
                 DavPropertyNameSet nameSet = new DavPropertyNameSet();
                 nameSet.add(DavPropertyName.DISPLAYNAME);
@@ -269,7 +270,9 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
                         MultiStatusResponse msResponse = responses[i];
                         DavPropertySet foundProperties = msResponse.getProperties(200);
                         DavProperty displayNameProp = foundProperties.get(DavPropertyName.DISPLAYNAME);
-                        ownerName = (String)displayNameProp.getValue();
+                        if (displayNameProp != null) {
+                            _ownerName = (String)displayNameProp.getValue();
+                        }
                     }
                 }
             } catch (IOException e) {
@@ -278,7 +281,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
                 e.printStackTrace();
             }
         }
-        return ownerName;
+        return _ownerName;
     }
 
     /**
