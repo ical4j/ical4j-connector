@@ -167,16 +167,21 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      * {@inheritDoc}
      */
     public CalDavCalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
-        CalDavCalendarCollection collection = new CalDavCalendarCollection(this, id);
         try {
-            if (collection.exists()) {
-                return collection;
-            }
+            DavPropertyNameSet principalsProps = CalDavCalendarCollection.propertiesForFetch();
+            PropFindMethod getMethod = new PropFindMethod(id, principalsProps, PropFindMethod.DEPTH_0);
+
+            this.getClient().execute(getMethod);
+
+            MultiStatus multiStatus = getMethod.getResponseBodyAsMultiStatus();
+            MultiStatusResponse[] responses = multiStatus.getResponses();
+
+            return CalDavCalendarCollection.collectionsFromResponse(this, responses).get(0);
         } catch (HttpException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (DavException e) {
             e.printStackTrace();
         }
         throw new ObjectNotFoundException("Collection with id: [" + id + "] not found");
@@ -289,73 +294,20 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
             throw new ObjectStoreException(pce);
         }
     }
-
+    
     protected List<CalDavCalendarCollection> getCollectionsForHomeSet(CalDavCalendarStore store,
             String urlForcalendarHomeSet) throws IOException, DavException {
         List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
 
-        DavPropertyNameSet principalsProps = new DavPropertyNameSet();
-
-        principalsProps.add(BaseDavPropertyName.QUOTA_AVAILABLE_BYTES);
-        principalsProps.add(BaseDavPropertyName.QUOTA_USED_BYTES);
-        principalsProps.add(BaseDavPropertyName.CURRENT_USER_PRIVILEGE_SET);
-        principalsProps.add(BaseDavPropertyName.PROP);
-        principalsProps.add(BaseDavPropertyName.RESOURCETYPE);
-        principalsProps.add(DavPropertyName.DISPLAYNAME);
-        principalsProps.add(SecurityConstants.OWNER);
-
-        principalsProps.add(CalDavPropertyName.CALENDAR_DESCRIPTION);
-        principalsProps.add(CalDavPropertyName.SUPPORTED_CALENDAR_COMPONENT_SET);
-        principalsProps.add(CalDavPropertyName.FREE_BUSY_SET);
-        principalsProps.add(CalDavPropertyName.SCHEDULE_CALENDAR_TRANSP);
-        principalsProps.add(CalDavPropertyName.SCHEDULE_DEFAULT_CALENDAR_URL);
-        principalsProps.add(CalDavPropertyName.CALENDAR_TIMEZONE);
-
-        principalsProps.add(CSDavPropertyName.XMPP_SERVER);
-        principalsProps.add(CSDavPropertyName.XMPP_URI);
-        principalsProps.add(CSDavPropertyName.CTAG);
-        principalsProps.add(CSDavPropertyName.SOURCE);
-        principalsProps.add(CSDavPropertyName.SUBSCRIBED_STRIP_ALARMS);
-        principalsProps.add(CSDavPropertyName.SUBSCRIBED_STRIP_ATTACHMENTS);
-        principalsProps.add(CSDavPropertyName.SUBSCRIBED_STRIP_TODOS);
-        principalsProps.add(CSDavPropertyName.REFRESHRATE);
-        principalsProps.add(CSDavPropertyName.PUSH_TRANSPORTS);
-        principalsProps.add(CSDavPropertyName.PUSHKEY);
-
-        principalsProps.add(ICalPropertyName.CALENDAR_COLOR);
-        principalsProps.add(ICalPropertyName.CALENDAR_ORDER);
+        DavPropertyNameSet principalsProps = CalDavCalendarCollection.propertiesForFetch();
 
         PropFindMethod method = new PropFindMethod(urlForcalendarHomeSet, principalsProps, PropFindMethod.DEPTH_1);
         getClient().execute(method);
 
         MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
         MultiStatusResponse[] responses = multiStatus.getResponses();
-        for (int i = 0; i < responses.length; i++) {
-            MultiStatusResponse msResponse = responses[i];
-            DavPropertySet foundProperties = msResponse.getProperties(200);
-            String collectionUri = msResponse.getHref();
-            for (int j = 0; j < responses[i].getStatus().length; j++) {
-                for (DavPropertyIterator iNames = foundProperties.iterator(); iNames.hasNext();) {
-                    DefaultDavProperty<?> name = (DefaultDavProperty<?>) iNames.nextProperty();
-                    if (name.getName().getName().equals(BaseDavPropertyName.RESOURCETYPE.getName())
-                            && (DavConstants.NAMESPACE.isSame(name.getName().getNamespace().getURI()))) {
-                        if (name.getValue() instanceof ArrayList) {
-                            for (Iterator<?> iter = ((ArrayList<?>) name.getValue()).iterator(); iter.hasNext();) {
-                                Object child = iter.next();
-                                if (child instanceof Node) {
-                                    Node node = ((Node) child);
-                                    if (CalDavConstants.PROPERTY_RESOURCETYPE_CALENDAR.equals(node.getLocalName())
-                                            && CalDavConstants.CALDAV_NAMESPACE.getURI().equals(node.getNamespaceURI())) {
-                                        collections.add(new CalDavCalendarCollection(store, collectionUri));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return collections;
+        
+        return CalDavCalendarCollection.collectionsFromResponse(store, responses);
     }
 
     protected List<CalDavCalendarCollection> getDelegateCollections(DavProperty<?> proxyDavProperty)

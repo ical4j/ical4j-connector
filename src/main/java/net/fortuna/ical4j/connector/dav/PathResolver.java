@@ -309,7 +309,7 @@ public abstract class PathResolver {
         
         @Override
         public String getPrincipalPath(String username) {
-          return principalPath + "/" + username;
+          return principalPath + "/" + username + "/";
         }
 
         public String userPath() {

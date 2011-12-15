@@ -33,7 +33,7 @@ package net.fortuna.ical4j.connector.jcr;
 
 import java.io.IOException;
 
-import net.fortuna.ical4j.connector.MediaType;
+import net.fortuna.ical4j.connector.dav.enums.MediaType;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardBuilder;

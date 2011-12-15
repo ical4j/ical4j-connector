@@ -34,21 +34,33 @@ package net.fortuna.ical4j.connector.dav;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import net.fortuna.ical4j.connector.ObjectCollection;
 import net.fortuna.ical4j.connector.ObjectStoreException;
+import net.fortuna.ical4j.connector.dav.enums.MediaType;
+import net.fortuna.ical4j.connector.dav.enums.ResourceType;
+import net.fortuna.ical4j.connector.dav.property.BaseDavPropertyName;
+import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatus;
+import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.client.methods.DeleteMethod;
 import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
+import org.apache.jackrabbit.webdav.property.DavProperty;
+import org.apache.jackrabbit.webdav.property.DavPropertyIterator;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
+import org.apache.jackrabbit.webdav.security.SecurityConstants;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 /**
  * @param <T> the supported collection object type
@@ -99,6 +111,175 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
         }
         return getId();
     }
+    
+    /**
+     * Returns a list of the kinds of resource type for this collection. For example, for a collection that supports
+     * iCalendar object, "calendar" will be one of the resource types.
+     */
+    public ResourceType[] getResourceTypes() {
+        List<ResourceType> resourceTypes = new ArrayList<ResourceType>();
+
+        try {
+            ArrayList<Node> resourceTypeProp;
+            resourceTypeProp = getProperty(BaseDavPropertyName.RESOURCETYPE, ArrayList.class);
+            if (resourceTypeProp != null) {
+                for (Node child : resourceTypeProp) {
+                    if (child instanceof Element) {
+                        String nameNode = child.getNodeName();
+                        if (nameNode != null) {
+                            ResourceType type = ResourceType.findByDescription(nameNode);
+                            if (type != null) {
+                                resourceTypes.add(type);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ObjectStoreException e) {
+            e.printStackTrace();
+        } catch (DavException e) {
+            e.printStackTrace();
+        }
+
+        return resourceTypes.toArray(new ResourceType[resourceTypes.size()]);
+    }
+    
+    /**
+     * Returns a list of supported media types. For example, a CalDAV server will probably return 2.0 as the supported
+     * version and text/calendar as the content-type.
+     */
+    public MediaType[] getSupportedMediaTypes() {
+        List<MediaType> mediaTypes = new ArrayList<MediaType>();
+
+        try {
+            ArrayList<Node> mediaTypeProp;
+            mediaTypeProp = getProperty(CalDavPropertyName.SUPPORTED_CALENDAR_DATA, ArrayList.class);
+            if (mediaTypeProp != null) {
+                for (Node child : mediaTypeProp) {
+                    if (child instanceof Element) {
+                        String nameNode = child.getNodeName();
+                        if ((nameNode != null) && ("calendar-data".equals(nameNode))) {
+                            String contentType = ((Element) child).getAttribute("content-type");
+                            String version = ((Element) child).getAttribute("version");
+                            MediaType type = MediaType.findByContentTypeAndVersion(contentType, version);
+                            if (type != null) {
+                                mediaTypes.add(type);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ObjectStoreException e) {
+            e.printStackTrace();
+        } catch (DavException e) {
+            e.printStackTrace();
+        }
+        return mediaTypes.toArray(new MediaType[mediaTypes.size()]);
+    }
+    
+    /**
+     * Indicates the maximum amount of additional storage available to be allocated to a resource.
+     */
+    public Long getQuotaAvailableBytes() {
+        try {
+            Long calTimezoneProp = getProperty(BaseDavPropertyName.QUOTA_AVAILABLE_BYTES, Long.class);
+            if (calTimezoneProp != null) {
+                return calTimezoneProp;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ObjectStoreException e) {
+            e.printStackTrace();
+        } catch (DavException e) {
+            e.printStackTrace();
+        }
+        return new Long(0);
+    }
+    
+    /**
+     * Contains the amount of storage counted against the quota on a resource.
+     */
+    public Long getQuotaUsedBytes() {
+        try {
+            Long calTimezoneProp = getProperty(BaseDavPropertyName.QUOTA_USED_BYTES, Long.class);
+            if (calTimezoneProp != null) {
+                return calTimezoneProp;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ObjectStoreException e) {
+            e.printStackTrace();
+        } catch (DavException e) {
+            e.printStackTrace();
+        }
+        return new Long(0);
+    }
+    
+    /**
+     * Href (link) to the owner of this collection
+     */
+    public String getOwnerHref() {
+        String ownerHref = null;
+        try {
+            ArrayList<Node> ownerProp;
+            ownerProp = getProperty(SecurityConstants.OWNER, ArrayList.class);
+            if (ownerProp != null) {
+                for (Node child : ownerProp) {
+                    if (child instanceof Element) {
+                        String nameNode = child.getNodeName();
+                        if ((nameNode != null) && ("href".equals(nameNode))) {
+                            ownerHref = child.getTextContent();
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ObjectStoreException e) {
+            e.printStackTrace();
+        } catch (DavException e) {
+            e.printStackTrace();
+        }
+        return ownerHref;
+    }
+
+    /**
+     * Name of the owner of this collection. Will be retrieved by the owner href
+     */
+    public String getOwnerName() {
+        String ownerName = null;
+        if (getOwnerHref() != null) {
+            try {
+                DavPropertyNameSet nameSet = new DavPropertyNameSet();
+                nameSet.add(DavPropertyName.DISPLAYNAME);
+                PropFindMethod aGet = new PropFindMethod(getOwnerHref(), nameSet, 0);
+                aGet.setDoAuthentication(true);
+                
+                getStore().getClient().execute(aGet);
+
+                if (aGet.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
+                    MultiStatus multiStatus = aGet.getResponseBodyAsMultiStatus();
+                    MultiStatusResponse[] responses = multiStatus.getResponses();
+                    
+                    for (int i = 0; i < responses.length; i++) {
+                        MultiStatusResponse msResponse = responses[i];
+                        DavPropertySet foundProperties = msResponse.getProperties(200);
+                        DavProperty displayNameProp = foundProperties.get(DavPropertyName.DISPLAYNAME);
+                        ownerName = (String)displayNameProp.getValue();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (DavException e) {
+                e.printStackTrace();
+            }
+        }
+        return ownerName;
+    }
 
     /**
      * @param <P> the property type
@@ -113,18 +294,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
 	public final <P> P getProperty(DavPropertyName propertyName, Class<P> type)
         throws IOException, ObjectStoreException, DavException {
         
-        DavPropertyNameSet set = new DavPropertyNameSet();
-        set.add(propertyName);
-
-        PropFindMethod propFindMethod = new PropFindMethod(getPath(), set, DavConstants.DEPTH_0);
-        store.getClient().execute(propFindMethod);
-
-        if (!propFindMethod.succeeded()) {
-            throw new ObjectStoreException(propFindMethod.getStatusLine().toString());
-        }
-
-        MultiStatus multi = propFindMethod.getResponseBodyAsMultiStatus();
-        DavPropertySet props = multi.getResponses()[0].getProperties(200);
+        DavPropertySet props = properties;
         if (props.get(propertyName) != null) {
             Object value = props.get(propertyName).getValue();
             try {
@@ -141,27 +311,21 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
                 }
             }
             catch (SecurityException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             catch (NoSuchMethodException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             catch (IllegalArgumentException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             catch (InstantiationException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             catch (IllegalAccessException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             catch (InvocationTargetException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             return (P) props.get(propertyName).getValue();
@@ -190,11 +354,11 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      * @throws ObjectStoreException where an unexpected error occurs
      */
     public final boolean exists() throws HttpException, IOException, ObjectStoreException {
-        DavPropertyNameSet principalsProps = new DavPropertyNameSet();
-        principalsProps.add(DavPropertyName.DISPLAYNAME);
-
+        DavPropertyNameSet principalsProps = CalDavCalendarCollection.propertiesForFetch();
         PropFindMethod getMethod = new PropFindMethod(getPath(), principalsProps, PropFindMethod.DEPTH_0);
+        
         getStore().getClient().execute(getMethod);
+
         if (getMethod.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
             return true;
         }
@@ -207,5 +371,33 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
         else {
             throw new ObjectStoreException(getMethod.getStatusLine().toString());
         }
+    }
+    
+    /**
+     * Get the list of collections from a MultiStatus (HTTP 207 status code) response and populate the list of
+     * properties of each collection.
+     */
+    protected static List<CalDavCalendarCollection> collectionsFromResponse(CalDavCalendarStore store,
+            MultiStatusResponse[] responses) {
+        List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
+
+        for (int i = 0; i < responses.length; i++) {
+            MultiStatusResponse msResponse = responses[i];
+            DavPropertySet foundProperties = msResponse.getProperties(200);
+            String collectionUri = msResponse.getHref();
+
+            for (int j = 0; j < responses[i].getStatus().length; j++) {
+                DavPropertySet _properties = new DavPropertySet();
+                for (DavPropertyIterator iNames = foundProperties.iterator(); iNames.hasNext();) {
+                    DavProperty property = iNames.nextProperty();
+                    if (property != null) {
+                        _properties.add(property);
+                    }
+                }
+                collections.add(new CalDavCalendarCollection(store, collectionUri, _properties));
+            }
+        }
+
+        return collections;
     }
 }

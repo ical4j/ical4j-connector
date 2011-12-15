@@ -32,6 +32,7 @@
 package net.fortuna.ical4j.connector.dav;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,13 +41,16 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.FailedOperationException;
-import net.fortuna.ical4j.connector.MediaType;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.method.GetMethod;
 import net.fortuna.ical4j.connector.dav.method.MkCalendarMethod;
 import net.fortuna.ical4j.connector.dav.method.PutMethod;
 import net.fortuna.ical4j.connector.dav.method.ReportMethod;
+import net.fortuna.ical4j.connector.dav.property.BaseDavPropertyName;
+import net.fortuna.ical4j.connector.dav.property.CSDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
+import net.fortuna.ical4j.connector.dav.property.ICalPropertyName;
+import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
@@ -61,6 +65,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
+import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.w3c.dom.DOMException;
@@ -185,201 +190,189 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         } catch (IOException e) {
             e.printStackTrace();
         } catch (DOMException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (DavException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (ParserException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return new Calendar[0];
     }
 
     /**
-     * {@inheritDoc}
+     * Provides a human-readable description of the calendar collection.
      */
     public String getDescription() {
         try {
             return getProperty(CalDavPropertyName.CALENDAR_DESCRIPTION, String.class);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (ObjectStoreException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (DavException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
     }
 
     /**
-     * {@inheritDoc}
+     * Human-readable name of the collection.
      */
     public String getDisplayName() {
         try {
             return getProperty(DavPropertyName.DISPLAYNAME, String.class);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (ObjectStoreException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (DavException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
     }
 
     /**
-     * {@inheritDoc}
+     * Provides a numeric value indicating the maximum number of ATTENDEE properties in any instance of a calendar
+     * object resource stored in a calendar collection.
      */
     public Integer getMaxAttendeesPerInstance() {
         try {
             return getProperty(CalDavPropertyName.MAX_ATTENDEES_PER_INSTANCE, Integer.class);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (ObjectStoreException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (DavException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return 0;
     }
 
     /**
-     * {@inheritDoc}
+     * Provides a DATE-TIME value indicating the latest date and time (in UTC) that the server is willing to accept for
+     * any DATE or DATE-TIME value in a calendar object resource stored in a calendar collection.
      */
     public String getMaxDateTime() {
         try {
             return getProperty(CalDavPropertyName.MAX_DATE_TIME, String.class);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (ObjectStoreException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (DavException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
     }
 
     /**
-     * {@inheritDoc}
+     * Provides a numeric value indicating the maximum number of recurrence instances that a calendar object resource
+     * stored in a calendar collection can generate.
      */
     public Integer getMaxInstances() {
         try {
             return getProperty(CalDavPropertyName.MAX_INSTANCES, Integer.class);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (ObjectStoreException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (DavException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return 0;
     }
 
     /**
-     * {@inheritDoc}
+     * Provides a numeric value indicating the maximum size of a resource in octets that the server is willing to accept
+     * when a calendar object resource is stored in a calendar collection. 0 = no limits.
      */
     public long getMaxResourceSize() {
         try {
-            return getProperty(CalDavPropertyName.MAX_RESOURCE_SIZE, Long.class);
+            Long size = getProperty(CalDavPropertyName.MAX_RESOURCE_SIZE, Long.class);
+            if (size != null) {
+                return size;
+            }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (ObjectStoreException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (DavException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (NullPointerException e) {
             e.printStackTrace();
         }
         return 0;
     }
 
     /**
-     * {@inheritDoc}
+     * Provides a DATE-TIME value indicating the earliest date and time (in UTC) that the server is willing to accept
+     * for any DATE or DATE-TIME value in a calendar object resource stored in a calendar collection.
      */
     public String getMinDateTime() {
         try {
             return getProperty(CalDavPropertyName.MIN_DATE_TIME, String.class);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (ObjectStoreException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (DavException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
     }
 
     /**
-     * {@inheritDoc}
+     * Get the list of calendar components (VEVENT, VTODO, etc.) that this collection supports.
      */
     public String[] getSupportedComponentTypes() {
+        List<String> supportedComponents = new ArrayList<String>();
+
+        ArrayList<Node> supportedCalCompSetProp;
         try {
-            List<Node> supportedComponentNodes = getProperty(CalDavPropertyName.SUPPORTED_CALENDAR_COMPONENT_SET,
-                    ArrayList.class);
-            List<String> supportedComponents = new ArrayList<String>();
-            for (Node node : supportedComponentNodes) {
-                if (node.getAttributes() != null) {
-                    Node nameNode = node.getAttributes().getNamedItemNS(CalDavConstants.CALDAV_NAMESPACE.getURI(),
-                            "name");
-                    if (nameNode != null) {
-                        supportedComponents.add(nameNode.getTextContent());
+            supportedCalCompSetProp = getProperty(CalDavPropertyName.SUPPORTED_CALENDAR_COMPONENT_SET, ArrayList.class);
+            if (supportedCalCompSetProp != null) {
+                for (Node child : supportedCalCompSetProp) {
+                    if (child instanceof Element) {
+                        Node nameNode = child.getAttributes().getNamedItem("name");
+                        if (nameNode != null) {
+                            supportedComponents.add(nameNode.getTextContent());
+                        }
                     }
                 }
             }
-            return supportedComponents.toArray(new String[supportedComponents.size()]);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (ObjectStoreException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (DavException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        return new String[0];
+
+        return supportedComponents.toArray(new String[supportedComponents.size()]);
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public MediaType[] getSupportedMediaTypes() {
-        // TODO Auto-generated method stub
-        return new MediaType[0];
-    }
-
-    /**
-     * {@inheritDoc}
+     * The CALDAV:calendar-timezone property is used to specify the time zone the server should rely on to resolve
+     * "date" values and "date with local time" values (i.e., floating time) to "date with UTC time" values.
      */
     public Calendar getTimeZone() {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            String calTimezoneProp = getProperty(CalDavPropertyName.CALENDAR_TIMEZONE, String.class);
+
+            if (calTimezoneProp != null) {
+                CalendarBuilder builder = new CalendarBuilder();
+                return builder.build(new StringReader(calTimezoneProp));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParserException e) {
+            e.printStackTrace();
+        } catch (ObjectStoreException e) {
+            e.printStackTrace();
+        } catch (DavException e) {
+            e.printStackTrace();
+        }
+        return new Calendar();
     }
 
     /**
@@ -486,5 +479,46 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      */
     public Calendar[] getComponents() throws ObjectStoreException {
         return getComponentsByType("VEVENT");
+    }
+    
+    public static final DavPropertyNameSet propertiesForFetch() {
+        DavPropertyNameSet principalsProps = new DavPropertyNameSet();
+
+        principalsProps.add(BaseDavPropertyName.QUOTA_AVAILABLE_BYTES);
+        principalsProps.add(BaseDavPropertyName.QUOTA_USED_BYTES);
+        principalsProps.add(BaseDavPropertyName.CURRENT_USER_PRIVILEGE_SET);
+        principalsProps.add(BaseDavPropertyName.PROP);
+        principalsProps.add(BaseDavPropertyName.RESOURCETYPE);
+        principalsProps.add(DavPropertyName.DISPLAYNAME);
+        principalsProps.add(SecurityConstants.OWNER);
+
+        principalsProps.add(CalDavPropertyName.CALENDAR_DESCRIPTION);
+        principalsProps.add(CalDavPropertyName.SUPPORTED_CALENDAR_COMPONENT_SET);
+        principalsProps.add(CalDavPropertyName.FREE_BUSY_SET);
+        principalsProps.add(CalDavPropertyName.SCHEDULE_CALENDAR_TRANSP);
+        principalsProps.add(CalDavPropertyName.SCHEDULE_DEFAULT_CALENDAR_URL);
+        principalsProps.add(CalDavPropertyName.CALENDAR_TIMEZONE);
+        principalsProps.add(CalDavPropertyName.SUPPORTED_CALENDAR_DATA);
+        principalsProps.add(CalDavPropertyName.MAX_ATTENDEES_PER_INSTANCE);
+        principalsProps.add(CalDavPropertyName.MAX_DATE_TIME);
+        principalsProps.add(CalDavPropertyName.MIN_DATE_TIME);
+        principalsProps.add(CalDavPropertyName.MAX_INSTANCES);
+        principalsProps.add(CalDavPropertyName.MAX_RESOURCE_SIZE);
+
+        principalsProps.add(CSDavPropertyName.XMPP_SERVER);
+        principalsProps.add(CSDavPropertyName.XMPP_URI);
+        principalsProps.add(CSDavPropertyName.CTAG);
+        principalsProps.add(CSDavPropertyName.SOURCE);
+        principalsProps.add(CSDavPropertyName.SUBSCRIBED_STRIP_ALARMS);
+        principalsProps.add(CSDavPropertyName.SUBSCRIBED_STRIP_ATTACHMENTS);
+        principalsProps.add(CSDavPropertyName.SUBSCRIBED_STRIP_TODOS);
+        principalsProps.add(CSDavPropertyName.REFRESHRATE);
+        principalsProps.add(CSDavPropertyName.PUSH_TRANSPORTS);
+        principalsProps.add(CSDavPropertyName.PUSHKEY);
+
+        principalsProps.add(ICalPropertyName.CALENDAR_COLOR);
+        principalsProps.add(ICalPropertyName.CALENDAR_ORDER);
+        
+        return principalsProps;
     }
 }
