@@ -93,8 +93,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
-
 /**
  * $Id$
  * 
@@ -466,10 +464,8 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         try {
             collection.delete();
         } catch (HttpException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return collection;
@@ -621,7 +617,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                     System.out.println(c);
                 }
             } else {
-                DocumentBuilderFactoryImpl xmlFactory = new DocumentBuilderFactoryImpl();
+                DocumentBuilderFactory xmlFactory = DocumentBuilderFactory.newInstance();
                 xmlFactory.setNamespaceAware(true);
                 DocumentBuilder xmlBuilder = xmlFactory.newDocumentBuilder();
                 Document xmlDoc = xmlBuilder.parse(postMethod.getResponseBodyAsStream());
