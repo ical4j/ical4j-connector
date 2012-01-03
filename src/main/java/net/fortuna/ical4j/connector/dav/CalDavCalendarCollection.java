@@ -55,19 +55,28 @@ import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ConstraintViolationException;
+import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 
+import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
+import org.apache.jackrabbit.webdav.MultiStatus;
+import org.apache.jackrabbit.webdav.MultiStatusResponse;
+import org.apache.jackrabbit.webdav.Status;
 import org.apache.jackrabbit.webdav.client.methods.DeleteMethod;
+import org.apache.jackrabbit.webdav.property.DavProperty;
+import org.apache.jackrabbit.webdav.property.DavPropertyIterator;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
+import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
+import org.apache.jackrabbit.webdav.xml.Namespace;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -169,11 +178,14 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
             properties.add(CalDavPropertyName.CALENDAR_DATA);
 
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-            Element filter = DomUtil.createElement(document, "filter", CalDavConstants.CALDAV_NAMESPACE);
-            Element calFilter = DomUtil.createElement(document, "comp-filter", CalDavConstants.CALDAV_NAMESPACE);
-            calFilter.setAttribute("name", "VCALENDAR");
-            Element eventFilter = DomUtil.createElement(document, "comp-filter", CalDavConstants.CALDAV_NAMESPACE);
-            eventFilter.setAttribute("name", componentType);
+            Element filter = DomUtil.createElement(document, CalDavConstants.PROPERTY_FILTER,
+                    CalDavConstants.CALDAV_NAMESPACE);
+            Element calFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
+                    CalDavConstants.CALDAV_NAMESPACE);
+            calFilter.setAttribute(CalDavConstants.ATTRIBUTE_NAME, Calendar.VCALENDAR);
+            Element eventFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
+                    CalDavConstants.CALDAV_NAMESPACE);
+            eventFilter.setAttribute(CalDavConstants.ATTRIBUTE_NAME, componentType);
             calFilter.appendChild(eventFilter);
             filter.appendChild(calFilter);
 
@@ -411,7 +423,11 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * {@inheritDoc}
      */
     public Calendar getCalendar(String uid) {
-        GetMethod method = new GetMethod(getPath() + "/" + uid + ".ics");
+        String path = getPath();
+        if (!path.endsWith("/")) {
+            path = path.concat("/");
+        }
+        GetMethod method = new GetMethod(path + uid + ".ics");
         try {
             getStore().getClient().execute(method);
         } catch (Exception e) {
@@ -478,7 +494,76 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * {@inheritDoc}
      */
     public Calendar[] getComponents() throws ObjectStoreException {
-        return getComponentsByType("VEVENT");
+        return getComponentsByType(Component.VEVENT);
+    }
+    
+    public Calendar[] getEventsForTimePeriod(CalDavCalendarCollection collection, DateTime startTime, DateTime endTime)
+            throws IOException, DavException, ParserConfigurationException, ParserException {
+        ArrayList<Calendar> evenements = new ArrayList<Calendar>();
+
+        ReportInfo rinfo = new ReportInfo(ReportType.register(CalDavConstants.PROPERTY_CALENDAR_QUERY,
+                CalDavConstants.CALDAV_NAMESPACE,
+                org.apache.jackrabbit.webdav.security.report.PrincipalMatchReport.class), 1);
+
+        DocumentBuilderFactory BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
+        BUILDER_FACTORY.setNamespaceAware(true);
+        BUILDER_FACTORY.setIgnoringComments(true);
+        BUILDER_FACTORY.setIgnoringElementContentWhitespace(true);
+        BUILDER_FACTORY.setCoalescing(true);
+
+        Document document = BUILDER_FACTORY.newDocumentBuilder().newDocument();
+        org.w3c.dom.Element property = DomUtil
+                .createElement(document, DavConstants.XML_PROP, CalDavConstants.NAMESPACE);
+        property.appendChild(DomUtil.createElement(document, DavConstants.PROPERTY_GETETAG, CalDavConstants.NAMESPACE));
+        org.w3c.dom.Element calData = DomUtil.createElement(document, CalDavConstants.PROPERTY_CALENDAR_DATA,
+                CalDavConstants.CALDAV_NAMESPACE);
+
+        property.appendChild(calData);
+        document.appendChild(property);
+        rinfo.setContentElement(property);
+
+        org.w3c.dom.Element filter = DomUtil.createElement(document, CalDavConstants.PROPERTY_FILTER,
+                CalDavConstants.CALDAV_NAMESPACE);
+        rinfo.setContentElement(filter);
+
+        org.w3c.dom.Element calFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
+                CalDavConstants.CALDAV_NAMESPACE);
+        calFilter.setAttribute(CalDavConstants.ATTRIBUTE_NAME, Calendar.VCALENDAR);
+        org.w3c.dom.Element eventFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
+                CalDavConstants.CALDAV_NAMESPACE);
+        eventFilter.setAttribute(CalDavConstants.ATTRIBUTE_NAME, Component.VEVENT);
+        org.w3c.dom.Element timeRange = DomUtil.createElement(document, CalDavConstants.PROPERTY_TIME_RANGE,
+                CalDavConstants.CALDAV_NAMESPACE);
+
+        timeRange.setAttribute(CalDavConstants.ATTRIBUTE_START, startTime.toString());
+        timeRange.setAttribute(CalDavConstants.ATTRIBUTE_END, endTime.toString());
+        eventFilter.appendChild(timeRange);
+        calFilter.appendChild(eventFilter);
+        filter.appendChild(calFilter);
+
+        ReportMethod method = new ReportMethod(collection.getPath(), rinfo);
+        collection.getStore().getClient().execute(method);
+        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
+        MultiStatusResponse[] responses = multiStatus.getResponses();
+        for (int i = 0; i < responses.length; i++) {
+            for (int j = 0; j < responses[i].getStatus().length; j++) {
+                Status status = responses[i].getStatus()[j];
+                for (DavPropertyIterator iNames = responses[i].getProperties(status.getStatusCode()).iterator(); iNames
+                        .hasNext();) {
+                    DavProperty name = iNames.nextProperty();
+                    if (name.getValue() instanceof String) {
+                        if ((name.getName().getNamespace().equals(CalDavConstants.CALDAV_NAMESPACE))
+                                && (name.getName().getName().equals(CalDavConstants.PROPERTY_SUPPORTED_CALENDAR_DATA))) {
+                            StringReader sin = new StringReader((String) name.getValue());
+                            CalendarBuilder builder = new CalendarBuilder();
+                            Calendar calendar = builder.build(sin);
+                            evenements.add(calendar);
+                        }
+                    }
+                }
+            }
+        }
+        return evenements.toArray(new Calendar[evenements.size()]);
     }
     
     public static final DavPropertyNameSet propertiesForFetch() {

@@ -254,4 +254,41 @@ public interface CalDavConstants extends DavConstants {
      * 
      */
     public static final String PROPERTY_REQUEST_STATUS = "request-status";
+    
+    /**
+     * 
+     */
+    public static final String PROPERTY_CALENDAR_QUERY = "calendar-query";
+    
+    /**
+     * 
+     */
+    public static final String PROPERTY_FILTER = "filter";
+    
+    /**
+     * 
+     */
+    public static final String PROPERTY_COMP_FILTER = "comp-filter";
+    
+    /**
+     * 
+     */
+    public static final String PROPERTY_TIME_RANGE = "time-range";
+    
+    /**
+     * 
+     */
+    public static final String ATTRIBUTE_NAME = "name";
+    
+    /**
+     * 
+     */
+    public static final String ATTRIBUTE_START = "start";
+    
+    /**
+     * 
+     */
+    public static final String ATTRIBUTE_END = "end";
+    
+
 }
