@@ -20,10 +20,19 @@
 	<inceptionYear>2008</inceptionYear>
 	<licenses>
 		<license>
-			<name>iCal4j - License</name>
-			<url>LICENSE</url>
+			<name>iCal4j Connector - License</name>
+			<url>http://mnode.org/projects/ical4j-connector/license.html</url>
 		</license>
 	</licenses>
+	<contributors>
+		<contributor>
+			<name>Pascal Robert</name>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</contributor>
+	</contributors>
+	
 	<scm>
 		<connection>scm:hg:http://ical4j.hg.sourceforge.net:8000/hgroot/ical4j/ical4j-connector</connection>
 		<developerConnection>scm:hg:ssh://fortuna@ical4j.hg.sourceforge.net/hgroot/ical4j/ical4j-connector</developerConnection>
