@@ -20,8 +20,8 @@
 	<inceptionYear>2008</inceptionYear>
 	<licenses>
 		<license>
-			<name>iCal4j Connector - License</name>
-			<url>http://mnode.org/projects/ical4j-connector/license.html</url>
+            <name>iCal4j - License</name>
+			<url>${scm.url}/raw-file/tip/LICENSE</url>
 		</license>
 	</licenses>
 	<contributors>
