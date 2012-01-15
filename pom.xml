@@ -2,7 +2,7 @@
 	<parent>
 		<artifactId>mnode-parent</artifactId>
 		<groupId>org.mnode</groupId>
-		<version>1.5</version>
+		<version>1.6</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.mnode.ical4j</groupId>
@@ -36,15 +36,10 @@
 	<scm>
 		<connection>scm:hg:http://ical4j.hg.sourceforge.net:8000/hgroot/ical4j/ical4j-connector</connection>
 		<developerConnection>scm:hg:ssh://fortuna@ical4j.hg.sourceforge.net/hgroot/ical4j/ical4j-connector</developerConnection>
-		<url>http://ical4j.hg.sourceforge.net/hgweb/ical4j/ical4j-connector/</url>
+		<url>http://ical4j.hg.sourceforge.net/hgweb/ical4j/ical4j-connector</url>
 	</scm>
 	<build>
 		<plugins>
-            <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-            </plugin>
-            
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
@@ -140,7 +135,7 @@
 		<dependency>
 			<groupId>org.mnode.ical4j</groupId>
 			<artifactId>ical4j</artifactId>
-			<version>[1.0.2,2.0-SNAPSHOT)</version>
+			<version>[1.0.2,2.0-beta1-SNAPSHOT)</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mnode.ical4j</groupId>
@@ -217,7 +212,6 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>[0.9.28,)</version>
             <scope>test</scope>
         </dependency>
         
