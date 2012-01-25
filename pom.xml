@@ -145,6 +145,12 @@
 		<dependency>
 			<groupId>org.apache.jackrabbit</groupId>
 			<artifactId>jackrabbit-webdav</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>junit</artifactId>
+					<groupId>junit</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 		<dependency>
@@ -218,11 +224,6 @@
 			<version>2.4</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
         <dependency>
             <groupId>org.apache.jackrabbit</groupId>
             <artifactId>jackrabbit-core</artifactId>
@@ -241,14 +242,6 @@
 		</dependency>
 	</dependencies>
 	
-	<repositories>
-	</repositories>
-	<!--
-		<repositories> <repository> <id>osaf</id> <name>OSAF Maven
-		Repository</name> <url>http://builds.osafoundation.org/maven2</url>
-		<releases> <enabled>true</enabled> </releases> <snapshots>
-		<enabled>true</enabled> </snapshots> </repository> </repositories>
-	-->
 	<reporting>
 		<plugins>
 		    <!-- Unit test reports.. -->
