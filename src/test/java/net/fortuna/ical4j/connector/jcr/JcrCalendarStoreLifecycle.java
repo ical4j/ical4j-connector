@@ -44,8 +44,7 @@ import net.fortuna.ical4j.connector.ObjectStore;
  */
 public class JcrCalendarStoreLifecycle extends AbstractJcrObjectStoreLifecycle<JcrCalendarCollection> {
 
-    private static final String BASE_TEST_DIR = System
-            .getProperty("java.io.tmpdir")
+    private static final String BASE_TEST_DIR = "target/repository"
             + File.separator + JcrCalendarStoreLifecycle.class.getSimpleName() + File.separator;
 
     /**

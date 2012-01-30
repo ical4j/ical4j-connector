@@ -46,8 +46,7 @@ import net.fortuna.ical4j.connector.ObjectStore;
  */
 public class JcrCardStoreLifecycle extends AbstractJcrObjectStoreLifecycle<JcrCardCollection> {
 
-    private static final String BASE_TEST_DIR = System
-            .getProperty("java.io.tmpdir")
+    private static final String BASE_TEST_DIR = "target/repository"
             + File.separator + JcrCardStoreLifecycle.class.getSimpleName() + File.separator;
 
     /**
