@@ -379,6 +379,9 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                         }
                     }
                 }
+            } else if (propertyValue instanceof Element) {
+                System.out.println(((Element)propertyValue).getNodeName());
+                System.out.println(((Element)propertyValue).getChildNodes());
             }
         }
         return new ArrayList<CalDavCalendarCollection>();
