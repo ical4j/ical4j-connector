@@ -38,9 +38,12 @@ import java.util.List;
 
 import net.fortuna.ical4j.connector.dav.CalDavConstants;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
+import net.fortuna.ical4j.connector.dav.property.CardDavPropertyName;
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.vcard.VCard;
+import net.fortuna.ical4j.vcard.VCardBuilder;
 
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.MultiStatus;
@@ -67,6 +70,8 @@ public class ReportMethod extends org.apache.jackrabbit.webdav.client.methods.Re
     public static final ReportType CALENDAR_QUERY = ReportType.register("calendar-query", CalDavConstants.CALDAV_NAMESPACE,
             PrincipalMatchReport.class);
     public static final ReportType FREEBUSY_QUERY = ReportType.register("free-busy-query", CalDavConstants.CALDAV_NAMESPACE,
+            PrincipalMatchReport.class);
+    public static final ReportType ADDRESSBOOK_QUERY = ReportType.register("addressbook-query", CalDavConstants.CARDDAV_NAMESPACE,
             PrincipalMatchReport.class);
 
     /**
@@ -97,5 +102,19 @@ public class ReportMethod extends org.apache.jackrabbit.webdav.client.methods.Re
             }
         }
         return calendars.toArray(new Calendar[calendars.size()]);
+    }
+    
+    public VCard[] getVCards() throws IOException, DavException, DOMException, ParserException {
+        List<VCard> cards = new ArrayList<VCard>();
+        MultiStatus multi = getResponseBodyAsMultiStatus();
+        for (MultiStatusResponse response : multi.getResponses()) {
+            DavPropertySet props = response.getProperties(200);
+            if (props.get(CardDavPropertyName.ADDRESS_DATA) != null) {
+                String value = (String) props.get(CardDavPropertyName.ADDRESS_DATA).getValue();
+                VCardBuilder builder = new VCardBuilder(new StringReader(value));
+                cards.add(builder.build());
+            }
+        }
+        return cards.toArray(new VCard[cards.size()]);
     }
 }

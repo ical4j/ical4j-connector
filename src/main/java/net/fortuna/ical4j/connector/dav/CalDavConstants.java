@@ -312,5 +312,20 @@ public interface CalDavConstants extends DavConstants {
      * for carddav
      */
     public static final String PROPERTY_MAX_IMAGE_SIZE = "max-image-size";
+    
+    /**
+     * Specifies one of the following:
+     *
+     * 1.  The parts of an address object resource that should be
+     *     returned by a given address book REPORT request, and the media
+     *     type and version for the returned data; or
+     *
+     * 2.  The content of an address object resource in a response to an
+     *     address book REPORT request.
+     *     
+     * RFC 6352
+     */
+    public static final String PROPERTY_ADDRESS_DATA = "address-data";
+
 
 }

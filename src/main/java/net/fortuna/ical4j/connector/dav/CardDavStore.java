@@ -41,7 +41,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import net.fortuna.ical4j.connector.CalendarCollection;
-import net.fortuna.ical4j.connector.CalendarStore;
+import net.fortuna.ical4j.connector.CardStore;
 import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.property.CardDavPropertyName;
@@ -80,7 +80,7 @@ import org.w3c.dom.Node;
  * 
  */
 public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection> implements
-        CalendarStore<CardDavCollection> {
+        CardStore<CardDavCollection> {
 
     private final String prodId;
     private String displayName;

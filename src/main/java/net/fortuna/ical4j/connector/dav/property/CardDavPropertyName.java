@@ -69,5 +69,11 @@ public class CardDavPropertyName {
      */
     public static final DavPropertyName MAX_IMAGE_SIZE = DavPropertyName.create(
             CalDavConstants.PROPERTY_MAX_IMAGE_SIZE, CalDavConstants.CARDDAV_NAMESPACE);
+    
+    /**
+     * 
+     */
+    public static final DavPropertyName ADDRESS_DATA = DavPropertyName.create(
+            CalDavConstants.PROPERTY_ADDRESS_DATA, CalDavConstants.CARDDAV_NAMESPACE);
 
 }

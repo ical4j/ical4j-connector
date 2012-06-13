@@ -32,31 +32,28 @@
 package net.fortuna.ical4j.connector.dav;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.fortuna.ical4j.connector.CalendarCollection;
-import net.fortuna.ical4j.connector.FailedOperationException;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import net.fortuna.ical4j.connector.CardCollection;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.enums.ResourceType;
-import net.fortuna.ical4j.connector.dav.method.GetMethod;
 import net.fortuna.ical4j.connector.dav.method.MkCalendarMethod;
-import net.fortuna.ical4j.connector.dav.method.PutMethod;
+import net.fortuna.ical4j.connector.dav.method.ReportMethod;
 import net.fortuna.ical4j.connector.dav.property.BaseDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CardDavPropertyName;
-import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
-import net.fortuna.ical4j.model.property.Uid;
-import net.fortuna.ical4j.util.Calendars;
+import net.fortuna.ical4j.vcard.VCard;
 
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
-import org.apache.jackrabbit.webdav.client.methods.DeleteMethod;
 import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyIterator;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
@@ -64,6 +61,10 @@ import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
+import org.apache.jackrabbit.webdav.version.report.ReportInfo;
+import org.apache.jackrabbit.webdav.xml.DomUtil;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -75,7 +76,7 @@ import org.w3c.dom.Node;
  * @author Ben
  * 
  */
-public class CardDavCollection extends AbstractDavObjectCollection<Calendar> implements CalendarCollection {
+public class CardDavCollection extends AbstractDavObjectCollection<VCard> implements CardCollection {
 
     /**
      * Only {@link CardDavStore} should be calling this, so default modifier is applied.
@@ -128,22 +129,6 @@ public class CardDavCollection extends AbstractDavObjectCollection<Calendar> imp
     }
 
     /**
-     * Provides a human-readable description of the calendar collection.
-     */
-    public String getDescription() {
-        try {
-            return getProperty(CalDavPropertyName.CALENDAR_DESCRIPTION, String.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
      * Human-readable name of the collection.
      */
     public String getDisplayName() {
@@ -157,57 +142,6 @@ public class CardDavCollection extends AbstractDavObjectCollection<Calendar> imp
             e.printStackTrace();
         }
         return null;
-    }
-
-    /**
-     * Provides a numeric value indicating the maximum number of ATTENDEE properties in any instance of a calendar
-     * object resource stored in a calendar collection.
-     */
-    public Integer getMaxAttendeesPerInstance() {
-        try {
-            return getProperty(CalDavPropertyName.MAX_ATTENDEES_PER_INSTANCE, Integer.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
-    /**
-     * Provides a DATE-TIME value indicating the latest date and time (in UTC) that the server is willing to accept for
-     * any DATE or DATE-TIME value in a calendar object resource stored in a calendar collection.
-     */
-    public String getMaxDateTime() {
-        try {
-            return getProperty(CalDavPropertyName.MAX_DATE_TIME, String.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Provides a numeric value indicating the maximum number of recurrence instances that a calendar object resource
-     * stored in a calendar collection can generate.
-     */
-    public Integer getMaxInstances() {
-        try {
-            return getProperty(CalDavPropertyName.MAX_INSTANCES, Integer.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
-        }
-        return 0;
     }
 
     /**
@@ -228,172 +162,6 @@ public class CardDavCollection extends AbstractDavObjectCollection<Calendar> imp
             e.printStackTrace();
         }
         return 0;
-    }
-
-    /**
-     * Provides a DATE-TIME value indicating the earliest date and time (in UTC) that the server is willing to accept
-     * for any DATE or DATE-TIME value in a calendar object resource stored in a calendar collection.
-     */
-    public String getMinDateTime() {
-        try {
-            return getProperty(CalDavPropertyName.MIN_DATE_TIME, String.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * Get the list of calendar components (VEVENT, VTODO, etc.) that this collection supports.
-     */
-    public String[] getSupportedComponentTypes() {
-        List<String> supportedComponents = new ArrayList<String>();
-
-        ArrayList<Node> supportedCalCompSetProp;
-        try {
-            supportedCalCompSetProp = getProperty(CalDavPropertyName.SUPPORTED_CALENDAR_COMPONENT_SET, ArrayList.class);
-            if (supportedCalCompSetProp != null) {
-                for (Node child : supportedCalCompSetProp) {
-                    if (child instanceof Element) {
-                        Node nameNode = child.getAttributes().getNamedItem("name");
-                        if (nameNode != null) {
-                            supportedComponents.add(nameNode.getTextContent());
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
-        }
-
-        return supportedComponents.toArray(new String[supportedComponents.size()]);
-    }
-
-    /**
-     * The CALDAV:calendar-timezone property is used to specify the time zone the server should rely on to resolve
-     * "date" values and "date with local time" values (i.e., floating time) to "date with UTC time" values.
-     */
-    public Calendar getTimeZone() {
-        try {
-            String calTimezoneProp = getProperty(CalDavPropertyName.CALENDAR_TIMEZONE, String.class);
-
-            if (calTimezoneProp != null) {
-                CalendarBuilder builder = new CalendarBuilder();
-                return builder.build(new StringReader(calTimezoneProp));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParserException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
-        }
-        return new Calendar();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
-        Uid uid = Calendars.getUid(calendar);
-
-        String path = getPath();
-        if (!path.endsWith("/")) {
-            path = path.concat("/");
-        }
-        PutMethod putMethod = new PutMethod(path + uid.getValue() + ".ics");
-        // putMethod.setAllEtags(true);
-        // putMethod.setIfNoneMatch(true);
-        // putMethod.setRequestBody(calendar);
-
-        try {
-            putMethod.setCalendar(calendar);
-        } catch (Exception e) {
-            throw new ObjectStoreException("Invalid calendar", e);
-        }
-
-        try {
-            getStore().getClient().execute(putMethod);
-            if ((putMethod.getStatusCode() != DavServletResponse.SC_CREATED)
-                    && (putMethod.getStatusCode() != DavServletResponse.SC_NO_CONTENT)) {
-                throw new ObjectStoreException("Error creating calendar on server: " + putMethod.getStatusLine());
-            }
-        } catch (IOException ioe) {
-            throw new ObjectStoreException("Error creating calendar on server", ioe);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Calendar getCalendar(String uid) {
-        String path = getPath();
-        if (!path.endsWith("/")) {
-            path = path.concat("/");
-        }
-        GetMethod method = new GetMethod(path + uid + ".ics");
-        try {
-            getStore().getClient().execute(method);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (method.getStatusCode() == DavServletResponse.SC_OK) {
-            try {
-                return method.getCalendar();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (ParserException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        } else if (method.getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
-            return null;
-        }
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Calendar removeCalendar(String uid) throws FailedOperationException, ObjectStoreException {
-        Calendar calendar = getCalendar(uid);
-
-        DeleteMethod deleteMethod = new DeleteMethod(getPath() + "/" + uid + ".ics");
-        try {
-            getStore().getClient().execute(deleteMethod);
-        } catch (IOException e) {
-            throw new ObjectStoreException(e);
-        }
-        if (!deleteMethod.succeeded()) {
-            throw new FailedOperationException(deleteMethod.getStatusLine().toString());
-        }
-
-        return calendar;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final void merge(Calendar calendar) throws FailedOperationException, ObjectStoreException {
-        try {
-            Calendar[] uidCalendars = Calendars.split(calendar);
-            for (int i = 0; i < uidCalendars.length; i++) {
-                addCalendar(uidCalendars[i]);
-            }
-        } catch (ConstraintViolationException cve) {
-            throw new FailedOperationException("Invalid calendar format", cve);
-        }
     }
 
     /**
@@ -488,10 +256,49 @@ public class CardDavCollection extends AbstractDavObjectCollection<Calendar> imp
     }
 
     /* (non-Javadoc)
-     * @see net.fortuna.ical4j.connector.ObjectCollection#getComponents()
+     * @see net.fortuna.ical4j.connector.ObjectCollection#getDescription()
      */
-    public Calendar[] getComponents() throws ObjectStoreException {
+    public String getDescription() {
         // TODO Auto-generated method stub
         return null;
     }
+
+    /* (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.ObjectCollection#getComponents()
+     */
+    public VCard[] getComponents() throws ObjectStoreException {
+        try {
+            DavPropertyNameSet properties = new DavPropertyNameSet();
+            properties.add(DavPropertyName.GETETAG);
+            properties.add(CardDavPropertyName.ADDRESS_DATA);
+
+            ReportInfo info = new ReportInfo(ReportMethod.ADDRESSBOOK_QUERY, 1, properties);
+
+            ReportMethod method = new ReportMethod(getPath(), info);
+            getStore().getClient().execute(method);
+            if (method.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
+                return method.getVCards();
+            } else if (method.getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
+                return new VCard[0];
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (DOMException e) {
+            e.printStackTrace();
+        } catch (DavException e) {
+            e.printStackTrace();
+        } catch (ParserException e) {
+            e.printStackTrace();
+        }
+        return new VCard[0];
+    }
+
+    /* (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.CardCollection#addCard(net.fortuna.ical4j.vcard.VCard)
+     */
+    public void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
+        // TODO Auto-generated method stub
+        
+    }
+
 }
