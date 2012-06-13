@@ -33,13 +33,10 @@ package net.fortuna.ical4j.connector.dav;
 
 import java.io.IOException;
 import java.net.URL;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -47,27 +44,10 @@ import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.CalendarStore;
 import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
-import net.fortuna.ical4j.connector.dav.property.BaseDavPropertyName;
-import net.fortuna.ical4j.connector.dav.property.CSDavPropertyName;
-import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
-import net.fortuna.ical4j.connector.dav.property.ICalPropertyName;
-import net.fortuna.ical4j.data.ParserException;
+import net.fortuna.ical4j.connector.dav.property.CardDavPropertyName;
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.component.VFreeBusy;
-import net.fortuna.ical4j.model.property.Attendee;
-import net.fortuna.ical4j.model.property.CalScale;
-import net.fortuna.ical4j.model.property.DtEnd;
-import net.fortuna.ical4j.model.property.DtStart;
-import net.fortuna.ical4j.model.property.Method;
-import net.fortuna.ical4j.model.property.Organizer;
-import net.fortuna.ical4j.model.property.ProdId;
-import net.fortuna.ical4j.model.property.Version;
-import net.fortuna.ical4j.util.UidGenerator;
 
-import org.apache.commons.httpclient.ChunkedInputStream;
-import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatus;
@@ -90,8 +70,6 @@ import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 /**
  * $Id$
@@ -101,18 +79,18 @@ import org.xml.sax.SAXException;
  * @author Ben
  * 
  */
-public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCollection> implements
-        CalendarStore<CalDavCalendarCollection> {
+public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection> implements
+        CalendarStore<CardDavCollection> {
 
     private final String prodId;
     private String displayName;
 
     /**
      * @param prodId application product identifier
-     * @param url the URL of a CalDAV server instance
-     * @param pathResolver the path resolver for the CalDAV server type
+     * @param url the URL of a CardDav server instance
+     * @param pathResolver the path resolver for the CardDav server type
      */
-    public CalDavCalendarStore(String prodId, URL url, PathResolver pathResolver) {
+    public CardDavStore(String prodId, URL url, PathResolver pathResolver) {
         super(url, pathResolver);
         this.prodId = prodId;
     }
@@ -120,8 +98,8 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     /**
      * {@inheritDoc}
      */
-    public CalDavCalendarCollection addCollection(String id) throws ObjectStoreException {
-        CalDavCalendarCollection collection = new CalDavCalendarCollection(this, id);
+    public CardDavCollection addCollection(String id) throws ObjectStoreException {
+        CardDavCollection collection = new CardDavCollection(this, id);
         try {
             collection.create();
         } catch (IOException e) {
@@ -134,10 +112,8 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     /**
      * {@inheritDoc}
      */
-    public CalDavCalendarCollection addCollection(String id, String displayName, String description,
-            String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
-
-        CalDavCalendarCollection collection = new CalDavCalendarCollection(this, id, displayName, description);
+    public CardDavCollection addCollection(String id, DavPropertySet properties) throws ObjectStoreException {
+        CardDavCollection collection = new CardDavCollection(this, id, properties);
         try {
             collection.create();
         } catch (IOException e) {
@@ -150,23 +126,9 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     /**
      * {@inheritDoc}
      */
-    public CalDavCalendarCollection addCollection(String id, DavPropertySet properties) throws ObjectStoreException {
-        CalDavCalendarCollection collection = new CalDavCalendarCollection(this, id, properties);
+    public CardDavCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
-            collection.create();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return collection;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public CalDavCalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
-        try {
-            DavPropertyNameSet principalsProps = CalDavCalendarCollection.propertiesForFetch();
+            DavPropertyNameSet principalsProps = CardDavCollection.propertiesForFetch();
             PropFindMethod getMethod = new PropFindMethod(id, principalsProps, PropFindMethod.DEPTH_0);
 
             this.getClient().execute(getMethod);
@@ -174,7 +136,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
             MultiStatus multiStatus = getMethod.getResponseBodyAsMultiStatus();
             MultiStatusResponse[] responses = multiStatus.getResponses();
 
-            return CalDavCalendarCollection.collectionsFromResponse(this, responses).get(0);
+            return CardDavCollection.collectionsFromResponse(this, responses).get(0);
         } catch (HttpException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -193,9 +155,9 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         return null;
     }
 
-    protected String findCalendarHomeSet() throws ParserConfigurationException, IOException, DavException {
+    protected String findAddressBookHomeSet() throws ParserConfigurationException, IOException, DavException {
         String propfindUri = getHostURL() + pathResolver.getPrincipalPath(getUserName());
-        return findCalendarHomeSet(propfindUri);
+        return findAddressBookHomeSet(propfindUri);
     }
 
     /**
@@ -208,10 +170,10 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      * @throws IOException
      * @throws DavException
      */
-    protected String findCalendarHomeSet(String propfindUri) throws ParserConfigurationException, IOException,
+    protected String findAddressBookHomeSet(String propfindUri) throws ParserConfigurationException, IOException,
             DavException {
         DavPropertyNameSet principalsProps = new DavPropertyNameSet();
-        principalsProps.add(CalDavPropertyName.CALENDAR_HOME_SET);
+        principalsProps.add(CardDavPropertyName.ADDRESSBOOK_HOME_SET);
         principalsProps.add(DavPropertyName.DISPLAYNAME);
 
         PropFindMethod method = new PropFindMethod(propfindUri, principalsProps, PropFindMethod.DEPTH_0);
@@ -225,8 +187,8 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                 for (DavPropertyIterator iNames = responses[i].getProperties(status.getStatusCode()).iterator(); iNames
                         .hasNext();) {
                     DavProperty name = iNames.nextProperty();
-                    if ((name.getName().getName().equals(CalDavConstants.PROPERTY_CALENDAR_HOME_SET))
-                            && (CalDavConstants.CALDAV_NAMESPACE.isSame(name.getName().getNamespace().getURI()))) {
+                    if ((name.getName().getName().equals(CalDavConstants.PROPERTY_ADDRESSBOOK_HOME_SET))
+                            && (CalDavConstants.CARDDAV_NAMESPACE.isSame(name.getName().getNamespace().getURI()))) {
                         if (name.getValue() instanceof ArrayList) {
                             for (Iterator<?> iter = ((ArrayList<?>) name.getValue()).iterator(); iter.hasNext();) {
                                 Object child = iter.next();
@@ -276,11 +238,11 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      * @throws IOException where a communications error occurs
      * @throws DavException where an error occurs calling the DAV method
      */
-    public List<CalDavCalendarCollection> getCollections() throws ObjectStoreException, ObjectNotFoundException {
+    public List<CardDavCollection> getCollections() throws ObjectStoreException, ObjectNotFoundException {
         try {
-            String calHomeSetUri = findCalendarHomeSet();
+            String calHomeSetUri = findAddressBookHomeSet();
             if (calHomeSetUri == null) {
-                throw new ObjectNotFoundException("No calendar-home-set attribute found for the user");
+                throw new ObjectNotFoundException("No " + CalDavConstants.PROPERTY_ADDRESSBOOK_HOME_SET + " attribute found for the user");
             }
             String urlForcalendarHomeSet = getHostURL() + calHomeSetUri;
             return getCollectionsForHomeSet(this, urlForcalendarHomeSet);
@@ -293,11 +255,11 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         }
     }
     
-    protected List<CalDavCalendarCollection> getCollectionsForHomeSet(CalDavCalendarStore store,
+    protected List<CardDavCollection> getCollectionsForHomeSet(CardDavStore store,
             String urlForcalendarHomeSet) throws IOException, DavException {
-        List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
+        List<CardDavCollection> collections = new ArrayList<CardDavCollection>();
 
-        DavPropertyNameSet principalsProps = CalDavCalendarCollection.propertiesForFetch();
+        DavPropertyNameSet principalsProps = CardDavCollection.propertiesForFetch();
 
         PropFindMethod method = new PropFindMethod(urlForcalendarHomeSet, principalsProps, PropFindMethod.DEPTH_1);
         getClient().execute(method);
@@ -305,14 +267,14 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
         MultiStatusResponse[] responses = multiStatus.getResponses();
         
-        return CalDavCalendarCollection.collectionsFromResponse(store, responses);
+        return CardDavCollection.collectionsFromResponse(store, responses);
     }
 
-    protected List<CalDavCalendarCollection> getDelegateCollections(DavProperty<?> proxyDavProperty)
+    protected List<CardDavCollection> getDelegateCollections(DavProperty<?> proxyDavProperty)
             throws ParserConfigurationException, IOException, DavException {
         /*
          * Zimbra check: Zimbra advertise calendar-proxy, but it will return 404 in propstat if Enable delegation for
-         * Apple iCal CalDAV client is not enabled
+         * Apple iCal CardDav client is not enabled
          */
         if (proxyDavProperty != null) {
             Object propertyValue = proxyDavProperty.getValue();
@@ -359,7 +321,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                                                                                     .equals(DavConstants.XML_HREF)) {
                                                                                 String principalsUri = (String) principalUrlElement
                                                                                         .getValue();
-                                                                                String urlForcalendarHomeSet = findCalendarHomeSet(getHostURL()
+                                                                                String urlForcalendarHomeSet = findAddressBookHomeSet(getHostURL()
                                                                                         + principalsUri);
                                                                                 return getCollectionsForHomeSet(this,
                                                                                         urlForcalendarHomeSet);
@@ -384,7 +346,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                 System.out.println(((Element)propertyValue).getChildNodes());
             }
         }
-        return new ArrayList<CalDavCalendarCollection>();
+        return new ArrayList<CardDavCollection>();
     }
 
     /**
@@ -393,9 +355,9 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      * @return
      * @throws Exception
      */
-    public List<CalDavCalendarCollection> getDelegatedCollections() throws Exception {
+    public List<CardDavCollection> getDelegatedCollections() throws Exception {
 
-        List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
+        List<CardDavCollection> collections = new ArrayList<CardDavCollection>();
 
         String methodUri = this.pathResolver.getPrincipalPath(getUserName());
 
@@ -409,7 +371,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
 
         Element writeUserAddressSetProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
         writeUserAddressSetProperty.setAttribute("name", CalDavConstants.PROPERTY_USER_ADDRESS_SET);
-        writeUserAddressSetProperty.setAttribute("namespace", CalDavConstants.CALDAV_NAMESPACE.getURI());
+        writeUserAddressSetProperty.setAttribute("namespace", CalDavConstants.NAMESPACE.getURI());
 
         Element proxyWriteForElement = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
         proxyWriteForElement.setAttribute("name", CalDavConstants.PROPERTY_PROXY_WRITE_FOR);
@@ -426,7 +388,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
 
         Element readUserAddressSetProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
         readUserAddressSetProperty.setAttribute("name", CalDavConstants.PROPERTY_USER_ADDRESS_SET);
-        readUserAddressSetProperty.setAttribute("namespace", CalDavConstants.CALDAV_NAMESPACE.getURI());
+        readUserAddressSetProperty.setAttribute("namespace", CalDavConstants.NAMESPACE.getURI());
 
         Element proxyReadForElement = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
         proxyReadForElement.setAttribute("name", CalDavConstants.PROPERTY_PROXY_READ_FOR);
@@ -462,8 +424,8 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     /**
      * {@inheritDoc}
      */
-    public CalDavCalendarCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
-        CalDavCalendarCollection collection = getCollection(id);
+    public CardDavCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
+        CardDavCollection collection = getCollection(id);
         try {
             collection.delete();
         } catch (HttpException e) {
@@ -494,144 +456,13 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         this.displayName = displayName;
     }
 
-    private String findScheduleOutbox() throws ParserConfigurationException, IOException, DavException {
-        String propfindUri = getClient().hostConfiguration.getHostURL() + pathResolver.getPrincipalPath(getUserName());
-
-        DavPropertyNameSet principalsProps = new DavPropertyNameSet();
-        principalsProps.add(CalDavPropertyName.SCHEDULE_OUTBOX_URL);
-
-        PropFindMethod method = new PropFindMethod(propfindUri, principalsProps, PropFindMethod.DEPTH_0);
-        method.setDoAuthentication(true);
-        getClient().execute(getClient().hostConfiguration, method);
-
-        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
-        MultiStatusResponse[] responses = multiStatus.getResponses();
-        for (int i = 0; i < responses.length; i++) {
-            for (int j = 0; j < responses[i].getStatus().length; j++) {
-                Status status = responses[i].getStatus()[j];
-                for (DavPropertyIterator iNames = responses[i].getProperties(status.getStatusCode()).iterator(); iNames
-                        .hasNext();) {
-                    DavProperty name = iNames.nextProperty();
-                    if ((name.getName().getName().equals(CalDavPropertyName.SCHEDULE_OUTBOX_URL.getName()))
-                            && (CalDavPropertyName.SCHEDULE_OUTBOX_URL.getNamespace().isSame(name.getName()
-                                    .getNamespace().getURI()))) {
-                        if (name.getValue() instanceof ArrayList) {
-                            for (Iterator<?> iter = ((ArrayList<?>) name.getValue()).iterator(); iter.hasNext();) {
-                                Object child = iter.next();
-                                if (child instanceof Element) {
-                                    String calendarHomeSetUri = ((Element) child).getTextContent();
-                                    /*
-                                     * If the trailing slash is not there, CalendarServer will return a 301 status code
-                                     * and we will get a nice DavException with "Moved Permanently" as the error
-                                     */
-                                    if (!(calendarHomeSetUri.endsWith("/"))) {
-                                        calendarHomeSetUri += "/";
-                                    }
-                                    return calendarHomeSetUri;
-                                }
-                            }
-                        }
-                        /*
-                         * This is for Kerio Mail Server implementation...
-                         */
-                        if (name.getValue() instanceof Node) {
-                            Node child = (Node) name.getValue();
-                            if (child instanceof Element) {
-                                String calendarHomeSetUri = ((Element) child).getTextContent();
-                                /*
-                                 * If the trailing slash is not there, CalendarServer will return a 301 status code and
-                                 * we will get a nice DavException with "Moved Permanently" as the error
-                                 */
-                                if (!(calendarHomeSetUri.endsWith("/"))) {
-                                    calendarHomeSetUri += "/";
-                                }
-                                return calendarHomeSetUri;
-                            }
-                        }
-                        if (name.getValue() instanceof String) {
-                            String calendarHomeSetUri = (String) name.getValue();
-                            if (!(calendarHomeSetUri.endsWith("/"))) {
-                                calendarHomeSetUri += "/";
-                            }
-                            return calendarHomeSetUri;
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * This method will return free-busy information for each attendee. If the free-busy information can't be retrieve
-     * (for example, users on an foreign server), check the isSuccess method to see if free-busy lookup was successful.
-     * 
-     * @author probert
+    /* (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.ObjectStore#addCollection(java.lang.String, java.lang.String, java.lang.String, java.lang.String[], net.fortuna.ical4j.model.Calendar)
      */
-    public ArrayList<ScheduleResponse> findFreeBusyInfoForAttendees(Organizer organizer, ArrayList<Attendee> attendees,
-            DtStart startTime, DtEnd endTime) throws ParserConfigurationException, IOException, DavException,
-            ParseException, ParserException, SAXException {
-        Random ramdomizer = new Random();
-        ArrayList<ScheduleResponse> responses = new ArrayList<ScheduleResponse>();
-
-        PostMethod postMethod = new PostMethod(findScheduleOutbox());
-        postMethod.addRequestHeader(new Header(DavConstants.HEADER_CONTENT_TYPE, "text/calendar; charset=utf-8"));
-
-        Calendar calendar = new Calendar();
-        calendar.getProperties().add(new ProdId(getProdId()));
-        calendar.getProperties().add(Version.VERSION_2_0);
-        calendar.getProperties().add(CalScale.GREGORIAN);
-        calendar.getProperties().add(Method.REQUEST);
-
-        VFreeBusy fbComponent = new VFreeBusy();
-
-        fbComponent.getProperties().add(organizer);
-        // Was removed from the draft, but some servers still need it
-        postMethod.addRequestHeader(new Header("Originator", organizer.getValue()));
-
-        fbComponent.getProperties().add(startTime);
-        fbComponent.getProperties().add(endTime);
-
-        String strAttendee = "";
-        if (attendees != null) {
-            for (Iterator<Attendee> itrAttendee = attendees.iterator(); itrAttendee.hasNext();) {
-                Attendee attendee = itrAttendee.next();
-                fbComponent.getProperties().add(attendee);
-                strAttendee += attendee.getValue() + ",";
-            }
-            strAttendee = strAttendee.substring(0, strAttendee.length() - 1);
-            // Was removed from the draft, but some servers still need it
-            postMethod.addRequestHeader(new Header("Recipient", strAttendee));
-        }
-
-        UidGenerator ug = new UidGenerator(ramdomizer.nextInt() + "");
-        fbComponent.getProperties().add(ug.generateUid());
-        calendar.getComponents().add(fbComponent);
-
-        postMethod.setRequestBody(calendar.toString());
-        int httpCode = getClient().execute(postMethod);
-        if (httpCode < 300) {
-            // Zimbra's response is chunked
-            if ((postMethod.getResponseContentLength() < 0)
-                    && ("chunked".equals(postMethod.getResponseHeader("Transfer-Encoding")))) {
-                ChunkedInputStream chunkedIS = new ChunkedInputStream(postMethod.getResponseBodyAsStream(), postMethod);
-                int c;
-                while ((c = chunkedIS.read()) != -1) {
-                    System.out.println(c);
-                }
-            } else {
-                DocumentBuilderFactory xmlFactory = DocumentBuilderFactory.newInstance();
-                xmlFactory.setNamespaceAware(true);
-                DocumentBuilder xmlBuilder = xmlFactory.newDocumentBuilder();
-                Document xmlDoc = xmlBuilder.parse(postMethod.getResponseBodyAsStream());
-                NodeList nodes = xmlDoc.getElementsByTagNameNS(CalDavConstants.CALDAV_NAMESPACE.getURI(),
-                        DavPropertyName.XML_RESPONSE);
-                for (int nodeItr = 0; nodeItr < nodes.getLength(); nodeItr++) {
-                    responses.add(new ScheduleResponse((Element) nodes.item(nodeItr)));
-                }
-            }
-        }
-        return responses;
+    public CardDavCollection addCollection(String id, String displayName, String description,
+            String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

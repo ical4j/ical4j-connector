@@ -36,35 +36,26 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
+import net.fortuna.ical4j.connector.dav.enums.ResourceType;
 import net.fortuna.ical4j.connector.dav.method.GetMethod;
 import net.fortuna.ical4j.connector.dav.method.MkCalendarMethod;
 import net.fortuna.ical4j.connector.dav.method.PutMethod;
-import net.fortuna.ical4j.connector.dav.method.ReportMethod;
 import net.fortuna.ical4j.connector.dav.property.BaseDavPropertyName;
-import net.fortuna.ical4j.connector.dav.property.CSDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
-import net.fortuna.ical4j.connector.dav.property.ICalPropertyName;
+import net.fortuna.ical4j.connector.dav.property.CardDavPropertyName;
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ConstraintViolationException;
-import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 
-import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.MultiStatus;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
-import org.apache.jackrabbit.webdav.Status;
 import org.apache.jackrabbit.webdav.client.methods.DeleteMethod;
 import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyIterator;
@@ -73,12 +64,6 @@ import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
-import org.apache.jackrabbit.webdav.version.report.ReportInfo;
-import org.apache.jackrabbit.webdav.version.report.ReportType;
-import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.apache.jackrabbit.webdav.xml.Namespace;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -90,35 +75,35 @@ import org.w3c.dom.Node;
  * @author Ben
  * 
  */
-public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calendar> implements CalendarCollection {
+public class CardDavCollection extends AbstractDavObjectCollection<Calendar> implements CalendarCollection {
 
     /**
-     * Only {@link CalDavCalendarStore} should be calling this, so default modifier is applied.
+     * Only {@link CardDavStore} should be calling this, so default modifier is applied.
      * 
-     * @param calDavCalendarStore
+     * @param CardDavCalendarStore
      * @param path
      */
-    CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id) {
-        this(calDavCalendarStore, id, null, null);
+    CardDavCollection(CardDavStore CardDavCalendarStore, String id) {
+        this(CardDavCalendarStore, id, null, null);
     }
 
     /**
-     * Only {@link CalDavCalendarStore} should be calling this, so default modifier is applied.
+     * Only {@link CardDavStore} should be calling this, so default modifier is applied.
      * 
-     * @param calDavCalendarStore
+     * @param CardDavCalendarStore
      * @param id
      * @param displayName
      * @param description
      */
-    CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id, String displayName, String description) {
+    CardDavCollection(CardDavStore CardDavCalendarStore, String id, String displayName, String description) {
 
-        super(calDavCalendarStore, id);
+        super(CardDavCalendarStore, id);
         properties.add(new DefaultDavProperty(DavPropertyName.DISPLAYNAME, displayName));
         properties.add(new DefaultDavProperty(CalDavPropertyName.CALENDAR_DESCRIPTION, description));
     }
 
-    CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id, DavPropertySet _properties) {
-        this(calDavCalendarStore, id, null, null);
+    CardDavCollection(CardDavStore CardDavCalendarStore, String id, DavPropertySet _properties) {
+        this(CardDavCalendarStore, id, null, null);
         this.properties = _properties;
     }
 
@@ -140,77 +125,6 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         if (!mkCalendarMethod.succeeded()) {
             throw new ObjectStoreException(mkCalendarMethod.getStatusCode() + ": " + mkCalendarMethod.getStatusText());
         }
-    }
-
-    /**
-     * @return an array of calendar objects
-     * @deprecated Use the getEvents() method
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getCalendars()
-     */
-    @Deprecated
-    public Calendar[] getCalendars() {
-        return getComponentsByType(Component.VEVENT);
-    }
-
-    /**
-     * @return and array of calendar objects
-     */
-    public Calendar[] getEvents() {
-        return getComponentsByType(Component.VEVENT);
-    }
-
-    /**
-     * @return and array of calendar objects
-     */
-    public Calendar[] getTasks() {
-        return getComponentsByType(Component.VTODO);
-    }
-
-    /**
-     * @param componentType
-     *            the type of component
-     * @return and array of calendar objects
-     */
-    public Calendar[] getComponentsByType(String componentType) {
-        try {
-            DavPropertyNameSet properties = new DavPropertyNameSet();
-            properties.add(DavPropertyName.GETETAG);
-            properties.add(CalDavPropertyName.CALENDAR_DATA);
-
-            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-            Element filter = DomUtil.createElement(document, CalDavConstants.PROPERTY_FILTER,
-                    CalDavConstants.CALDAV_NAMESPACE);
-            Element calFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
-                    CalDavConstants.CALDAV_NAMESPACE);
-            calFilter.setAttribute(CalDavConstants.ATTRIBUTE_NAME, Calendar.VCALENDAR);
-            Element eventFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
-                    CalDavConstants.CALDAV_NAMESPACE);
-            eventFilter.setAttribute(CalDavConstants.ATTRIBUTE_NAME, componentType);
-            calFilter.appendChild(eventFilter);
-            filter.appendChild(calFilter);
-
-            ReportInfo info = new ReportInfo(ReportMethod.CALENDAR_QUERY, 1, properties);
-            info.setContentElement(filter);
-
-            ReportMethod method = new ReportMethod(getPath(), info);
-            getStore().getClient().execute(method);
-            if (method.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
-                return method.getCalendars();
-            } else if (method.getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
-                return new Calendar[0];
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (DOMException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
-        } catch (ParserException e) {
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        }
-        return new Calendar[0];
     }
 
     /**
@@ -489,121 +403,95 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         // TODO Auto-generated method stub
         return null;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Calendar[] getComponents() throws ObjectStoreException {
-        return getComponentsByType(Component.VEVENT);
-    }
-    
-    public Calendar[] getEventsForTimePeriod(CalDavCalendarCollection collection, DateTime startTime, DateTime endTime)
-            throws IOException, DavException, ParserConfigurationException, ParserException {
-        ArrayList<Calendar> events = new ArrayList<Calendar>();
-
-        ReportInfo rinfo = new ReportInfo(ReportType.register(CalDavConstants.PROPERTY_CALENDAR_QUERY,
-                CalDavConstants.CALDAV_NAMESPACE,
-                org.apache.jackrabbit.webdav.security.report.PrincipalMatchReport.class), 1);
-
-        DocumentBuilderFactory BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
-        BUILDER_FACTORY.setNamespaceAware(true);
-        BUILDER_FACTORY.setIgnoringComments(true);
-        BUILDER_FACTORY.setIgnoringElementContentWhitespace(true);
-        BUILDER_FACTORY.setCoalescing(true);
-
-        Document document = BUILDER_FACTORY.newDocumentBuilder().newDocument();
-        org.w3c.dom.Element property = DomUtil
-                .createElement(document, DavConstants.XML_PROP, CalDavConstants.NAMESPACE);
-        property.appendChild(DomUtil.createElement(document, DavConstants.PROPERTY_GETETAG, CalDavConstants.NAMESPACE));
-        org.w3c.dom.Element calData = DomUtil.createElement(document, CalDavConstants.PROPERTY_CALENDAR_DATA,
-                CalDavConstants.CALDAV_NAMESPACE);
-
-        property.appendChild(calData);
-        document.appendChild(property);
-        rinfo.setContentElement(property);
-
-        org.w3c.dom.Element filter = DomUtil.createElement(document, CalDavConstants.PROPERTY_FILTER,
-                CalDavConstants.CALDAV_NAMESPACE);
-        rinfo.setContentElement(filter);
-
-        org.w3c.dom.Element calFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
-                CalDavConstants.CALDAV_NAMESPACE);
-        calFilter.setAttribute(CalDavConstants.ATTRIBUTE_NAME, Calendar.VCALENDAR);
-        org.w3c.dom.Element eventFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
-                CalDavConstants.CALDAV_NAMESPACE);
-        eventFilter.setAttribute(CalDavConstants.ATTRIBUTE_NAME, Component.VEVENT);
-        org.w3c.dom.Element timeRange = DomUtil.createElement(document, CalDavConstants.PROPERTY_TIME_RANGE,
-                CalDavConstants.CALDAV_NAMESPACE);
-
-        timeRange.setAttribute(CalDavConstants.ATTRIBUTE_START, startTime.toString());
-        timeRange.setAttribute(CalDavConstants.ATTRIBUTE_END, endTime.toString());
-        eventFilter.appendChild(timeRange);
-        calFilter.appendChild(eventFilter);
-        filter.appendChild(calFilter);
-
-        ReportMethod method = new ReportMethod(collection.getPath(), rinfo);
-        collection.getStore().getClient().execute(method);
-        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
-        MultiStatusResponse[] responses = multiStatus.getResponses();
-        for (int i = 0; i < responses.length; i++) {
-            for (int j = 0; j < responses[i].getStatus().length; j++) {
-                Status status = responses[i].getStatus()[j];
-                for (DavPropertyIterator iNames = responses[i].getProperties(status.getStatusCode()).iterator(); iNames
-                        .hasNext();) {
-                    DavProperty name = iNames.nextProperty();
-                    if (name.getValue() instanceof String) {
-                        if ((name.getName().getNamespace().equals(CalDavConstants.CALDAV_NAMESPACE))
-                                && (name.getName().getName().equals(CalDavConstants.PROPERTY_SUPPORTED_CALENDAR_DATA))) {
-                            StringReader sin = new StringReader((String) name.getValue());
-                            CalendarBuilder builder = new CalendarBuilder();
-                            Calendar calendar = builder.build(sin);
-                            events.add(calendar);
-                        }
-                    }
-                }
-            }
-        }
-        return events.toArray(new Calendar[events.size()]);
-    }
-    
+        
     public static final DavPropertyNameSet propertiesForFetch() {
         DavPropertyNameSet principalsProps = new DavPropertyNameSet();
 
-        principalsProps.add(BaseDavPropertyName.QUOTA_AVAILABLE_BYTES);
-        principalsProps.add(BaseDavPropertyName.QUOTA_USED_BYTES);
-        principalsProps.add(BaseDavPropertyName.CURRENT_USER_PRIVILEGE_SET);
-        principalsProps.add(BaseDavPropertyName.PROP);
-        principalsProps.add(BaseDavPropertyName.RESOURCETYPE);
+        /*
+         * TODO : to add the following properties
+            <C:me-card xmlns:C="http://calendarserver.org/ns/" /> 
+            <C:push-transports xmlns:C="http://calendarserver.org/ns/" /> 
+            <C:pushkey xmlns:C="http://calendarserver.org/ns/" /> 
+            <D:bulk-requests xmlns:D="http://me.com/_namespace/" /> 
+       */
+        
         principalsProps.add(DavPropertyName.DISPLAYNAME);
+
+        principalsProps.add(BaseDavPropertyName.QUOTA_AVAILABLE_BYTES);
+        /**
+         * FIXME jackrabbit generates an error when quota-used-bytes is sent.
+         * I suspect the problem is that the response have this attribute: e:dt="int"
+         */
+        //principalsProps.add(BaseDavPropertyName.QUOTA_USED_BYTES);
+        principalsProps.add(BaseDavPropertyName.CURRENT_USER_PRIVILEGE_SET);
+        principalsProps.add(BaseDavPropertyName.RESOURCETYPE);
         principalsProps.add(SecurityConstants.OWNER);
-
-        principalsProps.add(CalDavPropertyName.CALENDAR_DESCRIPTION);
-        principalsProps.add(CalDavPropertyName.SUPPORTED_CALENDAR_COMPONENT_SET);
-        principalsProps.add(CalDavPropertyName.FREE_BUSY_SET);
-        principalsProps.add(CalDavPropertyName.SCHEDULE_CALENDAR_TRANSP);
-        principalsProps.add(CalDavPropertyName.SCHEDULE_DEFAULT_CALENDAR_URL);
-        principalsProps.add(CalDavPropertyName.CALENDAR_TIMEZONE);
-        principalsProps.add(CalDavPropertyName.SUPPORTED_CALENDAR_DATA);
-        principalsProps.add(CalDavPropertyName.MAX_ATTENDEES_PER_INSTANCE);
-        principalsProps.add(CalDavPropertyName.MAX_DATE_TIME);
-        principalsProps.add(CalDavPropertyName.MIN_DATE_TIME);
-        principalsProps.add(CalDavPropertyName.MAX_INSTANCES);
-        principalsProps.add(CalDavPropertyName.MAX_RESOURCE_SIZE);
-
-        principalsProps.add(CSDavPropertyName.XMPP_SERVER);
-        principalsProps.add(CSDavPropertyName.XMPP_URI);
-        principalsProps.add(CSDavPropertyName.CTAG);
-        principalsProps.add(CSDavPropertyName.SOURCE);
-        principalsProps.add(CSDavPropertyName.SUBSCRIBED_STRIP_ALARMS);
-        principalsProps.add(CSDavPropertyName.SUBSCRIBED_STRIP_ATTACHMENTS);
-        principalsProps.add(CSDavPropertyName.SUBSCRIBED_STRIP_TODOS);
-        principalsProps.add(CSDavPropertyName.REFRESHRATE);
-        principalsProps.add(CSDavPropertyName.PUSH_TRANSPORTS);
-        principalsProps.add(CSDavPropertyName.PUSHKEY);
-
-        principalsProps.add(ICalPropertyName.CALENDAR_COLOR);
-        principalsProps.add(ICalPropertyName.CALENDAR_ORDER);
+        principalsProps.add(CardDavPropertyName.MAX_RESOURCE_SIZE);
+        principalsProps.add(BaseDavPropertyName.RESOURCE_ID);
+        principalsProps.add(BaseDavPropertyName.SUPPORTED_REPORT_SET);
+        principalsProps.add(BaseDavPropertyName.SYNC_TOKEN);
+        principalsProps.add(BaseDavPropertyName.ADD_MEMBER);
+        principalsProps.add(CardDavPropertyName.MAX_IMAGE_SIZE);
+        
+        /* In the absence of this property, the server MUST only accept data with the media type
+         * "text/vcard" and vCard version 3.0, and clients can assume that is
+         * all the server will accept.
+         */
+        principalsProps.add(CardDavPropertyName.SUPPORTED_ADDRESS_DATA);
         
         return principalsProps;
+    }
+    
+    protected static List<CardDavCollection> collectionsFromResponse(CardDavStore store,
+            MultiStatusResponse[] responses) {
+        List<CardDavCollection> collections = new ArrayList<CardDavCollection>();
+
+        System.out.println(responses.length);
+        for (int i = 0; i < responses.length; i++) {
+            MultiStatusResponse msResponse = responses[i];
+            DavPropertySet foundProperties = msResponse.getProperties(200);
+            String collectionUri = msResponse.getHref();
+
+            for (int j = 0; j < responses[i].getStatus().length; j++) {
+                boolean isAddressBookCollection = false;
+                DavPropertySet _properties = new DavPropertySet();
+                for (DavPropertyIterator iNames = foundProperties.iterator(); iNames.hasNext();) {
+                    DavProperty property = iNames.nextProperty();
+                    if (property != null) {
+                        _properties.add(property);
+                        if ((DavConstants.PROPERTY_RESOURCETYPE.equals(property.getName().getName())) && (DavConstants.NAMESPACE.equals(property.getName().getNamespace()))) {
+                            Object value = property.getValue();
+                            if (value instanceof java.util.ArrayList) {
+                                for (Node child: (java.util.ArrayList<Node>)value) {
+                                    if (child instanceof Element) {
+                                        String nameNode = child.getNodeName();
+                                        if (nameNode != null) {
+                                            ResourceType type = ResourceType.findByDescription(nameNode);
+                                            if (type != null) {
+                                                if (type.equals(ResourceType.ADRESSBOOK)) {
+                                                    isAddressBookCollection = true;
+                                                }
+                                            }
+                                        }
+                                    }                                
+                                }
+                            }
+                        }
+                    }
+                }
+                if (isAddressBookCollection) {
+                    collections.add(new CardDavCollection(store, collectionUri, _properties));
+                }
+            }
+        }
+        return collections;
+    }
+
+    /* (non-Javadoc)
+     * @see net.fortuna.ical4j.connector.ObjectCollection#getComponents()
+     */
+    public Calendar[] getComponents() throws ObjectStoreException {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
