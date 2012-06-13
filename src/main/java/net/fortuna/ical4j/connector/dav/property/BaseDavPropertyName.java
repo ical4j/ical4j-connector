@@ -73,4 +73,30 @@ public class BaseDavPropertyName {
     public static final DavPropertyName QUOTA_AVAILABLE_BYTES = DavPropertyName.create(
             CalDavConstants.PROPERTY_QUOTA_AVAILABLE_BYTES, CalDavConstants.NAMESPACE);
 
+    /**
+     * The DAV:resource-id property is a REQUIRED property that enables clients to determine whether two bindings 
+     * are to the same resource. rfc5842
+     */
+    public static final DavPropertyName RESOURCE_ID = DavPropertyName.create(
+            DavConstants.PROPERTY_RESOURCE_ID, DavConstants.NAMESPACE);
+    
+    /**
+     * This property identifies the reports that are supported by the resource. RFC 3253
+     */
+    public static final DavPropertyName SUPPORTED_REPORT_SET = DavPropertyName.create(
+            DavConstants.PROPERTY_SUPPORTED_REPORT_SET, DavConstants.NAMESPACE);
+    
+    /**
+     * Contains the value of the synchronization token as it would be returned by a 
+     * DAV:sync-collection report RFC 6578
+     */    
+    public static final DavPropertyName SYNC_TOKEN = DavPropertyName.create(
+            DavConstants.PROPERTY_SYNC_TOKEN, DavConstants.NAMESPACE);
+    
+    /**
+     * DAV:add-member is a protected property (see [RFC4918], Section 15) defined on WebDAV collections, 
+     * and contains the "Add-Member" URI for that collection. RFC 5995
+     */   
+    public static final DavPropertyName ADD_MEMBER = DavPropertyName.create(
+            DavConstants.PROPERTY_ADD_MEMBER, DavConstants.NAMESPACE);
 }

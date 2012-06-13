@@ -59,6 +59,11 @@ public interface CalDavConstants extends DavConstants {
     public static final Namespace ICAL_NAMESPACE = Namespace.getNamespace("I", "http://apple.com/ns/ical/");
 
     /**
+     * CardDAV namespace
+     */
+    public static final Namespace CARDDAV_NAMESPACE = Namespace.getNamespace("C", "urn:ietf:params:xml:ns:carddav");
+    
+    /**
      * To improve on performance, this specification defines a new "calendar collection entity tag" (CTag) WebDAV
      * property that is defined on calendar collections. When the calendar collection changes, the CTag value changes.
      * Source : https://trac.calendarserver.org/browser/CalendarServer/trunk/doc/Extensions/caldav-ctag.txt
@@ -90,7 +95,7 @@ public interface CalDavConstants extends DavConstants {
      * Purpose: Identifies the URL of any WebDAV collections that contain calendar collections owned by the associated
      * principal resource. RFC : rfc4791
      */
-    public static final String PROPERTY_HOME_SET = "calendar-home-set";
+    public static final String PROPERTY_CALENDAR_HOME_SET = "calendar-home-set";
 
     /**
      * The property to identify a "calendar" resource-type for the collection.
@@ -290,5 +295,22 @@ public interface CalDavConstants extends DavConstants {
      */
     public static final String ATTRIBUTE_END = "end";
     
+
+    /**
+     * Identifies the URL of any WebDAV collections that contain address book collections 
+     * owned by the associated principal resource. rfc6352
+     */
+    public static final String PROPERTY_ADDRESSBOOK_HOME_SET = "addressbook-home-set";
+    
+    /**
+     * Specifies what media types are allowed for address object resources in an address 
+     * book collection. rfc6352
+     */
+    public static final String PROPERTY_SUPPORTED_ADDRESS_DATA = "supported-address-data";
+    
+    /**
+     * for carddav
+     */
+    public static final String PROPERTY_MAX_IMAGE_SIZE = "max-image-size";
 
 }

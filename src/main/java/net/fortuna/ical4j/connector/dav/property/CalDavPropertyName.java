@@ -131,7 +131,7 @@ public class CalDavPropertyName {
      * Purpose: Identifies the URL of any WebDAV collections that contain calendar collections owned by the associated
      * principal resource. RFC : rfc4791
      */
-    public static final DavPropertyName HOME_SET = DavPropertyName.create(CalDavConstants.PROPERTY_HOME_SET,
+    public static final DavPropertyName CALENDAR_HOME_SET = DavPropertyName.create(CalDavConstants.PROPERTY_CALENDAR_HOME_SET,
             CalDavConstants.CALDAV_NAMESPACE);
 
     /**

@@ -29,41 +29,45 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector.dav;
+package net.fortuna.ical4j.connector.dav.property;
 
-public interface DavConstants extends org.apache.jackrabbit.webdav.DavConstants {
+import net.fortuna.ical4j.connector.dav.CalDavConstants;
+
+import org.apache.jackrabbit.webdav.property.DavPropertyName;
+
+/**
+ * $Id$
+ * 
+ * Created on 19/11/2008
+ * 
+ * @author Ben
+ * 
+ */
+public class CardDavPropertyName {
 
     /**
-     * Indicates the maximum amount of additional storage available to be allocated to a resource. RFC 4331
+     * 
      */
-    public static final String PROPERTY_QUOTA_AVAILABLE_BYTES = "quota-available-bytes";
+    public static final DavPropertyName MAX_RESOURCE_SIZE = DavPropertyName.create(
+            CalDavConstants.PROPERTY_MAX_RESOURCE_SIZE, CalDavConstants.CARDDAV_NAMESPACE);
 
     /**
-     * Contains the amount of storage counted against the quota on a resource. RFC 4331
+     * Purpose: Identifies the URL of any WebDAV collections that contain address book collections owned by the associated
+     * principal resource. RFC : rfc6352
      */
-    public static final String PROPERTY_QUOTA_USED_BYTES = "quota-used-bytes";
-
-    /**
-     * The DAV:resource-id property is a REQUIRED property that enables clients to determine whether two bindings 
-     * are to the same resource. rfc5842
-     */
-    public static final String PROPERTY_RESOURCE_ID = "resource-id";
+    public static final DavPropertyName ADDRESSBOOK_HOME_SET = DavPropertyName.create(CalDavConstants.PROPERTY_ADDRESSBOOK_HOME_SET,
+            CalDavConstants.CARDDAV_NAMESPACE);
     
     /**
-     * This property identifies the reports that are supported by the resource. RFC 3253
+     * 
      */
-    public static final String PROPERTY_SUPPORTED_REPORT_SET = "supported-report-set";
+    public static final DavPropertyName SUPPORTED_ADDRESS_DATA = DavPropertyName.create(
+            CalDavConstants.PROPERTY_SUPPORTED_ADDRESS_DATA, CalDavConstants.CARDDAV_NAMESPACE);
 
     /**
-     * Contains the value of the synchronization token as it would be returned by a 
-     * DAV:sync-collection report RFC 6578
+     * 
      */
-    public static final String PROPERTY_SYNC_TOKEN = "sync-token";
-    
-    /**
-     * DAV:add-member is a protected property (see [RFC4918], Section 15) defined on WebDAV collections, 
-     * and contains the "Add-Member" URI for that collection. RFC 5995
-     */
-    public static final String PROPERTY_ADD_MEMBER = "add-member";
+    public static final DavPropertyName MAX_IMAGE_SIZE = DavPropertyName.create(
+            CalDavConstants.PROPERTY_MAX_IMAGE_SIZE, CalDavConstants.CARDDAV_NAMESPACE);
 
 }
