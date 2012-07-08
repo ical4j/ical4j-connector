@@ -32,7 +32,6 @@
 package net.fortuna.ical4j.connector.dav.enums;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 

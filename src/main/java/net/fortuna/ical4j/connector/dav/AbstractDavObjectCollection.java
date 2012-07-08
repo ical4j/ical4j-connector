@@ -46,7 +46,6 @@ import net.fortuna.ical4j.connector.dav.property.BaseDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
 
 import org.apache.commons.httpclient.HttpException;
-import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatus;
@@ -118,7 +117,8 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      * Returns a list of the kinds of resource type for this collection. For example, for a collection that supports
      * iCalendar object, "calendar" will be one of the resource types.
      */
-    public ResourceType[] getResourceTypes() {
+    @SuppressWarnings("unchecked")
+	public ResourceType[] getResourceTypes() {
         List<ResourceType> resourceTypes = new ArrayList<ResourceType>();
 
         try {
@@ -152,7 +152,8 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      * Returns a list of supported media types. For example, a CalDAV server will probably return 2.0 as the supported
      * version and text/calendar as the content-type.
      */
-    public MediaType[] getSupportedMediaTypes() {
+    @SuppressWarnings("unchecked")
+	public MediaType[] getSupportedMediaTypes() {
         List<MediaType> mediaTypes = new ArrayList<MediaType>();
 
         try {

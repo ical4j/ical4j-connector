@@ -47,10 +47,7 @@ import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.CalendarStore;
 import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
-import net.fortuna.ical4j.connector.dav.property.BaseDavPropertyName;
-import net.fortuna.ical4j.connector.dav.property.CSDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
-import net.fortuna.ical4j.connector.dav.property.ICalPropertyName;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VFreeBusy;
@@ -308,7 +305,8 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         return CalDavCalendarCollection.collectionsFromResponse(store, responses);
     }
 
-    protected List<CalDavCalendarCollection> getDelegateCollections(DavProperty<?> proxyDavProperty)
+    @SuppressWarnings("unchecked")
+	protected List<CalDavCalendarCollection> getDelegateCollections(DavProperty<?> proxyDavProperty)
             throws ParserConfigurationException, IOException, DavException {
         /*
          * Zimbra check: Zimbra advertise calendar-proxy, but it will return 404 in propstat if Enable delegation for

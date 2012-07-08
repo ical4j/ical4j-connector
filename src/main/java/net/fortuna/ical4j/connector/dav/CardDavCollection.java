@@ -35,9 +35,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import net.fortuna.ical4j.connector.CardCollection;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.enums.ResourceType;
@@ -62,9 +59,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
-import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -210,7 +205,8 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
         return principalsProps;
     }
     
-    protected static List<CardDavCollection> collectionsFromResponse(CardDavStore store,
+    @SuppressWarnings("unchecked")
+	protected static List<CardDavCollection> collectionsFromResponse(CardDavStore store,
             MultiStatusResponse[] responses) {
         List<CardDavCollection> collections = new ArrayList<CardDavCollection>();
 
