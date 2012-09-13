@@ -39,6 +39,7 @@ import net.fortuna.ical4j.connector.CardCollection;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.enums.ResourceType;
 import net.fortuna.ical4j.connector.dav.method.MkCalendarMethod;
+import net.fortuna.ical4j.connector.dav.method.PutMethod;
 import net.fortuna.ical4j.connector.dav.method.ReportMethod;
 import net.fortuna.ical4j.connector.dav.property.BaseDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
@@ -46,6 +47,9 @@ import net.fortuna.ical4j.connector.dav.property.CardDavPropertyName;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
+import net.fortuna.ical4j.model.property.Uid;
+import net.fortuna.ical4j.util.Calendars;
+import net.fortuna.ical4j.vcard.Property.Id;
 import net.fortuna.ical4j.vcard.VCard;
 
 import org.apache.jackrabbit.webdav.DavException;
@@ -217,34 +221,36 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
             String collectionUri = msResponse.getHref();
 
             for (int j = 0; j < responses[i].getStatus().length; j++) {
-                boolean isAddressBookCollection = false;
-                DavPropertySet _properties = new DavPropertySet();
-                for (DavPropertyIterator iNames = foundProperties.iterator(); iNames.hasNext();) {
-                    DavProperty property = iNames.nextProperty();
-                    if (property != null) {
-                        _properties.add(property);
-                        if ((DavConstants.PROPERTY_RESOURCETYPE.equals(property.getName().getName())) && (DavConstants.NAMESPACE.equals(property.getName().getNamespace()))) {
-                            Object value = property.getValue();
-                            if (value instanceof java.util.ArrayList) {
-                                for (Node child: (java.util.ArrayList<Node>)value) {
-                                    if (child instanceof Element) {
-                                        String nameNode = child.getNodeName();
-                                        if (nameNode != null) {
-                                            ResourceType type = ResourceType.findByDescription(nameNode);
-                                            if (type != null) {
-                                                if (type.equals(ResourceType.ADRESSBOOK)) {
-                                                    isAddressBookCollection = true;
+                if (responses[i].getStatus()[j].getStatusCode() == 200) {
+                    boolean isAddressBookCollection = false;
+                    DavPropertySet _properties = new DavPropertySet();
+                    for (DavPropertyIterator iNames = foundProperties.iterator(); iNames.hasNext();) {
+                        DavProperty property = iNames.nextProperty();
+                        if (property != null) {
+                            _properties.add(property);
+                            if ((DavConstants.PROPERTY_RESOURCETYPE.equals(property.getName().getName())) && (DavConstants.NAMESPACE.equals(property.getName().getNamespace()))) {
+                                Object value = property.getValue();
+                                if (value instanceof java.util.ArrayList) {
+                                    for (Node child: (java.util.ArrayList<Node>)value) {
+                                        if (child instanceof Element) {
+                                            String nameNode = child.getLocalName();
+                                            if (nameNode != null) {
+                                                ResourceType type = ResourceType.findByDescription(nameNode);
+                                                if (type != null) {
+                                                    if (type.equals(ResourceType.ADRESSBOOK)) {
+                                                        isAddressBookCollection = true;
+                                                    }
                                                 }
                                             }
-                                        }
-                                    }                                
+                                        }                                
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                if (isAddressBookCollection) {
-                    collections.add(new CardDavCollection(store, collectionUri, _properties));
+                    if (isAddressBookCollection) {
+                        collections.add(new CardDavCollection(store, collectionUri, _properties));
+                    }
                 }
             }
         }
@@ -283,9 +289,9 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
             e.printStackTrace();
         } catch (DavException e) {
             e.printStackTrace();
-        } catch (ParserException e) {
+        } /* catch (ParserException e) {
             e.printStackTrace();
-        }
+        } */
         return new VCard[0];
     }
 
@@ -293,8 +299,32 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      * @see net.fortuna.ical4j.connector.CardCollection#addCard(net.fortuna.ical4j.vcard.VCard)
      */
     public void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
-        // TODO Auto-generated method stub
-        
+        net.fortuna.ical4j.vcard.property.Uid uid = (net.fortuna.ical4j.vcard.property.Uid)card.getProperty(Id.UID);
+
+        String path = getPath();
+        if (!path.endsWith("/")) {
+            path = path.concat("/");
+        }
+        PutMethod putMethod = new PutMethod(path + uid.getValue() + ".vcf");
+        // putMethod.setAllEtags(true);
+        // putMethod.setIfNoneMatch(true);
+        // putMethod.setRequestBody(calendar);
+
+        try {
+            putMethod.setVCard(card);
+        } catch (Exception e) {
+            throw new ObjectStoreException("Invalid vcard", e);
+        }
+
+        try {
+            getStore().getClient().execute(putMethod);
+            if ((putMethod.getStatusCode() != DavServletResponse.SC_CREATED)
+                    && (putMethod.getStatusCode() != DavServletResponse.SC_NO_CONTENT)) {
+                throw new ObjectStoreException("Error creating calendar on server: " + putMethod.getStatusLine());
+            }
+        } catch (IOException ioe) {
+            throw new ObjectStoreException("Error creating calendar on server", ioe);
+        }        
     }
 
 }

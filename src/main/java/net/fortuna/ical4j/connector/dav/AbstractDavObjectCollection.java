@@ -391,14 +391,43 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
             String collectionUri = msResponse.getHref();
 
             for (int j = 0; j < responses[i].getStatus().length; j++) {
-                DavPropertySet _properties = new DavPropertySet();
-                for (DavPropertyIterator iNames = foundProperties.iterator(); iNames.hasNext();) {
-                    DavProperty property = iNames.nextProperty();
-                    if (property != null) {
-                        _properties.add(property);
+                if (responses[i].getStatus()[j].getStatusCode() == 200) {
+                    boolean isCalendarCollection = false;
+                    DavPropertySet _properties = new DavPropertySet();
+                    for (DavPropertyIterator iNames = foundProperties.iterator(); iNames.hasNext();) {
+                        DavProperty property = iNames.nextProperty();
+                        if (property != null) {
+                            _properties.add(property);
+                            if ((DavConstants.PROPERTY_RESOURCETYPE.equals(property.getName().getName())) && (DavConstants.NAMESPACE.equals(property.getName().getNamespace()))) {
+                                Object value = property.getValue();
+                                if (value instanceof java.util.ArrayList) {
+                                    for (Node child: (java.util.ArrayList<Node>)value) {
+                                        if (child instanceof Element) {
+                                            String nameNode = child.getLocalName();
+                                            if (nameNode != null) {
+                                                ResourceType type = ResourceType.findByDescription(nameNode);
+                                                if (type != null) {
+                                                    if (type.equals(ResourceType.CALENDAR)) {
+                                                        isCalendarCollection = true;
+                                                    }
+                                                    if (type.equals(ResourceType.CALENDAR_PROXY_READ)) {
+                                                        isCalendarCollection = true;
+                                                    }
+                                                    if (type.equals(ResourceType.CALENDAR_PROXY_WRITE)) {
+                                                        isCalendarCollection = true;
+                                                    }
+                                                }
+                                            }
+                                        }                                
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (isCalendarCollection) {
+                        collections.add(new CalDavCalendarCollection(store, collectionUri, _properties));
                     }
                 }
-                collections.add(new CalDavCalendarCollection(store, collectionUri, _properties));
             }
         }
 

@@ -552,7 +552,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
                     DavProperty name = iNames.nextProperty();
                     if (name.getValue() instanceof String) {
                         if ((name.getName().getNamespace().equals(CalDavConstants.CALDAV_NAMESPACE))
-                                && (name.getName().getName().equals(CalDavConstants.PROPERTY_SUPPORTED_CALENDAR_DATA))) {
+                                && (name.getName().getName().equals(CalDavConstants.PROPERTY_CALENDAR_DATA))) {
                             StringReader sin = new StringReader((String) name.getValue());
                             CalendarBuilder builder = new CalendarBuilder();
                             Calendar calendar = builder.build(sin);

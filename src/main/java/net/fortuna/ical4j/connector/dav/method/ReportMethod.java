@@ -104,7 +104,7 @@ public class ReportMethod extends org.apache.jackrabbit.webdav.client.methods.Re
         return calendars.toArray(new Calendar[calendars.size()]);
     }
     
-    public VCard[] getVCards() throws IOException, DavException, DOMException, ParserException {
+    public VCard[] getVCards() throws IOException, DavException, DOMException {
         List<VCard> cards = new ArrayList<VCard>();
         MultiStatus multi = getResponseBodyAsMultiStatus();
         for (MultiStatusResponse response : multi.getResponses()) {
@@ -112,7 +112,12 @@ public class ReportMethod extends org.apache.jackrabbit.webdav.client.methods.Re
             if (props.get(CardDavPropertyName.ADDRESS_DATA) != null) {
                 String value = (String) props.get(CardDavPropertyName.ADDRESS_DATA).getValue();
                 VCardBuilder builder = new VCardBuilder(new StringReader(value));
-                cards.add(builder.build());
+                try {
+                    cards.add(builder.build());
+                } catch (ParserException e) {
+                    System.out.println(e.getMessage());
+                    System.out.println(value);
+                }
             }
         }
         return cards.toArray(new VCard[cards.size()]);
