@@ -184,12 +184,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
         
         principalsProps.add(DavPropertyName.DISPLAYNAME);
 
-        principalsProps.add(BaseDavPropertyName.QUOTA_AVAILABLE_BYTES);
-        /**
-         * FIXME jackrabbit generates an error when quota-used-bytes is sent.
-         * I suspect the problem is that the response have this attribute: e:dt="int"
-         */
-        //principalsProps.add(BaseDavPropertyName.QUOTA_USED_BYTES);
+
         principalsProps.add(BaseDavPropertyName.CURRENT_USER_PRIVILEGE_SET);
         principalsProps.add(BaseDavPropertyName.RESOURCETYPE);
         principalsProps.add(SecurityConstants.OWNER);
@@ -199,6 +194,13 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
         principalsProps.add(BaseDavPropertyName.SYNC_TOKEN);
         principalsProps.add(BaseDavPropertyName.ADD_MEMBER);
         principalsProps.add(CardDavPropertyName.MAX_IMAGE_SIZE);
+        
+        /**
+         * FIXME jackrabbit generates an error when quota-used-bytes is sent.
+         * I suspect the problem is that the response have this attribute: e:dt="int"
+         */
+        //principalsProps.add(BaseDavPropertyName.QUOTA_USED_BYTES);
+        //principalsProps.add(BaseDavPropertyName.QUOTA_AVAILABLE_BYTES);
         
         /* In the absence of this property, the server MUST only accept data with the media type
          * "text/vcard" and vCard version 3.0, and clients can assume that is
