@@ -190,7 +190,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         return null;
     }
 
-    protected String findCalendarHomeSet() throws ParserConfigurationException, IOException, DavException {
+    public String findCalendarHomeSet() throws ParserConfigurationException, IOException, DavException {
         String propfindUri = getHostURL() + pathResolver.getPrincipalPath(getUserName());
         return findCalendarHomeSet(propfindUri);
     }
