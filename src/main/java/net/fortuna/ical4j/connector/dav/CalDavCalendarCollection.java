@@ -385,6 +385,32 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         }
         return new Calendar();
     }
+    
+    public String getColor() {
+        try {
+            return getProperty(ICalPropertyName.CALENDAR_COLOR, String.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ObjectStoreException e) {
+            e.printStackTrace();
+        } catch (DavException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public int getOrder() {
+        try {
+            return getProperty(ICalPropertyName.CALENDAR_ORDER, Integer.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ObjectStoreException e) {
+            e.printStackTrace();
+        } catch (DavException e) {
+            e.printStackTrace();
+        }
+        return 1;
+    }
 
     /**
      * {@inheritDoc}
