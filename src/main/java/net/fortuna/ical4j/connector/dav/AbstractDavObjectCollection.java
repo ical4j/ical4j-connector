@@ -332,6 +332,9 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
             catch (InvocationTargetException e) {
                 e.printStackTrace();
             }
+            catch (NullPointerException e) {
+                e.printStackTrace();                
+            }
             return (P) props.get(propertyName).getValue();
         }
         return null;
