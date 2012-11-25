@@ -38,6 +38,8 @@ import java.util.List;
 
 import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.dav.enums.SupportedFeature;
+import net.fortuna.ical4j.connector.dav.property.CSDavPropertyName;
+import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.Header;
@@ -52,6 +54,8 @@ import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.client.methods.DavMethodBase;
 import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
+import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 
 public class DavClient {
 
@@ -98,10 +102,17 @@ public class DavClient {
 		authPrefs.add(org.apache.commons.httpclient.auth.AuthPolicy.BASIC);
 		httpClient.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authPrefs);
 
-		// This is to get the Digest from the user
-		PropFindMethod aGet = new PropFindMethod(principalPath, DavConstants.PROPFIND_ALL_PROP, 0);
+		DavPropertyNameSet props = new DavPropertyNameSet();
+        props.add(DavPropertyName.RESOURCETYPE);
+        props.add(CSDavPropertyName.CTAG);
+		DavPropertyName owner = DavPropertyName.create("owner", DavConstants.NAMESPACE);
+        props.add(owner);
+		
+        // This is to get the Digest from the user
+		PropFindMethod aGet = new PropFindMethod(principalPath, DavConstants.PROPFIND_BY_PROPERTY, props, 0);
 		aGet.setDoAuthentication(true);
 		int status = httpClient.executeMethod(hostConfiguration, aGet);
+		
 		if (status >= 300) {
 			throw new FailedOperationException(String.format("Principals not found at [%s]", userPath));
 		} else {
