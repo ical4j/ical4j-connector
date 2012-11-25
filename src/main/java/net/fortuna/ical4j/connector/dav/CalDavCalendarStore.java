@@ -47,10 +47,13 @@ import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.CalendarStore;
 import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
+import net.fortuna.ical4j.connector.dav.method.PrincipalPropertySearchInfo;
+import net.fortuna.ical4j.connector.dav.method.PrincipalPropertySearchMethod;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VFreeBusy;
+import net.fortuna.ical4j.model.parameter.CuType;
 import net.fortuna.ical4j.model.property.Attendee;
 import net.fortuna.ical4j.model.property.CalScale;
 import net.fortuna.ical4j.model.property.DtEnd;
@@ -630,6 +633,106 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
             }
         }
         return responses;
+    }
+    
+    public List<Attendee> getRooms(String nameToSearch) throws ParserConfigurationException, IOException, DavException {
+        return getUserTypes(CuType.ROOM, nameToSearch);
+    }
+    
+    /**
+     * Use this method to search for resources (individual, group, resource, room). 
+     * For example, if you want to find all rooms that begins
+     * with "Room" in their email or email address, call this method with:
+     * 
+     *   getUserTypes(CuType.ROOM, "Room");
+     * 
+     * If nameToSearch is null, it will find all resources for the desired type.
+     * 
+     * @param type
+     * @param nameToSearch
+     * @return
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws DavException
+     */
+    public List<Attendee> getUserTypes(CuType type, String nameToSearch) throws ParserConfigurationException, IOException, DavException {
+        String methodUri = this.pathResolver.getPrincipalPath(getUserName());
+
+        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+
+        Element displayName = DomUtil.createElement(document, "displayname", DavConstants.NAMESPACE);
+        
+        Element displayNameProperty = DomUtil.createElement(document, "prop", DavConstants.NAMESPACE);
+        displayNameProperty.appendChild(displayName);
+        
+        Element containsMatch = DomUtil.createElement(document, "match", DavConstants.NAMESPACE);
+        containsMatch.setAttribute("match-type", "contains");
+        if (nameToSearch != null) {
+            containsMatch.setTextContent(nameToSearch);
+        }
+        
+        Element propertySearchDisplayName = DomUtil.createElement(document, "property-search", DavConstants.NAMESPACE);
+        propertySearchDisplayName.appendChild(displayNameProperty);
+        propertySearchDisplayName.appendChild(containsMatch);
+
+        Element emailAddressSet = DomUtil.createElement(document, "email-address-set", CalDavConstants.CS_NAMESPACE);
+
+        Element emailSetProperty = DomUtil.createElement(document, "prop", DavConstants.NAMESPACE);
+        emailSetProperty.appendChild(emailAddressSet);
+ 
+        Element startsWith = DomUtil.createElement(document, "match", DavConstants.NAMESPACE);
+        startsWith.setAttribute("match-type", "starts-with");
+        if (startsWith != null) {
+            startsWith.setTextContent(nameToSearch);
+        }
+        
+        Element propertySearchEmail = DomUtil.createElement(document, "property-search", DavConstants.NAMESPACE);
+        if (nameToSearch != null) {
+            propertySearchEmail.setTextContent(nameToSearch);
+        }
+        propertySearchEmail.appendChild(emailSetProperty);
+        propertySearchEmail.appendChild(startsWith);
+        
+        Element firstNameProperty = DomUtil.createElement(document, "first-name", CalDavConstants.CS_NAMESPACE);
+        Element recordTypeProperty = DomUtil.createElement(document, "record-type", CalDavConstants.CS_NAMESPACE);
+        Element calUserAddressSetProperty = DomUtil.createElement(document, "calendar-user-address-set", CalDavConstants.CALDAV_NAMESPACE);
+        Element lastNameProperty = DomUtil.createElement(document, "last-name", CalDavConstants.CS_NAMESPACE);
+        Element principalUrlProperty = DomUtil.createElement(document, "principal-URL", CalDavConstants.NAMESPACE);
+        Element calUserTypeProperty = DomUtil.createElement(document, "calendar-user-type", CalDavConstants.CALDAV_NAMESPACE);
+        Element displayNameForProperty = DomUtil.createElement(document, "displayname", CalDavConstants.CALDAV_NAMESPACE);
+        Element emailAddressSetProperty = DomUtil.createElement(document, "email-address-set", CalDavConstants.CS_NAMESPACE);
+
+        Element properties = DomUtil.createElement(document, "prop", DavConstants.NAMESPACE);
+        properties.appendChild(firstNameProperty);
+        properties.appendChild(recordTypeProperty);
+        properties.appendChild(calUserAddressSetProperty);
+        properties.appendChild(lastNameProperty);
+        properties.appendChild(principalUrlProperty);
+        properties.appendChild(calUserTypeProperty);
+        properties.appendChild(displayNameForProperty);
+        properties.appendChild(emailAddressSetProperty);
+                
+        Element principalPropSearch = DomUtil.createElement(document, "principal-property-search", DavConstants.NAMESPACE);
+        principalPropSearch.setAttribute("type", type.getValue());
+        principalPropSearch.setAttribute("test", "anyof");
+        principalPropSearch.appendChild(propertySearchDisplayName);
+        principalPropSearch.appendChild(propertySearchEmail);
+        principalPropSearch.appendChild(properties);
+                
+        PrincipalPropertySearchInfo rinfo = new PrincipalPropertySearchInfo(principalPropSearch, 0);
+        
+        DavMethodBase method = new PrincipalPropertySearchMethod(methodUri, rinfo);
+        getClient().execute(getClient().hostConfiguration, method);
+        
+        if (method.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
+            MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
+            MultiStatusResponse[] responses = multiStatus.getResponses();
+            for (int i = 0; i < responses.length; i++) {
+                DavPropertySet propertiesInResponse = responses[i].getProperties(DavServletResponse.SC_OK);
+                System.out.println(propertiesInResponse.getPropertyNames());
+            }
+        }
+        return new ArrayList<Attendee>();
     }
 
 }
