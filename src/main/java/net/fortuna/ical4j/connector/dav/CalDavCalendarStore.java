@@ -32,6 +32,8 @@
 package net.fortuna.ical4j.connector.dav;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -49,11 +51,15 @@ import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.method.PrincipalPropertySearchInfo;
 import net.fortuna.ical4j.connector.dav.method.PrincipalPropertySearchMethod;
+import net.fortuna.ical4j.connector.dav.property.CSDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VFreeBusy;
+import net.fortuna.ical4j.model.parameter.Cn;
 import net.fortuna.ical4j.model.parameter.CuType;
+import net.fortuna.ical4j.model.parameter.Rsvp;
+import net.fortuna.ical4j.model.parameter.XParameter;
 import net.fortuna.ical4j.model.property.Attendee;
 import net.fortuna.ical4j.model.property.CalScale;
 import net.fortuna.ical4j.model.property.DtEnd;
@@ -635,8 +641,16 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         return responses;
     }
     
-    public List<Attendee> getRooms(String nameToSearch) throws ParserConfigurationException, IOException, DavException {
+    public List<Attendee> getIndividuals(String nameToSearch) throws ParserConfigurationException, IOException, DavException, URISyntaxException {
+        return getUserTypes(CuType.INDIVIDUAL, nameToSearch);
+    }
+    
+    public List<Attendee> getRooms(String nameToSearch) throws ParserConfigurationException, IOException, DavException, URISyntaxException {
         return getUserTypes(CuType.ROOM, nameToSearch);
+    }
+    
+    public List<Attendee> getAllRooms() throws ParserConfigurationException, IOException, DavException, URISyntaxException {
+        return getUserTypes(CuType.ROOM, null);
     }
     
     /**
@@ -654,8 +668,9 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      * @throws ParserConfigurationException
      * @throws IOException
      * @throws DavException
+     * @throws URISyntaxException 
      */
-    public List<Attendee> getUserTypes(CuType type, String nameToSearch) throws ParserConfigurationException, IOException, DavException {
+    protected List<Attendee> getUserTypes(CuType type, String nameToSearch) throws ParserConfigurationException, IOException, DavException, URISyntaxException {
         String methodUri = this.pathResolver.getPrincipalPath(getUserName());
 
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
@@ -699,7 +714,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         Element lastNameProperty = DomUtil.createElement(document, "last-name", CalDavConstants.CS_NAMESPACE);
         Element principalUrlProperty = DomUtil.createElement(document, "principal-URL", CalDavConstants.NAMESPACE);
         Element calUserTypeProperty = DomUtil.createElement(document, "calendar-user-type", CalDavConstants.CALDAV_NAMESPACE);
-        Element displayNameForProperty = DomUtil.createElement(document, "displayname", CalDavConstants.CALDAV_NAMESPACE);
+        Element displayNameForProperty = DomUtil.createElement(document, "displayname", CalDavConstants.NAMESPACE);
         Element emailAddressSetProperty = DomUtil.createElement(document, "email-address-set", CalDavConstants.CS_NAMESPACE);
 
         Element properties = DomUtil.createElement(document, "prop", DavConstants.NAMESPACE);
@@ -724,15 +739,68 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         DavMethodBase method = new PrincipalPropertySearchMethod(methodUri, rinfo);
         getClient().execute(getClient().hostConfiguration, method);
         
+        List<Attendee> resources = new ArrayList<Attendee>();
+        
         if (method.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
             MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
             MultiStatusResponse[] responses = multiStatus.getResponses();
             for (int i = 0; i < responses.length; i++) {
+                
+                Attendee resource = new Attendee();
                 DavPropertySet propertiesInResponse = responses[i].getProperties(DavServletResponse.SC_OK);
-                System.out.println(propertiesInResponse.getPropertyNames());
+
+                DavProperty<?> displayNameFromResponse = propertiesInResponse.get("displayname",
+                        CalDavConstants.NAMESPACE);
+                if ((displayNameFromResponse != null) && (displayNameFromResponse.getValue() != null)) {
+                    resource.getParameters().add(new Cn((String)displayNameFromResponse.getValue()));
+                }
+                
+                DavProperty<?> emailSet = propertiesInResponse.get("email-address-set",
+                        CalDavConstants.CS_NAMESPACE);
+                
+                if (emailSet != null && emailSet.getValue() != null) {
+                    Object emailSetValue = emailSet.getValue();
+                    if (emailSetValue instanceof java.util.ArrayList) {
+                        for (Object email: (java.util.ArrayList)emailSetValue) {
+                            if (email instanceof org.w3c.dom.Node) {
+                                String emailAddress = ((org.w3c.dom.Node)email).getTextContent();
+                                if (emailAddress != null && emailAddress.trim().length() > 0) {
+                                    if (!emailAddress.startsWith("mailto:")) {
+                                        emailAddress = "mailto:".concat(emailAddress);
+                                    }
+                                    resource.setCalAddress(new URI(emailAddress));
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    DavProperty<?> calendarUserAddressSet = propertiesInResponse.get("calendar-user-address-set",
+                            CalDavConstants.CALDAV_NAMESPACE);
+                    if (calendarUserAddressSet != null && calendarUserAddressSet.getValue() != null) {
+                        Object value = calendarUserAddressSet.getValue();
+                        if (value instanceof java.util.ArrayList) {
+                            for (Object addressSet: (java.util.ArrayList)value) {
+                                if (addressSet instanceof org.w3c.dom.Node) {
+                                    String url = ((org.w3c.dom.Node)addressSet).getTextContent();
+                                    if (url.startsWith("urn:uuid")) {
+                                        resource.setCalAddress(new URI(url));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                DavProperty<?> calendarUserType = propertiesInResponse.get("calendar-user-type",
+                        CalDavConstants.CALDAV_NAMESPACE);
+                if ((calendarUserType != null) && (calendarUserType.getValue() != null)) {
+                    resource.getParameters().add(new CuType((String)calendarUserType.getValue()));
+                }
+                
+                resources.add(resource);
             }
         }
-        return new ArrayList<Attendee>();
+        return resources;
     }
 
 }
