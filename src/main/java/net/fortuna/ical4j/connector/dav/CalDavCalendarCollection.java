@@ -382,13 +382,15 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
             e.printStackTrace();
         } catch (DavException e) {
             e.printStackTrace();
-        }
+        } 
         return new Calendar();
     }
     
     public String getColor() {
         try {
             return getProperty(ICalPropertyName.CALENDAR_COLOR, String.class);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ObjectStoreException e) {
@@ -402,6 +404,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     public int getOrder() {
         try {
             return getProperty(ICalPropertyName.CALENDAR_ORDER, Integer.class);
+        } catch (NullPointerException e) {
+            e.printStackTrace();            
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ObjectStoreException e) {
@@ -522,7 +526,67 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         return getComponentsByType(Component.VEVENT);
     }
     
-    public Calendar[] getEventsForTimePeriod(CalDavCalendarCollection collection, DateTime startTime, DateTime endTime)
+    /**
+     * Get a list of calendar objects of VEVENT type for a specific time period.
+     * 
+     * @param startTime
+     * @param endTime
+     * @return
+     * @throws IOException
+     * @throws DavException
+     * @throws ParserConfigurationException
+     * @throws ParserException
+     */
+    public Calendar[] getEventsForTimePeriod(DateTime startTime, DateTime endTime)
+            throws IOException, DavException, ParserConfigurationException, ParserException {
+
+        DocumentBuilderFactory BUILDER_FACTORY = DocumentBuilderFactory.newInstance();
+        BUILDER_FACTORY.setNamespaceAware(true);
+        BUILDER_FACTORY.setIgnoringComments(true);
+        BUILDER_FACTORY.setIgnoringElementContentWhitespace(true);
+        BUILDER_FACTORY.setCoalescing(true);
+
+        Document document = BUILDER_FACTORY.newDocumentBuilder().newDocument();
+
+        org.w3c.dom.Element calFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
+                CalDavConstants.CALDAV_NAMESPACE);
+        calFilter.setAttribute(CalDavConstants.ATTRIBUTE_NAME, Calendar.VCALENDAR);
+        org.w3c.dom.Element eventFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
+                CalDavConstants.CALDAV_NAMESPACE);
+        eventFilter.setAttribute(CalDavConstants.ATTRIBUTE_NAME, Component.VEVENT);
+        org.w3c.dom.Element timeRange = DomUtil.createElement(document, CalDavConstants.PROPERTY_TIME_RANGE,
+                CalDavConstants.CALDAV_NAMESPACE);
+
+        timeRange.setAttribute(CalDavConstants.ATTRIBUTE_START, startTime.toString());
+        timeRange.setAttribute(CalDavConstants.ATTRIBUTE_END, endTime.toString());
+        eventFilter.appendChild(timeRange);
+        calFilter.appendChild(eventFilter);
+
+        return getObjectsByFilter(calFilter);
+    }
+    
+    /**
+     * Returns a list of calendar objects by calling a REPORT method with a filter. You must pass
+     * a XML element as the argument, the element must contain the filter. For example, if you wish 
+     * to filter objects to only get VEVENT objects you can build a filter like this:
+     * 
+     * org.w3c.dom.Element calFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
+                CalDavConstants.CALDAV_NAMESPACE);
+     * calFilter.setAttribute(CalDavConstants.ATTRIBUTE_NAME, Calendar.VCALENDAR);
+     * org.w3c.dom.Element eventFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
+                CalDavConstants.CALDAV_NAMESPACE);
+     * eventFilter.setAttribute(CalDavConstants.ATTRIBUTE_NAME, Component.VEVENT);
+     * calFilter.appendChild(eventFilter);
+     * collection.getObjectsByFilter(calFilter);
+     * 
+     * @param filter
+     * @return
+     * @throws IOException
+     * @throws DavException
+     * @throws ParserConfigurationException
+     * @throws ParserException
+     */
+    public Calendar[] getObjectsByFilter(org.w3c.dom.Element filter)
             throws IOException, DavException, ParserConfigurationException, ParserException {
         ArrayList<Calendar> events = new ArrayList<Calendar>();
 
@@ -547,27 +611,15 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         document.appendChild(property);
         rinfo.setContentElement(property);
 
-        org.w3c.dom.Element filter = DomUtil.createElement(document, CalDavConstants.PROPERTY_FILTER,
+        org.w3c.dom.Element parentFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_FILTER,
                 CalDavConstants.CALDAV_NAMESPACE);
-        rinfo.setContentElement(filter);
+        rinfo.setContentElement(parentFilter);
 
-        org.w3c.dom.Element calFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
-                CalDavConstants.CALDAV_NAMESPACE);
-        calFilter.setAttribute(CalDavConstants.ATTRIBUTE_NAME, Calendar.VCALENDAR);
-        org.w3c.dom.Element eventFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
-                CalDavConstants.CALDAV_NAMESPACE);
-        eventFilter.setAttribute(CalDavConstants.ATTRIBUTE_NAME, Component.VEVENT);
-        org.w3c.dom.Element timeRange = DomUtil.createElement(document, CalDavConstants.PROPERTY_TIME_RANGE,
-                CalDavConstants.CALDAV_NAMESPACE);
+        Node importedFilter = document.importNode(filter, true);
+        parentFilter.appendChild(importedFilter);
 
-        timeRange.setAttribute(CalDavConstants.ATTRIBUTE_START, startTime.toString());
-        timeRange.setAttribute(CalDavConstants.ATTRIBUTE_END, endTime.toString());
-        eventFilter.appendChild(timeRange);
-        calFilter.appendChild(eventFilter);
-        filter.appendChild(calFilter);
-
-        ReportMethod method = new ReportMethod(collection.getPath(), rinfo);
-        collection.getStore().getClient().execute(method);
+        ReportMethod method = new ReportMethod(this.getPath(), rinfo);
+        this.getStore().getClient().execute(method);
         MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
         MultiStatusResponse[] responses = multiStatus.getResponses();
         for (int i = 0; i < responses.length; i++) {
