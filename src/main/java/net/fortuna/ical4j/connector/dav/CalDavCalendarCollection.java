@@ -33,6 +33,7 @@ package net.fortuna.ical4j.connector.dav;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -634,7 +635,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
                 .createElement(document, DavConstants.XML_PROP, CalDavConstants.NAMESPACE);
         property.appendChild(DomUtil.createElement(document, DavConstants.PROPERTY_GETETAG, CalDavConstants.NAMESPACE));
 
-        property.appendChild(calData);
+        Node importedCalData = document.importNode(calData, true);
+        property.appendChild(importedCalData);
+
         document.appendChild(property);
         rinfo.setContentElement(property);
 
@@ -668,6 +671,29 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
             }
         }
         return events.toArray(new Calendar[events.size()]);
+    }
+    
+    /**
+     * TODO: implement calendar-multiget to fetch objects based on href
+     * @param hrefs
+     * @param calData
+     * @return
+     * @throws IOException
+     * @throws DavException
+     * @throws ParserConfigurationException
+     * @throws ParserException
+     */
+    public Calendar[] getObjectsByMultiget(ArrayList<URI> hrefs, org.w3c.dom.Element calData)
+            throws IOException, DavException, ParserConfigurationException, ParserException {
+        return new Calendar[0];
+    }
+    
+    /**
+     * TODO: implement free-busy-query
+     * @return
+     */
+    public Calendar[] doFreeBusyQuery() {
+        return new Calendar[0];
     }
     
     public static final DavPropertyNameSet propertiesForFetch() {
