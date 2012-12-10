@@ -428,7 +428,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         }
         PutMethod putMethod = new PutMethod(path + uid.getValue() + ".ics");
         // putMethod.setAllEtags(true);
-        // putMethod.setIfNoneMatch(true);
+        putMethod.addRequestHeader("If-None-Match", "*");
         // putMethod.setRequestBody(calendar);
 
         try {
