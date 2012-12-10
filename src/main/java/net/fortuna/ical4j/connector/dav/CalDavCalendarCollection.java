@@ -417,9 +417,26 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     }
 
     /**
-     * {@inheritDoc}
+     * Add a new calendar object in the collection. Creation will be done on the server right away.
      */
     public void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
+        writeCalendarOnServer(calendar, true);
+    }
+    
+    /**
+     * Update a calendar object in the collection. Update will be send to the server right away.
+     * @param calendar
+     * @throws ObjectStoreException
+     * @throws ConstraintViolationException
+     */
+    public void updateCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
+        writeCalendarOnServer(calendar, false);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void writeCalendarOnServer(Calendar calendar, boolean isNew) throws ObjectStoreException, ConstraintViolationException {
         Uid uid = Calendars.getUid(calendar);
 
         String path = getPath();
@@ -428,7 +445,11 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         }
         PutMethod putMethod = new PutMethod(path + uid.getValue() + ".ics");
         // putMethod.setAllEtags(true);
-        putMethod.addRequestHeader("If-None-Match", "*");
+        if (isNew) {
+            putMethod.addRequestHeader("If-None-Match", "*");
+        } else {
+            putMethod.addRequestHeader("If-Match", "*");
+        }
         // putMethod.setRequestBody(calendar);
 
         try {
