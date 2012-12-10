@@ -136,21 +136,21 @@ public class CalDavPropertyName {
 
     /**
      * Identify the calendar addresses of the associated principal resource.
-     * http://www.ietf.org/id/draft-desruisseaux-caldav-sched-09.txt
+     * http://tools.ietf.org/html/rfc6638
      */
     public static final DavPropertyName USER_ADDRESS_SET = DavPropertyName.create(
             CalDavConstants.PROPERTY_USER_ADDRESS_SET, CalDavConstants.CALDAV_NAMESPACE);
 
     /**
      * Identify the URL of the scheduling Inbox collection owned by the associated principal resource.
-     * http://www.ietf.org/id/draft-desruisseaux-caldav-sched-09.txt
+     * http://tools.ietf.org/html/rfc6638
      */
     public static final DavPropertyName SCHEDULE_INBOX_URL = DavPropertyName.create(
             CalDavConstants.PROPERTY_SCHEDULE_INBOX_URL, CalDavConstants.CALDAV_NAMESPACE);
 
     /**
      * Identify the URL of the scheduling Outbox collection owned by the associated principal resource.
-     * http://www.ietf.org/id/draft-desruisseaux-caldav-sched-09.txt
+     * http://tools.ietf.org/html/rfc6638
      */
     public static final DavPropertyName SCHEDULE_OUTBOX_URL = DavPropertyName.create(
             CalDavConstants.PROPERTY_SCHEDULE_OUTBOX_URL, CalDavConstants.CALDAV_NAMESPACE);
