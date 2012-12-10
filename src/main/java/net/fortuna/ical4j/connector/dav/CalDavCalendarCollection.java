@@ -569,6 +569,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
 
         Document document = BUILDER_FACTORY.newDocumentBuilder().newDocument();
 
+        org.w3c.dom.Element calData = DomUtil.createElement(document, CalDavConstants.PROPERTY_CALENDAR_DATA,
+                CalDavConstants.CALDAV_NAMESPACE);
+        
         org.w3c.dom.Element calFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
                 CalDavConstants.CALDAV_NAMESPACE);
         calFilter.setAttribute(CalDavConstants.ATTRIBUTE_NAME, Calendar.VCALENDAR);
@@ -583,13 +586,16 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         eventFilter.appendChild(timeRange);
         calFilter.appendChild(eventFilter);
 
-        return getObjectsByFilter(calFilter);
+        return getObjectsByFilter(calFilter, calData);
     }
     
     /**
      * Returns a list of calendar objects by calling a REPORT method with a filter. You must pass
      * a XML element as the argument, the element must contain the filter. For example, if you wish 
      * to filter objects to only get VEVENT objects you can build a filter like this:
+     * 
+     * org.w3c.dom.Element calData = DomUtil.createElement(document, CalDavConstants.PROPERTY_CALENDAR_DATA,
+                CalDavConstants.CALDAV_NAMESPACE);
      * 
      * org.w3c.dom.Element calFilter = DomUtil.createElement(document, CalDavConstants.PROPERTY_COMP_FILTER,
                 CalDavConstants.CALDAV_NAMESPACE);
@@ -600,6 +606,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * calFilter.appendChild(eventFilter);
      * collection.getObjectsByFilter(calFilter);
      * 
+     * Check the examples in rfc4791
+     * 
      * @param filter
      * @return
      * @throws IOException
@@ -607,7 +615,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * @throws ParserConfigurationException
      * @throws ParserException
      */
-    public Calendar[] getObjectsByFilter(org.w3c.dom.Element filter)
+    public Calendar[] getObjectsByFilter(org.w3c.dom.Element filter, org.w3c.dom.Element calData)
             throws IOException, DavException, ParserConfigurationException, ParserException {
         ArrayList<Calendar> events = new ArrayList<Calendar>();
 
@@ -625,8 +633,6 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         org.w3c.dom.Element property = DomUtil
                 .createElement(document, DavConstants.XML_PROP, CalDavConstants.NAMESPACE);
         property.appendChild(DomUtil.createElement(document, DavConstants.PROPERTY_GETETAG, CalDavConstants.NAMESPACE));
-        org.w3c.dom.Element calData = DomUtil.createElement(document, CalDavConstants.PROPERTY_CALENDAR_DATA,
-                CalDavConstants.CALDAV_NAMESPACE);
 
         property.appendChild(calData);
         document.appendChild(property);
