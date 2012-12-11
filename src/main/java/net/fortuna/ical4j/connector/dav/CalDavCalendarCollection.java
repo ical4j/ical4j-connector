@@ -43,6 +43,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
+import net.fortuna.ical4j.connector.dav.enums.SupportedFeature;
 import net.fortuna.ical4j.connector.dav.method.GetMethod;
 import net.fortuna.ical4j.connector.dav.method.MkCalendarMethod;
 import net.fortuna.ical4j.connector.dav.method.PutMethod;
@@ -91,7 +92,7 @@ import org.w3c.dom.Node;
  * 
  */
 public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calendar> implements CalendarCollection {
-
+    
     /**
      * Only {@link CalDavCalendarStore} should be calling this, so default modifier is applied.
      * 

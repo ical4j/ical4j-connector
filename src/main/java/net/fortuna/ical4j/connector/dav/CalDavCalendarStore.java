@@ -51,15 +51,12 @@ import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.method.PrincipalPropertySearchInfo;
 import net.fortuna.ical4j.connector.dav.method.PrincipalPropertySearchMethod;
-import net.fortuna.ical4j.connector.dav.property.CSDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VFreeBusy;
 import net.fortuna.ical4j.model.parameter.Cn;
 import net.fortuna.ical4j.model.parameter.CuType;
-import net.fortuna.ical4j.model.parameter.Rsvp;
-import net.fortuna.ical4j.model.parameter.XParameter;
 import net.fortuna.ical4j.model.property.Attendee;
 import net.fortuna.ical4j.model.property.CalScale;
 import net.fortuna.ical4j.model.property.DtEnd;
@@ -501,11 +498,19 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         this.displayName = displayName;
     }
 
-    private String findScheduleOutbox() throws ParserConfigurationException, IOException, DavException {
+    public String findScheduleOutbox() throws ParserConfigurationException, IOException, DavException {
+        return findInboxOrOutbox(CalDavPropertyName.SCHEDULE_OUTBOX_URL);
+    }
+    
+    public String findScheduleInbox() throws ParserConfigurationException, IOException, DavException {
+        return findInboxOrOutbox(CalDavPropertyName.SCHEDULE_INBOX_URL);
+    }
+    
+    private String findInboxOrOutbox(DavPropertyName type) throws ParserConfigurationException, IOException, DavException {
         String propfindUri = getClient().hostConfiguration.getHostURL() + pathResolver.getPrincipalPath(getUserName());
 
         DavPropertyNameSet principalsProps = new DavPropertyNameSet();
-        principalsProps.add(CalDavPropertyName.SCHEDULE_OUTBOX_URL);
+        principalsProps.add(type);
 
         PropFindMethod method = new PropFindMethod(propfindUri, principalsProps, PropFindMethod.DEPTH_0);
         method.setDoAuthentication(true);
@@ -519,8 +524,8 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                 for (DavPropertyIterator iNames = responses[i].getProperties(status.getStatusCode()).iterator(); iNames
                         .hasNext();) {
                     DavProperty name = iNames.nextProperty();
-                    if ((name.getName().getName().equals(CalDavPropertyName.SCHEDULE_OUTBOX_URL.getName()))
-                            && (CalDavPropertyName.SCHEDULE_OUTBOX_URL.getNamespace().isSame(name.getName()
+                    if ((name.getName().getName().equals(type.getName()))
+                            && (type.getNamespace().isSame(name.getName()
                                     .getNamespace().getURI()))) {
                         if (name.getValue() instanceof ArrayList) {
                             for (Iterator<?> iter = ((ArrayList<?>) name.getValue()).iterator(); iter.hasNext();) {

@@ -386,6 +386,12 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      */
     protected static List<CalDavCalendarCollection> collectionsFromResponse(CalDavCalendarStore store,
             MultiStatusResponse[] responses) {
+        
+        /*
+         * TODO: supported features can be different on collections than the store, we should
+         * check the headers and store the supported features per collection when we fetch them
+         */
+        
         List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
 
         for (int i = 0; i < responses.length; i++) {

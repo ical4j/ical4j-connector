@@ -480,4 +480,13 @@ public interface CalDavConstants extends DavConstants {
      * https://tools.ietf.org/html/rfc6638#section-10.4
      */
     public static final String REQUEST_STATUS = "request-status";
+    
+    /**
+     * Defines a "VAVAILABILITY" component that will be used in calculating 
+     * free-busy time when an iTIP free-busy request is targeted at the 
+     * calendar user who owns the Inbox.
+     * 
+     * http://tools.ietf.org/html/draft-daboo-calendar-availability-03
+     */
+    public static final String CALENDAR_AVAIBILITY = "calendar-availability";
 }
