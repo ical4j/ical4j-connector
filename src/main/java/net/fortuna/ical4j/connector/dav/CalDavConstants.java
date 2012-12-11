@@ -489,4 +489,44 @@ public interface CalDavConstants extends DavConstants {
      * http://tools.ietf.org/html/draft-daboo-calendar-availability-03
      */
     public static final String CALENDAR_AVAIBILITY = "calendar-availability";
+    
+    /**
+     * Enumerates the sets of component restrictions the server is
+     * willing to allow the client to specify in MKCALENDAR or extended
+     * MKCOL requests.
+     * 
+     * http://tools.ietf.org/html/draft-daboo-caldav-extensions-01
+     */
+    public static final String SUPPORTED_CALENDAR_COMPONENT_SETS = "supported-calendar-component-sets";
+    
+    /**
+     * A default alarm applied to "VEVENT" components whose "DTSTART" property value 
+     * type is "DATE-TIME"
+     * 
+     * http://tools.ietf.org/html/draft-daboo-valarm-extensions-04
+     */
+    public static final String DEFAULT_ALARM_VEVENT_DATETIME = "default-alarm-vevent-datetime";
+    
+    /**
+     * A default alarm applied to "VEVENT" components whose "DTSTART" property value type is "DATE"
+     * 
+     * http://tools.ietf.org/html/draft-daboo-valarm-extensions-04
+     */
+    public static final String DEFAULT_ALARM_VEVENT_DATE = "default-alarm-vevent-date";
+    
+    /**
+     * A default alarm applied to "VTODO" components whose "DUE" or "DTSTART" 
+     * property value type is "DATE-TIME"
+     * 
+     * http://tools.ietf.org/html/draft-daboo-valarm-extensions-04
+     */
+    public static final String DEFAULT_ALARM_VTODO_DATETIME = "default-alarm-vtodo-datetime";
+    
+    /**
+     * A default alarm applied to "VTODO" components whose "DUE" or "DTSTART" 
+     * property value type is "DATE", or when neither of those properties is present
+     * 
+     * http://tools.ietf.org/html/draft-daboo-valarm-extensions-04
+     */
+    public static final String DEFAULT_ALARM_VTODO_DATE = "default-alarm-vtodo-date";
 }
