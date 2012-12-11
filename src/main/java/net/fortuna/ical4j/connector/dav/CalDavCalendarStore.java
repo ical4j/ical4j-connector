@@ -710,10 +710,10 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         
         Element firstNameProperty = DomUtil.createElement(document, "first-name", CalDavConstants.CS_NAMESPACE);
         Element recordTypeProperty = DomUtil.createElement(document, "record-type", CalDavConstants.CS_NAMESPACE);
-        Element calUserAddressSetProperty = DomUtil.createElement(document, "calendar-user-address-set", CalDavConstants.CALDAV_NAMESPACE);
+        Element calUserAddressSetProperty = DomUtil.createElement(document, CalDavConstants.PROPERTY_USER_ADDRESS_SET, CalDavConstants.CALDAV_NAMESPACE);
         Element lastNameProperty = DomUtil.createElement(document, "last-name", CalDavConstants.CS_NAMESPACE);
         Element principalUrlProperty = DomUtil.createElement(document, "principal-URL", CalDavConstants.NAMESPACE);
-        Element calUserTypeProperty = DomUtil.createElement(document, "calendar-user-type", CalDavConstants.CALDAV_NAMESPACE);
+        Element calUserTypeProperty = DomUtil.createElement(document, CalDavConstants.PROPERTY_USER_TYPE, CalDavConstants.CALDAV_NAMESPACE);
         Element displayNameForProperty = DomUtil.createElement(document, "displayname", CalDavConstants.NAMESPACE);
         Element emailAddressSetProperty = DomUtil.createElement(document, "email-address-set", CalDavConstants.CS_NAMESPACE);
 
@@ -774,7 +774,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                         }
                     }
                 } else {
-                    DavProperty<?> calendarUserAddressSet = propertiesInResponse.get("calendar-user-address-set",
+                    DavProperty<?> calendarUserAddressSet = propertiesInResponse.get(CalDavConstants.PROPERTY_USER_ADDRESS_SET,
                             CalDavConstants.CALDAV_NAMESPACE);
                     if (calendarUserAddressSet != null && calendarUserAddressSet.getValue() != null) {
                         Object value = calendarUserAddressSet.getValue();
@@ -791,7 +791,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                     }
                 }
                 
-                DavProperty<?> calendarUserType = propertiesInResponse.get("calendar-user-type",
+                DavProperty<?> calendarUserType = propertiesInResponse.get(CalDavConstants.PROPERTY_USER_TYPE,
                         CalDavConstants.CALDAV_NAMESPACE);
                 if ((calendarUserType != null) && (calendarUserType.getValue() != null)) {
                     resource.getParameters().add(new CuType((String)calendarUserType.getValue()));

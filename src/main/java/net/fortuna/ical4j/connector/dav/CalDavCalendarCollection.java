@@ -460,6 +460,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         }
 
         try {
+            // TODO: get ETag and Schedule-Tag headers and store them locally
             getStore().getClient().execute(putMethod);
             if ((putMethod.getStatusCode() != DavServletResponse.SC_CREATED)
                     && (putMethod.getStatusCode() != DavServletResponse.SC_NO_CONTENT)) {

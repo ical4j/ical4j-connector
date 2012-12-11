@@ -87,7 +87,9 @@ public interface CalDavConstants extends DavConstants {
 
     /**
      * Purpose: Identify the calendars that contribute to the free-busy information for the owner of the scheduling
-     * http://www.ietf.org/id/draft-desruisseaux-caldav-sched-09.txt
+     * https://tools.ietf.org/html/draft-desruisseaux-caldav-sched-04
+     * 
+     * THIS PROPERTY WAS REMOVED IN DRAFT 05 AND THE OFFICIAL RFC (6638)
      */
     public static final String PROPERTY_FREE_BUSY_SET = "calendar-free-busy-set";
 
@@ -114,19 +116,25 @@ public interface CalDavConstants extends DavConstants {
 
     /**
      * Identify the calendar addresses of the associated principal resource.
-     * http://www.ietf.org/id/draft-desruisseaux-caldav-sched-09.txt
+     * https://tools.ietf.org/html/rfc6638
      */
     public static final String PROPERTY_USER_ADDRESS_SET = "calendar-user-address-set";
 
     /**
+     * Identifies the calendar user type of the associated principal resource. Its value is the same as the iCalendar "CUTYPE".
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final String PROPERTY_USER_TYPE= "calendar-user-type";
+    
+    /**
      * Identify the URL of the scheduling Inbox collection owned by the associated principal resource.
-     * http://www.ietf.org/id/draft-desruisseaux-caldav-sched-09.txt
+     * https://tools.ietf.org/html/rfc6638
      */
     public static final String PROPERTY_SCHEDULE_INBOX_URL = "schedule-inbox-URL";
 
     /**
      * Identify the URL of the scheduling Outbox collection owned by the associated principal resource.
-     * http://www.ietf.org/id/draft-desruisseaux-caldav-sched-09.txt
+     * https://tools.ietf.org/html/rfc6638
      */
     public static final String PROPERTY_SCHEDULE_OUTBOX_URL = "schedule-outbox-URL";
 
@@ -326,6 +334,150 @@ public interface CalDavConstants extends DavConstants {
      * RFC 6352
      */
     public static final String PROPERTY_ADDRESS_DATA = "address-data";
+    
+    /**
+     * Servers MAY reject requests to create a
+     * scheduling object resource with an iCalendar "UID" property value
+     * already in use by another scheduling object resource owned by the
+     * same user in other calendar collections.  Servers SHOULD report 
+     * the URL of the scheduling object resource that is already making
+     * use of the same "UID" property value in the DAV:href element.
+     * 
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final String UNIQUE_SCHEDULING_OBJECT_RESOURCE = "unique-scheduling-object-resource";
 
+    /**
+     * All the calendar components in a
+     * scheduling object resource MUST contain the same "ORGANIZER"
+     * property value when present
+     * 
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final String SAME_ORGANIZER_IN_ALL_COMPONENTS = "same-organizer-in-all-components";
+    
+    /**
+     * Servers MAY impose restrictions on modifications allowed by an "Organizer".
+     * 
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final String ALLOWED_ORGANIZER_SCHEDULING_OBJECT_CHANGE = "allowed-organizer-scheduling-object-change";
+    
+    /**
+     * Servers MAY impose restrictions on modifications allowed by an "Attendee", 
+     * subject to the allowed changes specified in Section 3.2.2.1
+     * 
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final String ALLOWED_ATTENDEE_SCHEDULING_OBJECT_CHANGE = "allowed-attendee-scheduling-object-change";
 
+    /**
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final String DEFAULT_CALENDAR_NEEDED = "default-calendar-needed";
+    /**
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final String VALID_SCHEDULE_DEFAULT_CALENDAR_URL = "valid-schedule-default-calendar-URL";
+    /**
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final String VALID_SCHEDULING_MESSAGE = "valid-scheduling-message";
+    /**
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final String VALID_ORGANIZER = "valid-organizer";
+    /**
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final String SCHEDULE_DELIVER = "schedule-deliver";
+    /**
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final String SCHEDULE_DELIVER_INVITE = "schedule-deliver-invite";
+    /**
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final String SCHEDULE_DELIVER_REPLY = "schedule-deliver-reply";
+    /**
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final String SCHEDULE_QUERY_FREEBUSY = "schedule-query-freebusy";
+    /**
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final String SCHEDULE_SEND = "schedule-send";
+    /**
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final String SCHEDULE_SEND_INVITE = "schedule-send-invite";
+    
+    /**
+     * The CALDAV:schedule-send-reply privilege controls the sending of
+     * scheduling messages by "Attendees".
+     * 
+     * https://tools.ietf.org/html/rfc6638#section-6.2.3
+     */
+    public static final String SCHEDULE_SEND_REPLY = "schedule-send-reply";
+    
+    /**
+     * The CALDAV:schedule-send-freebusy privilege controls the use of the
+     * POST method to submit scheduling messages that specify the scheduling
+     * method "REQUEST" with a "VFREEBUSY" calendar component.
+     * 
+     * https://tools.ietf.org/html/rfc6638#section-6.2.4
+     */
+    public static final String SCHEDULE_SEND_FREEBUSY = "schedule-send-freebusy";
+
+    /**
+     * Determines whether the calendar object resources in a
+     *  calendar collection will affect the owner's busy time information. 
+     * 
+     * https://tools.ietf.org/html/rfc6638#section-9.1
+     */
+    public static final String SCHEDULE_CALENDAR_TRANSP = "schedule-calendar-transp";
+    
+    /**
+     * Specifies a default calendar for an "Attendee" where new
+     *  scheduling object resources are created.
+     * 
+     * https://tools.ietf.org/html/rfc6638#section-9.2
+     */
+    public static final String SCHEDULE_DEFAULT_CALENDAR_URL = "schedule-default-calendar-URL";
+    
+    /**
+     * Indicates whether a scheduling object resource has had a
+     * "consequential" change made to it.
+     * 
+     * https://tools.ietf.org/html/rfc6638#section-9.3
+     */
+    public static final String SCHEDULE_TAG = "schedule-tag";
+    
+    /**
+     * Contains the set of responses for a POST method request (for scheduling)
+     * 
+     * https://tools.ietf.org/html/rfc6638#section-10.1
+     */
+    public static final String SCHEDULE_RESPONSE = "schedule-response";
+    
+    /**
+     * Contains a single response for a POST method request (for scheduling)
+     * 
+     * https://tools.ietf.org/html/rfc6638#section-10.2
+     */
+    public static final String RESPONSE = "response";
+    
+    /**
+     * The calendar user address that the enclosing response for a POST method request is for.
+     * 
+     * https://tools.ietf.org/html/rfc6638#section-10.3
+     */
+    public static final String RECIPIENT = "recipient";
+    
+    /**
+     * The iTIP "REQUEST-STATUS" property value for a scheduling response.
+     * 
+     * https://tools.ietf.org/html/rfc6638#section-10.4
+     */
+    public static final String REQUEST_STATUS = "request-status";
 }

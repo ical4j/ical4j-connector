@@ -122,7 +122,10 @@ public class CalDavPropertyName {
 
     /**
      * Purpose: Identify the calendars that contribute to the free-busy information for the owner of the scheduling
-     * http://www.ietf.org/id/draft-desruisseaux-caldav-sched-09.txt
+     * https://tools.ietf.org/html/draft-desruisseaux-caldav-sched-04
+     * 
+     *  THIS PROPERTY WAS REMOVED IN DRAFT 05 AND THE OFFICIAL RFC (6638)
+     *  
      */
     public static final DavPropertyName FREE_BUSY_SET = DavPropertyName.create(CalDavConstants.PROPERTY_FREE_BUSY_SET,
             CalDavConstants.CALDAV_NAMESPACE);
@@ -140,6 +143,13 @@ public class CalDavPropertyName {
      */
     public static final DavPropertyName USER_ADDRESS_SET = DavPropertyName.create(
             CalDavConstants.PROPERTY_USER_ADDRESS_SET, CalDavConstants.CALDAV_NAMESPACE);
+
+    /**
+     * Identifies the calendar user type of the associated principal resource. Its value is the same as the iCalendar "CUTYPE".
+     * https://tools.ietf.org/html/rfc6638
+     */
+    public static final DavPropertyName USER_TYPE = DavPropertyName.create(
+            CalDavConstants.PROPERTY_USER_TYPE, CalDavConstants.CALDAV_NAMESPACE);
 
     /**
      * Identify the URL of the scheduling Inbox collection owned by the associated principal resource.
