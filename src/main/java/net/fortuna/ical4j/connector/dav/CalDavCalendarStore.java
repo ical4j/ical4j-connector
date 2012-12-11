@@ -506,7 +506,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         return findInboxOrOutbox(CalDavPropertyName.SCHEDULE_INBOX_URL);
     }
     
-    private String findInboxOrOutbox(DavPropertyName type) throws ParserConfigurationException, IOException, DavException {
+    protected String findInboxOrOutbox(DavPropertyName type) throws ParserConfigurationException, IOException, DavException {
         String propfindUri = getClient().hostConfiguration.getHostURL() + pathResolver.getPrincipalPath(getUserName());
 
         DavPropertyNameSet principalsProps = new DavPropertyNameSet();
