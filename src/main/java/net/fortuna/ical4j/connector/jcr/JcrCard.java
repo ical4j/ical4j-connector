@@ -35,15 +35,14 @@ import java.io.IOException;
 
 import net.fortuna.ical4j.connector.dav.enums.MediaType;
 import net.fortuna.ical4j.data.ParserException;
+import net.fortuna.ical4j.vcard.Property.Id;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardBuilder;
-import net.fortuna.ical4j.vcard.Property.Id;
 import net.fortuna.ical4j.vcard.property.Uid;
 
 import org.jcrom.AbstractJcrEntity;
 import org.jcrom.JcrDataProviderImpl;
 import org.jcrom.JcrFile;
-import org.jcrom.JcrDataProvider.TYPE;
 import org.jcrom.annotations.JcrFileNode;
 import org.jcrom.annotations.JcrProperty;
 
@@ -99,7 +98,7 @@ public final class JcrCard extends AbstractJcrEntity {
         
         file = new JcrFile();
         file.setName("data");
-        file.setDataProvider(new JcrDataProviderImpl(TYPE.BYTES, card.toString().getBytes()));
+        file.setDataProvider(new JcrDataProviderImpl(card.toString().getBytes()));
         file.setMimeType(MediaType.VCARD_4_0.getContentType());
         file.setLastModified(java.util.Calendar.getInstance());
     }
