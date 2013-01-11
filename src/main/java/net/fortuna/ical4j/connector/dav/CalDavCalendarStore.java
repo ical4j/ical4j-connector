@@ -654,7 +654,57 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     }
     
     public List<Attendee> getAllRooms() throws ParserConfigurationException, IOException, DavException, URISyntaxException {
-        return getUserTypes(CuType.ROOM, null);
+        return getAllPrincipalsForType(CuType.ROOM);
+    }
+    
+    protected Element propertiesForPropSearch(Document document) {
+        Element firstNameProperty = DomUtil.createElement(document, "first-name", CalDavConstants.CS_NAMESPACE);
+        Element recordTypeProperty = DomUtil.createElement(document, "record-type", CalDavConstants.CS_NAMESPACE);
+        Element calUserAddressSetProperty = DomUtil.createElement(document, CalDavConstants.PROPERTY_USER_ADDRESS_SET, CalDavConstants.CALDAV_NAMESPACE);
+        Element lastNameProperty = DomUtil.createElement(document, "last-name", CalDavConstants.CS_NAMESPACE);
+        Element principalUrlProperty = DomUtil.createElement(document, "principal-URL", CalDavConstants.NAMESPACE);
+        Element calUserTypeProperty = DomUtil.createElement(document, CalDavConstants.PROPERTY_USER_TYPE, CalDavConstants.CALDAV_NAMESPACE);
+        Element displayNameForProperty = DomUtil.createElement(document, "displayname", CalDavConstants.NAMESPACE);
+        Element emailAddressSetProperty = DomUtil.createElement(document, "email-address-set", CalDavConstants.CS_NAMESPACE);
+
+        Element properties = DomUtil.createElement(document, "prop", DavConstants.NAMESPACE);
+        properties.appendChild(firstNameProperty);
+        properties.appendChild(recordTypeProperty);
+        properties.appendChild(calUserAddressSetProperty);
+        properties.appendChild(lastNameProperty);
+        properties.appendChild(principalUrlProperty);
+        properties.appendChild(calUserTypeProperty);
+        properties.appendChild(displayNameForProperty);
+        properties.appendChild(emailAddressSetProperty);
+        
+        return properties;
+    }
+    
+    public List<Attendee> getAllPrincipalsForType(CuType type) throws ParserConfigurationException, IOException, DavException, URISyntaxException {
+        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+
+        Element displayName = DomUtil.createElement(document, "calendar-user-type", CalDavConstants.CALDAV_NAMESPACE);
+        
+        Element displayNameProperty = DomUtil.createElement(document, "prop", DavConstants.NAMESPACE);
+        displayNameProperty.appendChild(displayName);
+        
+        Element containsMatch = DomUtil.createElement(document, "match", DavConstants.NAMESPACE);
+        containsMatch.setAttribute("match-type", "equals");
+        containsMatch.setTextContent(type.getValue());
+
+        Element propertySearchDisplayName = DomUtil.createElement(document, "property-search", DavConstants.NAMESPACE);
+        propertySearchDisplayName.appendChild(displayNameProperty);
+        propertySearchDisplayName.appendChild(containsMatch);
+                
+        Element properties = propertiesForPropSearch(document);
+                
+        Element principalPropSearch = DomUtil.createElement(document, "principal-property-search", DavConstants.NAMESPACE);
+        principalPropSearch.setAttribute("type", type.getValue());
+        principalPropSearch.setAttribute("test", "anyof");
+        principalPropSearch.appendChild(propertySearchDisplayName);
+        principalPropSearch.appendChild(properties);
+                
+        return executePrincipalPropSearch(principalPropSearch);
     }
     
     /**
@@ -675,8 +725,6 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      * @throws URISyntaxException 
      */
     protected List<Attendee> getUserTypes(CuType type, String nameToSearch) throws ParserConfigurationException, IOException, DavException, URISyntaxException {
-        String methodUri = this.pathResolver.getPrincipalPath(getUserName());
-
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 
         Element displayName = DomUtil.createElement(document, "displayname", DavConstants.NAMESPACE);
@@ -686,9 +734,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         
         Element containsMatch = DomUtil.createElement(document, "match", DavConstants.NAMESPACE);
         containsMatch.setAttribute("match-type", "contains");
-        if (nameToSearch != null) {
-            containsMatch.setTextContent(nameToSearch);
-        }
+        containsMatch.setTextContent(nameToSearch);
         
         Element propertySearchDisplayName = DomUtil.createElement(document, "property-search", DavConstants.NAMESPACE);
         propertySearchDisplayName.appendChild(displayNameProperty);
@@ -706,30 +752,11 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         }
         
         Element propertySearchEmail = DomUtil.createElement(document, "property-search", DavConstants.NAMESPACE);
-        if (nameToSearch != null) {
-            propertySearchEmail.setTextContent(nameToSearch);
-        }
+        propertySearchEmail.setTextContent(nameToSearch);
         propertySearchEmail.appendChild(emailSetProperty);
         propertySearchEmail.appendChild(startsWith);
         
-        Element firstNameProperty = DomUtil.createElement(document, "first-name", CalDavConstants.CS_NAMESPACE);
-        Element recordTypeProperty = DomUtil.createElement(document, "record-type", CalDavConstants.CS_NAMESPACE);
-        Element calUserAddressSetProperty = DomUtil.createElement(document, CalDavConstants.PROPERTY_USER_ADDRESS_SET, CalDavConstants.CALDAV_NAMESPACE);
-        Element lastNameProperty = DomUtil.createElement(document, "last-name", CalDavConstants.CS_NAMESPACE);
-        Element principalUrlProperty = DomUtil.createElement(document, "principal-URL", CalDavConstants.NAMESPACE);
-        Element calUserTypeProperty = DomUtil.createElement(document, CalDavConstants.PROPERTY_USER_TYPE, CalDavConstants.CALDAV_NAMESPACE);
-        Element displayNameForProperty = DomUtil.createElement(document, "displayname", CalDavConstants.NAMESPACE);
-        Element emailAddressSetProperty = DomUtil.createElement(document, "email-address-set", CalDavConstants.CS_NAMESPACE);
-
-        Element properties = DomUtil.createElement(document, "prop", DavConstants.NAMESPACE);
-        properties.appendChild(firstNameProperty);
-        properties.appendChild(recordTypeProperty);
-        properties.appendChild(calUserAddressSetProperty);
-        properties.appendChild(lastNameProperty);
-        properties.appendChild(principalUrlProperty);
-        properties.appendChild(calUserTypeProperty);
-        properties.appendChild(displayNameForProperty);
-        properties.appendChild(emailAddressSetProperty);
+        Element properties = propertiesForPropSearch(document);
                 
         Element principalPropSearch = DomUtil.createElement(document, "principal-property-search", DavConstants.NAMESPACE);
         principalPropSearch.setAttribute("type", type.getValue());
@@ -738,8 +765,13 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         principalPropSearch.appendChild(propertySearchEmail);
         principalPropSearch.appendChild(properties);
                 
+        return executePrincipalPropSearch(principalPropSearch);
+    }
+    
+    protected List<Attendee> executePrincipalPropSearch(Element principalPropSearch) throws DavException, IOException, URISyntaxException {        
         PrincipalPropertySearchInfo rinfo = new PrincipalPropertySearchInfo(principalPropSearch, 0);
         
+        String methodUri = this.pathResolver.getPrincipalPath(getUserName());
         DavMethodBase method = new PrincipalPropertySearchMethod(methodUri, rinfo);
         getClient().execute(getClient().hostConfiguration, method);
         
