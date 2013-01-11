@@ -314,6 +314,9 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     @SuppressWarnings("unchecked")
 	protected List<CalDavCalendarCollection> getDelegateCollections(DavProperty<?> proxyDavProperty)
             throws ParserConfigurationException, IOException, DavException {
+        
+        ArrayList<CalDavCalendarCollection> delegatedCollections = new ArrayList<CalDavCalendarCollection>();
+        
         /*
          * Zimbra check: Zimbra advertise calendar-proxy, but it will return 404 in propstat if Enable delegation for
          * Apple iCal CalDAV client is not enabled
@@ -325,7 +328,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
             if (propertyValue instanceof ArrayList) {
                 response = (ArrayList) proxyDavProperty.getValue();
                 if (response != null) {
-                    for (Node objectInArray : response) {
+                    for (Node objectInArray: response) {
                         if (objectInArray instanceof Element) {
                             DefaultDavProperty<?> newProperty = DefaultDavProperty
                                     .createFromXml((Element) objectInArray);
@@ -365,8 +368,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                                                                                         .getValue();
                                                                                 String urlForcalendarHomeSet = findCalendarHomeSet(getHostURL()
                                                                                         + principalsUri);
-                                                                                return getCollectionsForHomeSet(this,
-                                                                                        urlForcalendarHomeSet);
+                                                                                delegatedCollections.addAll(getCollectionsForHomeSet(this,urlForcalendarHomeSet));
                                                                             }
                                                                         }
                                                                     }
@@ -380,15 +382,12 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                                     }
                                 }
                             }
-                        }
+                        } 
                     }
                 }
-            } else if (propertyValue instanceof Element) {
-                System.out.println(((Element)propertyValue).getNodeName());
-                System.out.println(((Element)propertyValue).getChildNodes());
             }
         }
-        return new ArrayList<CalDavCalendarCollection>();
+        return delegatedCollections;
     }
 
     /**
