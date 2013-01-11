@@ -43,7 +43,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
-import net.fortuna.ical4j.connector.dav.enums.SupportedFeature;
 import net.fortuna.ical4j.connector.dav.method.GetMethod;
 import net.fortuna.ical4j.connector.dav.method.MkCalendarMethod;
 import net.fortuna.ical4j.connector.dav.method.PutMethod;
@@ -737,5 +736,10 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         principalsProps.add(ICalPropertyName.CALENDAR_ORDER);
         
         return principalsProps;
+    }
+    
+    @Override
+    public String toString() {
+        return "Display Name: " +  getDisplayName() + ", id: " + getId();
     }
 }
