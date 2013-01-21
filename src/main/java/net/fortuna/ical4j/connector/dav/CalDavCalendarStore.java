@@ -657,6 +657,10 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         return getAllPrincipalsForType(CuType.ROOM);
     }
     
+    public List<Attendee> getAllResources() throws ParserConfigurationException, IOException, DavException, URISyntaxException {
+        return getAllPrincipalsForType(CuType.RESOURCE);
+    }
+    
     protected Element propertiesForPropSearch(Document document) {
         Element firstNameProperty = DomUtil.createElement(document, "first-name", CalDavConstants.CS_NAMESPACE);
         Element recordTypeProperty = DomUtil.createElement(document, "record-type", CalDavConstants.CS_NAMESPACE);
