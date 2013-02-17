@@ -397,7 +397,13 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      * @throws Exception
      */
     public List<CalDavCalendarCollection> getDelegatedCollections() throws Exception {
-
+        List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
+        collections.addAll(getWriteDelegatedCollections());
+        collections.addAll(getReadOnlyDelegatedCollections());
+        return collections;
+    }
+    
+    protected List<CalDavCalendarCollection> getDelegatedCollections(String type) throws Exception {
         List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
 
         String methodUri = this.pathResolver.getPrincipalPath(getUserName());
@@ -415,33 +421,15 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         writeUserAddressSetProperty.setAttribute("namespace", CalDavConstants.CALDAV_NAMESPACE.getURI());
 
         Element proxyWriteForElement = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        proxyWriteForElement.setAttribute("name", CalDavConstants.PROPERTY_PROXY_WRITE_FOR);
+        proxyWriteForElement.setAttribute("name", type);
         proxyWriteForElement.setAttribute("namespace", CalDavConstants.CS_NAMESPACE.getURI());
         proxyWriteForElement.appendChild(writeDisplayNameProperty);
         proxyWriteForElement.appendChild(writePrincipalUrlProperty);
         proxyWriteForElement.appendChild(writeUserAddressSetProperty);
 
-        Element readDisplayNameProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        readDisplayNameProperty.setAttribute("name", DavConstants.PROPERTY_DISPLAYNAME);
-
-        Element readPrincipalUrlProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        readPrincipalUrlProperty.setAttribute("name", SecurityConstants.PRINCIPAL_URL.getName());
-
-        Element readUserAddressSetProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        readUserAddressSetProperty.setAttribute("name", CalDavConstants.PROPERTY_USER_ADDRESS_SET);
-        readUserAddressSetProperty.setAttribute("namespace", CalDavConstants.CALDAV_NAMESPACE.getURI());
-
-        Element proxyReadForElement = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        proxyReadForElement.setAttribute("name", CalDavConstants.PROPERTY_PROXY_READ_FOR);
-        proxyReadForElement.setAttribute("namespace", CalDavConstants.CS_NAMESPACE.getURI());
-        proxyReadForElement.appendChild(readDisplayNameProperty);
-        proxyReadForElement.appendChild(readPrincipalUrlProperty);
-        proxyReadForElement.appendChild(readUserAddressSetProperty);
-
         ReportInfo rinfo = new ReportInfo(ReportType.register(DeltaVConstants.XML_EXPAND_PROPERTY,
                 DeltaVConstants.NAMESPACE, org.apache.jackrabbit.webdav.version.report.ExpandPropertyReport.class), 0);
         rinfo.setContentElement(proxyWriteForElement);
-        rinfo.setContentElement(proxyReadForElement);
 
         DavMethodBase method = new ReportMethod(methodUri, rinfo);
         getClient().execute(getClient().hostConfiguration, method);
@@ -453,12 +441,30 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                 DavPropertySet properties = responses[i].getProperties(DavServletResponse.SC_OK);
                 DavProperty<?> writeForProperty = properties.get(CalDavConstants.PROPERTY_PROXY_WRITE_FOR,
                         CalDavConstants.CS_NAMESPACE);
-                collections.addAll(getDelegateCollections(writeForProperty));
+                List<CalDavCalendarCollection> writeCollections = getDelegateCollections(writeForProperty);
+                for (CalDavCalendarCollection writeCollection: writeCollections) {
+                    writeCollection.setReadOnly(false);
+                    collections.add(writeCollection);
+                }
                 DavProperty<?> readForProperty = properties.get(CalDavConstants.PROPERTY_PROXY_READ_FOR,
                         CalDavConstants.CS_NAMESPACE);
-                collections.addAll(getDelegateCollections(readForProperty));
+                List<CalDavCalendarCollection> readCollections = getDelegateCollections(readForProperty);
+                for (CalDavCalendarCollection readCollection: readCollections) {
+                    readCollection.setReadOnly(true);
+                    collections.add(readCollection);
+                }
             }
         }
+        return collections;        
+    }
+    
+    public List<CalDavCalendarCollection> getWriteDelegatedCollections() throws Exception {
+        List<CalDavCalendarCollection> collections = getDelegatedCollections(CalDavConstants.PROPERTY_PROXY_WRITE_FOR);
+        return collections;
+    }
+    
+    public List<CalDavCalendarCollection> getReadOnlyDelegatedCollections() throws Exception {
+        List<CalDavCalendarCollection> collections = getDelegatedCollections(CalDavConstants.PROPERTY_PROXY_READ_FOR);
         return collections;
     }
 
