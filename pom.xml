@@ -265,12 +265,6 @@
             <type>zip</type>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-        	<groupId>backport-util-concurrent</groupId>
-        	<artifactId>backport-util-concurrent</artifactId>
-        	<version>3.1</version>
-        	<scope>runtime</scope>
-        </dependency>
 	</dependencies>
     
     <dependencyManagement>
@@ -299,7 +293,7 @@
             <dependency>
                 <groupId>org.mnode.ical4j</groupId>
                 <artifactId>ical4j</artifactId>
-                <version>1.0.5</version>
+                <version>1.0.5.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
