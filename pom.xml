@@ -156,7 +156,7 @@
 		<dependency>
 			<groupId>org.mnode.ical4j</groupId>
 			<artifactId>ical4j-vcard</artifactId>
-			<version>0.9.6.1</version>
+			<version>0.9.6.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.jackrabbit</groupId>
