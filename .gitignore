@@ -1,2 +1,4 @@
 .idea/
 ical4j-connector.iml
+build
+.gradle
