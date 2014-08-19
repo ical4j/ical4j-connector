@@ -44,6 +44,7 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
+import org.junit.Ignore;
 
 /**
  * $Id$
@@ -53,6 +54,7 @@ import net.fortuna.ical4j.util.Calendars;
  * @author Ben
  * 
  */
+@Ignore
 public class CalendarCollectionTest<T extends CalendarCollection> extends ObjectCollectionTest<T> {
 
     private static final String[] SUPPORTED_COMPONENTS = { Component.VAVAILABILITY, Component.VJOURNAL,

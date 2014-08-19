@@ -34,6 +34,7 @@ package net.fortuna.ical4j.connector;
 import java.io.IOException;
 
 import junit.framework.TestCase;
+import org.junit.Ignore;
 
 /**
  * 
@@ -44,6 +45,7 @@ import junit.framework.TestCase;
  * 
  *         $Id$
  */
+@Ignore
 public class ObjectCollectionTest<T extends ObjectCollection<?>> extends TestCase {
 
     private final ObjectStoreLifecycle<T> lifecycle;
