@@ -80,7 +80,7 @@ uploadArchives {
             }
 
             pom.project {
-                name 'iCal4j VCard'
+                name 'iCal4j Connector'
                 packaging 'jar'
                 description project.description
                 url 'http://ical4j.sourceforge.net'
