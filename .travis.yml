@@ -1,0 +1,18 @@
+language: java
+jdk:
+- oraclejdk8
+- oraclejdk7
+- openjdk7
+- openjdk6
+before_deploy: "./gradlew assembleDist"
+sudo: false
+deploy:
+  provider: releases
+  api_key:
+    secure: F/phrNZC+kF8IyHEDyJtQA9P72FBLLUyuWDVn9QvBedhveGRbBkXDx/mpLD5iuir8+fK1Inm+09BMfpX+UoEcS8a6mgbEGqqUX61ZIUpGmXASw0EJbX/Bne7oMrvm4IHYIaRord2+YyGeUOdzCggwoh/wnFlLcL5Q97xyN5N4Ig=
+  file:
+    - build/distributions/ical4j-$RELEASE_VERSION.zip
+    - build/distributions/ical4j-$RELEASE_VERSION.tar.gz
+  skip_cleanup: true
+  on:
+    tags: true

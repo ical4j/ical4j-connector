@@ -31,6 +31,12 @@ dependencies {
             'org.apache.jackrabbit:jackrabbit-core:2.8.0'
 }
 
+javadoc {
+    if (JavaVersion.current().isJava8Compatible()) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from 'build/docs/javadoc'
@@ -65,7 +71,14 @@ version = release.projectVersion
 description = '''
 A Java library for accessing iCalendar data stores
 '''
-ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
+
+ext {
+    isReleaseVersion = !version.endsWith("SNAPSHOT")
+
+    // sonatype credentials
+    sonatypeUsername = project.hasProperty('sonatypeUsername') ? project.getProperty('sonatypeUsername') : ''
+    sonatypePassword = project.hasProperty('sonatypePassword') ? project.getProperty('sonatypePassword') : ''
+}
 
 uploadArchives {
     repositories {
