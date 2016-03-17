@@ -85,6 +85,16 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
     private final String prodId;
     private String displayName;
 
+
+    /**
+     * @param prodId application product identifier
+     * @param url    the URL of a CardDav server instance
+     */
+    public CardDavStore( String prodId, URL url ) {
+        this( prodId, url, null );
+    }
+
+
     /**
      * @param prodId application product identifier
      * @param url the URL of a CardDav server instance

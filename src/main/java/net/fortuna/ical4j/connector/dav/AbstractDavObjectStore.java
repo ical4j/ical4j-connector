@@ -54,6 +54,7 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
 	private DavClient davClient;
 	
 	private String username;
+    private String bearerAuth;
 	
 	private final URL rootUrl;
 	
@@ -77,7 +78,7 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
      * @return the path
      */
     public final String getPath() {
-        return pathResolver.getUserPath(getUserName());
+        return pathResolver == null ? rootUrl.getFile() : pathResolver.getUserPath( getUserName() );
     }
 
     /**
@@ -97,6 +98,23 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
 //    	}
         return true;
     }
+
+
+    public final boolean connect( String bearerAuth ) throws ObjectStoreException {
+        try {
+            davClient = new DavClient( rootUrl, rootUrl.getFile(), rootUrl.getFile() );
+            davClient.begin( bearerAuth );
+
+            this.bearerAuth = bearerAuth;
+        } catch (IOException ioe) {
+            throw new ObjectStoreException( ioe );
+        } catch (FailedOperationException foe) {
+            throw new ObjectStoreException( foe );
+        }
+
+        return true;
+    }
+
 
     /**
      * {@inheritDoc}
