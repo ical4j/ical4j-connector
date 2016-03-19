@@ -265,6 +265,12 @@
             <type>zip</type>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+        	<groupId>org.mnode.ical4j</groupId>
+        	<artifactId>ical4j-extensions</artifactId>
+        	<version>0.9.2</version>
+        	<scope>compile</scope>
+        </dependency>
 	</dependencies>
     
     <dependencyManagement>
