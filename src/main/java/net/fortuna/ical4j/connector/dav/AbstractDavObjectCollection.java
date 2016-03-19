@@ -77,6 +77,8 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
     protected DavPropertySet properties;
     
     private String _ownerName = null;
+    
+    private boolean _isReadOnly;
 
     /**
      * @param store the container store for the collection
@@ -283,6 +285,14 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
             }
         }
         return _ownerName;
+    }
+
+    public boolean isReadOnly() {
+        return _isReadOnly;
+    }
+
+    public void setReadOnly(boolean isReadOnly) {
+        _isReadOnly = isReadOnly;
     }
 
     /**

@@ -737,4 +737,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         
         return principalsProps;
     }
+    
+    @Override
+    public String toString() {
+        return "Display Name: " +  getDisplayName() + ", id: " + getId();
+    }
 }

@@ -37,6 +37,7 @@ import java.io.FilenameFilter;
 
 import net.fortuna.ical4j.vcard.VCardBuilder;
 import net.fortuna.ical4j.vcard.VCardFileFilter;
+import org.junit.Ignore;
 
 /**
  * 
@@ -47,6 +48,7 @@ import net.fortuna.ical4j.vcard.VCardFileFilter;
  *
  * $Id$
  */
+@Ignore
 public class CardCollectionTest<T extends CardCollection> extends
         ObjectCollectionTest<T> {
 

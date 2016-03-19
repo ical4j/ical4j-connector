@@ -132,7 +132,7 @@ public class JcrCalendar extends AbstractJcrEntity {
         
         file = new JcrFile();
         file.setName("data");
-        file.setDataProvider(new JcrDataProviderImpl(TYPE.BYTES, calendar.toString().getBytes()));
+        file.setDataProvider(new JcrDataProviderImpl(calendar.toString().getBytes()));
 //        file.setMimeType(MediaType.ICALENDAR_2_0.getContentType());
         file.setMimeType(Calendars.getContentType(calendar, null));
         file.setLastModified(java.util.Calendar.getInstance());
@@ -154,8 +154,7 @@ public class JcrCalendar extends AbstractJcrEntity {
                     description = new JcrFile();
                     description.setName("text");
                     description.setMimeType("text/plain");
-                    description.setDataProvider(new JcrDataProviderImpl(TYPE.BYTES,
-                            descriptionProp.getValue().getBytes()));
+                    description.setDataProvider(new JcrDataProviderImpl(descriptionProp.getValue().getBytes()));
                     description.setLastModified(java.util.Calendar.getInstance());
                 }
             }
@@ -168,7 +167,7 @@ public class JcrCalendar extends AbstractJcrEntity {
                     JcrFile attachment = new JcrFile();
                     attachment.setName("attachment");
                     if (Value.BINARY.equals(((Property) attach).getParameter(Parameter.VALUE))) {
-                        attachment.setDataProvider(new JcrDataProviderImpl(TYPE.BYTES, ((Attach) attach).getBinary()));
+                        attachment.setDataProvider(new JcrDataProviderImpl(((Attach) attach).getBinary()));
                         FmtType contentType = (FmtType) ((Property) attach).getParameter(Parameter.FMTTYPE);
                         if (contentType != null) {
                             attachment.setMimeType(contentType.getValue());
@@ -177,7 +176,7 @@ public class JcrCalendar extends AbstractJcrEntity {
                     else {
                         ByteArrayOutputStream aout = new ByteArrayOutputStream();
                         IOUtils.copy(((Attach) attach).getUri().toURL().openStream(), aout);
-                        attachment.setDataProvider(new JcrDataProviderImpl(TYPE.BYTES, aout.toByteArray()));
+                        attachment.setDataProvider(new JcrDataProviderImpl(aout.toByteArray()));
                     }
                     attachment.setLastModified(java.util.Calendar.getInstance());
                     this.attachments.add(attachment);

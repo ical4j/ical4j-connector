@@ -35,6 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import junit.framework.TestCase;
+import org.junit.Ignore;
 
 /**
  * 
@@ -45,6 +46,7 @@ import junit.framework.TestCase;
  * 
  *         $Id$
  */
+@Ignore
 public class ObjectStoreTest<T extends ObjectCollection<?>> extends TestCase {
 
     private static final Log LOG = LogFactory.getLog(ObjectStoreTest.class);

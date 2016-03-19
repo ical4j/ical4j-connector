@@ -314,6 +314,9 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     @SuppressWarnings("unchecked")
 	protected List<CalDavCalendarCollection> getDelegateCollections(DavProperty<?> proxyDavProperty)
             throws ParserConfigurationException, IOException, DavException {
+        
+        ArrayList<CalDavCalendarCollection> delegatedCollections = new ArrayList<CalDavCalendarCollection>();
+        
         /*
          * Zimbra check: Zimbra advertise calendar-proxy, but it will return 404 in propstat if Enable delegation for
          * Apple iCal CalDAV client is not enabled
@@ -325,7 +328,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
             if (propertyValue instanceof ArrayList) {
                 response = (ArrayList) proxyDavProperty.getValue();
                 if (response != null) {
-                    for (Node objectInArray : response) {
+                    for (Node objectInArray: response) {
                         if (objectInArray instanceof Element) {
                             DefaultDavProperty<?> newProperty = DefaultDavProperty
                                     .createFromXml((Element) objectInArray);
@@ -365,8 +368,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                                                                                         .getValue();
                                                                                 String urlForcalendarHomeSet = findCalendarHomeSet(getHostURL()
                                                                                         + principalsUri);
-                                                                                return getCollectionsForHomeSet(this,
-                                                                                        urlForcalendarHomeSet);
+                                                                                delegatedCollections.addAll(getCollectionsForHomeSet(this,urlForcalendarHomeSet));
                                                                             }
                                                                         }
                                                                     }
@@ -380,15 +382,12 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                                     }
                                 }
                             }
-                        }
+                        } 
                     }
                 }
-            } else if (propertyValue instanceof Element) {
-                System.out.println(((Element)propertyValue).getNodeName());
-                System.out.println(((Element)propertyValue).getChildNodes());
             }
         }
-        return new ArrayList<CalDavCalendarCollection>();
+        return delegatedCollections;
     }
 
     /**
@@ -398,7 +397,13 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      * @throws Exception
      */
     public List<CalDavCalendarCollection> getDelegatedCollections() throws Exception {
-
+        List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
+        collections.addAll(getWriteDelegatedCollections());
+        collections.addAll(getReadOnlyDelegatedCollections());
+        return collections;
+    }
+    
+    protected List<CalDavCalendarCollection> getDelegatedCollections(String type) throws Exception {
         List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
 
         String methodUri = this.pathResolver.getPrincipalPath(getUserName());
@@ -416,33 +421,15 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         writeUserAddressSetProperty.setAttribute("namespace", CalDavConstants.CALDAV_NAMESPACE.getURI());
 
         Element proxyWriteForElement = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        proxyWriteForElement.setAttribute("name", CalDavConstants.PROPERTY_PROXY_WRITE_FOR);
+        proxyWriteForElement.setAttribute("name", type);
         proxyWriteForElement.setAttribute("namespace", CalDavConstants.CS_NAMESPACE.getURI());
         proxyWriteForElement.appendChild(writeDisplayNameProperty);
         proxyWriteForElement.appendChild(writePrincipalUrlProperty);
         proxyWriteForElement.appendChild(writeUserAddressSetProperty);
 
-        Element readDisplayNameProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        readDisplayNameProperty.setAttribute("name", DavConstants.PROPERTY_DISPLAYNAME);
-
-        Element readPrincipalUrlProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        readPrincipalUrlProperty.setAttribute("name", SecurityConstants.PRINCIPAL_URL.getName());
-
-        Element readUserAddressSetProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        readUserAddressSetProperty.setAttribute("name", CalDavConstants.PROPERTY_USER_ADDRESS_SET);
-        readUserAddressSetProperty.setAttribute("namespace", CalDavConstants.CALDAV_NAMESPACE.getURI());
-
-        Element proxyReadForElement = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        proxyReadForElement.setAttribute("name", CalDavConstants.PROPERTY_PROXY_READ_FOR);
-        proxyReadForElement.setAttribute("namespace", CalDavConstants.CS_NAMESPACE.getURI());
-        proxyReadForElement.appendChild(readDisplayNameProperty);
-        proxyReadForElement.appendChild(readPrincipalUrlProperty);
-        proxyReadForElement.appendChild(readUserAddressSetProperty);
-
         ReportInfo rinfo = new ReportInfo(ReportType.register(DeltaVConstants.XML_EXPAND_PROPERTY,
                 DeltaVConstants.NAMESPACE, org.apache.jackrabbit.webdav.version.report.ExpandPropertyReport.class), 0);
         rinfo.setContentElement(proxyWriteForElement);
-        rinfo.setContentElement(proxyReadForElement);
 
         DavMethodBase method = new ReportMethod(methodUri, rinfo);
         getClient().execute(getClient().hostConfiguration, method);
@@ -454,12 +441,30 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                 DavPropertySet properties = responses[i].getProperties(DavServletResponse.SC_OK);
                 DavProperty<?> writeForProperty = properties.get(CalDavConstants.PROPERTY_PROXY_WRITE_FOR,
                         CalDavConstants.CS_NAMESPACE);
-                collections.addAll(getDelegateCollections(writeForProperty));
+                List<CalDavCalendarCollection> writeCollections = getDelegateCollections(writeForProperty);
+                for (CalDavCalendarCollection writeCollection: writeCollections) {
+                    writeCollection.setReadOnly(false);
+                    collections.add(writeCollection);
+                }
                 DavProperty<?> readForProperty = properties.get(CalDavConstants.PROPERTY_PROXY_READ_FOR,
                         CalDavConstants.CS_NAMESPACE);
-                collections.addAll(getDelegateCollections(readForProperty));
+                List<CalDavCalendarCollection> readCollections = getDelegateCollections(readForProperty);
+                for (CalDavCalendarCollection readCollection: readCollections) {
+                    readCollection.setReadOnly(true);
+                    collections.add(readCollection);
+                }
             }
         }
+        return collections;        
+    }
+    
+    public List<CalDavCalendarCollection> getWriteDelegatedCollections() throws Exception {
+        List<CalDavCalendarCollection> collections = getDelegatedCollections(CalDavConstants.PROPERTY_PROXY_WRITE_FOR);
+        return collections;
+    }
+    
+    public List<CalDavCalendarCollection> getReadOnlyDelegatedCollections() throws Exception {
+        List<CalDavCalendarCollection> collections = getDelegatedCollections(CalDavConstants.PROPERTY_PROXY_READ_FOR);
         return collections;
     }
 
@@ -655,7 +660,61 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     }
     
     public List<Attendee> getAllRooms() throws ParserConfigurationException, IOException, DavException, URISyntaxException {
-        return getUserTypes(CuType.ROOM, null);
+        return getAllPrincipalsForType(CuType.ROOM);
+    }
+    
+    public List<Attendee> getAllResources() throws ParserConfigurationException, IOException, DavException, URISyntaxException {
+        return getAllPrincipalsForType(CuType.RESOURCE);
+    }
+    
+    protected Element propertiesForPropSearch(Document document) {
+        Element firstNameProperty = DomUtil.createElement(document, "first-name", CalDavConstants.CS_NAMESPACE);
+        Element recordTypeProperty = DomUtil.createElement(document, "record-type", CalDavConstants.CS_NAMESPACE);
+        Element calUserAddressSetProperty = DomUtil.createElement(document, CalDavConstants.PROPERTY_USER_ADDRESS_SET, CalDavConstants.CALDAV_NAMESPACE);
+        Element lastNameProperty = DomUtil.createElement(document, "last-name", CalDavConstants.CS_NAMESPACE);
+        Element principalUrlProperty = DomUtil.createElement(document, "principal-URL", CalDavConstants.NAMESPACE);
+        Element calUserTypeProperty = DomUtil.createElement(document, CalDavConstants.PROPERTY_USER_TYPE, CalDavConstants.CALDAV_NAMESPACE);
+        Element displayNameForProperty = DomUtil.createElement(document, "displayname", CalDavConstants.NAMESPACE);
+        Element emailAddressSetProperty = DomUtil.createElement(document, "email-address-set", CalDavConstants.CS_NAMESPACE);
+
+        Element properties = DomUtil.createElement(document, "prop", DavConstants.NAMESPACE);
+        properties.appendChild(firstNameProperty);
+        properties.appendChild(recordTypeProperty);
+        properties.appendChild(calUserAddressSetProperty);
+        properties.appendChild(lastNameProperty);
+        properties.appendChild(principalUrlProperty);
+        properties.appendChild(calUserTypeProperty);
+        properties.appendChild(displayNameForProperty);
+        properties.appendChild(emailAddressSetProperty);
+        
+        return properties;
+    }
+    
+    public List<Attendee> getAllPrincipalsForType(CuType type) throws ParserConfigurationException, IOException, DavException, URISyntaxException {
+        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+
+        Element displayName = DomUtil.createElement(document, "calendar-user-type", CalDavConstants.CALDAV_NAMESPACE);
+        
+        Element displayNameProperty = DomUtil.createElement(document, "prop", DavConstants.NAMESPACE);
+        displayNameProperty.appendChild(displayName);
+        
+        Element containsMatch = DomUtil.createElement(document, "match", DavConstants.NAMESPACE);
+        containsMatch.setAttribute("match-type", "equals");
+        containsMatch.setTextContent(type.getValue());
+
+        Element propertySearchDisplayName = DomUtil.createElement(document, "property-search", DavConstants.NAMESPACE);
+        propertySearchDisplayName.appendChild(displayNameProperty);
+        propertySearchDisplayName.appendChild(containsMatch);
+                
+        Element properties = propertiesForPropSearch(document);
+                
+        Element principalPropSearch = DomUtil.createElement(document, "principal-property-search", DavConstants.NAMESPACE);
+        principalPropSearch.setAttribute("type", type.getValue());
+        principalPropSearch.setAttribute("test", "anyof");
+        principalPropSearch.appendChild(propertySearchDisplayName);
+        principalPropSearch.appendChild(properties);
+                
+        return executePrincipalPropSearch(principalPropSearch);
     }
     
     /**
@@ -676,8 +735,6 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      * @throws URISyntaxException 
      */
     protected List<Attendee> getUserTypes(CuType type, String nameToSearch) throws ParserConfigurationException, IOException, DavException, URISyntaxException {
-        String methodUri = this.pathResolver.getPrincipalPath(getUserName());
-
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 
         Element displayName = DomUtil.createElement(document, "displayname", DavConstants.NAMESPACE);
@@ -687,9 +744,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         
         Element containsMatch = DomUtil.createElement(document, "match", DavConstants.NAMESPACE);
         containsMatch.setAttribute("match-type", "contains");
-        if (nameToSearch != null) {
-            containsMatch.setTextContent(nameToSearch);
-        }
+        containsMatch.setTextContent(nameToSearch);
         
         Element propertySearchDisplayName = DomUtil.createElement(document, "property-search", DavConstants.NAMESPACE);
         propertySearchDisplayName.appendChild(displayNameProperty);
@@ -707,30 +762,11 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         }
         
         Element propertySearchEmail = DomUtil.createElement(document, "property-search", DavConstants.NAMESPACE);
-        if (nameToSearch != null) {
-            propertySearchEmail.setTextContent(nameToSearch);
-        }
+        propertySearchEmail.setTextContent(nameToSearch);
         propertySearchEmail.appendChild(emailSetProperty);
         propertySearchEmail.appendChild(startsWith);
         
-        Element firstNameProperty = DomUtil.createElement(document, "first-name", CalDavConstants.CS_NAMESPACE);
-        Element recordTypeProperty = DomUtil.createElement(document, "record-type", CalDavConstants.CS_NAMESPACE);
-        Element calUserAddressSetProperty = DomUtil.createElement(document, CalDavConstants.PROPERTY_USER_ADDRESS_SET, CalDavConstants.CALDAV_NAMESPACE);
-        Element lastNameProperty = DomUtil.createElement(document, "last-name", CalDavConstants.CS_NAMESPACE);
-        Element principalUrlProperty = DomUtil.createElement(document, "principal-URL", CalDavConstants.NAMESPACE);
-        Element calUserTypeProperty = DomUtil.createElement(document, CalDavConstants.PROPERTY_USER_TYPE, CalDavConstants.CALDAV_NAMESPACE);
-        Element displayNameForProperty = DomUtil.createElement(document, "displayname", CalDavConstants.NAMESPACE);
-        Element emailAddressSetProperty = DomUtil.createElement(document, "email-address-set", CalDavConstants.CS_NAMESPACE);
-
-        Element properties = DomUtil.createElement(document, "prop", DavConstants.NAMESPACE);
-        properties.appendChild(firstNameProperty);
-        properties.appendChild(recordTypeProperty);
-        properties.appendChild(calUserAddressSetProperty);
-        properties.appendChild(lastNameProperty);
-        properties.appendChild(principalUrlProperty);
-        properties.appendChild(calUserTypeProperty);
-        properties.appendChild(displayNameForProperty);
-        properties.appendChild(emailAddressSetProperty);
+        Element properties = propertiesForPropSearch(document);
                 
         Element principalPropSearch = DomUtil.createElement(document, "principal-property-search", DavConstants.NAMESPACE);
         principalPropSearch.setAttribute("type", type.getValue());
@@ -739,8 +775,13 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         principalPropSearch.appendChild(propertySearchEmail);
         principalPropSearch.appendChild(properties);
                 
+        return executePrincipalPropSearch(principalPropSearch);
+    }
+    
+    protected List<Attendee> executePrincipalPropSearch(Element principalPropSearch) throws DavException, IOException, URISyntaxException {        
         PrincipalPropertySearchInfo rinfo = new PrincipalPropertySearchInfo(principalPropSearch, 0);
         
+        String methodUri = this.pathResolver.getPrincipalPath(getUserName());
         DavMethodBase method = new PrincipalPropertySearchMethod(methodUri, rinfo);
         getClient().execute(getClient().hostConfiguration, method);
         
