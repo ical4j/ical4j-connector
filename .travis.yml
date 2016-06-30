@@ -1,8 +1,10 @@
 language: java
 jdk:
-- oraclejdk8
-- oraclejdk7
-- openjdk7
+  - oraclejdk8
+  - oraclejdk7
+  - openjdk7
+script:
+  - ./gradlew check
 before_deploy: "./gradlew assembleDist"
 sudo: false
 deploy:
