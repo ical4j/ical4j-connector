@@ -31,16 +31,15 @@
  */
 package net.fortuna.ical4j.connector.dav.method;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.ValidationException;
+import net.fortuna.ical4j.validate.ValidationException;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardOutputter;
-
 import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * $Id$

@@ -31,20 +31,19 @@
  */
 package net.fortuna.ical4j.connector.dav;
 
-import java.io.IOException;
-import java.io.StringReader;
-
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
+import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
-import net.fortuna.ical4j.extensions.CalendarBuilder;
 import net.fortuna.ical4j.model.Calendar;
-
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+
+import java.io.IOException;
+import java.io.StringReader;
 
 /**
  * 
