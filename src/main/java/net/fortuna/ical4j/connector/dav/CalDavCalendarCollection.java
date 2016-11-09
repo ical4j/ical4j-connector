@@ -496,7 +496,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     public Calendar removeCalendar(String uid) throws FailedOperationException, ObjectStoreException {
         Calendar calendar = getCalendar(uid);
 
-        DeleteMethod deleteMethod = new DeleteMethod(getPath() + "/" + uid + ".ics");
+        DeleteMethod deleteMethod = new DeleteMethod(getPath() + uid + ".ics");
         try {
             getStore().getClient().execute(deleteMethod);
         } catch (IOException e) {

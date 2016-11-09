@@ -67,6 +67,7 @@ scmVersion {
     tag {
         prefix = 'ical4j-connector'
     }
+    versionCreator 'versionWithBranch'
 }
 
 group = 'org.mnode.ical4j'
