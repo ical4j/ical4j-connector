@@ -6,5 +6,5 @@
 
  Support for iCalendar CalDAV/CardDAV specifications. See the website for details:
  
- 	http://ical4j.sourceforge.net
+ 	http://ical4j.github.io/docs/ical4j-connector
  
