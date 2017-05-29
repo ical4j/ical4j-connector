@@ -41,6 +41,13 @@ dependencies {
             'org.apache.jackrabbit:jackrabbit-core:2.8.0'
 }
 
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
+}
+
 javadoc {
     if (JavaVersion.current().isJava8Compatible()) {
         options.addStringOption('Xdoclint:none', '-quiet')
