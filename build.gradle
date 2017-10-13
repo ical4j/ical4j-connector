@@ -37,8 +37,8 @@ repositories {
 }
 
 dependencies {
-    compile 'org.mnode.ical4j:ical4j:2.0.3', 'org.mnode.ical4j:ical4j-extensions:1.0.1',
-            'org.mnode.ical4j:ical4j-vcard:1.0.1-SNAPSHOT',
+    compile 'org.mnode.ical4j:ical4j:2.1.0', 'org.mnode.ical4j:ical4j-extensions:1.0.2',
+            'org.mnode.ical4j:ical4j-vcard:1.0.1',
             'commons-io:commons-io:2.3', 'org.codehaus.groovy:groovy-all:2.3.6',
             'org.apache.jackrabbit:jackrabbit-webdav:2.8.0', 'javax.servlet:servlet-api:2.5',
             'javax.jcr:jcr:2.0', 'org.jcrom:jcrom:2.0.0'
@@ -194,7 +194,7 @@ bintray {
                 sync = isReleaseVersion
                 user = sonatype_username //OSS user token: mandatory
                 password = sonatype_password //OSS user password: mandatory
-                close = '0' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+//                close = '0' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
             }
         }
     }
