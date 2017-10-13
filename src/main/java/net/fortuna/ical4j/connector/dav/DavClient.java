@@ -87,6 +87,42 @@ public class DavClient {
 		httpClient.getParams().setAuthenticationPreemptive(false);
 	}
 
+	ArrayList<SupportedFeature> begin(String bearerAuth) throws IOException, FailedOperationException {
+	    ArrayList<SupportedFeature> supportedFeatures = new ArrayList<SupportedFeature>();
+	    
+	    begin();
+		DavPropertyNameSet props = new DavPropertyNameSet();
+        props.add(DavPropertyName.RESOURCETYPE);
+        props.add(CSDavPropertyName.CTAG);
+		DavPropertyName owner = DavPropertyName.create("owner", DavConstants.NAMESPACE);
+        props.add(owner);
+
+		PropFindMethod aGet = new PropFindMethod(principalPath, DavConstants.PROPFIND_BY_PROPERTY, props, 0);
+        aGet.addRequestHeader( "Authorization", "Bearer " + bearerAuth );
+		aGet.setDoAuthentication(true);
+		int status = httpClient.executeMethod(hostConfiguration, aGet);
+		
+		if (status >= 300) {
+			throw new FailedOperationException(String.format("Principals not found at [%s]", userPath));
+		} else {
+		    Header[] davHeaders = aGet.getResponseHeaders(net.fortuna.ical4j.connector.dav.DavConstants.HEADER_DAV);
+		    for (int headerIndex = 0; headerIndex < davHeaders.length; headerIndex++) {
+		        Header header = davHeaders[headerIndex];
+		        HeaderElement[] elements = header.getElements();
+		        for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+		            String feature = elements[elementIndex].getName();
+		            if (feature != null) {
+		                SupportedFeature supportedFeature = SupportedFeature.findByDescription(feature);
+		                if (supportedFeature != null) {
+		                    supportedFeatures.add(supportedFeature);
+		                }
+		            }
+		        }
+		    }
+		}
+		return supportedFeatures;
+    }
+
 	ArrayList<SupportedFeature> begin(String username, char[] password) throws IOException, FailedOperationException {
 	    ArrayList<SupportedFeature> supportedFeatures = new ArrayList<SupportedFeature>();
 	    

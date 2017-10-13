@@ -1,28 +1,25 @@
+#before_cache:
+#  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+#  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-    - $HOME/.gradle
-    - $HOME/.sonar
+    #- $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+sudo: false
+dist: trusty
 language: java
 jdk:
   - oraclejdk8
-  - oraclejdk7
-  - openjdk7
+  - openjdk8
+env:
+  - GRADLE_OPTS="-Xmx512m -XX:MaxPermSize=256m"
 script:
-  - ./gradlew check
-before_deploy: "./gradlew assembleDist"
-sudo: false
+  - ./gradlew -q build jacocoTestReport
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 deploy:
-  provider: releases
-  api_key:
-    secure: F/phrNZC+kF8IyHEDyJtQA9P72FBLLUyuWDVn9QvBedhveGRbBkXDx/mpLD5iuir8+fK1Inm+09BMfpX+UoEcS8a6mgbEGqqUX61ZIUpGmXASw0EJbX/Bne7oMrvm4IHYIaRord2+YyGeUOdzCggwoh/wnFlLcL5Q97xyN5N4Ig=
-  file:
-    - build/distributions/ical4j-$RELEASE_VERSION.zip
-    - build/distributions/ical4j-$RELEASE_VERSION.tar.gz
-  skip_cleanup: true
+  provider: script
+  script: ./gradlew -q -Prelease.customUsername=$GIT_USER -Prelease.customPassword=$GIT_PASSWORD -Prelease.disableChecks -Prelease.pushTagsOnly release bintrayUpload
   on:
-    tags: true
-after_script:
-  - sudo keytool -import -alias sonar -keystore $JAVA_HOME/jre/lib/security/cacerts -file sonar_cert.pem -storepass changeit -noprompt
-  # Check if commit is not a pull request, if git repo is official, and if branch is master. If checks pass, run Sonar reports
-  - "[[ $TRAVIS_PULL_REQUEST == false ]] && [[ $TRAVIS_REPO_SLUG == ical4j/ical4j-connector ]] && [[ $TRAVIS_BRANCH == master ]] && ./gradlew sonarqube"
-
+    branch: master
+    jdk: oraclejdk8
