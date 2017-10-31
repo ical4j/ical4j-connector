@@ -88,7 +88,7 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
 //    	try {
 //        	davClient = SardineFactory.begin();
         	
-        	final String principalPath = pathResolver.getPrincipalPath(username);
+        	final String principalPath = pathResolver.getPrincipalPath(getUserName());
         	final String userPath = pathResolver.getUserPath(getUserName());
         	davClient = new DavClient(rootUrl, principalPath, userPath);
         	davClient.begin();
@@ -124,13 +124,14 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
     public final boolean connect(String username, char[] password) throws ObjectStoreException {
     	try {
 //        	davClient = SardineFactory.begin(username, new String(password));
+            this.username = username;
         	
         	final String principalPath = pathResolver.getPrincipalPath(username);
-        	final String userPath = pathResolver.getUserPath(getUserName());
+        	final String userPath = pathResolver.getUserPath(username);
         	davClient = new DavClient(rootUrl, principalPath, userPath);
         	supportedFeatures = davClient.begin(username, password);
 
-        	this.username = username;
+
     	}
     	catch (IOException ioe) {
     		throw new ObjectStoreException(ioe);
