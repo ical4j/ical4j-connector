@@ -139,12 +139,8 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
 
         return resourceTypes.toArray(new ResourceType[resourceTypes.size()]);
@@ -176,14 +172,10 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+            return mediaTypes.toArray(new MediaType[mediaTypes.size()]);
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
-        return mediaTypes.toArray(new MediaType[mediaTypes.size()]);
     }
     
     /**
@@ -195,14 +187,10 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
             if (calTimezoneProp != null) {
                 return calTimezoneProp;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+            return new Long(0);
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
-        return new Long(0);
     }
     
     /**
@@ -214,14 +202,10 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
             if (calTimezoneProp != null) {
                 return calTimezoneProp;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+            return new Long(0);
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
-        return new Long(0);
     }
     
     /**
@@ -242,14 +226,10 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+            return ownerHref;
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
-        return ownerHref;
     }
 
     /**
@@ -278,10 +258,8 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
                         }
                     }
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (DavException e) {
-                e.printStackTrace();
+            } catch (IOException | DavException e) {
+                throw new RuntimeException(e);
             }
         }
         return _ownerName;
@@ -323,29 +301,12 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
                     Constructor<P> constructor = type.getConstructor(value.getClass());
                     return constructor.newInstance(value);
                 }
+            } catch (IllegalAccessException
+                    | InvocationTargetException
+                    | InstantiationException
+                    | NoSuchMethodException e) {
+                throw new RuntimeException(e);
             }
-            catch (SecurityException e) {
-                e.printStackTrace();
-            }
-            catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-            catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            }
-            catch (InstantiationException e) {
-                e.printStackTrace();
-            }
-            catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-            catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
-            catch (NullPointerException e) {
-                e.printStackTrace();                
-            }
-            return (P) props.get(propertyName).getValue();
         }
         return null;
     }
