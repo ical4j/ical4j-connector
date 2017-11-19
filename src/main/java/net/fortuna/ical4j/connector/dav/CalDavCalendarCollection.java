@@ -63,6 +63,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import javax.swing.text.html.parser.Parser;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -185,21 +186,12 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
             getStore().getClient().execute(method);
             if (method.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
                 return method.getCalendars();
-            } else if (method.getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
+            } else {
                 return new Calendar[0];
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (DOMException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
-        } catch (ParserException e) {
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
+        } catch (DavException | IOException | ParserConfigurationException | ParserException e) {
+            throw new RuntimeException(e);
         }
-        return new Calendar[0];
     }
 
     /**
@@ -208,14 +200,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     public String getDescription() {
         try {
             return getProperty(CalDavPropertyName.CALENDAR_DESCRIPTION, String.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     /**
@@ -224,14 +211,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     public String getDisplayName() {
         try {
             return getProperty(DavPropertyName.DISPLAYNAME, String.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     /**
@@ -241,14 +223,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     public Integer getMaxAttendeesPerInstance() {
         try {
             return getProperty(CalDavPropertyName.MAX_ATTENDEES_PER_INSTANCE, Integer.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
-        return 0;
     }
 
     /**
@@ -258,14 +235,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     public String getMaxDateTime() {
         try {
             return getProperty(CalDavPropertyName.MAX_DATE_TIME, String.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     /**
@@ -275,14 +247,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     public Integer getMaxInstances() {
         try {
             return getProperty(CalDavPropertyName.MAX_INSTANCES, Integer.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
-        return 0;
     }
 
     /**
@@ -295,14 +262,10 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
             if (size != null) {
                 return size;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+            return 0;
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
-        return 0;
     }
 
     /**
@@ -312,14 +275,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     public String getMinDateTime() {
         try {
             return getProperty(CalDavPropertyName.MIN_DATE_TIME, String.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     /**
@@ -341,12 +299,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
 
         return supportedComponents.toArray(new String[supportedComponents.size()]);
@@ -364,46 +318,26 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
                 CalendarBuilder builder = new CalendarBuilder();
                 return builder.build(new StringReader(calTimezoneProp));
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParserException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
-        } 
-        return new Calendar();
+            return new Calendar();
+        } catch (ObjectStoreException | IOException | DavException | ParserException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     public String getColor() {
         try {
             return getProperty(ICalPropertyName.CALENDAR_COLOR, String.class);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
     
     public int getOrder() {
         try {
             return getProperty(ICalPropertyName.CALENDAR_ORDER, Integer.class);
-        } catch (NullPointerException e) {
-            e.printStackTrace();            
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
-        return 1;
     }
 
     /**
@@ -471,18 +405,14 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         GetMethod method = new GetMethod(path + uid + ".ics");
         try {
             getStore().getClient().execute(method);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         if (method.getStatusCode() == DavServletResponse.SC_OK) {
             try {
                 return method.getCalendar();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (ParserException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            } catch (IOException | ParserException e) {
+                throw new RuntimeException(e);
             }
         } else if (method.getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
             return null;
@@ -527,8 +457,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * {@inheritDoc}
      */
     public Calendar export() throws ObjectStoreException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("not implemented");
     }
 
     /**

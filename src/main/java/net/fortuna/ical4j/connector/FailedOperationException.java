@@ -60,7 +60,6 @@ public class FailedOperationException extends Exception {
 	 */
 	public FailedOperationException(Throwable paramThrowable) {
 		super(paramThrowable);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -69,7 +68,6 @@ public class FailedOperationException extends Exception {
 	 */
 	public FailedOperationException(String paramString, Throwable paramThrowable) {
 		super(paramString, paramThrowable);
-		// TODO Auto-generated constructor stub
 	}
 
 }
