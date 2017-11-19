@@ -130,14 +130,9 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     public String getDisplayName() {
         try {
             return getProperty(DavPropertyName.DISPLAYNAME, String.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     /**
@@ -150,12 +145,8 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
             if (size != null) {
                 return size;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ObjectStoreException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
         }
         return 0;
     }
@@ -164,8 +155,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      * {@inheritDoc}
      */
     public Calendar export() throws ObjectStoreException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("not implemented");
     }
         
     public static final DavPropertyNameSet propertiesForFetch() {
@@ -282,15 +272,9 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
             } else if (method.getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
                 return new VCard[0];
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (DOMException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
-        } /* catch (ParserException e) {
-            e.printStackTrace();
-        } */
+        } catch (IOException | DavException e) {
+            throw new RuntimeException(e);
+        }
         return new VCard[0];
     }
 

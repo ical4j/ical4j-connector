@@ -113,8 +113,7 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
         try {
             collection.create();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new ObjectStoreException(String.format("unable to add collection '%s'", id), e);
         }
         return collection;
     }
@@ -127,8 +126,7 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
         try {
             collection.create();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new ObjectStoreException(String.format("unable to add collection '%s'", id), e);
         }
         return collection;
     }
@@ -147,22 +145,16 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
             MultiStatusResponse[] responses = multiStatus.getResponses();
 
             return CardDavCollection.collectionsFromResponse(this, responses).get(0);
-        } catch (HttpException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (DavException e) {
-            e.printStackTrace();
+        } catch (IOException | DavException e) {
+            throw new ObjectStoreException(String.format("unable to get collection '%s'", id), e);
         }
-        throw new ObjectNotFoundException("Collection with id: [" + id + "] not found");
     }
 
     /**
      * {@inheritDoc}
      */
     public CalendarCollection merge(String id, CalendarCollection calendar) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("not implemented");
     }
 
     protected String findAddressBookHomeSet() throws ParserConfigurationException, IOException, DavException {
@@ -256,12 +248,8 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
             }
             String urlForcalendarHomeSet = getHostURL() + calHomeSetUri;
             return getCollectionsForHomeSet(this, urlForcalendarHomeSet);
-        } catch (DavException de) {
-            throw new ObjectStoreException(de);
-        } catch (IOException ioe) {
-            throw new ObjectStoreException(ioe);
-        } catch (ParserConfigurationException pce) {
-            throw new ObjectStoreException(pce);
+        } catch (DavException | IOException | ParserConfigurationException e) {
+            throw new ObjectStoreException(e);
         }
     }
     
@@ -438,10 +426,8 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
         CardDavCollection collection = getCollection(id);
         try {
             collection.delete();
-        } catch (HttpException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new ObjectStoreException(String.format("unable to remove collection '%s'", id), e);
         }
         return collection;
     }
@@ -471,8 +457,7 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
      */
     public CardDavCollection addCollection(String id, String displayName, String description,
             String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("not implemented");
     }
 
 }
