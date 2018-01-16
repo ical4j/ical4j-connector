@@ -343,10 +343,21 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     /**
      * Add a new calendar object in the collection. Creation will be done on the server right away.
      */
+    @Override
     public void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
         writeCalendarOnServer(calendar, true);
     }
-    
+
+    /**
+     * Stores the specified calendar in this collection, using the specified URI.
+     * @param uri the URI (relative to this collection's path) where the calendar is to be stored
+     * @param calendar a calendar object instance to be added to the collection
+     * @throws ObjectStoreException when an unexpected error occurs (implementation-specific)
+     */
+    public void addCalendar(String uri, Calendar calendar) throws ObjectStoreException {
+        writeCalendarOnServer(uri, calendar, true);
+    }
+
     /**
      * Update a calendar object in the collection. Update will be send to the server right away.
      * @param calendar
@@ -356,18 +367,27 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     public void updateCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
         writeCalendarOnServer(calendar, false);
     }
-    
+
     /**
-     * {@inheritDoc}
+     * Update a calendar object in the collection. Update will be send to the server right away.
+     * @param calendar
+     * @throws ObjectStoreException
      */
+    public void updateCalendar(String uri, Calendar calendar) throws ObjectStoreException {
+        writeCalendarOnServer(uri, calendar, false);
+    }
+
     public void writeCalendarOnServer(Calendar calendar, boolean isNew) throws ObjectStoreException, ConstraintViolationException {
         Uid uid = Calendars.getUid(calendar);
+        writeCalendarOnServer(defaultUriFromUid(uid.getValue()), calendar, isNew);
+    }
 
+    public void writeCalendarOnServer(String uri, Calendar calendar, boolean isNew) throws ObjectStoreException {
         String path = getPath();
         if (!path.endsWith("/")) {
             path = path.concat("/");
         }
-        PutMethod putMethod = new PutMethod(path + uid.getValue() + ".ics");
+        PutMethod putMethod = new PutMethod(path + uri);
         // putMethod.setAllEtags(true);
         if (isNew) {
             putMethod.addRequestHeader("If-None-Match", "*");
@@ -397,12 +417,22 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     /**
      * {@inheritDoc}
      */
+    @Override
     public Calendar getCalendar(String uid) {
+        return getCalendarFromUri(defaultUriFromUid(uid));
+    }
+
+    /**
+     * Returns the calendar object located at the specified URI.
+     * @param uri the URI (relative to this collection's path) where the calendar is to be found
+     * @return a calendar object or null if no calendar exists under the specified URI
+     */
+    public Calendar getCalendarFromUri(String uri) {
         String path = getPath();
         if (!path.endsWith("/")) {
             path = path.concat("/");
         }
-        GetMethod method = new GetMethod(path + uid + ".ics");
+        GetMethod method = new GetMethod(path + uri);
         try {
             getStore().getClient().execute(method);
         } catch (IOException e) {
@@ -424,9 +454,18 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * {@inheritDoc}
      */
     public Calendar removeCalendar(String uid) throws FailedOperationException, ObjectStoreException {
-        Calendar calendar = getCalendar(uid);
+        return removeCalendarFromUri(defaultUriFromUid(uid));
+    }
 
-        DeleteMethod deleteMethod = new DeleteMethod(getPath() + "/" + uid + ".ics");
+    /**
+     * @param uri the URI (relative to this collection's path) where the calendar is to be found
+     * @return the calendar that was successfully removed from the collection
+     * @throws ObjectStoreException where an unexpected error occurs
+     */
+    public Calendar removeCalendarFromUri(String uri) throws FailedOperationException, ObjectStoreException {
+        Calendar calendar = getCalendarFromUri(uri);
+
+        DeleteMethod deleteMethod = new DeleteMethod(getPath() + "/" + uri);
         try {
             getStore().getClient().execute(deleteMethod);
         } catch (IOException e) {
@@ -659,5 +698,10 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     @Override
     public String toString() {
         return "Display Name: " +  getDisplayName() + ", id: " + getId();
+    }
+
+
+    private String defaultUriFromUid(String uid) {
+        return uid + ".ics";
     }
 }
