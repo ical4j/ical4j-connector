@@ -37,10 +37,11 @@ repositories {
 }
 
 dependencies {
+    compileOnly 'javax.servlet:servlet-api:2.5'
     compile 'org.mnode.ical4j:ical4j:2.1.0', 'org.mnode.ical4j:ical4j-extensions:1.0.2',
             'org.mnode.ical4j:ical4j-vcard:1.0.1',
             'commons-io:commons-io:2.3', 'org.codehaus.groovy:groovy-all:2.3.6',
-            'org.apache.jackrabbit:jackrabbit-webdav:2.8.0', 'javax.servlet:servlet-api:2.5',
+            'org.apache.jackrabbit:jackrabbit-webdav:2.8.0',
             'javax.jcr:jcr:2.0', 'org.jcrom:jcrom:2.0.0'
 
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0',
@@ -87,7 +88,7 @@ scmVersion {
     }
     versionCreator 'versionWithBranch'
     branchVersionCreator = [
-        'master': 'simple'
+            'master': 'simple'
     ]
 }
 
@@ -97,52 +98,56 @@ ext {
     isReleaseVersion = !version.endsWith("SNAPSHOT")
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+if (hasProperty('sonatype_username')) {
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: sonatype_username, password: sonatype_password)
-            }
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
-                authentication(userName: sonatype_username, password: sonatype_password)
-            }
 
-            pom.project {
-                name project.name
-                packaging 'jar'
-                description project.description
-                url 'http://ical4j.github.io'
-
-                scm {
-                    url 'https://github.com/ical4j/ical4j-connector'
-                    connection 'scm:git@github.com:ical4j/ical4j-connector.git'
-                    developerConnection 'scm:git@github.com:ical4j/ical4j-connector.git'
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: sonatype_username, password: sonatype_password)
+                }
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
+                    authentication(userName: sonatype_username, password: sonatype_password)
                 }
 
-                licenses {
-                    license {
-                        name 'iCal4j - License'
-                        url 'https://raw.githubusercontent.com/ical4j/ical4j/master/LICENSE'
-                        distribution 'repo'
-                    }
-                }
+                pom.project {
+                    name project.name
+                    packaging 'jar'
+                    description project.description
+                    url 'http://ical4j.github.io'
 
-                developers {
-                    developer {
-                        id 'fortuna'
-                        name 'Ben Fortuna'
+                    scm {
+                        url 'https://github.com/ical4j/ical4j-connector'
+                        connection 'scm:git@github.com:ical4j/ical4j-connector.git'
+                        developerConnection 'scm:git@github.com:ical4j/ical4j-connector.git'
                     }
-                    developer {
-                        id 'elvisrobert'
-                        name 'Pascal Robert'
+
+                    licenses {
+                        license {
+                            name 'iCal4j - License'
+                            url 'https://raw.githubusercontent.com/ical4j/ical4j/master/LICENSE'
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'fortuna'
+                            name 'Ben Fortuna'
+                        }
+                        developer {
+                            id 'elvisrobert'
+                            name 'Pascal Robert'
+                        }
                     }
                 }
             }
         }
     }
 }
+
 
 publishing {
     publications {
@@ -173,31 +178,35 @@ publishing {
     }
 }
 
-bintray {
-    user = bintray_user
-    key = bintray_key
-    pkg {
-        repo = 'maven'
-        name = 'ical4j-connector'
-        userOrg = 'ical4j'
-        licenses = ['BSD']
-        vcsUrl = 'https://github.com/ical4j/ical4j-connector.git'
-        version {
-            name = scmVersion.version
-            desc = "iCal4j Connector $scmVersion.version"
-            released  = new Date()
-            vcsTag = "ical4j-connector-$scmVersion.version"
-            gpg {
-                sign = isReleaseVersion
-            }
-            mavenCentralSync {
-                sync = isReleaseVersion
-                user = sonatype_username //OSS user token: mandatory
-                password = sonatype_password //OSS user password: mandatory
+if (hasProperty('bintray_user')) {
+    bintray {
+        user = bintray_user
+        key = bintray_key
+        pkg {
+            repo = 'maven'
+            name = 'ical4j-connector'
+            userOrg = 'ical4j'
+            licenses = ['BSD']
+            vcsUrl = 'https://github.com/ical4j/ical4j-connector.git'
+            version {
+                name = scmVersion.version
+                desc = "iCal4j Connector $scmVersion.version"
+                released = new Date()
+                vcsTag = "ical4j-connector-$scmVersion.version"
+                gpg {
+                    sign = isReleaseVersion
+                }
+                if (hasProperty('sonatype_username')) {
+                    mavenCentralSync {
+                        sync = isReleaseVersion
+                        user = sonatype_username //OSS user token: mandatory
+                        password = sonatype_password //OSS user password: mandatory
 //                close = '0' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+                    }
+                }
             }
         }
-    }
 //    configurations = ['archives']
-    publications = ['mavenArtifacts']
+        publications = ['mavenArtifacts']
+    }
 }
