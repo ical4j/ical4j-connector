@@ -31,15 +31,16 @@
  */
 package net.fortuna.ical4j.connector.dav;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-
 import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.ObjectCollection;
 import net.fortuna.ical4j.connector.ObjectStore;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.enums.SupportedFeature;
+import net.fortuna.ical4j.util.Configurator;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * @param <C>
@@ -50,6 +51,8 @@ import net.fortuna.ical4j.connector.dav.enums.SupportedFeature;
  * @author fortuna
  */
 public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> implements ObjectStore<C> {
+
+    private final DavClientFactory clientFactory;
 
 	private DavClient davClient;
 	
@@ -72,6 +75,7 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
     public AbstractDavObjectStore(URL url, PathResolver pathResolver) {
     	this.rootUrl = url;
         this.pathResolver = pathResolver;
+        this.clientFactory = new DavClientFactory("true".equals(Configurator.getProperty("ical4j.connector.dav.preemptiveauth")));
     }
 
     /**
@@ -85,24 +89,18 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
      * {@inheritDoc}
      */
     public final boolean connect() throws ObjectStoreException {
-//    	try {
-//        	davClient = SardineFactory.begin();
-        	
-        	final String principalPath = pathResolver.getPrincipalPath(getUserName());
-        	final String userPath = pathResolver.getUserPath(getUserName());
-        	davClient = new DavClient(rootUrl, principalPath, userPath);
-        	davClient.begin();
-//    	}
-//    	catch (SardineException se) {
-//    		throw new ObjectStoreException(se);
-//    	}
+        final String principalPath = pathResolver.getPrincipalPath(getUserName());
+        final String userPath = pathResolver.getUserPath(getUserName());
+        davClient = clientFactory.newInstance(rootUrl, principalPath, userPath);
+        davClient.begin();
+
         return true;
     }
 
 
     public final boolean connect( String bearerAuth ) throws ObjectStoreException {
         try {
-            davClient = new DavClient( rootUrl, rootUrl.getFile(), rootUrl.getFile() );
+            davClient = clientFactory.newInstance(rootUrl, rootUrl.getFile(), rootUrl.getFile());
             davClient.begin( bearerAuth );
 
             this.bearerAuth = bearerAuth;
@@ -123,15 +121,12 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
      */
     public final boolean connect(String username, char[] password) throws ObjectStoreException {
     	try {
-//        	davClient = SardineFactory.begin(username, new String(password));
             this.username = username;
         	
         	final String principalPath = pathResolver.getPrincipalPath(username);
         	final String userPath = pathResolver.getUserPath(username);
-        	davClient = new DavClient(rootUrl, principalPath, userPath);
+        	davClient = clientFactory.newInstance(rootUrl, principalPath, userPath);
         	supportedFeatures = davClient.begin(username, password);
-
-
     	}
     	catch (IOException ioe) {
     		throw new ObjectStoreException(ioe);
@@ -139,9 +134,6 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
     	catch (FailedOperationException foe) {
     		throw new ObjectStoreException(foe);
     	}
-//    	catch (SardineException se) {
-//    		throw new ObjectStoreException(se);
-//    	}
 
         return true;
     }
