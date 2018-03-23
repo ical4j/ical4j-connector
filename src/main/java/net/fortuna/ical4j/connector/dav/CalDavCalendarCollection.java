@@ -58,12 +58,10 @@ import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import javax.swing.text.html.parser.Parser;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -86,7 +84,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * Only {@link CalDavCalendarStore} should be calling this, so default modifier is applied.
      * 
      * @param calDavCalendarStore
-     * @param path
+     * @param id
      */
     CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id) {
         this(calDavCalendarStore, id, null, null);
@@ -135,7 +133,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     /**
      * @return an array of calendar objects
      * @deprecated Use the getEvents() method
-     * @see net.fortuna.ical4j.connector.CalendarCollection#getCalendars()
+     * @see CalendarCollection#getComponents()
      */
     @Deprecated
     public Calendar[] getCalendars() {
