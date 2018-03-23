@@ -31,23 +31,10 @@
  */
 package net.fortuna.ical4j.connector.dav;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
 import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.dav.enums.SupportedFeature;
 import net.fortuna.ical4j.connector.dav.property.CSDavPropertyName;
-import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
-
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HeaderElement;
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.protocol.Protocol;
@@ -56,6 +43,11 @@ import org.apache.jackrabbit.webdav.client.methods.DavMethodBase;
 import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DavClient {
 
@@ -68,14 +60,21 @@ public class DavClient {
 
 	private String userPath;
 
+	private final boolean preemptiveAuth;
+
 	/**
 	 * The HTTP client configuration.
 	 */
 	protected HostConfiguration hostConfiguration;
 
 	public DavClient(URL url, String principalPath, String userPath) {
+		this(url, principalPath, userPath, false);
+	}
+
+	public DavClient(URL url, String principalPath, String userPath, boolean preemptiveAuth) {
 		this.principalPath = principalPath;
 		this.userPath = userPath;
+		this.preemptiveAuth = preemptiveAuth;
 
 		final Protocol protocol = Protocol.getProtocol(url.getProtocol());
 		hostConfiguration = new HostConfiguration();
@@ -84,7 +83,7 @@ public class DavClient {
 
 	void begin() {
 		httpClient = new HttpClient();
-		httpClient.getParams().setAuthenticationPreemptive(false);
+		httpClient.getParams().setAuthenticationPreemptive(preemptiveAuth);
 	}
 
 	ArrayList<SupportedFeature> begin(String bearerAuth) throws IOException, FailedOperationException {
