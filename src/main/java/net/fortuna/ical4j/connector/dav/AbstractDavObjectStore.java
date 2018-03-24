@@ -75,7 +75,7 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
     public AbstractDavObjectStore(URL url, PathResolver pathResolver) {
     	this.rootUrl = url;
         this.pathResolver = pathResolver;
-        this.clientFactory = new DavClientFactory("true".equals(Configurator.getProperty("ical4j.connector.dav.preemptiveauth")));
+        this.clientFactory = new DavClientFactory("true".equals(Configurator.getProperty("ical4j.connector.dav.preemptiveauth").orElse("false")));
     }
 
     /**
