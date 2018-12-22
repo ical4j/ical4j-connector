@@ -2,16 +2,15 @@ buildscript {
     repositories {
         mavenCentral()
     }
-
-    dependencies {
-        classpath group: 'pl.allegro.tech.build', name: 'axion-release-plugin', version: '1.7.1'
-    }
 }
 
 plugins {
-    id "com.jfrog.bintray" version "1.7.3"
+    id 'pl.allegro.tech.build.axion-release' version '1.8.1'
+    id "com.jfrog.bintray" version "1.8.4"
 }
 
+apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'groovy'
 apply plugin: 'osgi'
 apply plugin: 'maven'
@@ -36,6 +35,10 @@ repositories {
     }
 }
 
+ext {
+    slf4jVersion = '1.7.25'
+}
+
 dependencies {
     compileOnly 'javax.servlet:servlet-api:2.5'
     
@@ -47,6 +50,8 @@ dependencies {
 
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0',
             'org.apache.jackrabbit:jackrabbit-core:2.8.0'
+
+    testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
 }
 
 jacocoTestReport {
@@ -89,7 +94,7 @@ scmVersion {
     }
     versionCreator 'versionWithBranch'
     branchVersionCreator = [
-            'master': 'simple'
+        'master': 'simple'
     ]
 }
 
