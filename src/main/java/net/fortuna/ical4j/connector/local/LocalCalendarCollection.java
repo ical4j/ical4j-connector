@@ -4,18 +4,26 @@ import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.enums.MediaType;
+import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
+import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calendar> implements CalendarCollection {
+
+    private static MediaType[] SUPPORTED_MEDIA_TYPES = new MediaType[1];
+    static {
+        SUPPORTED_MEDIA_TYPES[0] = MediaType.ICALENDAR_2_0;
+    }
 
     public LocalCalendarCollection(File root) {
         super(root);
@@ -23,7 +31,7 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
 
     @Override
     public MediaType[] getSupportedMediaTypes() {
-        return new MediaType[0];
+        return SUPPORTED_MEDIA_TYPES;
     }
 
     @Override
@@ -53,7 +61,22 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
 
     @Override
     public void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
+        Uid uid = Calendars.getUid(calendar);
+        if (uid == null) {
+            throw new ConstraintViolationException("A valid UID was not found.");
+        }
 
+        Calendar existing = getCalendar(uid.getValue());
+        if (existing != null) {
+            // TODO: potentially merge/replace existing..
+            throw new ObjectStoreException("Calendar already exists");
+        }
+
+        try {
+            new CalendarOutputter(false).output(calendar, new FileWriter(new File(getRoot(), uid.getValue() + ".ics")));
+        } catch (IOException e) {
+            throw new ObjectStoreException("Error writing calendar file", e);
+        }
     }
 
     @Override
