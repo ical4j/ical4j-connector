@@ -43,7 +43,7 @@ dependencies {
     compileOnly 'javax.servlet:servlet-api:2.5'
     
     compile 'org.mnode.ical4j:ical4j:2.+', 'org.mnode.ical4j:ical4j-extensions:1.+',
-            'org.mnode.ical4j:ical4j-vcard:1.+',
+            'org.mnode.ical4j:ical4j-vcard:1.0.4',
             'commons-io:commons-io:2.3',
             'org.apache.jackrabbit:jackrabbit-webdav:2.8.0',
             'javax.jcr:jcr:2.0', 'org.jcrom:jcrom:2.0.0'
