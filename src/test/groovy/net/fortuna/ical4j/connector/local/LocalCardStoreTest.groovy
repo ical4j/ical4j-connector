@@ -28,7 +28,7 @@ class LocalCardStoreTest extends Specification {
 
         when: 'a new collection is added'
         LocalCardCollection collection = cardStore.addCollection('contacts', 'Contacts',
-                'Personal Contacts', [] as String[], timezone)
+                'Personal Contacts', ['VCARD'] as String[], timezone)
 
         then: 'a local collection directory is added'
         new File('build/local', 'contacts').exists()
@@ -36,7 +36,7 @@ class LocalCardStoreTest extends Specification {
         and: 'the collection properties are saved'
         collection.displayName == 'Contacts'
         collection.description == 'Personal Contacts'
-        collection.supportedComponentTypes == [] as String[]
+        collection.supportedComponentTypes == ['VCARD'] as String[]
         collection.timeZone == timezone
     }
 }
