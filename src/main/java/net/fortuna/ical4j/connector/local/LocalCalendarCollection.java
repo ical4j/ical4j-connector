@@ -2,6 +2,7 @@ package net.fortuna.ical4j.connector.local;
 
 import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.FailedOperationException;
+import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.enums.MediaType;
 import net.fortuna.ical4j.data.CalendarOutputter;
@@ -66,32 +67,38 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
             throw new ConstraintViolationException("A valid UID was not found.");
         }
 
-        Calendar existing = getCalendar(uid.getValue());
-        if (existing != null) {
+        try {
+            Calendar existing = getCalendar(uid.getValue());
+
             // TODO: potentially merge/replace existing..
             throw new ObjectStoreException("Calendar already exists");
+        } catch (ObjectNotFoundException e) {
+
         }
 
-        try {
-            new CalendarOutputter(false).output(calendar, new FileWriter(new File(getRoot(), uid.getValue() + ".ics")));
+        try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".ics"))) {
+            new CalendarOutputter(false).output(calendar, writer);
         } catch (IOException e) {
             throw new ObjectStoreException("Error writing calendar file", e);
         }
     }
 
     @Override
-    public Calendar getCalendar(String uid) {
-        return null;
+    public Calendar getCalendar(String uid) throws ObjectNotFoundException {
+        try {
+            return Calendars.load(new File(getRoot(), uid + ".ics").getAbsolutePath());
+        } catch (IOException | ParserException e) {
+            throw new ObjectNotFoundException(String.format("Calendar not found: %s", uid), e);
+        }
     }
 
     @Override
-    public Calendar removeCalendar(String uid) throws FailedOperationException, ObjectStoreException {
-        return null;
+    public Calendar removeCalendar(String uid) throws FailedOperationException, ObjectStoreException, ObjectNotFoundException {
+        return getCalendar(uid);
     }
 
     @Override
     public void merge(Calendar calendar) throws FailedOperationException, ObjectStoreException {
-
     }
 
     @Override

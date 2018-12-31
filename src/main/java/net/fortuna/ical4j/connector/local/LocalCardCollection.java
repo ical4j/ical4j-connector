@@ -1,6 +1,7 @@
 package net.fortuna.ical4j.connector.local;
 
 import net.fortuna.ical4j.connector.CardCollection;
+import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.enums.MediaType;
 import net.fortuna.ical4j.data.ParserException;
@@ -33,22 +34,28 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
             throw new ConstraintViolationException("A valid UID was not found.");
         }
 
-        VCard existing = getCard(uid.getValue());
-        if (existing != null) {
+        try {
+            VCard existing = getCard(uid.getValue());
+
             // TODO: potentially merge/replace existing..
             throw new ObjectStoreException("Card already exists");
+        } catch (ObjectNotFoundException e) {
+
         }
 
-        try {
-            new VCardOutputter(false).output(card, new FileWriter(new File(getRoot(), uid.getValue() + ".vcf")));
+        try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".vcf"))) {
+            new VCardOutputter(false).output(card, writer);
         } catch (IOException e) {
             throw new ObjectStoreException("Error writing card file", e);
         }
-
     }
 
-    public VCard getCard(String uid) {
-        return null;
+    public VCard getCard(String uid) throws ObjectNotFoundException {
+        try {
+            return new VCardBuilder(new FileInputStream(new File(getRoot(), uid + ".vcf"))).build();
+        } catch (IOException | ParserException e) {
+            throw new ObjectNotFoundException(String.format("Card not found: %s", uid), e);
+        }
     }
 
     @Override
