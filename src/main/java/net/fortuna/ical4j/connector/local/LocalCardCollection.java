@@ -1,6 +1,7 @@
 package net.fortuna.ical4j.connector.local;
 
 import net.fortuna.ical4j.connector.CardCollection;
+import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.enums.MediaType;
@@ -56,6 +57,15 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
         } catch (IOException | ParserException e) {
             throw new ObjectNotFoundException(String.format("Card not found: %s", uid), e);
         }
+    }
+
+    @Override
+    public VCard removeCard(String uid) throws ObjectNotFoundException, FailedOperationException {
+        VCard card = getCard(uid);
+        if (!new File(getRoot(), uid + ".vcf").delete()) {
+            throw new FailedOperationException("Unable to delete card: " + uid);
+        }
+        return card;
     }
 
     @Override

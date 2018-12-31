@@ -93,8 +93,12 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
     }
 
     @Override
-    public Calendar removeCalendar(String uid) throws FailedOperationException, ObjectStoreException, ObjectNotFoundException {
-        return getCalendar(uid);
+    public Calendar removeCalendar(String uid) throws FailedOperationException, ObjectNotFoundException {
+        Calendar calendar = getCalendar(uid);
+        if (!new File(getRoot(), uid + ".ics").delete()) {
+            throw new FailedOperationException("Unable to delete calendar: " + uid);
+        }
+        return calendar;
     }
 
     @Override

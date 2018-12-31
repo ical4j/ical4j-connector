@@ -50,4 +50,14 @@ public interface CardCollection extends ObjectCollection<VCard> {
      * @throws ConstraintViolationException where the specified object is not valid
      */
     void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException;
+
+    /**
+     * Remove an existing card from the collection.
+     *
+     * @param uid the uid of the existing card
+     * @return the card object that was removed from the collection
+     * @throws ObjectNotFoundException
+     * @throws FailedOperationException
+     */
+    VCard removeCard(String uid) throws ObjectNotFoundException, FailedOperationException;
 }
