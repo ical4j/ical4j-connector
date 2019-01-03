@@ -33,6 +33,7 @@ package net.fortuna.ical4j.connector.dav;
 
 import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.FailedOperationException;
+import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.method.GetMethod;
 import net.fortuna.ical4j.connector.dav.method.MkCalendarMethod;
@@ -416,7 +417,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * {@inheritDoc}
      */
     @Override
-    public Calendar getCalendar(String uid) {
+    public Calendar getCalendar(String uid) throws ObjectNotFoundException {
         return getCalendarFromUri(defaultUriFromUid(uid));
     }
 
@@ -425,7 +426,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * @param uri the URI (relative to this collection's path) where the calendar is to be found
      * @return a calendar object or null if no calendar exists under the specified URI
      */
-    public Calendar getCalendarFromUri(String uri) {
+    public Calendar getCalendarFromUri(String uri) throws ObjectNotFoundException {
         String path = getPath();
         if (!path.endsWith("/")) {
             path = path.concat("/");
@@ -443,7 +444,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
                 throw new RuntimeException(e);
             }
         } else if (method.getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
-            return null;
+            throw new ObjectNotFoundException(String.format("Calendar not found: %s", uri));
         }
         return null;
     }
@@ -451,7 +452,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     /**
      * {@inheritDoc}
      */
-    public Calendar removeCalendar(String uid) throws FailedOperationException, ObjectStoreException {
+    public Calendar removeCalendar(String uid) throws FailedOperationException, ObjectStoreException, ObjectNotFoundException {
         return removeCalendarFromUri(defaultUriFromUid(uid));
     }
 
@@ -460,7 +461,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * @return the calendar that was successfully removed from the collection
      * @throws ObjectStoreException where an unexpected error occurs
      */
-    public Calendar removeCalendarFromUri(String uri) throws FailedOperationException, ObjectStoreException {
+    public Calendar removeCalendarFromUri(String uri) throws FailedOperationException, ObjectStoreException, ObjectNotFoundException {
         Calendar calendar = getCalendarFromUri(uri);
 
         DeleteMethod deleteMethod = new DeleteMethod(getPath() + "/" + uri);

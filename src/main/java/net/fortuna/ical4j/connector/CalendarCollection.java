@@ -114,14 +114,14 @@ public interface CalendarCollection extends ObjectCollection<Calendar> {
      * @param uid the UID associated with the returned calendar
      * @return a calendar object or null if no calendar with the specified UID exists
      */
-    Calendar getCalendar(String uid);
+    Calendar getCalendar(String uid) throws ObjectNotFoundException;
     
     /**
      * @param uid the UID of the calendar to remove
      * @return the calendar that was successfully removed from the collection
      * @throws ObjectStoreException where an unexpected error occurs
      */
-    Calendar removeCalendar(String uid) throws FailedOperationException, ObjectStoreException;
+    Calendar removeCalendar(String uid) throws FailedOperationException, ObjectStoreException, ObjectNotFoundException;
     
     /**
      * Merges the specified calendar object with this collecton. This is done by

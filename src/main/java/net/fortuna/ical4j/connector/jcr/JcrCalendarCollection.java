@@ -31,25 +31,24 @@
  */
 package net.fortuna.ical4j.connector.jcr;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.jcr.PathNotFoundException;
-import javax.jcr.RepositoryException;
-
 import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.FailedOperationException;
+import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.enums.MediaType;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jcrom.annotations.JcrProperty;
+
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * $Id$
@@ -206,7 +205,7 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection<Calendar>
     /**
      * {@inheritDoc}
      */
-    public Calendar getCalendar(String uid) {
+    public Calendar getCalendar(String uid) throws ObjectNotFoundException {
         try {
 //            JcrCalendar jcrCal = (JcrCalendar) calendars.get(uid);
 //            JcrCalendar jcrCal = getStore().getJcrom().fromNode(
@@ -226,7 +225,7 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection<Calendar>
             }
         }
         catch (Exception e) {
-            LOG.error("Unexpected error", e);
+            throw new ObjectNotFoundException("Unexpected error", e);
         }
         return null;
     }
@@ -326,7 +325,7 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection<Calendar>
     /**
      * {@inheritDoc}
      */
-    public Calendar removeCalendar(String uid) throws ObjectStoreException {
+    public Calendar removeCalendar(String uid) throws ObjectStoreException, ObjectNotFoundException {
         Calendar calendar = getCalendar(uid);
 
         List<JcrCalendar> calendars = getCalendarDao().findByUid(

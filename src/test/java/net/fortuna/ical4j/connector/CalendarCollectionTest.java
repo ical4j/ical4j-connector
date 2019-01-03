@@ -31,20 +31,19 @@
  */
 package net.fortuna.ical4j.connector;
 
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.property.Uid;
+import net.fortuna.ical4j.util.Calendars;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.NotFileFilter;
+import org.junit.Ignore;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.commons.io.filefilter.NotFileFilter;
-
-import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.property.Uid;
-import net.fortuna.ical4j.util.Calendars;
-import org.junit.Ignore;
 
 /**
  * $Id$
@@ -182,7 +181,7 @@ public class CalendarCollectionTest<T extends CalendarCollection> extends Object
      * 
      * @throws ObjectStoreException
      */
-    public void testGetCalendar() throws ObjectStoreException {
+    public void testGetCalendar() throws ObjectStoreException, ObjectNotFoundException {
         for (int i = 0; i < calendarUids.length; i++) {
             Calendar cal = getCollection().getCalendar(calendarUids[i]);
             assertNotNull("Calendar for uid: [" + calendarUids[i] + "] not found", cal);
