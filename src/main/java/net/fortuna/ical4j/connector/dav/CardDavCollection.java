@@ -31,11 +31,9 @@
  */
 package net.fortuna.ical4j.connector.dav;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import net.fortuna.ical4j.connector.CardCollection;
+import net.fortuna.ical4j.connector.FailedOperationException;
+import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.enums.ResourceType;
 import net.fortuna.ical4j.connector.dav.method.MkCalendarMethod;
@@ -48,21 +46,18 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.vcard.Property.Id;
 import net.fortuna.ical4j.vcard.VCard;
-
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
-import org.apache.jackrabbit.webdav.property.DavProperty;
-import org.apache.jackrabbit.webdav.property.DavPropertyIterator;
-import org.apache.jackrabbit.webdav.property.DavPropertyName;
-import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
-import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
+import org.apache.jackrabbit.webdav.property.*;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * $Id$
@@ -310,4 +305,8 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
         }        
     }
 
+    @Override
+    public VCard removeCard(String uid) throws ObjectNotFoundException, FailedOperationException {
+        return null;
+    }
 }

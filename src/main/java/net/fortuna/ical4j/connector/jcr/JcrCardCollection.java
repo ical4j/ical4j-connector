@@ -31,21 +31,21 @@
  */
 package net.fortuna.ical4j.connector.jcr;
 
-import java.util.ArrayList;
-import java.util.List;
+import net.fortuna.ical4j.connector.CardCollection;
+import net.fortuna.ical4j.connector.FailedOperationException;
+import net.fortuna.ical4j.connector.ObjectNotFoundException;
+import net.fortuna.ical4j.connector.ObjectStoreException;
+import net.fortuna.ical4j.model.ConstraintViolationException;
+import net.fortuna.ical4j.vcard.Property.Id;
+import net.fortuna.ical4j.vcard.VCard;
+import net.fortuna.ical4j.vcard.property.Uid;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
-
-import net.fortuna.ical4j.connector.CardCollection;
-import net.fortuna.ical4j.connector.ObjectStoreException;
-import net.fortuna.ical4j.model.ConstraintViolationException;
-import net.fortuna.ical4j.vcard.VCard;
-import net.fortuna.ical4j.vcard.Property.Id;
-import net.fortuna.ical4j.vcard.property.Uid;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -119,6 +119,11 @@ public class JcrCardCollection extends AbstractJcrObjectCollection<VCard> implem
         else {
             getCardDao().create(getStore().getJcrom().getPath(this) + "/cards", jcrCard);
         }
+    }
+
+    @Override
+    public VCard removeCard(String uid) throws ObjectNotFoundException, FailedOperationException {
+        return null;
     }
 
     /**
