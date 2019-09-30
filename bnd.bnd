@@ -1,1 +1,2 @@
+Export-Package: net.fortuna.ical4j.connector.*
 Automatic-Module-Name: org.mnode.ical4j.connector
