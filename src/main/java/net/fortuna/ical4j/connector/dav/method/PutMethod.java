@@ -36,7 +36,8 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.validate.ValidationException;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardOutputter;
-import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -49,7 +50,7 @@ import java.io.IOException;
  * @author Ben
  *
  */
-public class PutMethod extends org.apache.jackrabbit.webdav.client.methods.PutMethod {
+public class PutMethod extends org.apache.http.client.methods.HttpPut {
 
     private final CalendarOutputter calendarOutputter;
     private final VCardOutputter vCardOutputter;
@@ -71,12 +72,12 @@ public class PutMethod extends org.apache.jackrabbit.webdav.client.methods.PutMe
     public void setCalendar(Calendar calendar) throws IOException, ValidationException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         calendarOutputter.output(calendar, bytes);
-        setRequestEntity(new ByteArrayRequestEntity(bytes.toByteArray(), "text/calendar"));
+        setEntity(new ByteArrayEntity(bytes.toByteArray(), ContentType.create("text/calendar")));
     }
     
     public void setVCard(VCard card) throws IOException, ValidationException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         vCardOutputter.output(card, bytes);
-        setRequestEntity(new ByteArrayRequestEntity(bytes.toByteArray(), "text/vcard"));
+        setEntity(new ByteArrayEntity(bytes.toByteArray(), ContentType.create("text/vcard")));
     }
 }

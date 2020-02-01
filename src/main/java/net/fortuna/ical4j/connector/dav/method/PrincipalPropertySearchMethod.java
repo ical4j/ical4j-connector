@@ -31,10 +31,13 @@
  */
 package net.fortuna.ical4j.connector.dav.method;
 
-import java.io.IOException;
-
-import org.apache.jackrabbit.webdav.client.methods.DavMethodBase;
+import org.apache.http.HttpResponse;
+import org.apache.jackrabbit.webdav.client.methods.BaseDavRequest;
+import org.apache.jackrabbit.webdav.client.methods.XmlEntity;
 import org.apache.jackrabbit.webdav.header.DepthHeader;
+
+import java.io.IOException;
+import java.net.URI;
 
 /**
  * I had to create a new method instead of using ReportMethod because ReportInfo didn't
@@ -44,28 +47,30 @@ import org.apache.jackrabbit.webdav.header.DepthHeader;
  * @author probert
  *
  */
-public class PrincipalPropertySearchMethod extends DavMethodBase {
+public class PrincipalPropertySearchMethod extends BaseDavRequest {
 
    protected boolean isDeep;
     
-    public PrincipalPropertySearchMethod(String uri, net.fortuna.ical4j.connector.dav.method.PrincipalPropertySearchInfo reportInfo) throws IOException {
-        super(uri);
+    public PrincipalPropertySearchMethod(String uri, PrincipalPropertySearchInfo reportInfo) throws IOException {
+        super(URI.create(uri));
         DepthHeader dh = new DepthHeader(reportInfo.getDepth());
         isDeep = reportInfo.getDepth() > 0;
-        
-        setRequestHeader(dh);
-        setRequestBody(reportInfo);
+
+        setHeader(dh.getHeaderName(), dh.getHeaderValue());
+        setEntity(XmlEntity.create(reportInfo));
     }
 
     @Override
-    public String getName() {
+    public String getMethod() {
         return "REPORT";
     }
 
     @Override
-    protected boolean isSuccess(int statusCode) {
-        if(isDeep)
+    public boolean succeeded(HttpResponse response) {
+        int statusCode = response.getStatusLine().getStatusCode();
+        if(isDeep) {
             return statusCode == 207;
+        }
         return statusCode == 200 || statusCode == 207;
     }
 

@@ -34,13 +34,26 @@ package net.fortuna.ical4j.connector.dav;
 import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.dav.enums.SupportedFeature;
 import net.fortuna.ical4j.connector.dav.property.CSDavPropertyName;
-import org.apache.commons.httpclient.*;
-import org.apache.commons.httpclient.auth.AuthPolicy;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.http.Header;
+import org.apache.http.HeaderElement;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.AuthSchemes;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.jackrabbit.webdav.DavConstants;
-import org.apache.jackrabbit.webdav.client.methods.DavMethodBase;
-import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
+import org.apache.jackrabbit.webdav.client.methods.HttpPropfind;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 
@@ -56,6 +69,8 @@ public class DavClient {
 	 */
 	protected HttpClient httpClient;
 
+	protected HttpClientContext httpClientContext;
+
 	private String principalPath;
 
 	private String userPath;
@@ -65,7 +80,7 @@ public class DavClient {
 	/**
 	 * The HTTP client configuration.
 	 */
-	protected HostConfiguration hostConfiguration;
+	protected HttpHost hostConfiguration;
 
 	public DavClient(URL url, String principalPath, String userPath) {
 		this(url, principalPath, userPath, false);
@@ -76,14 +91,23 @@ public class DavClient {
 		this.userPath = userPath;
 		this.preemptiveAuth = preemptiveAuth;
 
-		final Protocol protocol = Protocol.getProtocol(url.getProtocol());
-		hostConfiguration = new HostConfiguration();
-		hostConfiguration.setHost(url.getHost(), url.getPort(), protocol);
+		hostConfiguration = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
 	}
 
 	void begin() {
-		httpClient = new HttpClient();
-		httpClient.getParams().setAuthenticationPreemptive(preemptiveAuth);
+		httpClient = HttpClients.createDefault();
+	}
+
+	void begin(CredentialsProvider credentialsProvider) {
+		httpClient = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider).build();
+
+		httpClientContext = HttpClientContext.create();
+
+		if (preemptiveAuth) {
+			AuthCache authCache = new BasicAuthCache();
+			authCache.put(hostConfiguration, new BasicScheme());
+			httpClientContext.setAuthCache(authCache);
+		}
 	}
 
 	ArrayList<SupportedFeature> begin(String bearerAuth) throws IOException, FailedOperationException {
@@ -96,15 +120,18 @@ public class DavClient {
 		DavPropertyName owner = DavPropertyName.create("owner", DavConstants.NAMESPACE);
         props.add(owner);
 
-		PropFindMethod aGet = new PropFindMethod(principalPath, DavConstants.PROPFIND_BY_PROPERTY, props, 0);
-        aGet.addRequestHeader( "Authorization", "Bearer " + bearerAuth );
-		aGet.setDoAuthentication(true);
-		int status = httpClient.executeMethod(hostConfiguration, aGet);
+		HttpPropfind aGet = new HttpPropfind(principalPath, DavConstants.PROPFIND_BY_PROPERTY, props, 0);
+        aGet.addHeader( "Authorization", "Bearer " + bearerAuth );
+
+		RequestConfig config = RequestConfig.copy(aGet.getConfig()).setAuthenticationEnabled(true).build();
+		aGet.setConfig(config);
+
+		HttpResponse response = httpClient.execute(hostConfiguration, aGet, httpClientContext);
 		
-		if (status >= 300) {
+		if (response.getStatusLine().getStatusCode() >= 300) {
 			throw new FailedOperationException(String.format("Principals not found at [%s]", userPath));
 		} else {
-		    Header[] davHeaders = aGet.getResponseHeaders(net.fortuna.ical4j.connector.dav.DavConstants.HEADER_DAV);
+		    Header[] davHeaders = response.getHeaders(net.fortuna.ical4j.connector.dav.DavConstants.HEADER_DAV);
 		    for (int headerIndex = 0; headerIndex < davHeaders.length; headerIndex++) {
 		        Header header = davHeaders[headerIndex];
 		        HeaderElement[] elements = header.getElements();
@@ -124,18 +151,20 @@ public class DavClient {
 
 	ArrayList<SupportedFeature> begin(String username, char[] password) throws IOException, FailedOperationException {
 	    ArrayList<SupportedFeature> supportedFeatures = new ArrayList<SupportedFeature>();
-	    
-	    begin();
-		Credentials credentials = new UsernamePasswordCredentials(username,
-				new String(password));
-		httpClient.getState().setCredentials(AuthScope.ANY, credentials);
+
+		Credentials credentials = new UsernamePasswordCredentials(username, new String(password));
+
+		CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+		credentialsProvider.setCredentials(new AuthScope(hostConfiguration.getHostName(), hostConfiguration.getPort()),
+				credentials);
 
 		// Added to support iCal Server, who don't support Basic auth at all,
 		// only Kerberos and Digest
 		List<String> authPrefs = new ArrayList<String>(2);
-		authPrefs.add(org.apache.commons.httpclient.auth.AuthPolicy.DIGEST);
-		authPrefs.add(org.apache.commons.httpclient.auth.AuthPolicy.BASIC);
-		httpClient.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authPrefs);
+		authPrefs.add(AuthSchemes.DIGEST);
+		authPrefs.add(AuthSchemes.BASIC);
+
+		begin(credentialsProvider);
 
 		DavPropertyNameSet props = new DavPropertyNameSet();
         props.add(DavPropertyName.RESOURCETYPE);
@@ -144,14 +173,16 @@ public class DavClient {
         props.add(owner);
 		
         // This is to get the Digest from the user
-		PropFindMethod aGet = new PropFindMethod(principalPath, DavConstants.PROPFIND_BY_PROPERTY, props, 0);
-		aGet.setDoAuthentication(true);
-		int status = httpClient.executeMethod(hostConfiguration, aGet);
+		HttpPropfind aGet = new HttpPropfind(principalPath, DavConstants.PROPFIND_BY_PROPERTY, props, 0);
+		RequestConfig requestConfig = RequestConfig.copy(aGet.getConfig()).setAuthenticationEnabled(true)
+				.setTargetPreferredAuthSchemes(authPrefs).build();
+		aGet.setConfig(requestConfig);
+		HttpResponse response = httpClient.execute(hostConfiguration, aGet, httpClientContext);
 		
-		if (status >= 300) {
+		if (response.getStatusLine().getStatusCode() >= 300) {
 			throw new FailedOperationException(String.format("Principals not found at [%s]", userPath));
 		} else {
-		    Header[] davHeaders = aGet.getResponseHeaders(net.fortuna.ical4j.connector.dav.DavConstants.HEADER_DAV);
+		    Header[] davHeaders = response.getHeaders(net.fortuna.ical4j.connector.dav.DavConstants.HEADER_DAV);
 		    for (int headerIndex = 0; headerIndex < davHeaders.length; headerIndex++) {
 		        Header header = davHeaders[headerIndex];
 		        HeaderElement[] elements = header.getElements();
@@ -169,16 +200,11 @@ public class DavClient {
 		return supportedFeatures;
 	}
 
-	public int execute(HttpMethodBase method) throws IOException {
-		return httpClient.executeMethod(hostConfiguration, method);
+	public HttpResponse execute(HttpRequestBase method) throws IOException {
+		return httpClient.execute(hostConfiguration, method, httpClientContext);
 	}
 
-	public int execute(HostConfiguration _hostConfiguration, DavMethodBase method) throws IOException {
-	    return httpClient.executeMethod(_hostConfiguration, method);
-	}
-
-	protected String getUserName() {
-		return ((UsernamePasswordCredentials) httpClient.getState()
-				.getCredentials(AuthScope.ANY)).getUserName();
+	public HttpResponse execute(HttpHost _hostConfiguration, HttpRequestBase method) throws IOException {
+	    return httpClient.execute(_hostConfiguration, method, httpClientContext);
 	}
 }

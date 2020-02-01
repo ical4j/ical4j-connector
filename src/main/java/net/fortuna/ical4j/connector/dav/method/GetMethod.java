@@ -34,6 +34,8 @@ package net.fortuna.ical4j.connector.dav.method;
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 
 import java.io.IOException;
 
@@ -45,7 +47,7 @@ import java.io.IOException;
  * @author Ben
  *
  */
-public class GetMethod extends org.apache.commons.httpclient.methods.GetMethod {
+public class GetMethod extends HttpGet {
 
     /**
      * 
@@ -65,11 +67,11 @@ public class GetMethod extends org.apache.commons.httpclient.methods.GetMethod {
      * @throws IOException where a communication error occurs
      * @throws ParserException where calendar parsing fails
      */
-    public Calendar getCalendar() throws IOException, ParserException {
-        String contentType = getResponseHeader("Content-Type").getValue();
+    public Calendar getCalendar(HttpResponse httpResponse) throws IOException, ParserException {
+        String contentType = getFirstHeader("Content-Type").getValue();
         if (contentType.startsWith("text/calendar")) {
             CalendarBuilder builder = new CalendarBuilder();
-            return builder.build(getResponseBodyAsStream());
+            return builder.build(httpResponse.getEntity().getContent());
         }
         return null;
     }
