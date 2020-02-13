@@ -1,7 +1,9 @@
 package net.fortuna.ical4j.connector.dav
 
+import spock.lang.Ignore
 import spock.lang.Specification
 
+@Ignore
 class DavClientTest extends Specification {
 
     def 'assert preemptive auth configuration'() {

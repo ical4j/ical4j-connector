@@ -39,6 +39,7 @@ import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardBuilder;
+import org.apache.http.HttpResponse;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.MultiStatus;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
@@ -61,7 +62,7 @@ import java.util.List;
  * @author Ben
  *
  */
-public class ReportMethod extends org.apache.jackrabbit.webdav.client.methods.ReportMethod {
+public class ReportMethod extends org.apache.jackrabbit.webdav.client.methods.HttpReport {
 
     /**
      * 
@@ -89,9 +90,9 @@ public class ReportMethod extends org.apache.jackrabbit.webdav.client.methods.Re
      * @throws DOMException where XML parsing fails
      * @throws ParserException where calendar parsing fails
      */
-    public Calendar[] getCalendars() throws IOException, DavException, DOMException, ParserException {
+    public Calendar[] getCalendars(HttpResponse httpResponse) throws IOException, DavException, DOMException, ParserException {
         List<Calendar> calendars = new ArrayList<Calendar>();
-        MultiStatus multi = getResponseBodyAsMultiStatus();
+        MultiStatus multi = getResponseBodyAsMultiStatus(httpResponse);
         for (MultiStatusResponse response : multi.getResponses()) {
             DavPropertySet props = response.getProperties(200);
             if (props.get(CalDavPropertyName.CALENDAR_DATA) != null) {
@@ -103,9 +104,9 @@ public class ReportMethod extends org.apache.jackrabbit.webdav.client.methods.Re
         return calendars.toArray(new Calendar[calendars.size()]);
     }
     
-    public VCard[] getVCards() throws IOException, DavException, DOMException {
+    public VCard[] getVCards(HttpResponse httpResponse) throws IOException, DavException, DOMException {
         List<VCard> cards = new ArrayList<VCard>();
-        MultiStatus multi = getResponseBodyAsMultiStatus();
+        MultiStatus multi = getResponseBodyAsMultiStatus(httpResponse);
         for (MultiStatusResponse response : multi.getResponses()) {
             DavPropertySet props = response.getProperties(200);
             if (props.get(CardDavPropertyName.ADDRESS_DATA) != null) {

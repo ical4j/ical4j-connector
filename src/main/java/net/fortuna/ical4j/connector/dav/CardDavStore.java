@@ -31,37 +31,18 @@
  */
 package net.fortuna.ical4j.connector.dav;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.CardStore;
 import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.property.CardDavPropertyName;
 import net.fortuna.ical4j.model.Calendar;
-
-import org.apache.commons.httpclient.HttpException;
-import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.MultiStatus;
-import org.apache.jackrabbit.webdav.MultiStatusResponse;
-import org.apache.jackrabbit.webdav.Status;
-import org.apache.jackrabbit.webdav.client.methods.DavMethodBase;
-import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
-import org.apache.jackrabbit.webdav.client.methods.ReportMethod;
-import org.apache.jackrabbit.webdav.property.DavProperty;
-import org.apache.jackrabbit.webdav.property.DavPropertyIterator;
-import org.apache.jackrabbit.webdav.property.DavPropertyName;
-import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
-import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
+import org.apache.http.HttpResponse;
+import org.apache.jackrabbit.webdav.*;
+import org.apache.jackrabbit.webdav.client.methods.BaseDavRequest;
+import org.apache.jackrabbit.webdav.client.methods.HttpPropfind;
+import org.apache.jackrabbit.webdav.client.methods.HttpReport;
+import org.apache.jackrabbit.webdav.property.*;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.DeltaVConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
@@ -70,6 +51,14 @@ import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * $Id$
@@ -137,11 +126,11 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
     public CardDavCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
             DavPropertyNameSet principalsProps = CardDavCollection.propertiesForFetch();
-            PropFindMethod getMethod = new PropFindMethod(id, principalsProps, PropFindMethod.DEPTH_0);
+            HttpPropfind getMethod = new HttpPropfind(id, principalsProps, 0);
 
-            this.getClient().execute(getMethod);
+            HttpResponse httpResponse = this.getClient().execute(getMethod);
 
-            MultiStatus multiStatus = getMethod.getResponseBodyAsMultiStatus();
+            MultiStatus multiStatus = getMethod.getResponseBodyAsMultiStatus(httpResponse);
             MultiStatusResponse[] responses = multiStatus.getResponses();
 
             return CardDavCollection.collectionsFromResponse(this, responses).get(0);
@@ -178,10 +167,10 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
         principalsProps.add(CardDavPropertyName.ADDRESSBOOK_HOME_SET);
         principalsProps.add(DavPropertyName.DISPLAYNAME);
 
-        PropFindMethod method = new PropFindMethod(propfindUri, principalsProps, PropFindMethod.DEPTH_0);
-        getClient().execute(method);
+        HttpPropfind method = new HttpPropfind(propfindUri, principalsProps, 0);
+        HttpResponse httpResponse = getClient().execute(method);
 
-        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
+        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus(httpResponse);
         MultiStatusResponse[] responses = multiStatus.getResponses();
         for (int i = 0; i < responses.length; i++) {
             for (int j = 0; j < responses[i].getStatus().length; j++) {
@@ -259,10 +248,10 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
 
         DavPropertyNameSet principalsProps = CardDavCollection.propertiesForFetch();
 
-        PropFindMethod method = new PropFindMethod(urlForcalendarHomeSet, principalsProps, PropFindMethod.DEPTH_1);
-        getClient().execute(method);
+        HttpPropfind method = new HttpPropfind(urlForcalendarHomeSet, principalsProps, 1);
+        HttpResponse httpResponse = getClient().execute(method);
 
-        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
+        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus(httpResponse);
         MultiStatusResponse[] responses = multiStatus.getResponses();
         
         return CardDavCollection.collectionsFromResponse(store, responses);
@@ -400,11 +389,11 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
         rinfo.setContentElement(proxyWriteForElement);
         rinfo.setContentElement(proxyReadForElement);
 
-        DavMethodBase method = new ReportMethod(methodUri, rinfo);
-        getClient().execute(getClient().hostConfiguration, method);
+        BaseDavRequest method = new HttpReport(methodUri, rinfo);
+        HttpResponse httpResponse = getClient().execute(getClient().hostConfiguration, method);
 
-        if (method.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
-            MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
+        if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
+            MultiStatus multiStatus = method.getResponseBodyAsMultiStatus(httpResponse);
             MultiStatusResponse[] responses = multiStatus.getResponses();
             for (int i = 0; i < responses.length; i++) {
                 DavPropertySet properties = responses[i].getProperties(DavServletResponse.SC_OK);
