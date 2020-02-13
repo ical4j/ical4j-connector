@@ -46,14 +46,15 @@ import net.fortuna.ical4j.model.parameter.CuType;
 import net.fortuna.ical4j.model.property.*;
 import net.fortuna.ical4j.util.FixedUidGenerator;
 import net.fortuna.ical4j.util.UidGenerator;
-import org.apache.commons.httpclient.ChunkedInputStream;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.jackrabbit.webdav.*;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.jackrabbit.webdav.Status;
-import org.apache.jackrabbit.webdav.client.methods.DavMethodBase;
-import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
-import org.apache.jackrabbit.webdav.client.methods.ReportMethod;
+import org.apache.jackrabbit.webdav.*;
+import org.apache.jackrabbit.webdav.client.methods.BaseDavRequest;
+import org.apache.jackrabbit.webdav.client.methods.HttpPropfind;
+import org.apache.jackrabbit.webdav.client.methods.HttpReport;
 import org.apache.jackrabbit.webdav.property.*;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.DeltaVConstants;
@@ -150,11 +151,11 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     public CalDavCalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
             DavPropertyNameSet principalsProps = CalDavCalendarCollection.propertiesForFetch();
-            PropFindMethod getMethod = new PropFindMethod(id, principalsProps, PropFindMethod.DEPTH_0);
+            HttpPropfind getMethod = new HttpPropfind(id, principalsProps, 0);
 
-            this.getClient().execute(getMethod);
+            HttpResponse httpResponse = this.getClient().execute(getMethod);
 
-            MultiStatus multiStatus = getMethod.getResponseBodyAsMultiStatus();
+            MultiStatus multiStatus = getMethod.getResponseBodyAsMultiStatus(httpResponse);
             MultiStatusResponse[] responses = multiStatus.getResponses();
 
             return CalDavCalendarCollection.collectionsFromResponse(this, responses).get(0);
@@ -191,10 +192,10 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         principalsProps.add(CalDavPropertyName.CALENDAR_HOME_SET);
         principalsProps.add(DavPropertyName.DISPLAYNAME);
 
-        PropFindMethod method = new PropFindMethod(propfindUri, principalsProps, PropFindMethod.DEPTH_0);
-        getClient().execute(method);
+        HttpPropfind method = new HttpPropfind(propfindUri, principalsProps, 0);
+        HttpResponse httpResponse = getClient().execute(method);
 
-        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
+        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus(httpResponse);
         MultiStatusResponse[] responses = multiStatus.getResponses();
         for (int i = 0; i < responses.length; i++) {
             for (int j = 0; j < responses[i].getStatus().length; j++) {
@@ -276,10 +277,10 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
 
         DavPropertyNameSet principalsProps = CalDavCalendarCollection.propertiesForFetch();
 
-        PropFindMethod method = new PropFindMethod(urlForcalendarHomeSet, principalsProps, PropFindMethod.DEPTH_1);
-        getClient().execute(method);
+        HttpPropfind method = new HttpPropfind(urlForcalendarHomeSet, principalsProps, 1);
+        HttpResponse httpResponse = getClient().execute(method);
 
-        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
+        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus(httpResponse);
         MultiStatusResponse[] responses = multiStatus.getResponses();
         
         return CalDavCalendarCollection.collectionsFromResponse(store, responses);
@@ -405,11 +406,11 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                 DeltaVConstants.NAMESPACE, org.apache.jackrabbit.webdav.version.report.ExpandPropertyReport.class), 0);
         rinfo.setContentElement(proxyWriteForElement);
 
-        DavMethodBase method = new ReportMethod(methodUri, rinfo);
-        getClient().execute(getClient().hostConfiguration, method);
+        BaseDavRequest method = new HttpReport(methodUri, rinfo);
+        HttpResponse httpResponse = getClient().execute(getClient().hostConfiguration, method);
 
-        if (method.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
-            MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
+        if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
+            MultiStatus multiStatus = method.getResponseBodyAsMultiStatus(httpResponse);
             MultiStatusResponse[] responses = multiStatus.getResponses();
             for (int i = 0; i < responses.length; i++) {
                 DavPropertySet properties = responses[i].getProperties(DavServletResponse.SC_OK);
@@ -484,16 +485,18 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     }
     
     protected String findInboxOrOutbox(DavPropertyName type) throws ParserConfigurationException, IOException, DavException {
-        String propfindUri = getClient().hostConfiguration.getHostURL() + pathResolver.getPrincipalPath(getUserName());
+        String propfindUri = getClient().hostConfiguration.toURI() + pathResolver.getPrincipalPath(getUserName());
 
         DavPropertyNameSet principalsProps = new DavPropertyNameSet();
         principalsProps.add(type);
 
-        PropFindMethod method = new PropFindMethod(propfindUri, principalsProps, PropFindMethod.DEPTH_0);
-        method.setDoAuthentication(true);
-        getClient().execute(getClient().hostConfiguration, method);
+        HttpPropfind method = new HttpPropfind(propfindUri, principalsProps, 0);
+        RequestConfig config = RequestConfig.copy(method.getConfig()).setAuthenticationEnabled(true).build();
+        method.setConfig(config);
 
-        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
+        HttpResponse httpResponse = getClient().execute(getClient().hostConfiguration, method);
+
+        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus(httpResponse);
         MultiStatusResponse[] responses = multiStatus.getResponses();
         for (int i = 0; i < responses.length; i++) {
             for (int j = 0; j < responses[i].getStatus().length; j++) {
@@ -563,8 +566,8 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         Random ramdomizer = new Random();
         ArrayList<ScheduleResponse> responses = new ArrayList<ScheduleResponse>();
 
-        PostMethod postMethod = new PostMethod(findScheduleOutbox());
-        postMethod.addRequestHeader(new Header(DavConstants.HEADER_CONTENT_TYPE, "text/calendar; charset=utf-8"));
+        HttpPost postMethod = new HttpPost(findScheduleOutbox());
+        postMethod.addHeader(DavConstants.HEADER_CONTENT_TYPE, "text/calendar; charset=utf-8");
 
         Calendar calendar = new Calendar();
         calendar.getProperties().add(new ProdId(getProdId()));
@@ -576,7 +579,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
 
         fbComponent.getProperties().add(organizer);
         // Was removed from the draft, but some servers still need it
-        postMethod.addRequestHeader(new Header("Originator", organizer.getValue()));
+        postMethod.addHeader("Originator", organizer.getValue());
 
         fbComponent.getProperties().add(startTime);
         fbComponent.getProperties().add(endTime);
@@ -590,34 +593,24 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
             }
             strAttendee = strAttendee.substring(0, strAttendee.length() - 1);
             // Was removed from the draft, but some servers still need it
-            postMethod.addRequestHeader(new Header("Recipient", strAttendee));
+            postMethod.addHeader("Recipient", strAttendee);
         }
 
         UidGenerator ug = new FixedUidGenerator(ramdomizer.nextInt() + "");
         fbComponent.getProperties().add(ug.generateUid());
         calendar.getComponents().add(fbComponent);
 
-        postMethod.setRequestBody(calendar.toString());
-        int httpCode = getClient().execute(postMethod);
-        if (httpCode < 300) {
-            // Zimbra's response is chunked
-            if ((postMethod.getResponseContentLength() < 0)
-                    && ("chunked".equals(postMethod.getResponseHeader("Transfer-Encoding")))) {
-                ChunkedInputStream chunkedIS = new ChunkedInputStream(postMethod.getResponseBodyAsStream(), postMethod);
-                int c;
-                while ((c = chunkedIS.read()) != -1) {
-                    System.out.println(c);
-                }
-            } else {
-                DocumentBuilderFactory xmlFactory = DocumentBuilderFactory.newInstance();
-                xmlFactory.setNamespaceAware(true);
-                DocumentBuilder xmlBuilder = xmlFactory.newDocumentBuilder();
-                Document xmlDoc = xmlBuilder.parse(postMethod.getResponseBodyAsStream());
-                NodeList nodes = xmlDoc.getElementsByTagNameNS(CalDavConstants.CALDAV_NAMESPACE.getURI(),
-                        DavPropertyName.XML_RESPONSE);
-                for (int nodeItr = 0; nodeItr < nodes.getLength(); nodeItr++) {
-                    responses.add(new ScheduleResponse((Element) nodes.item(nodeItr)));
-                }
+        postMethod.setEntity(new StringEntity(calendar.toString()));
+        HttpResponse httpResponse = getClient().execute(postMethod);
+        if (httpResponse.getStatusLine().getStatusCode() < 300) {
+            DocumentBuilderFactory xmlFactory = DocumentBuilderFactory.newInstance();
+            xmlFactory.setNamespaceAware(true);
+            DocumentBuilder xmlBuilder = xmlFactory.newDocumentBuilder();
+            Document xmlDoc = xmlBuilder.parse(postMethod.getEntity().getContent());
+            NodeList nodes = xmlDoc.getElementsByTagNameNS(CalDavConstants.CALDAV_NAMESPACE.getURI(),
+                    DavPropertyName.XML_RESPONSE);
+            for (int nodeItr = 0; nodeItr < nodes.getLength(); nodeItr++) {
+                responses.add(new ScheduleResponse((Element) nodes.item(nodeItr)));
             }
         }
         return responses;
@@ -754,13 +747,13 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         PrincipalPropertySearchInfo rinfo = new PrincipalPropertySearchInfo(principalPropSearch, 0);
         
         String methodUri = this.pathResolver.getPrincipalPath(getUserName());
-        DavMethodBase method = new PrincipalPropertySearchMethod(methodUri, rinfo);
-        getClient().execute(getClient().hostConfiguration, method);
+        BaseDavRequest method = new PrincipalPropertySearchMethod(methodUri, rinfo);
+        HttpResponse httpResponse = getClient().execute(getClient().hostConfiguration, method);
         
         List<Attendee> resources = new ArrayList<Attendee>();
         
-        if (method.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
-            MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
+        if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
+            MultiStatus multiStatus = method.getResponseBodyAsMultiStatus(httpResponse);
             MultiStatusResponse[] responses = multiStatus.getResponses();
             for (int i = 0; i < responses.length; i++) {
                 

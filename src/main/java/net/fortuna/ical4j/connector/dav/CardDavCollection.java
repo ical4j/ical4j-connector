@@ -46,9 +46,11 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.vcard.Property.Id;
 import net.fortuna.ical4j.vcard.VCard;
+import org.apache.http.HttpResponse;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
+import org.apache.jackrabbit.webdav.client.methods.XmlEntity;
 import org.apache.jackrabbit.webdav.property.*;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
@@ -111,11 +113,12 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
         MkCalendar mkcalendar = new MkCalendar();
         mkcalendar.setProperties(properties);
         System.out.println("properties: " + properties.getContentSize());
-        mkCalendarMethod.setRequestBody(mkcalendar);
+        mkCalendarMethod.setEntity(XmlEntity.create(mkcalendar));
 
-        getStore().getClient().execute(mkCalendarMethod);
-        if (!mkCalendarMethod.succeeded()) {
-            throw new ObjectStoreException(mkCalendarMethod.getStatusCode() + ": " + mkCalendarMethod.getStatusText());
+        HttpResponse httpResponse = getStore().getClient().execute(mkCalendarMethod);
+        if (!mkCalendarMethod.succeeded(httpResponse)) {
+            throw new ObjectStoreException(httpResponse.getStatusLine().getStatusCode() + ": "
+                    + httpResponse.getStatusLine().getReasonPhrase());
         }
     }
 
@@ -261,10 +264,10 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
             ReportInfo info = new ReportInfo(ReportMethod.ADDRESSBOOK_QUERY, 1, properties);
 
             ReportMethod method = new ReportMethod(getPath(), info);
-            getStore().getClient().execute(method);
-            if (method.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
-                return method.getVCards();
-            } else if (method.getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
+            HttpResponse httpResponse = getStore().getClient().execute(method);
+            if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
+                return method.getVCards(httpResponse);
+            } else if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
                 return new VCard[0];
             }
         } catch (IOException | DavException e) {
@@ -295,10 +298,10 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
         }
 
         try {
-            getStore().getClient().execute(putMethod);
-            if ((putMethod.getStatusCode() != DavServletResponse.SC_CREATED)
-                    && (putMethod.getStatusCode() != DavServletResponse.SC_NO_CONTENT)) {
-                throw new ObjectStoreException("Error creating calendar on server: " + putMethod.getStatusLine());
+            HttpResponse httpResponse = getStore().getClient().execute(putMethod);
+            if ((httpResponse.getStatusLine().getStatusCode() != DavServletResponse.SC_CREATED)
+                    && (httpResponse.getStatusLine().getStatusCode() != DavServletResponse.SC_NO_CONTENT)) {
+                throw new ObjectStoreException("Error creating calendar on server: " + httpResponse.getStatusLine());
             }
         } catch (IOException ioe) {
             throw new ObjectStoreException("Error creating calendar on server", ioe);

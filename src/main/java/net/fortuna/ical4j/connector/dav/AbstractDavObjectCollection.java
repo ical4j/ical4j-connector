@@ -31,35 +31,32 @@
  */
 package net.fortuna.ical4j.connector.dav;
 
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import net.fortuna.ical4j.connector.ObjectCollection;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.enums.MediaType;
 import net.fortuna.ical4j.connector.dav.enums.ResourceType;
 import net.fortuna.ical4j.connector.dav.property.BaseDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
-
-import org.apache.commons.httpclient.HttpException;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatus;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
-import org.apache.jackrabbit.webdav.client.methods.DeleteMethod;
-import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
-import org.apache.jackrabbit.webdav.property.DavProperty;
-import org.apache.jackrabbit.webdav.property.DavPropertyIterator;
-import org.apache.jackrabbit.webdav.property.DavPropertyName;
-import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
-import org.apache.jackrabbit.webdav.property.DavPropertySet;
+import org.apache.jackrabbit.webdav.client.methods.HttpDelete;
+import org.apache.jackrabbit.webdav.client.methods.HttpPropfind;
+import org.apache.jackrabbit.webdav.property.*;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @param <T> the supported collection object type
@@ -240,13 +237,15 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
             try {
                 DavPropertyNameSet nameSet = new DavPropertyNameSet();
                 nameSet.add(DavPropertyName.DISPLAYNAME);
-                PropFindMethod aGet = new PropFindMethod(getOwnerHref(), nameSet, 0);
-                aGet.setDoAuthentication(true);
-                
-                getStore().getClient().execute(aGet);
+                HttpPropfind aGet = new HttpPropfind(getOwnerHref(), nameSet, 0);
 
-                if (aGet.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
-                    MultiStatus multiStatus = aGet.getResponseBodyAsMultiStatus();
+                RequestConfig config = RequestConfig.copy(aGet.getConfig()).setAuthenticationEnabled(true).build();
+                aGet.setConfig(config);
+
+                HttpResponse httpResponse = getStore().getClient().execute(aGet);
+
+                if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
+                    MultiStatus multiStatus = aGet.getResponseBodyAsMultiStatus(httpResponse);
                     MultiStatusResponse[] responses = multiStatus.getResponses();
                     
                     for (int i = 0; i < responses.length; i++) {
@@ -312,42 +311,42 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
     }
 
     /**
-     * @throws HttpException where an error occurs calling the HTTP method
+     * @throws HttpResponseException where an error occurs calling the HTTP method
      * @throws IOException if there is a communication error
      * @throws ObjectStoreException where an unexpected error occurs
      */
-    public final void delete() throws HttpException, IOException, ObjectStoreException {
-        DeleteMethod deleteMethod = new DeleteMethod(getPath());
-        getStore().getClient().execute(deleteMethod);
-        if (!deleteMethod.succeeded()) {
-            throw new ObjectStoreException(deleteMethod.getStatusCode() + ": "
-                    + deleteMethod.getStatusText());
+    public final void delete() throws HttpResponseException, IOException, ObjectStoreException {
+        HttpDelete deleteMethod = new HttpDelete(getPath());
+        HttpResponse httpResponse = getStore().getClient().execute(deleteMethod);
+        if (!deleteMethod.succeeded(httpResponse)) {
+            throw new ObjectStoreException(httpResponse.getStatusLine().getStatusCode() + ": "
+                    + httpResponse.getStatusLine().getReasonPhrase());
         }
     }
 
     /**
      * @return true if the collection exists, otherwise false
-     * @throws HttpException where an error occurs calling the HTTP method
+     * @throws HttpResponseException where an error occurs calling the HTTP method
      * @throws IOException if there is a communication error
      * @throws ObjectStoreException where an unexpected error occurs
      */
-    public final boolean exists() throws HttpException, IOException, ObjectStoreException {
+    public final boolean exists() throws HttpResponseException, IOException, ObjectStoreException {
         DavPropertyNameSet principalsProps = CalDavCalendarCollection.propertiesForFetch();
-        PropFindMethod getMethod = new PropFindMethod(getPath(), principalsProps, PropFindMethod.DEPTH_0);
+        HttpPropfind getMethod = new HttpPropfind(getPath(), principalsProps, 0);
         
-        getStore().getClient().execute(getMethod);
+        HttpResponse httpResponse = getStore().getClient().execute(getMethod);
 
-        if (getMethod.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
+        if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
             return true;
         }
-        else if (getMethod.getStatusCode() == DavServletResponse.SC_OK) {
+        else if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_OK) {
             return true;
         }
-        else if (getMethod.getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
+        else if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
             return false;
         }
         else {
-            throw new ObjectStoreException(getMethod.getStatusLine().toString());
+            throw new ObjectStoreException(httpResponse.getStatusLine().toString());
         }
     }
     

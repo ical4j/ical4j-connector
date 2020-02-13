@@ -51,9 +51,11 @@ import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
+import org.apache.http.HttpResponse;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.*;
-import org.apache.jackrabbit.webdav.client.methods.DeleteMethod;
+import org.apache.jackrabbit.webdav.client.methods.HttpDelete;
+import org.apache.jackrabbit.webdav.client.methods.XmlEntity;
 import org.apache.jackrabbit.webdav.property.*;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
@@ -123,11 +125,11 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         MkCalendar mkcalendar = new MkCalendar();
         mkcalendar.setProperties(properties);
         System.out.println("properties: " + properties.getContentSize());
-        mkCalendarMethod.setRequestBody(mkcalendar);
+        mkCalendarMethod.setEntity(XmlEntity.create(mkcalendar));
 
-        getStore().getClient().execute(mkCalendarMethod);
-        if (!mkCalendarMethod.succeeded()) {
-            throw new ObjectStoreException(mkCalendarMethod.getStatusCode() + ": " + mkCalendarMethod.getStatusText());
+        HttpResponse httpResponse = getStore().getClient().execute(mkCalendarMethod);
+        if (!mkCalendarMethod.succeeded(httpResponse)) {
+            throw new ObjectStoreException(httpResponse.getStatusLine().getStatusCode() + ": " + httpResponse.getStatusLine().getReasonPhrase());
         }
     }
 
@@ -182,9 +184,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
             info.setContentElement(filter);
 
             ReportMethod method = new ReportMethod(getPath(), info);
-            getStore().getClient().execute(method);
-            if (method.getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
-                return method.getCalendars();
+            HttpResponse httpResponse = getStore().getClient().execute(method);
+            if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
+                return method.getCalendars(httpResponse);
             } else {
                 return new Calendar[0];
             }
@@ -389,9 +391,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         PutMethod putMethod = new PutMethod(path + uri);
         // putMethod.setAllEtags(true);
         if (isNew) {
-            putMethod.addRequestHeader("If-None-Match", "*");
+            putMethod.addHeader("If-None-Match", "*");
         } else {
-            putMethod.addRequestHeader("If-Match", "*");
+            putMethod.addHeader("If-Match", "*");
         }
         // putMethod.setRequestBody(calendar);
 
@@ -403,10 +405,10 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
 
         try {
             // TODO: get ETag and Schedule-Tag headers and store them locally
-            getStore().getClient().execute(putMethod);
-            if ((putMethod.getStatusCode() != DavServletResponse.SC_CREATED)
-                    && (putMethod.getStatusCode() != DavServletResponse.SC_NO_CONTENT)) {
-                throw new ObjectStoreException("Error creating calendar on server: " + putMethod.getStatusLine());
+            HttpResponse httpResponse = getStore().getClient().execute(putMethod);
+            if ((httpResponse.getStatusLine().getStatusCode() != DavServletResponse.SC_CREATED)
+                    && (httpResponse.getStatusLine().getStatusCode() != DavServletResponse.SC_NO_CONTENT)) {
+                throw new ObjectStoreException("Error creating calendar on server: " + httpResponse.getStatusLine());
             }
         } catch (IOException ioe) {
             throw new ObjectStoreException("Error creating calendar on server", ioe);
@@ -432,18 +434,19 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
             path = path.concat("/");
         }
         GetMethod method = new GetMethod(path + uri);
+        HttpResponse httpResponse;
         try {
-            getStore().getClient().execute(method);
+            httpResponse = getStore().getClient().execute(method);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        if (method.getStatusCode() == DavServletResponse.SC_OK) {
+        if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_OK) {
             try {
-                return method.getCalendar();
+                return method.getCalendar(httpResponse);
             } catch (IOException | ParserException e) {
                 throw new RuntimeException(e);
             }
-        } else if (method.getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
+        } else if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
             throw new ObjectNotFoundException(String.format("Calendar not found: %s", uri));
         }
         return null;
@@ -464,14 +467,15 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     public Calendar removeCalendarFromUri(String uri) throws FailedOperationException, ObjectStoreException, ObjectNotFoundException {
         Calendar calendar = getCalendarFromUri(uri);
 
-        DeleteMethod deleteMethod = new DeleteMethod(getPath() + "/" + uri);
+        HttpDelete deleteMethod = new HttpDelete(getPath() + "/" + uri);
+        HttpResponse httpResponse;
         try {
-            getStore().getClient().execute(deleteMethod);
+            httpResponse = getStore().getClient().execute(deleteMethod);
         } catch (IOException e) {
             throw new ObjectStoreException(e);
         }
-        if (!deleteMethod.succeeded()) {
-            throw new FailedOperationException(deleteMethod.getStatusLine().toString());
+        if (!deleteMethod.succeeded(httpResponse)) {
+            throw new FailedOperationException(httpResponse.getStatusLine().toString());
         }
 
         return calendar;
@@ -606,8 +610,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         parentFilter.appendChild(importedFilter);
 
         ReportMethod method = new ReportMethod(this.getPath(), rinfo);
-        this.getStore().getClient().execute(method);
-        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus();
+        HttpResponse httpResponse = this.getStore().getClient().execute(method);
+        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus(httpResponse);
         MultiStatusResponse[] responses = multiStatus.getResponses();
         for (int i = 0; i < responses.length; i++) {
             for (int j = 0; j < responses[i].getStatus().length; j++) {

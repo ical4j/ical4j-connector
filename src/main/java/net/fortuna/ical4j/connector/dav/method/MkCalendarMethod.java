@@ -31,8 +31,11 @@
  */
 package net.fortuna.ical4j.connector.dav.method;
 
+import org.apache.http.HttpResponse;
 import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.client.methods.DavMethodBase;
+import org.apache.jackrabbit.webdav.client.methods.BaseDavRequest;
+
+import java.net.URI;
 
 /**
  * $Id$
@@ -42,29 +45,26 @@ import org.apache.jackrabbit.webdav.client.methods.DavMethodBase;
  * @author Ben
  *
  */
-public class MkCalendarMethod extends DavMethodBase {
+public class MkCalendarMethod extends BaseDavRequest {
 
     /**
      * @param uri a new calendar URI
      */
     public MkCalendarMethod(String uri) {
-        super(uri);
+        super(URI.create(uri));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getName() {
+    public String getMethod() {
         return CalDavMethods.METHOD_MKCALENDAR;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected boolean isSuccess(int statusCode) {
-        return statusCode == DavServletResponse.SC_CREATED;
+    public boolean succeeded(HttpResponse response) {
+        return response.getStatusLine().getStatusCode() == DavServletResponse.SC_CREATED;
     }
 
 }

@@ -41,7 +41,7 @@ repositories {
 }
 
 ext {
-    slf4jVersion = '1.7.25'
+    slf4jVersion = '1.7.30'
 }
 
 dependencies {
@@ -50,11 +50,11 @@ dependencies {
     compile 'org.mnode.ical4j:ical4j:2.2.6', 'org.mnode.ical4j:ical4j-extensions:1.0.3',
             'org.mnode.ical4j:ical4j-vcard:1.0.5',
             'commons-io:commons-io:2.3',
-            'org.apache.jackrabbit:jackrabbit-webdav:2.8.0',
+            'org.apache.jackrabbit:jackrabbit-webdav:2.20.0',
             'javax.jcr:jcr:2.0', 'org.jcrom:jcrom:2.0.0'
 
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0',
-            'org.apache.jackrabbit:jackrabbit-core:2.8.0'
+            'org.apache.jackrabbit:jackrabbit-core:2.20.0'
 
     testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
 }
@@ -91,6 +91,7 @@ task sourcesJar(type: Jar) {
 }
 
 jar.enabled = false
+build.dependsOn bundle
 
 artifacts {
     archives bundle
