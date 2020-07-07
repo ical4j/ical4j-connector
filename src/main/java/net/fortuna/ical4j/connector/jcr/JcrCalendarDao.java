@@ -37,6 +37,7 @@ import javax.jcr.Session;
 
 import org.jcrom.Jcrom;
 import org.jcrom.dao.AbstractJcrDAO;
+import org.jcrom.util.NodeFilter;
 
 /**
  * 
@@ -63,6 +64,6 @@ public class JcrCalendarDao extends AbstractJcrDAO<JcrCalendar> {
      * @return a list of calendars with the specified UID
      */
     public List<JcrCalendar> findByUid(String path, String uid) {
-        return super.findByXPath("/jcr:root" + path + "/*[@uid='" + uid + "']", "*", -1);
+        return super.findByXPath("/jcr:root" + path + "/*[@uid='" + uid + "']", new NodeFilter("*", -1, -1));
     }
 }
