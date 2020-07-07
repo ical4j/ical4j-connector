@@ -37,6 +37,7 @@ import javax.jcr.Session;
 
 import org.jcrom.Jcrom;
 import org.jcrom.dao.AbstractJcrDAO;
+import org.jcrom.util.NodeFilter;
 
 /**
  * @param <T> the object type supported by the collection DAO
@@ -64,6 +65,6 @@ public abstract class AbstractJcrObjectCollectionDao<T extends AbstractJcrObject
      * @return a list of collections with the specified name
      */
     public List<T> findByCollectionName(String path, String name) {
-        return super.findByXPath("/jcr:root" + path + "/*[@collectionName='" + name + "']", "*", -1);
+        return super.findByXPath("/jcr:root" + path + "/*[@collectionName='" + name + "']", new NodeFilter("*", -1, -1));
     }
 }
