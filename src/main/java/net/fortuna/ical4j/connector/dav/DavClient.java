@@ -123,7 +123,8 @@ public class DavClient {
 		HttpPropfind aGet = new HttpPropfind(principalPath, DavConstants.PROPFIND_BY_PROPERTY, props, 0);
         aGet.addHeader( "Authorization", "Bearer " + bearerAuth );
 
-		RequestConfig config = RequestConfig.copy(aGet.getConfig()).setAuthenticationEnabled(true).build();
+        RequestConfig.Builder builder = aGet.getConfig() != null ? RequestConfig.copy(aGet.getConfig()) : RequestConfig.custom();
+		RequestConfig config = builder.setAuthenticationEnabled(true).build();
 		aGet.setConfig(config);
 
 		HttpResponse response = httpClient.execute(hostConfiguration, aGet, httpClientContext);
@@ -174,7 +175,8 @@ public class DavClient {
 		
         // This is to get the Digest from the user
 		HttpPropfind aGet = new HttpPropfind(principalPath, DavConstants.PROPFIND_BY_PROPERTY, props, 0);
-		RequestConfig requestConfig = RequestConfig.copy(aGet.getConfig()).setAuthenticationEnabled(true)
+		RequestConfig.Builder builder = aGet.getConfig() != null ? RequestConfig.copy(aGet.getConfig()) : RequestConfig.custom();
+		RequestConfig requestConfig = builder.setAuthenticationEnabled(true)
 				.setTargetPreferredAuthSchemes(authPrefs).build();
 		aGet.setConfig(requestConfig);
 		HttpResponse response = httpClient.execute(hostConfiguration, aGet, httpClientContext);
