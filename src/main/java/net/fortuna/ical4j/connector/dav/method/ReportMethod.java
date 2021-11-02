@@ -43,6 +43,7 @@ import org.apache.http.HttpResponse;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.MultiStatus;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
+import org.apache.jackrabbit.webdav.client.methods.HttpReport;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.security.report.PrincipalMatchReport;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
@@ -62,7 +63,7 @@ import java.util.List;
  * @author Ben
  *
  */
-public class ReportMethod extends org.apache.jackrabbit.webdav.client.methods.HttpReport {
+public class ReportMethod extends HttpReport {
 
     /**
      * 

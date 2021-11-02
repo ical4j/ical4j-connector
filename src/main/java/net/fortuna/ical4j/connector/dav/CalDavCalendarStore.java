@@ -47,6 +47,7 @@ import net.fortuna.ical4j.model.property.*;
 import net.fortuna.ical4j.util.FixedUidGenerator;
 import net.fortuna.ical4j.util.UidGenerator;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -154,7 +155,9 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
             HttpPropfind getMethod = new HttpPropfind(id, principalsProps, 0);
 
             HttpResponse httpResponse = this.getClient().execute(getMethod);
-
+            if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                throw new ObjectNotFoundException();
+            }
             MultiStatus multiStatus = getMethod.getResponseBodyAsMultiStatus(httpResponse);
             MultiStatusResponse[] responses = multiStatus.getResponses();
 
