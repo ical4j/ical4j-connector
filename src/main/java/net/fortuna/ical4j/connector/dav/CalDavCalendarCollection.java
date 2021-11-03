@@ -104,8 +104,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id, String displayName, String description) {
 
         super(calDavCalendarStore, id);
-        properties.add(new DefaultDavProperty(DavPropertyName.DISPLAYNAME, displayName));
-        properties.add(new DefaultDavProperty(CalDavPropertyName.CALENDAR_DESCRIPTION, description));
+        properties.add(new DefaultDavProperty<>(DavPropertyName.DISPLAYNAME, displayName));
+        properties.add(new DefaultDavProperty<>(CalDavPropertyName.CALENDAR_DESCRIPTION, description));
     }
 
     CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id, DavPropertySet _properties) {

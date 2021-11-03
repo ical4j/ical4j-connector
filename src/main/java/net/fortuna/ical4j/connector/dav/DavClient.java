@@ -183,7 +183,7 @@ public class DavClient {
 	}
 
 	public HttpResponse execute(HttpRequestBase method) throws IOException {
-		return httpClient.execute(hostConfiguration, method, httpClientContext);
+		return execute(hostConfiguration, method);
 	}
 
 	public HttpResponse execute(HttpHost _hostConfiguration, HttpRequestBase method) throws IOException {
