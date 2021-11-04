@@ -35,7 +35,6 @@ import net.fortuna.ical4j.connector.CardCollection;
 import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
-import net.fortuna.ical4j.connector.dav.enums.ResourceType;
 import net.fortuna.ical4j.connector.dav.method.MkCalendarMethod;
 import net.fortuna.ical4j.connector.dav.method.PutMethod;
 import net.fortuna.ical4j.connector.dav.method.ReportMethod;
@@ -49,17 +48,15 @@ import net.fortuna.ical4j.vcard.VCard;
 import org.apache.http.HttpResponse;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.client.methods.XmlEntity;
-import org.apache.jackrabbit.webdav.property.*;
+import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
+import org.apache.jackrabbit.webdav.property.DavPropertySet;
+import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * $Id$
@@ -194,54 +191,6 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
         principalsProps.add(CardDavPropertyName.SUPPORTED_ADDRESS_DATA);
         
         return principalsProps;
-    }
-    
-    @SuppressWarnings("unchecked")
-	protected static List<CardDavCollection> collectionsFromResponse(CardDavStore store,
-            MultiStatusResponse[] responses) {
-        List<CardDavCollection> collections = new ArrayList<CardDavCollection>();
-
-        System.out.println(responses.length);
-        for (int i = 0; i < responses.length; i++) {
-            MultiStatusResponse msResponse = responses[i];
-            DavPropertySet foundProperties = msResponse.getProperties(200);
-            String collectionUri = msResponse.getHref();
-
-            for (int j = 0; j < responses[i].getStatus().length; j++) {
-                if (responses[i].getStatus()[j].getStatusCode() == 200) {
-                    boolean isAddressBookCollection = false;
-                    DavPropertySet _properties = new DavPropertySet();
-                    for (DavPropertyIterator iNames = foundProperties.iterator(); iNames.hasNext();) {
-                        DavProperty property = iNames.nextProperty();
-                        if (property != null) {
-                            _properties.add(property);
-                            if ((DavConstants.PROPERTY_RESOURCETYPE.equals(property.getName().getName())) && (DavConstants.NAMESPACE.equals(property.getName().getNamespace()))) {
-                                Object value = property.getValue();
-                                if (value instanceof java.util.ArrayList) {
-                                    for (Node child: (java.util.ArrayList<Node>)value) {
-                                        if (child instanceof Element) {
-                                            String nameNode = child.getLocalName();
-                                            if (nameNode != null) {
-                                                ResourceType type = ResourceType.findByDescription(nameNode);
-                                                if (type != null) {
-                                                    if (type.equals(ResourceType.ADRESSBOOK)) {
-                                                        isAddressBookCollection = true;
-                                                    }
-                                                }
-                                            }
-                                        }                                
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (isAddressBookCollection) {
-                        collections.add(new CardDavCollection(store, collectionUri, _properties));
-                    }
-                }
-            }
-        }
-        return collections;
     }
 
     /* (non-Javadoc)

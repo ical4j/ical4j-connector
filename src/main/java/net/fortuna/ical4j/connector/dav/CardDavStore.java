@@ -35,10 +35,15 @@ import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.CardStore;
 import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
+import net.fortuna.ical4j.connector.dav.enums.ResourceType;
 import net.fortuna.ical4j.connector.dav.property.CardDavPropertyName;
+import net.fortuna.ical4j.connector.dav.response.PropFindResponseHandler;
 import net.fortuna.ical4j.model.Calendar;
 import org.apache.http.HttpResponse;
-import org.apache.jackrabbit.webdav.*;
+import org.apache.jackrabbit.webdav.DavException;
+import org.apache.jackrabbit.webdav.DavServletResponse;
+import org.apache.jackrabbit.webdav.MultiStatus;
+import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.client.methods.BaseDavRequest;
 import org.apache.jackrabbit.webdav.client.methods.HttpPropfind;
 import org.apache.jackrabbit.webdav.client.methods.HttpReport;
@@ -57,8 +62,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * $Id$
@@ -128,12 +134,11 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
             DavPropertyNameSet principalsProps = CardDavCollection.propertiesForFetch();
             HttpPropfind getMethod = new HttpPropfind(id, principalsProps, 0);
 
-            HttpResponse httpResponse = this.getClient().execute(getMethod);
-
-            MultiStatus multiStatus = getMethod.getResponseBodyAsMultiStatus(httpResponse);
-            MultiStatusResponse[] responses = multiStatus.getResponses();
-
-            return CardDavCollection.collectionsFromResponse(this, responses).get(0);
+            PropFindResponseHandler responseHandler = new PropFindResponseHandler(getMethod);
+            responseHandler.accept(this.getClient().execute(getMethod));
+            return responseHandler.getCollections(Collections.singletonList(ResourceType.ADRESSBOOK)).entrySet().stream()
+                    .map(e -> new CardDavCollection(this, e.getKey(), e.getValue()))
+                    .collect(Collectors.toList()).get(0);
         } catch (IOException | DavException e) {
             throw new ObjectStoreException(String.format("unable to get collection '%s'", id), e);
         }
@@ -168,56 +173,9 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
         principalsProps.add(DavPropertyName.DISPLAYNAME);
 
         HttpPropfind method = new HttpPropfind(propfindUri, principalsProps, 0);
-        HttpResponse httpResponse = getClient().execute(method);
-
-        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus(httpResponse);
-        MultiStatusResponse[] responses = multiStatus.getResponses();
-        for (int i = 0; i < responses.length; i++) {
-            for (int j = 0; j < responses[i].getStatus().length; j++) {
-                Status status = responses[i].getStatus()[j];
-                for (DavPropertyIterator iNames = responses[i].getProperties(status.getStatusCode()).iterator(); iNames
-                        .hasNext();) {
-                    DavProperty name = iNames.nextProperty();
-                    if ((name.getName().getName().equals(CalDavConstants.PROPERTY_ADDRESSBOOK_HOME_SET))
-                            && (CalDavConstants.CARDDAV_NAMESPACE.isSame(name.getName().getNamespace().getURI()))) {
-                        if (name.getValue() instanceof ArrayList) {
-                            for (Iterator<?> iter = ((ArrayList<?>) name.getValue()).iterator(); iter.hasNext();) {
-                                Object child = iter.next();
-                                if (child instanceof Element) {
-                                    String calendarHomeSetUri = ((Element) child).getTextContent();
-                                    /*
-                                     * If the trailing slash is not there, CalendarServer will return a 301 status code
-                                     * and we will get a nice DavException with "Moved Permanently" as the error
-                                     */
-                                    if (!(calendarHomeSetUri.endsWith("/"))) {
-                                        calendarHomeSetUri += "/";
-                                    }
-                                    return calendarHomeSetUri;
-                                }
-                            }
-                        }
-                        /*
-                         * This is for Kerio Mail Server implementation...
-                         */
-                        if (name.getValue() instanceof Node) {
-                            Node child = (Node) name.getValue();
-                            if (child instanceof Element) {
-                                String calendarHomeSetUri = ((Element) child).getTextContent();
-                                /*
-                                 * If the trailing slash is not there, CalendarServer will return a 301 status code and
-                                 * we will get a nice DavException with "Moved Permanently" as the error
-                                 */
-                                if (!(calendarHomeSetUri.endsWith("/"))) {
-                                    calendarHomeSetUri += "/";
-                                }
-                                return calendarHomeSetUri;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return null;
+        PropFindResponseHandler responseHandler = new PropFindResponseHandler(method);
+        responseHandler.accept(getClient().execute(method));
+        return responseHandler.getDavPropertyUri(CardDavPropertyName.ADDRESSBOOK_HOME_SET);
     }
 
     /**
@@ -249,12 +207,11 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
         DavPropertyNameSet principalsProps = CardDavCollection.propertiesForFetch();
 
         HttpPropfind method = new HttpPropfind(urlForcalendarHomeSet, principalsProps, 1);
-        HttpResponse httpResponse = getClient().execute(method);
-
-        MultiStatus multiStatus = method.getResponseBodyAsMultiStatus(httpResponse);
-        MultiStatusResponse[] responses = multiStatus.getResponses();
-        
-        return CardDavCollection.collectionsFromResponse(store, responses);
+        PropFindResponseHandler responseHandler = new PropFindResponseHandler(method);
+        responseHandler.accept(getClient().execute(method));
+        return responseHandler.getCollections(Collections.singletonList(ResourceType.ADRESSBOOK)).entrySet().stream()
+                .map(e -> new CardDavCollection(this, e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
     }
 
     protected List<CardDavCollection> getDelegateCollections(DavProperty<?> proxyDavProperty)
@@ -390,7 +347,7 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
         rinfo.setContentElement(proxyReadForElement);
 
         BaseDavRequest method = new HttpReport(methodUri, rinfo);
-        HttpResponse httpResponse = getClient().execute(getClient().hostConfiguration, method);
+        HttpResponse httpResponse = getClient().execute(method);
 
         if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
             MultiStatus multiStatus = method.getResponseBodyAsMultiStatus(httpResponse);

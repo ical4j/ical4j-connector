@@ -37,16 +37,17 @@ import net.fortuna.ical4j.connector.dav.enums.MediaType;
 import net.fortuna.ical4j.connector.dav.enums.ResourceType;
 import net.fortuna.ical4j.connector.dav.property.BaseDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
+import net.fortuna.ical4j.connector.dav.response.PropFindResponseHandler;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.MultiStatus;
-import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.client.methods.HttpDelete;
 import org.apache.jackrabbit.webdav.client.methods.HttpPropfind;
-import org.apache.jackrabbit.webdav.property.*;
+import org.apache.jackrabbit.webdav.property.DavProperty;
+import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
+import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -242,22 +243,13 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
                 RequestConfig config = RequestConfig.copy(aGet.getConfig()).setAuthenticationEnabled(true).build();
                 aGet.setConfig(config);
 
-                HttpResponse httpResponse = getStore().getClient().execute(aGet);
-
-                if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
-                    MultiStatus multiStatus = aGet.getResponseBodyAsMultiStatus(httpResponse);
-                    MultiStatusResponse[] responses = multiStatus.getResponses();
-                    
-                    for (int i = 0; i < responses.length; i++) {
-                        MultiStatusResponse msResponse = responses[i];
-                        DavPropertySet foundProperties = msResponse.getProperties(200);
-                        DavProperty displayNameProp = foundProperties.get(DavPropertyName.DISPLAYNAME);
-                        if (displayNameProp != null) {
-                            _ownerName = (String)displayNameProp.getValue();
-                        }
-                    }
+                PropFindResponseHandler responseHandler = new PropFindResponseHandler(aGet);
+                responseHandler.accept(getStore().getClient().execute(aGet));
+                DavProperty<?> displayNameProp = responseHandler.getPropertySet().get(DavPropertyName.DISPLAYNAME);
+                if (displayNameProp != null) {
+                    _ownerName = (String)displayNameProp.getValue();
                 }
-            } catch (IOException | DavException e) {
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -333,83 +325,9 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
     public final boolean exists() throws HttpResponseException, IOException, ObjectStoreException {
         DavPropertyNameSet principalsProps = CalDavCalendarCollection.propertiesForFetch();
         HttpPropfind getMethod = new HttpPropfind(getPath(), principalsProps, 0);
-        
-        HttpResponse httpResponse = getStore().getClient().execute(getMethod);
 
-        if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
-            return true;
-        }
-        else if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_OK) {
-            return true;
-        }
-        else if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
-            return false;
-        }
-        else {
-            throw new ObjectStoreException(httpResponse.getStatusLine().toString());
-        }
-    }
-    
-    /**
-     * Get the list of collections from a MultiStatus (HTTP 207 status code) response and populate the list of
-     * properties of each collection.
-     */
-    protected static List<CalDavCalendarCollection> collectionsFromResponse(CalDavCalendarStore store,
-            MultiStatusResponse[] responses) {
-        
-        /*
-         * TODO: supported features can be different on collections than the store, we should
-         * check the headers and store the supported features per collection when we fetch them
-         */
-        
-        List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
-
-        for (int i = 0; i < responses.length; i++) {
-            MultiStatusResponse msResponse = responses[i];
-            DavPropertySet foundProperties = msResponse.getProperties(200);
-            String collectionUri = msResponse.getHref();
-
-            for (int j = 0; j < responses[i].getStatus().length; j++) {
-                if (responses[i].getStatus()[j].getStatusCode() == 200) {
-                    boolean isCalendarCollection = false;
-                    DavPropertySet _properties = new DavPropertySet();
-                    for (DavPropertyIterator iNames = foundProperties.iterator(); iNames.hasNext();) {
-                        DavProperty property = iNames.nextProperty();
-                        if (property != null) {
-                            _properties.add(property);
-                            if ((DavConstants.PROPERTY_RESOURCETYPE.equals(property.getName().getName())) && (DavConstants.NAMESPACE.equals(property.getName().getNamespace()))) {
-                                Object value = property.getValue();
-                                if (value instanceof java.util.ArrayList) {
-                                    for (Node child: (java.util.ArrayList<Node>)value) {
-                                        if (child instanceof Element) {
-                                            String nameNode = child.getLocalName();
-                                            if (nameNode != null) {
-                                                ResourceType type = ResourceType.findByDescription(nameNode);
-                                                if (type != null) {
-                                                    if (type.equals(ResourceType.CALENDAR)) {
-                                                        isCalendarCollection = true;
-                                                    }
-                                                    if (type.equals(ResourceType.CALENDAR_PROXY_READ)) {
-                                                        isCalendarCollection = true;
-                                                    }
-                                                    if (type.equals(ResourceType.CALENDAR_PROXY_WRITE)) {
-                                                        isCalendarCollection = true;
-                                                    }
-                                                }
-                                            }
-                                        }                                
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (isCalendarCollection) {
-                        collections.add(new CalDavCalendarCollection(store, collectionUri, _properties));
-                    }
-                }
-            }
-        }
-
-        return collections;
+        PropFindResponseHandler responseHandler = new PropFindResponseHandler(getMethod);
+        responseHandler.accept(getStore().getClient().execute(getMethod));
+        return responseHandler.exists();
     }
 }

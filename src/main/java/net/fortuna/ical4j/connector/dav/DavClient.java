@@ -34,8 +34,7 @@ package net.fortuna.ical4j.connector.dav;
 import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.dav.enums.SupportedFeature;
 import net.fortuna.ical4j.connector.dav.property.CSDavPropertyName;
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
+import net.fortuna.ical4j.connector.dav.response.PropFindResponseHandler;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -114,12 +113,12 @@ public class DavClient {
 		}
 	}
 
-	ArrayList<SupportedFeature> begin(String bearerAuth) throws IOException, FailedOperationException {
+	public List<SupportedFeature> begin(String bearerAuth) throws IOException, FailedOperationException {
 		this.bearerAuth = bearerAuth;
 		return getSupportedFeatures();
 	}
 
-	ArrayList<SupportedFeature> begin(String username, char[] password) throws IOException, FailedOperationException {
+	public List<SupportedFeature> begin(String username, char[] password) throws IOException, FailedOperationException {
 		Credentials credentials = new UsernamePasswordCredentials(username, new String(password));
 
 		CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
@@ -130,7 +129,7 @@ public class DavClient {
 		return getSupportedFeatures();
 	}
 
-	ArrayList<SupportedFeature> getSupportedFeatures() throws IOException, FailedOperationException {
+	public List<SupportedFeature> getSupportedFeatures() throws IOException, FailedOperationException {
 		begin(credentialsProvider);
 
 		DavPropertyNameSet props = new DavPropertyNameSet();
@@ -157,29 +156,9 @@ public class DavClient {
 		RequestConfig config = builder.build();
 		aGet.setConfig(config);
 
-		ArrayList<SupportedFeature> supportedFeatures = new ArrayList<SupportedFeature>();
-
-		HttpResponse response = httpClient.execute(hostConfiguration, aGet, httpClientContext);
-
-		if (response.getStatusLine().getStatusCode() >= 300) {
-			throw new FailedOperationException(String.format("Principals not found at [%s]", userPath));
-		} else {
-			Header[] davHeaders = response.getHeaders(net.fortuna.ical4j.connector.dav.DavConstants.HEADER_DAV);
-			for (int headerIndex = 0; headerIndex < davHeaders.length; headerIndex++) {
-				Header header = davHeaders[headerIndex];
-				HeaderElement[] elements = header.getElements();
-				for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-					String feature = elements[elementIndex].getName();
-					if (feature != null) {
-						SupportedFeature supportedFeature = SupportedFeature.findByDescription(feature);
-						if (supportedFeature != null) {
-							supportedFeatures.add(supportedFeature);
-						}
-					}
-				}
-			}
-		}
-		return supportedFeatures;
+		PropFindResponseHandler responseHandler = new PropFindResponseHandler(aGet);
+		responseHandler.accept(httpClient.execute(hostConfiguration, aGet, httpClientContext));
+		return responseHandler.getSupportedFeatures();
 	}
 
 	public HttpResponse execute(HttpRequestBase method) throws IOException {
