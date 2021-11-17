@@ -41,6 +41,7 @@ import net.fortuna.ical4j.connector.dav.method.ReportMethod;
 import net.fortuna.ical4j.connector.dav.property.BaseDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CardDavPropertyName;
+import net.fortuna.ical4j.connector.dav.response.ReportResponseHandler;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.vcard.Property.Id;
@@ -48,6 +49,7 @@ import net.fortuna.ical4j.vcard.VCard;
 import org.apache.http.HttpResponse;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
+import org.apache.jackrabbit.webdav.client.methods.HttpReport;
 import org.apache.jackrabbit.webdav.client.methods.XmlEntity;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
@@ -212,17 +214,13 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
 
             ReportInfo info = new ReportInfo(ReportMethod.ADDRESSBOOK_QUERY, 1, properties);
 
-            ReportMethod method = new ReportMethod(getPath(), info);
-            HttpResponse httpResponse = getStore().getClient().execute(method);
-            if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
-                return method.getVCards(httpResponse);
-            } else if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_NOT_FOUND) {
-                return new VCard[0];
-            }
+            HttpReport method = new HttpReport(getPath(), info);
+            ReportResponseHandler responseHandler = new ReportResponseHandler(method);
+            responseHandler.accept(getStore().getClient().execute(method));
+            return responseHandler.getVCards();
         } catch (IOException | DavException e) {
             throw new RuntimeException(e);
         }
-        return new VCard[0];
     }
 
     /* (non-Javadoc)
