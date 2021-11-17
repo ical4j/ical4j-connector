@@ -13,13 +13,16 @@ import net.fortuna.ical4j.vcard.VCardBuilder;
 import net.fortuna.ical4j.vcard.VCardOutputter;
 import net.fortuna.ical4j.vcard.property.Uid;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> implements CardCollection {
 
-    private static MediaType[] SUPPORTED_MEDIA_TYPES = new MediaType[1];
+    private static final MediaType[] SUPPORTED_MEDIA_TYPES = new MediaType[1];
     static {
         SUPPORTED_MEDIA_TYPES[0] = MediaType.VCARD_4_0;
     }
@@ -72,19 +75,18 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
     public VCard[] getComponents() throws ObjectStoreException {
         List<VCard> cards = new ArrayList<>();
 
-        try {
-            for (File file : getRoot().listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File pathname) {
-                    return !pathname.isDirectory() && pathname.getName().endsWith(".vcf");
+        File[] componentFiles = getRoot().listFiles(pathname ->
+                !pathname.isDirectory() && pathname.getName().endsWith(".vcf"));
+        if (componentFiles != null) {
+            try {
+                for (File file : componentFiles) {
+                    VCardBuilder builder = new VCardBuilder(new FileInputStream(file));
+                    cards.add(builder.build());
                 }
-            })) {
-                VCardBuilder builder = new VCardBuilder(new FileInputStream(file));
-                cards.add(builder.build());
+            } catch (IOException | ParserException e) {
+                throw new ObjectStoreException(e);
             }
-        } catch (IOException | ParserException e) {
-            throw new ObjectStoreException(e);
         }
-        return cards.toArray(new VCard[cards.size()]);
+        return cards.toArray(new VCard[0]);
     }
 }

@@ -13,7 +13,6 @@ import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +20,7 @@ import java.util.List;
 
 public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calendar> implements CalendarCollection {
 
-    private static MediaType[] SUPPORTED_MEDIA_TYPES = new MediaType[1];
+    private static final MediaType[] SUPPORTED_MEDIA_TYPES = new MediaType[1];
     static {
         SUPPORTED_MEDIA_TYPES[0] = MediaType.ICALENDAR_2_0;
     }
@@ -102,11 +101,11 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
     }
 
     @Override
-    public void merge(Calendar calendar) throws FailedOperationException, ObjectStoreException {
+    public void merge(Calendar calendar) {
     }
 
     @Override
-    public Calendar export() throws ObjectStoreException {
+    public Calendar export() {
         return null;
     }
 
@@ -114,19 +113,17 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
     public Calendar[] getComponents() throws ObjectStoreException {
         List<Calendar> calendars = new ArrayList<>();
 
-        try {
-            for (File file : getRoot().listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File pathname) {
-                    return !pathname.isDirectory() && pathname.getName().endsWith(".ics");
+        File[] componentFiles = getRoot().listFiles(pathname ->
+                !pathname.isDirectory() && pathname.getName().endsWith(".ics"));
+        if (componentFiles != null) {
+            try {
+                for (File file : componentFiles) {
+                    calendars.add(Calendars.load(file.getAbsolutePath()));
                 }
-            })) {
-                calendars.add(Calendars.load(file.getAbsolutePath()));
+            } catch (IOException | ParserException e) {
+                throw new ObjectStoreException(e);
             }
-        } catch (IOException | ParserException e) {
-            throw new ObjectStoreException(e);
         }
-
-        return calendars.toArray(new Calendar[calendars.size()]);
+        return calendars.toArray(new Calendar[0]);
     }
 }

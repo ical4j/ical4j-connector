@@ -35,7 +35,7 @@ public abstract  class AbstractLocalObjectStore<C extends AbstractLocalObjectCol
     }
 
     @Override
-    public void disconnect() throws ObjectStoreException {
+    public void disconnect() {
 
     }
 
@@ -77,7 +77,7 @@ public abstract  class AbstractLocalObjectStore<C extends AbstractLocalObjectCol
     }
 
     @Override
-    public C removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
+    public C removeCollection(String id) {
         return null;
     }
 
@@ -91,7 +91,7 @@ public abstract  class AbstractLocalObjectStore<C extends AbstractLocalObjectCol
     }
 
     @Override
-    public List<C> getCollections() throws ObjectStoreException, ObjectNotFoundException {
+    public List<C> getCollections() {
         return null;
     }
 }
