@@ -32,28 +32,19 @@
 package net.fortuna.ical4j.connector.dav.method;
 
 import net.fortuna.ical4j.connector.dav.CalDavConstants;
-import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
-import net.fortuna.ical4j.connector.dav.property.CardDavPropertyName;
-import net.fortuna.ical4j.data.CalendarBuilder;
+import net.fortuna.ical4j.connector.dav.response.ReportResponseHandler;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.vcard.VCard;
-import net.fortuna.ical4j.vcard.VCardBuilder;
 import org.apache.http.HttpResponse;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.MultiStatus;
-import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.client.methods.HttpReport;
-import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.security.report.PrincipalMatchReport;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.w3c.dom.DOMException;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * $Id$
@@ -62,7 +53,9 @@ import java.util.List;
  *
  * @author Ben
  *
+ * @deprecated use {@link net.fortuna.ical4j.connector.dav.response.ReportResponseHandler}
  */
+@Deprecated
 public class ReportMethod extends HttpReport {
 
     /**
@@ -92,35 +85,14 @@ public class ReportMethod extends HttpReport {
      * @throws ParserException where calendar parsing fails
      */
     public Calendar[] getCalendars(HttpResponse httpResponse) throws IOException, DavException, DOMException, ParserException {
-        List<Calendar> calendars = new ArrayList<Calendar>();
-        MultiStatus multi = getResponseBodyAsMultiStatus(httpResponse);
-        for (MultiStatusResponse response : multi.getResponses()) {
-            DavPropertySet props = response.getProperties(200);
-            if (props.get(CalDavPropertyName.CALENDAR_DATA) != null) {
-                String value = (String) props.get(CalDavPropertyName.CALENDAR_DATA).getValue();
-                CalendarBuilder builder = new CalendarBuilder();
-                calendars.add(builder.build(new StringReader(value)));
-            }
-        }
-        return calendars.toArray(new Calendar[calendars.size()]);
+        ReportResponseHandler responseHandler = new ReportResponseHandler(this);
+        responseHandler.accept(httpResponse);
+        return responseHandler.getCalendars();
     }
     
     public VCard[] getVCards(HttpResponse httpResponse) throws IOException, DavException, DOMException {
-        List<VCard> cards = new ArrayList<VCard>();
-        MultiStatus multi = getResponseBodyAsMultiStatus(httpResponse);
-        for (MultiStatusResponse response : multi.getResponses()) {
-            DavPropertySet props = response.getProperties(200);
-            if (props.get(CardDavPropertyName.ADDRESS_DATA) != null) {
-                String value = (String) props.get(CardDavPropertyName.ADDRESS_DATA).getValue();
-                VCardBuilder builder = new VCardBuilder(new StringReader(value));
-                try {
-                    cards.add(builder.build());
-                } catch (ParserException e) {
-                    System.out.println(e.getMessage());
-                    System.out.println(value);
-                }
-            }
-        }
-        return cards.toArray(new VCard[cards.size()]);
+        ReportResponseHandler responseHandler = new ReportResponseHandler(this);
+        responseHandler.accept(httpResponse);
+        return responseHandler.getVCards();
     }
 }

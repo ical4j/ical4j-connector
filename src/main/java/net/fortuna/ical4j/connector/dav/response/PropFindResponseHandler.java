@@ -51,7 +51,7 @@ public class PropFindResponseHandler implements ResponseHandler {
     public List<SupportedFeature> getSupportedFeatures() throws FailedOperationException {
         List<SupportedFeature> supportedFeatures = new ArrayList<>();
         if (httpResponse.getStatusLine().getStatusCode() >= 300) {
-            throw new FailedOperationException(String.format("Principals not found"));
+            throw new FailedOperationException("Principals not found");
         } else {
             Header[] davHeaders = httpResponse.getHeaders(net.fortuna.ical4j.connector.dav.DavConstants.HEADER_DAV);
             for (Header header : davHeaders) {
@@ -113,7 +113,7 @@ public class PropFindResponseHandler implements ResponseHandler {
         return collections;
     }
 
-    private ResourceType getResourceType(DavProperty property) {
+    private ResourceType getResourceType(DavProperty<?> property) {
         if ((DavConstants.PROPERTY_RESOURCETYPE.equals(property.getName().getName())) && (DavConstants.NAMESPACE.equals(property.getName().getNamespace()))) {
             Object value = property.getValue();
             if (value instanceof ArrayList) {
