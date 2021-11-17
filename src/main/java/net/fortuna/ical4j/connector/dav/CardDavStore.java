@@ -37,6 +37,7 @@ import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
 import net.fortuna.ical4j.connector.dav.enums.ResourceType;
 import net.fortuna.ical4j.connector.dav.property.CardDavPropertyName;
+import net.fortuna.ical4j.connector.dav.request.XmlSupport;
 import net.fortuna.ical4j.connector.dav.response.PropFindResponseHandler;
 import net.fortuna.ical4j.model.Calendar;
 import org.apache.http.HttpResponse;
@@ -44,7 +45,6 @@ import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.MultiStatus;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
-import org.apache.jackrabbit.webdav.client.methods.BaseDavRequest;
 import org.apache.jackrabbit.webdav.client.methods.HttpPropfind;
 import org.apache.jackrabbit.webdav.client.methods.HttpReport;
 import org.apache.jackrabbit.webdav.property.*;
@@ -52,12 +52,10 @@ import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.DeltaVConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.apache.jackrabbit.webdav.version.report.ReportType;
-import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
@@ -75,7 +73,7 @@ import java.util.stream.Collectors;
  * 
  */
 public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection> implements
-        CardStore<CardDavCollection> {
+        CardStore<CardDavCollection>, XmlSupport {
 
     private final String prodId;
     private String displayName;
@@ -305,55 +303,43 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
 
         String methodUri = this.pathResolver.getPrincipalPath(getUserName());
 
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        Document document = newXmlDocument();
 
-        Element writeDisplayNameProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        writeDisplayNameProperty.setAttribute("name", DavConstants.PROPERTY_DISPLAYNAME);
+        Element writeDisplayNameProperty = newDavProperty(document, DavConstants.PROPERTY_DISPLAYNAME);
 
-        Element writePrincipalUrlProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        writePrincipalUrlProperty.setAttribute("name", SecurityConstants.PRINCIPAL_URL.getName());
+        Element writePrincipalUrlProperty = newDavProperty(document, SecurityConstants.PRINCIPAL_URL.getName());
 
-        Element writeUserAddressSetProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        writeUserAddressSetProperty.setAttribute("name", CalDavConstants.PROPERTY_USER_ADDRESS_SET);
-        writeUserAddressSetProperty.setAttribute("namespace", CalDavConstants.NAMESPACE.getURI());
+        Element writeUserAddressSetProperty = newDavProperty(document, CalDavConstants.PROPERTY_USER_ADDRESS_SET,
+                CalDavConstants.NAMESPACE);
 
-        Element proxyWriteForElement = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        proxyWriteForElement.setAttribute("name", CalDavConstants.PROPERTY_PROXY_WRITE_FOR);
-        proxyWriteForElement.setAttribute("namespace", CalDavConstants.CS_NAMESPACE.getURI());
-        proxyWriteForElement.appendChild(writeDisplayNameProperty);
-        proxyWriteForElement.appendChild(writePrincipalUrlProperty);
-        proxyWriteForElement.appendChild(writeUserAddressSetProperty);
+        Element proxyWriteForElement = newDavProperty(document, CalDavConstants.PROPERTY_PROXY_WRITE_FOR,
+                CalDavConstants.CS_NAMESPACE, writeDisplayNameProperty, writePrincipalUrlProperty,
+                writeUserAddressSetProperty);
 
-        Element readDisplayNameProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        readDisplayNameProperty.setAttribute("name", DavConstants.PROPERTY_DISPLAYNAME);
+        Element readDisplayNameProperty = newDavProperty(document, DavConstants.PROPERTY_DISPLAYNAME);
 
-        Element readPrincipalUrlProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        readPrincipalUrlProperty.setAttribute("name", SecurityConstants.PRINCIPAL_URL.getName());
+        Element readPrincipalUrlProperty = newDavProperty(document, SecurityConstants.PRINCIPAL_URL.getName());
 
-        Element readUserAddressSetProperty = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        readUserAddressSetProperty.setAttribute("name", CalDavConstants.PROPERTY_USER_ADDRESS_SET);
-        readUserAddressSetProperty.setAttribute("namespace", CalDavConstants.NAMESPACE.getURI());
+        Element readUserAddressSetProperty = newDavProperty(document, CalDavConstants.PROPERTY_USER_ADDRESS_SET,
+                CalDavConstants.NAMESPACE);
 
-        Element proxyReadForElement = DomUtil.createElement(document, "property", DavConstants.NAMESPACE);
-        proxyReadForElement.setAttribute("name", CalDavConstants.PROPERTY_PROXY_READ_FOR);
-        proxyReadForElement.setAttribute("namespace", CalDavConstants.CS_NAMESPACE.getURI());
-        proxyReadForElement.appendChild(readDisplayNameProperty);
-        proxyReadForElement.appendChild(readPrincipalUrlProperty);
-        proxyReadForElement.appendChild(readUserAddressSetProperty);
+        Element proxyReadForElement = newDavProperty(document, CalDavConstants.PROPERTY_PROXY_READ_FOR,
+                CalDavConstants.CS_NAMESPACE, readDisplayNameProperty, readPrincipalUrlProperty,
+                readUserAddressSetProperty);
 
         ReportInfo rinfo = new ReportInfo(ReportType.register(DeltaVConstants.XML_EXPAND_PROPERTY,
                 DeltaVConstants.NAMESPACE, org.apache.jackrabbit.webdav.version.report.ExpandPropertyReport.class), 0);
         rinfo.setContentElement(proxyWriteForElement);
         rinfo.setContentElement(proxyReadForElement);
 
-        BaseDavRequest method = new HttpReport(methodUri, rinfo);
+        HttpReport method = new HttpReport(methodUri, rinfo);
         HttpResponse httpResponse = getClient().execute(method);
 
         if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
             MultiStatus multiStatus = method.getResponseBodyAsMultiStatus(httpResponse);
             MultiStatusResponse[] responses = multiStatus.getResponses();
-            for (int i = 0; i < responses.length; i++) {
-                DavPropertySet properties = responses[i].getProperties(DavServletResponse.SC_OK);
+            for (MultiStatusResponse respons : responses) {
+                DavPropertySet properties = respons.getProperties(DavServletResponse.SC_OK);
                 DavProperty<?> writeForProperty = properties.get(CalDavConstants.PROPERTY_PROXY_WRITE_FOR,
                         CalDavConstants.CS_NAMESPACE);
                 collections.addAll(getDelegateCollections(writeForProperty));

@@ -31,9 +31,9 @@
  */
 package net.fortuna.ical4j.connector.dav;
 
+import net.fortuna.ical4j.connector.dav.request.XmlSupport;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -46,7 +46,7 @@ import org.w3c.dom.Element;
  * @author Ben
  *
  */
-public class MkCalendar implements XmlSerializable {
+public class MkCalendar implements XmlSerializable, XmlSupport {
 
     /**
      * 
@@ -73,12 +73,7 @@ public class MkCalendar implements XmlSerializable {
      * {@inheritDoc}
      */
     public Element toXml(Document document) {
-        Element set = DomUtil.createElement(document, DavConstants.XML_SET, DavConstants.NAMESPACE);
-        set.appendChild(properties.toXml(document));
-        
-        Element mkcalendar = DomUtil.createElement(document, XML_MKCALENDAR, CalDavConstants.CALDAV_NAMESPACE);
-        mkcalendar.appendChild(set);
-        return mkcalendar;
+        Element set = newDavElement(document, DavConstants.XML_SET, properties.toXml(document));
+        return newCalDavElement(document, XML_MKCALENDAR, set);
     }
-
 }
