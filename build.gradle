@@ -22,24 +22,22 @@ targetCompatibility = 1.8
 
 dependencies {
     api "org.mnode.ical4j:ical4j:$ical4jVersion",
-            'org.mnode.ical4j:ical4j-extensions:1.0.4',
             "org.mnode.ical4j:ical4j-vcard:$ical4jVCardVersion",
-            'commons-io:commons-io:2.7',
+            'commons-io:commons-io:2.11.0',
             "org.apache.jackrabbit:jackrabbit-webdav:$jackrabbitWebdavVersion",
             'javax.jcr:jcr:2.0',
-            'org.jcrom:jcrom:2.2.0',
-            "io.opentracing:opentracing-util:$openTracingVersion"
+            'org.jcrom:jcrom:2.2.0'
 
     implementation "org.codehaus.groovy:groovy:$groovyVersion", optional
 
     compileOnly 'javax.servlet:servlet-api:2.5'
 
-    testCompile 'org.apache.jackrabbit:jackrabbit-core:2.20.0',
+    testCompile 'org.apache.jackrabbit:jackrabbit-core:2.21.9',
             "io.opentracing:opentracing-mock:$openTracingVersion"
 
 
     // junit
-    testImplementation 'org.junit.vintage:junit-vintage-engine:5.7.1'
+    testImplementation 'org.junit.vintage:junit-vintage-engine:5.8.2'
 
     // groovy-test
     testImplementation "org.codehaus.groovy:groovy-test:$groovyVersion"
@@ -47,7 +45,13 @@ dependencies {
     // spock
     testImplementation platform("org.spockframework:spock-bom:2.0-M4-groovy-3.0"),
             "org.spockframework:spock-core",
-            "org.slf4j:slf4j-log4j12:$slf4jVersion"
+            "org.slf4j:slf4j-log4j12:$slf4jVersion",
+            "org.apache.logging.log4j:log4j:$log4jVersion"
+
+    // testcontainers
+    testImplementation "org.testcontainers:testcontainers:1.16.2",
+        "org.testcontainers:spock:1.16.2"
+
 }
 
 test {
