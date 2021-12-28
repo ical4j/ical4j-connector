@@ -31,9 +31,8 @@
  */
 package net.fortuna.ical4j.connector.dav.property;
 
-import net.fortuna.ical4j.connector.dav.CalDavConstants;
-
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.xml.Namespace;
 
 /**
  * $Id$
@@ -46,34 +45,74 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 public class CardDavPropertyName {
 
     /**
+     * Identifies the URL of any WebDAV collections that contain address book collections
+     * owned by the associated principal resource. rfc6352
+     */
+    private static final String PROPERTY_ADDRESSBOOK_HOME_SET = "addressbook-home-set";
+
+    /**
+     * Specifies what media types are allowed for address object resources in an address
+     * book collection. rfc6352
+     */
+    private static final String PROPERTY_SUPPORTED_ADDRESS_DATA = "supported-address-data";
+
+    /**
+     * for carddav
+     */
+    private static final String PROPERTY_MAX_IMAGE_SIZE = "max-image-size";
+
+    /**
+     * Specifies one of the following:
+     *
+     * 1.  The parts of an address object resource that should be
+     *     returned by a given address book REPORT request, and the media
+     *     type and version for the returned data; or
+     *
+     * 2.  The content of an address object resource in a response to an
+     *     address book REPORT request.
+     *
+     * RFC 6352
+     */
+    private static final String PROPERTY_ADDRESS_DATA = "address-data";
+
+    /**
+     *
+     */
+    private static final String PROPERTY_MAX_RESOURCE_SIZE = "max-resource-size";
+
+    /**
+     * CardDAV namespace
+     */
+    public static final Namespace CARDDAV_NAMESPACE = Namespace.getNamespace("C", "urn:ietf:params:xml:ns:carddav");
+    /**
      * 
      */
     public static final DavPropertyName MAX_RESOURCE_SIZE = DavPropertyName.create(
-            CalDavConstants.PROPERTY_MAX_RESOURCE_SIZE, CalDavConstants.CARDDAV_NAMESPACE);
+            PROPERTY_MAX_RESOURCE_SIZE, CARDDAV_NAMESPACE);
 
     /**
      * Purpose: Identifies the URL of any WebDAV collections that contain address book collections owned by the associated
      * principal resource. RFC : rfc6352
      */
-    public static final DavPropertyName ADDRESSBOOK_HOME_SET = DavPropertyName.create(CalDavConstants.PROPERTY_ADDRESSBOOK_HOME_SET,
-            CalDavConstants.CARDDAV_NAMESPACE);
+    public static final DavPropertyName ADDRESSBOOK_HOME_SET = DavPropertyName.create(PROPERTY_ADDRESSBOOK_HOME_SET,
+            CARDDAV_NAMESPACE);
     
     /**
      * 
      */
     public static final DavPropertyName SUPPORTED_ADDRESS_DATA = DavPropertyName.create(
-            CalDavConstants.PROPERTY_SUPPORTED_ADDRESS_DATA, CalDavConstants.CARDDAV_NAMESPACE);
+            PROPERTY_SUPPORTED_ADDRESS_DATA, CARDDAV_NAMESPACE);
 
     /**
      * 
      */
     public static final DavPropertyName MAX_IMAGE_SIZE = DavPropertyName.create(
-            CalDavConstants.PROPERTY_MAX_IMAGE_SIZE, CalDavConstants.CARDDAV_NAMESPACE);
+            PROPERTY_MAX_IMAGE_SIZE, CARDDAV_NAMESPACE);
     
     /**
      * 
      */
     public static final DavPropertyName ADDRESS_DATA = DavPropertyName.create(
-            CalDavConstants.PROPERTY_ADDRESS_DATA, CalDavConstants.CARDDAV_NAMESPACE);
+            PROPERTY_ADDRESS_DATA, CARDDAV_NAMESPACE);
 
 }
