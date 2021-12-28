@@ -31,11 +31,7 @@
  */
 package net.fortuna.ical4j.connector.jcr;
 
-import net.fortuna.ical4j.connector.CalendarCollection;
-import net.fortuna.ical4j.connector.FailedOperationException;
-import net.fortuna.ical4j.connector.ObjectNotFoundException;
-import net.fortuna.ical4j.connector.ObjectStoreException;
-import net.fortuna.ical4j.connector.dav.enums.MediaType;
+import net.fortuna.ical4j.connector.*;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.model.property.Uid;

@@ -31,7 +31,6 @@
  */
 package net.fortuna.ical4j.connector;
 
-import net.fortuna.ical4j.connector.dav.enums.MediaType;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
 

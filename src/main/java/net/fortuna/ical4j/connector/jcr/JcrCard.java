@@ -31,20 +31,19 @@
  */
 package net.fortuna.ical4j.connector.jcr;
 
-import java.io.IOException;
-
-import net.fortuna.ical4j.connector.dav.enums.MediaType;
+import net.fortuna.ical4j.connector.MediaType;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.vcard.Property.Id;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardBuilder;
 import net.fortuna.ical4j.vcard.property.Uid;
-
 import org.jcrom.AbstractJcrEntity;
 import org.jcrom.JcrDataProviderImpl;
 import org.jcrom.JcrFile;
 import org.jcrom.annotations.JcrFileNode;
 import org.jcrom.annotations.JcrProperty;
+
+import java.io.IOException;
 
 /**
  * 

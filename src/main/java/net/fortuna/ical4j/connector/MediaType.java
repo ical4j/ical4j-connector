@@ -31,6 +31,9 @@
  */
 package net.fortuna.ical4j.connector;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * $Id$
  *
@@ -56,6 +59,14 @@ public enum MediaType {
     
     private String version;
 
+    private static Set<String> index = new HashSet<String>();
+
+    static {
+        for (MediaType mediaType : MediaType.values()) {
+            index.add(mediaType.getContentType());
+        }
+    }
+
     /**
      * @param contentType
      * @param version
@@ -77,5 +88,14 @@ public enum MediaType {
      */
     public String getVersion() {
         return version;
+    }
+
+    public static MediaType findByContentTypeAndVersion(String contentType, String version) {
+        for (MediaType feature : values()) {
+            if ((feature.getContentType().equals(contentType)) && (feature.getVersion().equals(version))) {
+                return feature;
+            }
+        }
+        return null;
     }
 }
