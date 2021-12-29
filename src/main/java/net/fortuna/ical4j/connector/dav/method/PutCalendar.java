@@ -34,9 +34,6 @@ package net.fortuna.ical4j.connector.dav.method;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.validate.ValidationException;
-import net.fortuna.ical4j.vcard.VCard;
-import net.fortuna.ical4j.vcard.VCardOutputter;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 
@@ -51,18 +48,16 @@ import java.io.IOException;
  * @author Ben
  *
  */
-public class PutMethod extends HttpPut {
+public class PutCalendar extends AbstractPutMethod {
 
     private final CalendarOutputter calendarOutputter;
-    private final VCardOutputter vCardOutputter;
-    
+
     /**
      * @param uri a calendar URI
      */
-    public PutMethod(String uri) {
-        super(uri);
+    public PutCalendar(String uri, boolean update) {
+        super(uri, update);
         this.calendarOutputter = new CalendarOutputter();
-        this.vCardOutputter = new VCardOutputter();
     }
 
     /**
@@ -74,11 +69,5 @@ public class PutMethod extends HttpPut {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         calendarOutputter.output(calendar, bytes);
         setEntity(new ByteArrayEntity(bytes.toByteArray(), ContentType.create("text/calendar")));
-    }
-    
-    public void setVCard(VCard card) throws IOException, ValidationException {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        vCardOutputter.output(card, bytes);
-        setEntity(new ByteArrayEntity(bytes.toByteArray(), ContentType.create("text/vcard")));
     }
 }

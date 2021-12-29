@@ -31,6 +31,14 @@
  */
 package net.fortuna.ical4j.connector.dav.method;
 
+import net.fortuna.ical4j.validate.ValidationException;
+import net.fortuna.ical4j.vcard.VCard;
+import net.fortuna.ical4j.vcard.VCardOutputter;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * $Id$
@@ -40,26 +48,21 @@ package net.fortuna.ical4j.connector.dav.method;
  * @author Ben
  *
  */
-public class CalDavMethods {
-    
+public class PutVCard extends AbstractPutMethod {
+
+    private final VCardOutputter vCardOutputter;
+
     /**
-     * 
+     * @param uri a calendar URI
      */
-    public static final String METHOD_MKCALENDAR = "MKCALENDAR";
-    
-    /**
-     * 
-     */
-    public static final String METHOD_REPORT = "REPORT";
-    
-    /**
-     * 
-     */
-    public static final String METHOD_MKTICKET = "MKTICKET";
-    
-    /**
-     * 
-     */
-    public static final String METHOD_DELTICKET = "DELTICKET";
-    
+    public PutVCard(String uri, boolean update) {
+        super(uri, update);
+        this.vCardOutputter = new VCardOutputter();
+    }
+
+    public void setVCard(VCard card) throws IOException, ValidationException {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        vCardOutputter.output(card, bytes);
+        setEntity(new ByteArrayEntity(bytes.toByteArray(), ContentType.create("text/vcard")));
+    }
 }
