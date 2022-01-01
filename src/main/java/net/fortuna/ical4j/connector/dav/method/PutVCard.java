@@ -31,6 +31,7 @@
  */
 package net.fortuna.ical4j.connector.dav.method;
 
+import net.fortuna.ical4j.connector.MediaType;
 import net.fortuna.ical4j.validate.ValidationException;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardOutputter;
@@ -55,14 +56,14 @@ public class PutVCard extends AbstractPutMethod {
     /**
      * @param uri a calendar URI
      */
-    public PutVCard(String uri, boolean update) {
-        super(uri, update);
+    public PutVCard(String uri) {
+        super(uri);
         this.vCardOutputter = new VCardOutputter();
     }
 
     public void setVCard(VCard card) throws IOException, ValidationException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         vCardOutputter.output(card, bytes);
-        setEntity(new ByteArrayEntity(bytes.toByteArray(), ContentType.create("text/vcard")));
+        setEntity(new ByteArrayEntity(bytes.toByteArray(), ContentType.create(MediaType.VCARD_4_0.getContentType())));
     }
 }

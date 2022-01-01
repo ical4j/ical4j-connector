@@ -8,19 +8,19 @@ import java.net.URI;
 
 public class AbstractPutMethod extends HttpPut {
 
-    public AbstractPutMethod(URI uri, boolean update) {
+    public AbstractPutMethod(URI uri) {
         super(uri);
-        if (update) {
-            addHeader("If-Match", "*");
-        } else {
-            addHeader("If-None-Match", "*");
-        }
+        setEtag(null);
     }
 
-    public AbstractPutMethod(String uri, boolean update) {
+    public AbstractPutMethod(String uri) {
         super(uri);
-        if (update) {
-            addHeader("If-Match", "*");
+        setEtag(null);
+    }
+
+    public void setEtag(String etag) {
+        if (etag != null) {
+            addHeader("If-Match", etag);
         } else {
             addHeader("If-None-Match", "*");
         }

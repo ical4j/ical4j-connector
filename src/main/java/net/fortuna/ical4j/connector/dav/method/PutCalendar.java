@@ -31,6 +31,7 @@
  */
 package net.fortuna.ical4j.connector.dav.method;
 
+import net.fortuna.ical4j.connector.MediaType;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.validate.ValidationException;
@@ -55,8 +56,8 @@ public class PutCalendar extends AbstractPutMethod {
     /**
      * @param uri a calendar URI
      */
-    public PutCalendar(String uri, boolean update) {
-        super(uri, update);
+    public PutCalendar(String uri) {
+        super(uri);
         this.calendarOutputter = new CalendarOutputter();
     }
 
@@ -68,6 +69,7 @@ public class PutCalendar extends AbstractPutMethod {
     public void setCalendar(Calendar calendar) throws IOException, ValidationException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         calendarOutputter.output(calendar, bytes);
-        setEntity(new ByteArrayEntity(bytes.toByteArray(), ContentType.create("text/calendar")));
+        setEntity(new ByteArrayEntity(bytes.toByteArray(),
+                ContentType.create(MediaType.ICALENDAR_2_0.getContentType())));
     }
 }
