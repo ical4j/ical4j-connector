@@ -33,6 +33,9 @@ package net.fortuna.ical4j.connector.dav.property;
 
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.version.DeltaVConstants;
+import org.apache.jackrabbit.webdav.version.report.ExpandPropertyReport;
+import org.apache.jackrabbit.webdav.version.report.ReportType;
 
 import static org.apache.jackrabbit.webdav.DavConstants.NAMESPACE;
 
@@ -44,6 +47,8 @@ import static org.apache.jackrabbit.webdav.DavConstants.NAMESPACE;
  */
 public class BaseDavPropertyName {
 
+    public static final ReportType EXPAND_PROPERTY = ReportType.register(DeltaVConstants.XML_EXPAND_PROPERTY,
+            DeltaVConstants.NAMESPACE, ExpandPropertyReport.class);
     /**
      * Indicates the maximum amount of additional storage available to be allocated to a resource. RFC 4331
      */

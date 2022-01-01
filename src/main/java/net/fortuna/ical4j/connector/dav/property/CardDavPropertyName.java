@@ -32,6 +32,8 @@
 package net.fortuna.ical4j.connector.dav.property;
 
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.security.report.PrincipalMatchReport;
+import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
 /**
@@ -83,36 +85,39 @@ public class CardDavPropertyName {
     /**
      * CardDAV namespace
      */
-    public static final Namespace CARDDAV_NAMESPACE = Namespace.getNamespace("C", "urn:ietf:params:xml:ns:carddav");
+    public static final Namespace NAMESPACE = Namespace.getNamespace("C", "urn:ietf:params:xml:ns:carddav");
+
+    public static final ReportType ADDRESSBOOK_QUERY = ReportType.register("addressbook-query", NAMESPACE,
+            PrincipalMatchReport.class);
     /**
      * 
      */
     public static final DavPropertyName MAX_RESOURCE_SIZE = DavPropertyName.create(
-            PROPERTY_MAX_RESOURCE_SIZE, CARDDAV_NAMESPACE);
+            PROPERTY_MAX_RESOURCE_SIZE, NAMESPACE);
 
     /**
      * Purpose: Identifies the URL of any WebDAV collections that contain address book collections owned by the associated
      * principal resource. RFC : rfc6352
      */
     public static final DavPropertyName ADDRESSBOOK_HOME_SET = DavPropertyName.create(PROPERTY_ADDRESSBOOK_HOME_SET,
-            CARDDAV_NAMESPACE);
+            NAMESPACE);
     
     /**
      * 
      */
     public static final DavPropertyName SUPPORTED_ADDRESS_DATA = DavPropertyName.create(
-            PROPERTY_SUPPORTED_ADDRESS_DATA, CARDDAV_NAMESPACE);
+            PROPERTY_SUPPORTED_ADDRESS_DATA, NAMESPACE);
 
     /**
      * 
      */
     public static final DavPropertyName MAX_IMAGE_SIZE = DavPropertyName.create(
-            PROPERTY_MAX_IMAGE_SIZE, CARDDAV_NAMESPACE);
+            PROPERTY_MAX_IMAGE_SIZE, NAMESPACE);
     
     /**
      * 
      */
     public static final DavPropertyName ADDRESS_DATA = DavPropertyName.create(
-            PROPERTY_ADDRESS_DATA, CARDDAV_NAMESPACE);
+            PROPERTY_ADDRESS_DATA, NAMESPACE);
 
 }

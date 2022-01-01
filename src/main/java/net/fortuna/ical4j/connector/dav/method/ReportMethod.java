@@ -31,17 +31,16 @@
  */
 package net.fortuna.ical4j.connector.dav.method;
 
-import net.fortuna.ical4j.connector.dav.CalDavConstants;
-import net.fortuna.ical4j.connector.dav.response.ReportResponseHandler;
+import net.fortuna.ical4j.connector.dav.response.GetCalendarData;
+import net.fortuna.ical4j.connector.dav.response.GetVCardData;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.vcard.VCard;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ResponseHandler;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.client.methods.HttpReport;
-import org.apache.jackrabbit.webdav.security.report.PrincipalMatchReport;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
-import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.w3c.dom.DOMException;
 
 import java.io.IOException;
@@ -53,20 +52,10 @@ import java.io.IOException;
  *
  * @author Ben
  *
- * @deprecated use {@link net.fortuna.ical4j.connector.dav.response.ReportResponseHandler}
+ * @deprecated use {@link net.fortuna.ical4j.connector.dav.DavClient#report(String, ReportInfo, ResponseHandler)}
  */
 @Deprecated
 public class ReportMethod extends HttpReport {
-
-    /**
-     * 
-     */
-    public static final ReportType CALENDAR_QUERY = ReportType.register("calendar-query", CalDavConstants.CALDAV_NAMESPACE,
-            PrincipalMatchReport.class);
-    public static final ReportType FREEBUSY_QUERY = ReportType.register("free-busy-query", CalDavConstants.CALDAV_NAMESPACE,
-            PrincipalMatchReport.class);
-    public static final ReportType ADDRESSBOOK_QUERY = ReportType.register("addressbook-query", CalDavConstants.CARDDAV_NAMESPACE,
-            PrincipalMatchReport.class);
 
     /**
      * @param uri a calendar collection URI
@@ -85,14 +74,10 @@ public class ReportMethod extends HttpReport {
      * @throws ParserException where calendar parsing fails
      */
     public Calendar[] getCalendars(HttpResponse httpResponse) throws IOException, DavException, DOMException, ParserException {
-        ReportResponseHandler responseHandler = new ReportResponseHandler(this);
-        responseHandler.accept(httpResponse);
-        return responseHandler.getCalendars();
+        return new GetCalendarData().handleResponse(httpResponse).toArray(new Calendar[0]);
     }
     
     public VCard[] getVCards(HttpResponse httpResponse) throws IOException, DavException, DOMException {
-        ReportResponseHandler responseHandler = new ReportResponseHandler(this);
-        responseHandler.accept(httpResponse);
-        return responseHandler.getVCards();
+        return new GetVCardData().handleResponse(httpResponse).toArray(new VCard[0]);
     }
 }

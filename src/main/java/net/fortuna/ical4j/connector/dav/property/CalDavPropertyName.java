@@ -32,6 +32,8 @@
 package net.fortuna.ical4j.connector.dav.property;
 
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.security.report.PrincipalMatchReport;
+import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
 /**
@@ -335,6 +337,13 @@ public class CalDavPropertyName {
      * Default namespace.
      */
     public static final Namespace NAMESPACE = Namespace.getNamespace("C", "urn:ietf:params:xml:ns:caldav");
+    public static final ReportType FREEBUSY_QUERY = ReportType.register("free-busy-query", NAMESPACE,
+            PrincipalMatchReport.class);
+    /**
+     *
+     */
+    public static final ReportType CALENDAR_QUERY = ReportType.register("calendar-query", NAMESPACE,
+            PrincipalMatchReport.class);
 
     /**
      * 
