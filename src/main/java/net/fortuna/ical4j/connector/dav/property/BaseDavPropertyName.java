@@ -33,7 +33,8 @@ package net.fortuna.ical4j.connector.dav.property;
 
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
-import org.apache.jackrabbit.webdav.xml.Namespace;
+
+import static org.apache.jackrabbit.webdav.DavConstants.NAMESPACE;
 
 /**
  * Collection of properties related to the DAV namespace
@@ -76,12 +77,10 @@ public class BaseDavPropertyName {
      */
     private static final String PROPERTY_ADD_MEMBER = "add-member";
 
-    private static final Namespace NAMESPACE = org.apache.jackrabbit.webdav.DavConstants.NAMESPACE;
-
     /**
      * &lt;prop&gt; element
      */
-    public static final DavPropertyName PROP = DavPropertyName.create(DavConstants.XML_PROP, DavConstants.NAMESPACE);
+    public static final DavPropertyName PROP = DavPropertyName.create(DavConstants.XML_PROP, NAMESPACE);
 
     /**
      * Contains the amount of storage counted against the quota on a resource. rfc4331
