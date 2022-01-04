@@ -127,6 +127,21 @@ for (DavResource child : resouce.getMembers()) {
 }
 ```
 
+### CalDavCalendarStore and CardDavStore
+
+The third method, with the highest level of abstraction are the CalDAV and CardDAV implementations of
+`CalendarStore` and `CardStore`. This approach provides a logical separation of collections and other
+resources, as well as supporting more complex querying.
+
+```java
+CalendarStore store = new CalDavCalendarStore(...);
+store.connect('admin', 'admin'.toCharArray());
+
+for (CalendarCollection collection : store.getCollections()) {
+        System.out.println("Collection name: " + collection.getDisplayName());
+}
+```
+
 ## References
 
 * [RFC3744](https://datatracker.ietf.org/doc/html/rfc3744) (WebDAV Access Control Protocol)
