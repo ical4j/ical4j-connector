@@ -29,51 +29,51 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector.dav;
+package net.fortuna.ical4j.connector.dav.method;
 
-import net.fortuna.ical4j.connector.dav.request.XmlSupport;
-import org.apache.jackrabbit.webdav.DavConstants;
-import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.xml.XmlSerializable;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.jackrabbit.webdav.DavMethods;
+import org.apache.jackrabbit.webdav.client.methods.BaseDavRequest;
+import org.apache.jackrabbit.webdav.client.methods.XmlEntity;
+import org.apache.jackrabbit.webdav.header.DepthHeader;
+
+import java.io.IOException;
+import java.net.URI;
 
 /**
- * $Id$
- *
- * Created on 19/11/2008
- *
- * @author Ben
+ * I had to create a new method instead of using ReportMethod because ReportInfo didn't
+ * keep the attributes on the root element, and was creating problem when doing a 
+ * principal-property-search since the type and testof attributes should be send in the request.
+ * 
+ * @author probert
  *
  */
-public class MkCalendar implements XmlSerializable, XmlSupport {
+public class PrincipalPropertySearch extends BaseDavRequest {
 
-    /**
-     * 
-     */
-    public static final String XML_MKCALENDAR = "mkcalendar";
+   protected boolean isDeep;
     
-    private DavPropertySet properties;
-    
-    /**
-     * @return the properties
-     */
-    public DavPropertySet getProperties() {
-        return properties;
+    public PrincipalPropertySearch(String uri, PrincipalPropertySearchInfo reportInfo) throws IOException {
+        super(URI.create(uri));
+        DepthHeader dh = new DepthHeader(reportInfo.getDepth());
+        isDeep = reportInfo.getDepth() > 0;
+
+        setHeader(dh.getHeaderName(), dh.getHeaderValue());
+        setEntity(XmlEntity.create(reportInfo));
     }
 
-    /**
-     * @param properties the properties to set
-     */
-    public void setProperties(DavPropertySet properties) {
-        this.properties = properties;
+    @Override
+    public String getMethod() {
+        return DavMethods.METHOD_REPORT;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public Element toXml(Document document) {
-        Element set = newDavElement(document, DavConstants.XML_SET, properties.toXml(document));
-        return newCalDavElement(document, XML_MKCALENDAR, set);
+    @Override
+    public boolean succeeded(HttpResponse response) {
+        int statusCode = response.getStatusLine().getStatusCode();
+        if(isDeep) {
+            return statusCode == HttpStatus.SC_MULTI_STATUS;
+        }
+        return statusCode == HttpStatus.SC_OK || statusCode == HttpStatus.SC_MULTI_STATUS;
     }
+
 }

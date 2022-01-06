@@ -29,13 +29,13 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.fortuna.ical4j.connector.dav.method;
+package net.fortuna.ical4j.connector.dav.request;
 
-import org.apache.http.HttpResponse;
-import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.client.methods.BaseDavRequest;
-
-import java.net.URI;
+import org.apache.jackrabbit.webdav.DavConstants;
+import org.apache.jackrabbit.webdav.property.DavPropertySet;
+import org.apache.jackrabbit.webdav.xml.XmlSerializable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * $Id$
@@ -45,26 +45,34 @@ import java.net.URI;
  * @author Ben
  *
  */
-public class MkCalendarMethod extends BaseDavRequest {
+public class MkCalendarInfo implements XmlSerializable, XmlSupport {
 
     /**
-     * @param uri a new calendar URI
+     * 
      */
-    public MkCalendarMethod(String uri) {
-        super(URI.create(uri));
+    public static final String XML_MKCALENDAR = "mkcalendar";
+    
+    private DavPropertySet properties;
+    
+    /**
+     * @return the properties
+     */
+    public DavPropertySet getProperties() {
+        return properties;
+    }
+
+    /**
+     * @param properties the properties to set
+     */
+    public void setProperties(DavPropertySet properties) {
+        this.properties = properties;
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public String getMethod() {
-        return CalDavMethods.METHOD_MKCALENDAR;
+    public Element toXml(Document document) {
+        Element set = newDavElement(document, DavConstants.XML_SET, properties.toXml(document));
+        return newCalDavElement(document, XML_MKCALENDAR, set);
     }
-
-    @Override
-    public boolean succeeded(HttpResponse response) {
-        return response.getStatusLine().getStatusCode() == DavServletResponse.SC_CREATED;
-    }
-
 }

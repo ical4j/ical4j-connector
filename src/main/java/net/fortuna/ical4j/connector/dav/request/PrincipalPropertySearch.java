@@ -1,13 +1,17 @@
 package net.fortuna.ical4j.connector.dav.request;
 
-import net.fortuna.ical4j.connector.dav.CalDavConstants;
+import net.fortuna.ical4j.connector.dav.property.BaseDavPropertyName;
+import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
 import net.fortuna.ical4j.model.parameter.CuType;
+import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.security.SecurityConstants;
+import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-public class PrincipalPropertySearch implements XmlSupport {
+public class PrincipalPropertySearch implements XmlSupport, XmlSerializable {
 
     private final CuType type;
 
@@ -25,28 +29,32 @@ public class PrincipalPropertySearch implements XmlSupport {
     protected Element propertiesForPropSearch(Document document) {
         Element firstNameProperty = newCsElement(document, "first-name");
         Element recordTypeProperty = newCsElement(document, "record-type");
-        Element calUserAddressSetProperty = newCalDavElement(document, CalDavConstants.PROPERTY_USER_ADDRESS_SET);
+        Element calUserAddressSetProperty = newElement(document, CalDavPropertyName.USER_ADDRESS_SET);
         Element lastNameProperty = newCsElement(document, "last-name");
-        Element principalUrlProperty = newDavElement(document, "principal-URL");
-        Element calUserTypeProperty = newCalDavElement(document, CalDavConstants.PROPERTY_USER_TYPE);
-        Element displayNameForProperty = newDavElement(document, "displayname");
+        Element principalUrlProperty = newElement(document, SecurityConstants.PRINCIPAL_URL);
+        Element calUserTypeProperty = newElement(document, CalDavPropertyName.USER_TYPE);
+        Element displayNameForProperty = newElement(document, DavPropertyName.DISPLAYNAME);
         Element emailAddressSetProperty = newCsElement(document, "email-address-set");
 
-        return newDavElement(document, "prop", firstNameProperty, recordTypeProperty,
+        return newElement(document, BaseDavPropertyName.PROP, firstNameProperty, recordTypeProperty,
                 calUserAddressSetProperty, lastNameProperty, principalUrlProperty, calUserTypeProperty,
                 displayNameForProperty, emailAddressSetProperty);
     }
 
     public Element build() throws ParserConfigurationException {
         Document document = newXmlDocument();
+        return toXml(document);
+    }
 
+    @Override
+    public Element toXml(Document document) {
         Element displayName;
         if (nameToSearch != null) {
-            displayName = newDavElement(document, "displayname");
+            displayName = newElement(document, DavPropertyName.DISPLAYNAME);
         } else {
             displayName = newCalDavElement(document, "calendar-user-type");
         }
-        Element displayNameProperty = newDavElement(document, "prop", displayName);
+        Element displayNameProperty = newElement(document, BaseDavPropertyName.PROP, displayName);
 
         Element containsMatch = newDavElement(document, "match");
         if (nameToSearch != null) {
@@ -70,7 +78,7 @@ public class PrincipalPropertySearch implements XmlSupport {
 
             Element emailAddressSet = newCsElement(document, "email-address-set");
 
-            Element emailSetProperty = newDavElement(document, "prop", emailAddressSet);
+            Element emailSetProperty = newElement(document, BaseDavPropertyName.PROP, emailAddressSet);
 
             Element startsWith = newDavElement(document, "match");
             startsWith.setAttribute("match-type", "starts-with");

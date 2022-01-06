@@ -31,47 +31,57 @@
  */
 package net.fortuna.ical4j.connector.dav.method;
 
+import net.fortuna.ical4j.connector.dav.request.MkCalendarInfo;
 import org.apache.http.HttpResponse;
+import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.client.methods.BaseDavRequest;
 import org.apache.jackrabbit.webdav.client.methods.XmlEntity;
-import org.apache.jackrabbit.webdav.header.DepthHeader;
+import org.apache.jackrabbit.webdav.property.DavPropertySet;
 
 import java.io.IOException;
 import java.net.URI;
 
 /**
- * I had to create a new method instead of using ReportMethod because ReportInfo didn't
- * keep the attributes on the root element, and was creating problem when doing a 
- * principal-property-search since the type and testof attributes should be send in the request.
- * 
- * @author probert
+ * $Id$
+ *
+ * Created on 19/11/2008
+ *
+ * @author Ben
  *
  */
-public class PrincipalPropertySearchMethod extends BaseDavRequest {
+public class MkCalendar extends BaseDavRequest {
 
-   protected boolean isDeep;
-    
-    public PrincipalPropertySearchMethod(String uri, PrincipalPropertySearchInfo reportInfo) throws IOException {
-        super(URI.create(uri));
-        DepthHeader dh = new DepthHeader(reportInfo.getDepth());
-        isDeep = reportInfo.getDepth() > 0;
+    /**
+     *
+     */
+    private static final String METHOD_MKCALENDAR = "MKCALENDAR";
 
-        setHeader(dh.getHeaderName(), dh.getHeaderValue());
-        setEntity(XmlEntity.create(reportInfo));
+    public MkCalendar(URI uri, DavPropertySet properties) throws IOException {
+        super(uri);
+        MkCalendarInfo mkcalendar = new MkCalendarInfo();
+        mkcalendar.setProperties(properties);
+        System.out.println("properties: " + properties.getContentSize());
+        setEntity(XmlEntity.create(mkcalendar));
     }
 
+    /**
+     * @param uri a new calendar URI
+     */
+    public MkCalendar(String uri, DavPropertySet properties) throws IOException {
+        this(URI.create(uri), properties);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getMethod() {
-        return "REPORT";
+        return METHOD_MKCALENDAR;
     }
 
     @Override
     public boolean succeeded(HttpResponse response) {
-        int statusCode = response.getStatusLine().getStatusCode();
-        if(isDeep) {
-            return statusCode == 207;
-        }
-        return statusCode == 200 || statusCode == 207;
+        return response.getStatusLine().getStatusCode() == DavServletResponse.SC_CREATED;
     }
 
 }

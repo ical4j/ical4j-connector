@@ -52,7 +52,7 @@ import java.io.IOException;
  *
  * @author Ben
  *
- * @deprecated use {@link net.fortuna.ical4j.connector.dav.DavClient#report(String, ReportInfo, ResponseHandler)}
+ * @deprecated use {@link net.fortuna.ical4j.connector.dav.CalDavSupport#report(String, ReportInfo, ResponseHandler)}
  */
 @Deprecated
 public class ReportMethod extends HttpReport {
