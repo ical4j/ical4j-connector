@@ -35,32 +35,22 @@ import net.fortuna.ical4j.connector.CalendarCollection;
 import net.fortuna.ical4j.connector.CardStore;
 import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
-import net.fortuna.ical4j.connector.dav.enums.ResourceType;
+import net.fortuna.ical4j.connector.dav.property.BaseDavPropertyName;
+import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CardDavPropertyName;
-import net.fortuna.ical4j.connector.dav.request.XmlSupport;
-import net.fortuna.ical4j.connector.dav.response.PropFindResponseHandler;
+import net.fortuna.ical4j.connector.dav.request.ExpandPropertyQuery;
+import net.fortuna.ical4j.connector.dav.response.GetCardDavCollections;
 import net.fortuna.ical4j.model.Calendar;
-import org.apache.http.HttpResponse;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.MultiStatus;
-import org.apache.jackrabbit.webdav.MultiStatusResponse;
-import org.apache.jackrabbit.webdav.client.methods.HttpPropfind;
-import org.apache.jackrabbit.webdav.client.methods.HttpReport;
-import org.apache.jackrabbit.webdav.property.*;
+import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
+import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
-import org.apache.jackrabbit.webdav.version.DeltaVConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
-import org.apache.jackrabbit.webdav.version.report.ReportType;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,7 +63,7 @@ import java.util.stream.Collectors;
  * 
  */
 public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection> implements
-        CardStore<CardDavCollection>, XmlSupport {
+        CardStore<CardDavCollection> {
 
     private final String prodId;
     private String displayName;
@@ -130,14 +120,10 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
     public CardDavCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
             DavPropertyNameSet principalsProps = CardDavCollection.propertiesForFetch();
-            HttpPropfind getMethod = new HttpPropfind(id, principalsProps, 0);
-
-            PropFindResponseHandler responseHandler = new PropFindResponseHandler(getMethod);
-            responseHandler.accept(this.getClient().execute(getMethod));
-            return responseHandler.getCollections(Collections.singletonList(ResourceType.ADRESSBOOK)).entrySet().stream()
+            return getClient().propFindResources(id, principalsProps, ResourceType.ADRESSBOOK).entrySet().stream()
                     .map(e -> new CardDavCollection(this, e.getKey(), e.getValue()))
                     .collect(Collectors.toList()).get(0);
-        } catch (IOException | DavException e) {
+        } catch (IOException e) {
             throw new ObjectStoreException(String.format("unable to get collection '%s'", id), e);
         }
     }
@@ -164,16 +150,13 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
      * @throws IOException
      * @throws DavException
      */
-    protected String findAddressBookHomeSet(String propfindUri) throws ParserConfigurationException, IOException,
-            DavException {
+    protected String findAddressBookHomeSet(String propfindUri) throws IOException {
         DavPropertyNameSet principalsProps = new DavPropertyNameSet();
         principalsProps.add(CardDavPropertyName.ADDRESSBOOK_HOME_SET);
         principalsProps.add(DavPropertyName.DISPLAYNAME);
 
-        HttpPropfind method = new HttpPropfind(propfindUri, principalsProps, 0);
-        PropFindResponseHandler responseHandler = new PropFindResponseHandler(method);
-        responseHandler.accept(getClient().execute(method));
-        return responseHandler.getDavPropertyUri(CardDavPropertyName.ADDRESSBOOK_HOME_SET);
+        DavPropertySet props = getClient().propFind(propfindUri, principalsProps);
+        return (String) props.get(CardDavPropertyName.ADDRESSBOOK_HOME_SET).getValue();
     }
 
     /**
@@ -189,7 +172,7 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
         try {
             String calHomeSetUri = findAddressBookHomeSet();
             if (calHomeSetUri == null) {
-                throw new ObjectNotFoundException("No " + CalDavConstants.PROPERTY_ADDRESSBOOK_HOME_SET + " attribute found for the user");
+                throw new ObjectNotFoundException("No " + CardDavPropertyName.ADDRESSBOOK_HOME_SET + " attribute found for the user");
             }
             String urlForcalendarHomeSet = getHostURL() + calHomeSetUri;
             return getCollectionsForHomeSet(this, urlForcalendarHomeSet);
@@ -200,95 +183,11 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
     
     protected List<CardDavCollection> getCollectionsForHomeSet(CardDavStore store,
             String urlForcalendarHomeSet) throws IOException, DavException {
-        List<CardDavCollection> collections = new ArrayList<CardDavCollection>();
 
         DavPropertyNameSet principalsProps = CardDavCollection.propertiesForFetch();
-
-        HttpPropfind method = new HttpPropfind(urlForcalendarHomeSet, principalsProps, 1);
-        PropFindResponseHandler responseHandler = new PropFindResponseHandler(method);
-        responseHandler.accept(getClient().execute(method));
-        return responseHandler.getCollections(Collections.singletonList(ResourceType.ADRESSBOOK)).entrySet().stream()
+        return getClient().propFindResources(urlForcalendarHomeSet, principalsProps, ResourceType.ADRESSBOOK).entrySet().stream()
                 .map(e -> new CardDavCollection(this, e.getKey(), e.getValue()))
                 .collect(Collectors.toList());
-    }
-
-    protected List<CardDavCollection> getDelegateCollections(DavProperty<?> proxyDavProperty)
-            throws ParserConfigurationException, IOException, DavException {
-        /*
-         * Zimbra check: Zimbra advertise calendar-proxy, but it will return 404 in propstat if Enable delegation for
-         * Apple iCal CardDav client is not enabled
-         */
-        if (proxyDavProperty != null) {
-            Object propertyValue = proxyDavProperty.getValue();
-            ArrayList<Node> response;
-
-            if (propertyValue instanceof ArrayList) {
-                response = (ArrayList) proxyDavProperty.getValue();
-                if (response != null) {
-                    for (Node objectInArray : response) {
-                        if (objectInArray instanceof Element) {
-                            DefaultDavProperty<?> newProperty = DefaultDavProperty
-                                    .createFromXml((Element) objectInArray);
-                            if ((newProperty.getName().getName().equals((DavConstants.XML_RESPONSE)))
-                                    && (newProperty.getName().getNamespace().equals(DavConstants.NAMESPACE))) {
-                                ArrayList<Node> responseChilds = (ArrayList) newProperty.getValue();
-                                for (Node responseChild : responseChilds) {
-                                    if (responseChild instanceof Element) {
-                                        DefaultDavProperty<?> responseChildElement = DefaultDavProperty
-                                                .createFromXml((Element) responseChild);
-                                        if (responseChildElement.getName().getName().equals(DavConstants.XML_PROPSTAT)) {
-                                            ArrayList<Node> propStatChilds = (ArrayList) responseChildElement
-                                                    .getValue();
-                                            for (Node propStatChild : propStatChilds) {
-                                                if (propStatChild instanceof Element) {
-                                                    DefaultDavProperty<?> propStatChildElement = DefaultDavProperty
-                                                            .createFromXml((Element) propStatChild);
-                                                    if (propStatChildElement.getName().getName()
-                                                            .equals(DavConstants.XML_PROP)) {
-                                                        ArrayList<Node> propChilds = (ArrayList) propStatChildElement
-                                                                .getValue();
-                                                        for (Node propChild : propChilds) {
-                                                            if (propChild instanceof Element) {
-                                                                DefaultDavProperty<?> propChildElement = DefaultDavProperty
-                                                                        .createFromXml((Element) propChild);
-                                                                if (propChildElement.getName().equals(
-                                                                        SecurityConstants.PRINCIPAL_URL)) {
-                                                                    ArrayList<Node> principalUrlChilds = (ArrayList) propChildElement
-                                                                            .getValue();
-                                                                    for (Node principalUrlChild : principalUrlChilds) {
-                                                                        if (principalUrlChild instanceof Element) {
-                                                                            DefaultDavProperty<?> principalUrlElement = DefaultDavProperty
-                                                                                    .createFromXml((Element) principalUrlChild);
-                                                                            if (principalUrlElement.getName().getName()
-                                                                                    .equals(DavConstants.XML_HREF)) {
-                                                                                String principalsUri = (String) principalUrlElement
-                                                                                        .getValue();
-                                                                                String urlForcalendarHomeSet = findAddressBookHomeSet(getHostURL()
-                                                                                        + principalsUri);
-                                                                                return getCollectionsForHomeSet(this,
-                                                                                        urlForcalendarHomeSet);
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            } else if (propertyValue instanceof Element) {
-                System.out.println(((Element)propertyValue).getNodeName());
-                System.out.println(((Element)propertyValue).getChildNodes());
-            }
-        }
-        return new ArrayList<CardDavCollection>();
     }
 
     /**
@@ -299,56 +198,24 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
      */
     public List<CardDavCollection> getDelegatedCollections() throws Exception {
 
-        List<CardDavCollection> collections = new ArrayList<CardDavCollection>();
 
         String methodUri = this.pathResolver.getPrincipalPath(getUserName());
 
-        Document document = newXmlDocument();
+        ExpandPropertyQuery expandPropertyWrite = new ExpandPropertyQuery(ExpandPropertyQuery.Type.PROXY_WRITE_FOR)
+                .withPropertyName(DavPropertyName.DISPLAYNAME)
+                .withPropertyName(SecurityConstants.PRINCIPAL_URL)
+                .withPropertyName(CalDavPropertyName.USER_ADDRESS_SET);
 
-        Element writeDisplayNameProperty = newDavProperty(document, DavConstants.PROPERTY_DISPLAYNAME);
+        ExpandPropertyQuery expandPropertyRead = new ExpandPropertyQuery(ExpandPropertyQuery.Type.PROXY_READ_FOR)
+                .withPropertyName(DavPropertyName.DISPLAYNAME)
+                .withPropertyName(SecurityConstants.PRINCIPAL_URL)
+                .withPropertyName(CalDavPropertyName.USER_ADDRESS_SET);
 
-        Element writePrincipalUrlProperty = newDavProperty(document, SecurityConstants.PRINCIPAL_URL.getName());
+        ReportInfo rinfo = new ReportInfo(BaseDavPropertyName.EXPAND_PROPERTY, 0);
+        rinfo.setContentElement(expandPropertyWrite.build());
+        rinfo.setContentElement(expandPropertyRead.build());
 
-        Element writeUserAddressSetProperty = newDavProperty(document, CalDavConstants.PROPERTY_USER_ADDRESS_SET,
-                CalDavConstants.NAMESPACE);
-
-        Element proxyWriteForElement = newDavProperty(document, CalDavConstants.PROPERTY_PROXY_WRITE_FOR,
-                CalDavConstants.CS_NAMESPACE, writeDisplayNameProperty, writePrincipalUrlProperty,
-                writeUserAddressSetProperty);
-
-        Element readDisplayNameProperty = newDavProperty(document, DavConstants.PROPERTY_DISPLAYNAME);
-
-        Element readPrincipalUrlProperty = newDavProperty(document, SecurityConstants.PRINCIPAL_URL.getName());
-
-        Element readUserAddressSetProperty = newDavProperty(document, CalDavConstants.PROPERTY_USER_ADDRESS_SET,
-                CalDavConstants.NAMESPACE);
-
-        Element proxyReadForElement = newDavProperty(document, CalDavConstants.PROPERTY_PROXY_READ_FOR,
-                CalDavConstants.CS_NAMESPACE, readDisplayNameProperty, readPrincipalUrlProperty,
-                readUserAddressSetProperty);
-
-        ReportInfo rinfo = new ReportInfo(ReportType.register(DeltaVConstants.XML_EXPAND_PROPERTY,
-                DeltaVConstants.NAMESPACE, org.apache.jackrabbit.webdav.version.report.ExpandPropertyReport.class), 0);
-        rinfo.setContentElement(proxyWriteForElement);
-        rinfo.setContentElement(proxyReadForElement);
-
-        HttpReport method = new HttpReport(methodUri, rinfo);
-        HttpResponse httpResponse = getClient().execute(method);
-
-        if (httpResponse.getStatusLine().getStatusCode() == DavServletResponse.SC_MULTI_STATUS) {
-            MultiStatus multiStatus = method.getResponseBodyAsMultiStatus(httpResponse);
-            MultiStatusResponse[] responses = multiStatus.getResponses();
-            for (MultiStatusResponse respons : responses) {
-                DavPropertySet properties = respons.getProperties(DavServletResponse.SC_OK);
-                DavProperty<?> writeForProperty = properties.get(CalDavConstants.PROPERTY_PROXY_WRITE_FOR,
-                        CalDavConstants.CS_NAMESPACE);
-                collections.addAll(getDelegateCollections(writeForProperty));
-                DavProperty<?> readForProperty = properties.get(CalDavConstants.PROPERTY_PROXY_READ_FOR,
-                        CalDavConstants.CS_NAMESPACE);
-                collections.addAll(getDelegateCollections(readForProperty));
-            }
-        }
-        return collections;
+        return getClient().report(methodUri, rinfo, new GetCardDavCollections());
     }
 
     /**

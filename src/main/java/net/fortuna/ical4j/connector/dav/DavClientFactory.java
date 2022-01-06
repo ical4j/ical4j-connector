@@ -9,6 +9,10 @@ public class DavClientFactory {
 
     private DavClientConfiguration clientConfiguration;
 
+    public DavClientFactory() {
+        clientConfiguration = new DavClientConfiguration();
+    }
+
     public DavClientFactory withPreemptiveAuth(boolean preemptiveAuth) {
         this.clientConfiguration = clientConfiguration.withPreemptiveAuth(preemptiveAuth);
         return this;
@@ -25,7 +29,7 @@ public class DavClientFactory {
      * @return
      */
     public DefaultDavClient newInstance(URL url, PathResolver pathResolver) {
-        return new DefaultDavClient(url, new CalDavLocatorFactory(url.toString(), pathResolver),
+        return new DefaultDavClient(url, new CalDavLocatorFactory(pathResolver),
                 clientConfiguration);
     }
 

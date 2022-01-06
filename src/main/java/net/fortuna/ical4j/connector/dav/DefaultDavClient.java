@@ -117,7 +117,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	 */
 	@Deprecated
 	public DefaultDavClient(URL url, PathResolver pathResolver, DavClientConfiguration clientConfiguration) {
-		this(url, new CalDavLocatorFactory(url.toString(), pathResolver), clientConfiguration);
+		this(url, new CalDavLocatorFactory(pathResolver), clientConfiguration);
 	}
 
 	/**

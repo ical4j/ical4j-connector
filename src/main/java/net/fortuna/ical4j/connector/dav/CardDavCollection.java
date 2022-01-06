@@ -35,30 +35,27 @@ import net.fortuna.ical4j.connector.CardCollection;
 import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.ObjectNotFoundException;
 import net.fortuna.ical4j.connector.ObjectStoreException;
-import net.fortuna.ical4j.connector.dav.method.MkCalendarMethod;
-import net.fortuna.ical4j.connector.dav.method.PutMethod;
-import net.fortuna.ical4j.connector.dav.method.ReportMethod;
 import net.fortuna.ical4j.connector.dav.property.BaseDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CardDavPropertyName;
-import net.fortuna.ical4j.connector.dav.response.ReportResponseHandler;
+import net.fortuna.ical4j.connector.dav.property.DavPropertyBuilder;
+import net.fortuna.ical4j.connector.dav.response.GetVCardData;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.vcard.Property.Id;
 import net.fortuna.ical4j.vcard.VCard;
-import org.apache.http.HttpResponse;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.DavServletResponse;
-import org.apache.jackrabbit.webdav.client.methods.HttpReport;
-import org.apache.jackrabbit.webdav.client.methods.XmlEntity;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+
+import static net.fortuna.ical4j.connector.dav.property.CalDavPropertyName.CALENDAR_DESCRIPTION;
+import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME;
 
 /**
  * $Id$
@@ -74,7 +71,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      * Only {@link CardDavStore} should be calling this, so default modifier is applied.
      * 
      * @param CardDavCalendarStore
-     * @param path
+     * @param id
      */
     CardDavCollection(CardDavStore CardDavCalendarStore, String id) {
         this(CardDavCalendarStore, id, null, null);
@@ -91,8 +88,8 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     CardDavCollection(CardDavStore CardDavCalendarStore, String id, String displayName, String description) {
 
         super(CardDavCalendarStore, id);
-        properties.add(new DefaultDavProperty(DavPropertyName.DISPLAYNAME, displayName));
-        properties.add(new DefaultDavProperty(CalDavPropertyName.CALENDAR_DESCRIPTION, description));
+        properties.add(new DavPropertyBuilder<>().name(DISPLAYNAME).value(displayName).build());
+        properties.add(new DavPropertyBuilder<>().name(CALENDAR_DESCRIPTION).value(description).build());
     }
 
     CardDavCollection(CardDavStore CardDavCalendarStore, String id, DavPropertySet _properties) {
@@ -107,17 +104,10 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      * @throws ObjectStoreException
      */
     final void create() throws IOException, ObjectStoreException {
-        MkCalendarMethod mkCalendarMethod = new MkCalendarMethod(getPath());
-
-        MkCalendar mkcalendar = new MkCalendar();
-        mkcalendar.setProperties(properties);
-        System.out.println("properties: " + properties.getContentSize());
-        mkCalendarMethod.setEntity(XmlEntity.create(mkcalendar));
-
-        HttpResponse httpResponse = getStore().getClient().execute(mkCalendarMethod);
-        if (!mkCalendarMethod.succeeded(httpResponse)) {
-            throw new ObjectStoreException(httpResponse.getStatusLine().getStatusCode() + ": "
-                    + httpResponse.getStatusLine().getReasonPhrase());
+        try {
+            getStore().getClient().mkCalendar(getPath(), properties);
+        } catch (DavException e) {
+            throw new ObjectStoreException("Failed to create collection", e);
         }
     }
 
@@ -126,7 +116,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      */
     public String getDisplayName() {
         try {
-            return getProperty(DavPropertyName.DISPLAYNAME, String.class);
+            return getProperty(DISPLAYNAME, String.class);
         } catch (ObjectStoreException | IOException | DavException e) {
             throw new RuntimeException(e);
         }
@@ -166,11 +156,11 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
             <D:bulk-requests xmlns:D="http://me.com/_namespace/" /> 
        */
         
-        principalsProps.add(DavPropertyName.DISPLAYNAME);
+        principalsProps.add(DISPLAYNAME);
 
 
-        principalsProps.add(BaseDavPropertyName.CURRENT_USER_PRIVILEGE_SET);
-        principalsProps.add(BaseDavPropertyName.RESOURCETYPE);
+        principalsProps.add(SecurityConstants.CURRENT_USER_PRIVILEGE_SET);
+        principalsProps.add(DavPropertyName.RESOURCETYPE);
         principalsProps.add(SecurityConstants.OWNER);
         principalsProps.add(CardDavPropertyName.MAX_RESOURCE_SIZE);
         principalsProps.add(BaseDavPropertyName.RESOURCE_ID);
@@ -212,13 +202,10 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
             properties.add(DavPropertyName.GETETAG);
             properties.add(CardDavPropertyName.ADDRESS_DATA);
 
-            ReportInfo info = new ReportInfo(ReportMethod.ADDRESSBOOK_QUERY, 1, properties);
+            ReportInfo info = new ReportInfo(CardDavPropertyName.ADDRESSBOOK_QUERY, 1, properties);
 
-            HttpReport method = new HttpReport(getPath(), info);
-            ReportResponseHandler responseHandler = new ReportResponseHandler(method);
-            responseHandler.accept(getStore().getClient().execute(method));
-            return responseHandler.getVCards();
-        } catch (IOException | DavException e) {
+            return getStore().getClient().report(getPath(), info, new GetVCardData()).toArray(new VCard[0]);
+        } catch (IOException | ParserConfigurationException e) {
             throw new RuntimeException(e);
         }
     }
@@ -227,31 +214,17 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      * @see net.fortuna.ical4j.connector.CardCollection#addCard(net.fortuna.ical4j.vcard.VCard)
      */
     public void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
-        net.fortuna.ical4j.vcard.property.Uid uid = (net.fortuna.ical4j.vcard.property.Uid)card.getProperty(Id.UID);
+        net.fortuna.ical4j.vcard.property.Uid uid = card.getProperty(Id.UID);
 
         String path = getPath();
         if (!path.endsWith("/")) {
             path = path.concat("/");
         }
-        PutMethod putMethod = new PutMethod(path + uid.getValue() + ".vcf");
-        // putMethod.setAllEtags(true);
-        // putMethod.setIfNoneMatch(true);
-        // putMethod.setRequestBody(calendar);
 
         try {
-            putMethod.setVCard(card);
-        } catch (Exception e) {
-            throw new ObjectStoreException("Invalid vcard", e);
-        }
-
-        try {
-            HttpResponse httpResponse = getStore().getClient().execute(putMethod);
-            if ((httpResponse.getStatusLine().getStatusCode() != DavServletResponse.SC_CREATED)
-                    && (httpResponse.getStatusLine().getStatusCode() != DavServletResponse.SC_NO_CONTENT)) {
-                throw new ObjectStoreException("Error creating calendar on server: " + httpResponse.getStatusLine());
-            }
-        } catch (IOException ioe) {
-            throw new ObjectStoreException("Error creating calendar on server", ioe);
+            getStore().getClient().put(path + uid.getValue() + ".vcf", card, null);
+        } catch (IOException | FailedOperationException e) {
+            throw new ObjectStoreException("Error creating calendar on server", e);
         }        
     }
 

@@ -35,7 +35,6 @@ import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.ObjectCollection;
 import net.fortuna.ical4j.connector.ObjectStore;
 import net.fortuna.ical4j.connector.ObjectStoreException;
-import net.fortuna.ical4j.connector.dav.enums.SupportedFeature;
 import net.fortuna.ical4j.util.Configurator;
 
 import java.io.IOException;
@@ -54,7 +53,7 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
 
     private final DavClientFactory clientFactory;
 
-	private DavClient davClient;
+	private DefaultDavClient davClient;
 	
 	private String username;
     private String bearerAuth;
@@ -75,23 +74,27 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
     public AbstractDavObjectStore(URL url, PathResolver pathResolver) {
     	this.rootUrl = url;
         this.pathResolver = pathResolver;
-        this.clientFactory = new DavClientFactory("true".equals(Configurator.getProperty("ical4j.connector.dav.preemptiveauth").orElse("false")));
+        this.clientFactory = new DavClientFactory()
+                .withPreemptiveAuth("true".equals(Configurator.getProperty("ical4j.connector.dav.preemptiveauth")
+                        .orElse("false")));
     }
 
     /**
      * @return the path
      */
     public final String getPath() {
-        return pathResolver == null ? rootUrl.getFile() : pathResolver.getUserPath( getUserName() );
+        return pathResolver == null ? rootUrl.getFile() : pathResolver.getRootPath();
     }
 
     /**
      * {@inheritDoc}
      */
     public final boolean connect() throws ObjectStoreException {
-        final String principalPath = pathResolver.getPrincipalPath(getUserName());
-        final String userPath = pathResolver.getUserPath(getUserName());
-        davClient = clientFactory.newInstance(rootUrl, principalPath, userPath);
+//        DavClientConfiguration configuration = new DavClientConfiguration().withRepositoryUrl(rootUrl)
+//                .withPrincipalPath(pathResolver.getPrincipalPath(getUserName()))
+//                .withUserPath(pathResolver.getUserPath(getUserName()));
+
+        davClient = clientFactory.newInstance(rootUrl, pathResolver);
         davClient.begin();
 
         return true;
@@ -100,14 +103,16 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
 
     public final boolean connect( String bearerAuth ) throws ObjectStoreException {
         try {
-            davClient = clientFactory.newInstance(rootUrl, rootUrl.getFile(), rootUrl.getFile());
+//            DavClientConfiguration configuration = new DavClientConfiguration().withRepositoryUrl(rootUrl)
+//                    .withPrincipalPath(rootUrl.getFile())
+//                    .withUserPath(rootUrl.getFile());
+
+            davClient = clientFactory.newInstance(rootUrl, pathResolver);
             davClient.begin( bearerAuth );
 
             this.bearerAuth = bearerAuth;
-        } catch (IOException ioe) {
+        } catch (IOException | FailedOperationException ioe) {
             throw new ObjectStoreException( ioe );
-        } catch (FailedOperationException foe) {
-            throw new ObjectStoreException( foe );
         }
 
         return true;
@@ -122,17 +127,16 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
     public final boolean connect(String username, char[] password) throws ObjectStoreException {
     	try {
             this.username = username;
-        	
-        	final String principalPath = pathResolver.getPrincipalPath(username);
-        	final String userPath = pathResolver.getUserPath(username);
-        	davClient = clientFactory.newInstance(rootUrl, principalPath, userPath);
+
+//            DavClientConfiguration configuration = new DavClientConfiguration().withRepositoryUrl(rootUrl)
+//                    .withPrincipalPath(pathResolver.getPrincipalPath(getUserName()))
+//                    .withUserPath(pathResolver.getUserPath(getUserName()));
+
+        	davClient = clientFactory.newInstance(rootUrl, pathResolver);
         	supportedFeatures = davClient.begin(username, password);
     	}
-    	catch (IOException ioe) {
+    	catch (IOException | FailedOperationException ioe) {
     		throw new ObjectStoreException(ioe);
-    	}
-    	catch (FailedOperationException foe) {
-    		throw new ObjectStoreException(foe);
     	}
 
         return true;
@@ -163,7 +167,7 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
     	return username;
     }
     
-    public DavClient getClient() {
+    public DefaultDavClient getClient() {
     	return davClient;
     }
     
@@ -181,7 +185,7 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
     }
     
     public boolean isSupportCalendarProxy() {
-        return supportedFeatures.contains(SupportedFeature.CALENDAR_PROXY) ? true: false;
+        return supportedFeatures.contains(SupportedFeature.CALENDAR_PROXY);
     }
     
 }

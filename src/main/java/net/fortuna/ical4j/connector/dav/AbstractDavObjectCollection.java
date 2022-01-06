@@ -31,22 +31,15 @@
  */
 package net.fortuna.ical4j.connector.dav;
 
+import net.fortuna.ical4j.connector.MediaType;
 import net.fortuna.ical4j.connector.ObjectCollection;
 import net.fortuna.ical4j.connector.ObjectStoreException;
-import net.fortuna.ical4j.connector.dav.enums.MediaType;
-import net.fortuna.ical4j.connector.dav.enums.ResourceType;
 import net.fortuna.ical4j.connector.dav.property.BaseDavPropertyName;
 import net.fortuna.ical4j.connector.dav.property.CalDavPropertyName;
-import net.fortuna.ical4j.connector.dav.response.PropFindResponseHandler;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.client.methods.HttpDelete;
-import org.apache.jackrabbit.webdav.client.methods.HttpPropfind;
 import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
-import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.w3c.dom.Element;
@@ -123,7 +116,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
 
         try {
             ArrayList<Node> resourceTypeProp;
-            resourceTypeProp = getProperty(BaseDavPropertyName.RESOURCETYPE, ArrayList.class);
+            resourceTypeProp = getProperty(DavPropertyName.RESOURCETYPE, ArrayList.class);
             if (resourceTypeProp != null) {
                 for (Node child : resourceTypeProp) {
                     if (child instanceof Element) {
@@ -236,16 +229,9 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
     public String getOwnerName() {
         if ((_ownerName == null) && (getOwnerHref() != null)) {
             try {
-                DavPropertyNameSet nameSet = new DavPropertyNameSet();
-                nameSet.add(DavPropertyName.DISPLAYNAME);
-                HttpPropfind aGet = new HttpPropfind(getOwnerHref(), nameSet, 0);
-
-                RequestConfig config = RequestConfig.copy(aGet.getConfig()).setAuthenticationEnabled(true).build();
-                aGet.setConfig(config);
-
-                PropFindResponseHandler responseHandler = new PropFindResponseHandler(aGet);
-                responseHandler.accept(getStore().getClient().execute(aGet));
-                DavProperty<?> displayNameProp = responseHandler.getPropertySet().get(DavPropertyName.DISPLAYNAME);
+                DavPropertySet propertySet = getStore().getClient().propFind(getOwnerHref(),
+                        DavPropertyName.DISPLAYNAME);
+                DavProperty<?> displayNameProp = propertySet.get(DavPropertyName.DISPLAYNAME);
                 if (displayNameProp != null) {
                     _ownerName = (String)displayNameProp.getValue();
                 }
@@ -308,11 +294,10 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      * @throws ObjectStoreException where an unexpected error occurs
      */
     public final void delete() throws HttpResponseException, IOException, ObjectStoreException {
-        HttpDelete deleteMethod = new HttpDelete(getPath());
-        HttpResponse httpResponse = getStore().getClient().execute(deleteMethod);
-        if (!deleteMethod.succeeded(httpResponse)) {
-            throw new ObjectStoreException(httpResponse.getStatusLine().getStatusCode() + ": "
-                    + httpResponse.getStatusLine().getReasonPhrase());
+        try {
+            getStore().getClient().delete(getPath());
+        } catch (DavException e) {
+            throw new ObjectStoreException("Failed to delete resource", e);
         }
     }
 
@@ -323,11 +308,6 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      * @throws ObjectStoreException where an unexpected error occurs
      */
     public final boolean exists() throws HttpResponseException, IOException, ObjectStoreException {
-        DavPropertyNameSet principalsProps = CalDavCalendarCollection.propertiesForFetch();
-        HttpPropfind getMethod = new HttpPropfind(getPath(), principalsProps, 0);
-
-        PropFindResponseHandler responseHandler = new PropFindResponseHandler(getMethod);
-        responseHandler.accept(getStore().getClient().execute(getMethod));
-        return responseHandler.exists();
+        return !getStore().getClient().propFind(getPath(), CalDavCalendarCollection.propertiesForFetch()).isEmpty();
     }
 }
