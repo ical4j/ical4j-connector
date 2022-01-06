@@ -37,7 +37,7 @@ public abstract class AbstractResponseHandler<T> implements ResponseHandler<T> {
                 .filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    public Document getResponseBodyAsDocument(HttpEntity entity) throws IOException {
+    private Document getResponseBodyAsDocument(HttpEntity entity) throws IOException {
 
         if (entity == null) {
             return null;
@@ -56,7 +56,7 @@ public abstract class AbstractResponseHandler<T> implements ResponseHandler<T> {
         }
     }
 
-    public MultiStatus getResponseBodyAsMultiStatus(HttpResponse response) throws DavException {
+    private MultiStatus getResponseBodyAsMultiStatus(HttpResponse response) throws DavException {
         try {
             Document doc = getResponseBodyAsDocument(response.getEntity());
             if (doc == null) {
