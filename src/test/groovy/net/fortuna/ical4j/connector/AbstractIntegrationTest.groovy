@@ -1,6 +1,5 @@
 package net.fortuna.ical4j.connector
 
-
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.spock.Testcontainers
 import spock.lang.Shared
@@ -16,4 +15,8 @@ abstract class AbstractIntegrationTest extends Specification {
     abstract String getContainerImageName();
 
     abstract int getContainerPort();
+
+    String getContainerUrl() {
+        "http://$container.containerIpAddress:${container.getMappedPort(getContainerPort())}"
+    }
 }
