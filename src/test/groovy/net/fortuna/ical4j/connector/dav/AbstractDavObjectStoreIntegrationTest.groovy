@@ -9,9 +9,8 @@ abstract class AbstractDavObjectStoreIntegrationTest extends AbstractIntegration
 
     def 'test find calendar home set'() {
         given: 'an object store'
-        ObjectStore store = new CalDavCalendarStore('ical4j-connector',
-                URI.create("http://$container.containerIpAddress:${container.getMappedPort(getContainerPort())}").toURL(),
-        getPathResolver())
+        ObjectStore store = new CalDavCalendarStore('ical4j-connector', URI.create(getContainerUrl()).toURL(),
+            getPathResolver())
 
         and: 'a connection is established'
         store.connect('admin', 'admin'.toCharArray())
@@ -25,9 +24,8 @@ abstract class AbstractDavObjectStoreIntegrationTest extends AbstractIntegration
 
     def 'test calendar creation'() {
         given: 'an object store'
-        ObjectStore store = new CalDavCalendarStore('ical4j-connector',
-                URI.create("http://$container.containerIpAddress:${container.getMappedPort(getContainerPort())}").toURL(),
-        getPathResolver())
+        ObjectStore store = new CalDavCalendarStore('ical4j-connector', URI.create(getContainerUrl()).toURL(),
+            getPathResolver())
 
         and: 'a connection is established'
         store.connect('admin', 'admin'.toCharArray())
