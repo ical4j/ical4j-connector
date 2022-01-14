@@ -94,7 +94,7 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
 //                .withPrincipalPath(pathResolver.getPrincipalPath(getUserName()))
 //                .withUserPath(pathResolver.getUserPath(getUserName()));
 
-        davClient = clientFactory.newInstance(rootUrl, pathResolver);
+        davClient = clientFactory.newInstance(rootUrl);
         davClient.begin();
 
         return true;
@@ -107,7 +107,7 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
 //                    .withPrincipalPath(rootUrl.getFile())
 //                    .withUserPath(rootUrl.getFile());
 
-            davClient = clientFactory.newInstance(rootUrl, pathResolver);
+            davClient = clientFactory.newInstance(rootUrl);
             davClient.begin( bearerAuth );
 
             this.bearerAuth = bearerAuth;
@@ -132,7 +132,7 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
 //                    .withPrincipalPath(pathResolver.getPrincipalPath(getUserName()))
 //                    .withUserPath(pathResolver.getUserPath(getUserName()));
 
-        	davClient = clientFactory.newInstance(rootUrl, pathResolver);
+        	davClient = clientFactory.newInstance(rootUrl);
         	supportedFeatures = davClient.begin(username, password);
     	}
     	catch (IOException | FailedOperationException ioe) {

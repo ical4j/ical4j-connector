@@ -1,7 +1,5 @@
 package net.fortuna.ical4j.connector.dav;
 
-import org.apache.jackrabbit.webdav.DavLocatorFactory;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -24,24 +22,22 @@ public class DavClientFactory {
     }
 
     /**
-     *
-     * @param url
-     * @return
+     * Create a new client instance. Note that if a path is specified it should include a trailing
+     * forward slash.
+     * @param url the URL of the DAV repository
+     * @return a new client instance
      */
-    public DefaultDavClient newInstance(URL url, PathResolver pathResolver) {
-        return new DefaultDavClient(url, new CalDavLocatorFactory(pathResolver),
-                clientConfiguration);
+    public DefaultDavClient newInstance(URL url) {
+        return new DefaultDavClient(url, clientConfiguration);
     }
 
-    public DefaultDavClient newInstance(URL url, DavLocatorFactory locatorFactory) {
-        return new DefaultDavClient(url, locatorFactory, clientConfiguration);
+    /**
+     * Create a new client instance. Note that if a path is specified it should include a trailing
+     * forward slash.
+     * @param url the URL of the DAV repository
+     * @return a new client instance
+     */
+    public DefaultDavClient newInstance(String url) throws MalformedURLException {
+        return new DefaultDavClient(url, clientConfiguration);
     }
-
-    public DefaultDavClient newInstance(String url, DavLocatorFactory locatorFactory) throws MalformedURLException {
-        return new DefaultDavClient(url, locatorFactory, clientConfiguration);
-    }
-
-//    public DavClient newInstance(DavClientConfiguration configuration) {
-//        return new DavClient(configuration, preemptiveAuth);
-//    }
 }

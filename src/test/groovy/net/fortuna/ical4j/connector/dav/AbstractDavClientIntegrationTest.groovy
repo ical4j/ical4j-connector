@@ -25,6 +25,10 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
 
     abstract CredentialsProvider getCredentialsProvider()
 
+    String getContainerUrl() {
+        "http://$container.containerIpAddress:${container.getMappedPort(getContainerPort())}$pathResolver.rootPath"
+    }
+
     def 'assert preemptive auth configuration'() {
         given: 'a dav client factory configured for preemptive auth'
         DavClientFactory clientFactory = new DavClientFactory().withPreemptiveAuth(true)
@@ -61,6 +65,9 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         def client = new DavClientFactory().withPreemptiveAuth(true)
                 .newInstance(href)
 
+        and: 'a resource path'
+        def path = getPathResolver().getRepositoryPath('test', 'admin')
+
         when: 'a session is started'
         client.begin(getCredentialsProvider())
 
@@ -68,13 +75,13 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         DavPropertySet props = []
         props.add(new DavPropertyBuilder<>().name(DISPLAYNAME).value('Test Collection').build())
         props.add(new DavPropertyBuilder<>().name(CALENDAR_DESCRIPTION).value('A simple mkcalendar test').build())
-        client.mkCalendar('/admin/test', props)
+        client.mkCalendar(path, props)
 
         then: 'the collection exists'
-        client.propFind('/admin/test', props.propertyNames).asList() == props.asList()
+        client.propFind(path, props.propertyNames).asList() == props.asList()
 
         cleanup: 'remove collection'
-        client.delete('/admin/test')
+        client.delete(path)
     }
 
     def 'test create invalid collection'() {
@@ -83,6 +90,9 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         def client = new DavClientFactory().withPreemptiveAuth(true)
                 .newInstance(href)
 
+        and: 'a non-existent resource path'
+        def path = getPathResolver().getRepositoryPath('test', 'notexist')
+
         when: 'a session is started'
         client.begin(getCredentialsProvider())
 
@@ -90,7 +100,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         DavPropertySet props = []
         props.add(new DavPropertyBuilder<>().name(DISPLAYNAME).value('Test Collection').build())
         props.add(new DavPropertyBuilder<>().name(CALENDAR_DESCRIPTION).value('A simple mkcalendar test').build())
-        client.mkCalendar('/notexist/test', props)
+        client.mkCalendar(path, props)
 
         then: 'exception is thrown'
         thrown(DavException)
@@ -102,6 +112,9 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         def client = new DavClientFactory().withPreemptiveAuth(true)
                 .newInstance(href)
 
+        and: 'a resource path'
+        def path = getPathResolver().getRepositoryPath('test', 'admin')
+
         when: 'a session is started'
         client.begin(getCredentialsProvider())
 
@@ -109,16 +122,16 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         DavPropertySet props = []
         props.add(new DavPropertyBuilder<>().name(DISPLAYNAME).value('Test Collection').build())
         props.add(new DavPropertyBuilder<>().name(CALENDAR_DESCRIPTION).value('A simple mkcalendar test').build())
-        client.mkCalendar('/admin/test', props)
+        client.mkCalendar(path, props)
 
         and: 'the collection is retrieved via get'
-        Calendar calendar = client.getCalendar('/admin/test')
+        Calendar calendar = client.getCalendar(path)
 
         then: 'the retrieved calendar is as expected'
         calendar != null
 
         cleanup: 'remove collection'
-        client.delete('/admin/test')
+        client.delete(path)
     }
 
     def 'test propfind all'() {
@@ -126,6 +139,9 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         URL href = URI.create(getContainerUrl()).toURL()
         def client = new DavClientFactory().withPreemptiveAuth(true)
                 .newInstance(href)
+
+        and: 'a resource path'
+        def path = getPathResolver().getRepositoryPath('admin', null)
 
         when: 'a session is started'
         client.begin(getCredentialsProvider())
@@ -144,7 +160,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         propNames.add(RESOURCETYPE)
 
         then: 'propfind type = all is as expected'
-        propNames.containsAll client.propFindAll('/admin').propertyNames
+        propNames.containsAll client.propFindAll(path).propertyNames
     }
 
     @Ignore
@@ -153,6 +169,9 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         URL href = URI.create(getContainerUrl()).toURL()
         def client = new DavClientFactory().newInstance(href)
 
+        and: 'a resource path'
+        def path = getPathResolver().getRepositoryPath('admin', null)
+
         when: 'a session is started'
         client.begin(getCredentialsProvider())
 
@@ -160,13 +179,13 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         DavPropertySet props = []
 //        props.add(new DefaultDavProperty<>(DavPropertyName.DISPLAYNAME, 'Test Collection'))
 //        props.add(new DefaultDavProperty<>(CalDavPropertyName.CALENDAR_DESCRIPTION, 'A simple mkcalendar test'))
-//        client.mkCalendar('/admin/test', props)
+//        client.mkCalendar('admin/test', props)
 
         and: 'expected props is defined'
         props = []
         props.add(new DavPropertyBuilder<String[]>().name(PRINCIPAL_COLLECTION_SET).value(new String[0]).build())
 
         then: 'propfind type = all is as expected'
-        props.containsAll client.propFind('/admin', PRINCIPAL_COLLECTION_SET)
+        props.containsAll client.propFind(path, PRINCIPAL_COLLECTION_SET)
     }
 }
