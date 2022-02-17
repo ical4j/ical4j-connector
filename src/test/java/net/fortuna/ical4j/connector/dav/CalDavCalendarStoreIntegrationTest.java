@@ -53,16 +53,16 @@ public class CalDavCalendarStoreIntegrationTest extends TestSuite {
     public static Test suite() throws MalformedURLException {
         TestSuite suite = new TestSuite(CalDavCalendarStoreIntegrationTest.class.getSimpleName());
         
-        final URL url = new URL("http://mediabase.local:8088");
-        String username = "fortuna";
-        char[] password = "connector".toCharArray();
+        final URL url = new URL("http://localhost:8088");
+        String username = "admin";
+        char[] password = "admin".toCharArray();
         
-        suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testAddCollection",
-                new CalDavCalendarStoreLifecycle(url, PathResolver.CHANDLER), username, password));
-        suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testGetCollection",
-                new CalDavCalendarStoreLifecycle(url, PathResolver.CHANDLER), username, password));
-        suite.addTest(new ObjectStoreTest<CalDavCalendarCollection>("testRemoveCollection",
-                new CalDavCalendarStoreLifecycle(url, PathResolver.CHANDLER), username, password));
+        suite.addTest(new ObjectStoreTest<>("testAddCollection",
+                new CalDavCalendarStoreLifecycle(url, PathResolver.Defaults.CHANDLER), username, password));
+        suite.addTest(new ObjectStoreTest<>("testGetCollection",
+                new CalDavCalendarStoreLifecycle(url, PathResolver.Defaults.CHANDLER), username, password));
+        suite.addTest(new ObjectStoreTest<>("testRemoveCollection",
+                new CalDavCalendarStoreLifecycle(url, PathResolver.Defaults.CHANDLER), username, password));
         return suite;
     }
 
