@@ -55,9 +55,12 @@ test {
 }
 
 javadoc {
+    if (JavaVersion.current().isJava8Compatible()) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
     options {
         links 'https://docs.oracle.com/en/java/javase/11/docs/api/',
-                'http://ical4j.github.io/docs/ical4j/api/4.0.0-alpha6/'
+                'http://ical4j.github.io/docs/ical4j/api/'
     }
 }
 
