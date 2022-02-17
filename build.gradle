@@ -5,7 +5,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'signing'
-    id 'pl.allegro.tech.build.axion-release' version '1.13.1'
+    id 'pl.allegro.tech.build.axion-release' version '1.13.3'
     id "nebula.optional-base" version "3.0.3"
 }
 
@@ -92,6 +92,10 @@ scmVersion {
     }
     versionCreator 'versionWithBranch'
     branchVersionCreator = ['master': 'simple']
+    nextVersion {
+        suffix = 'pre'
+        separator = '-'
+    }
 }
 
 group = 'org.mnode.ical4j'
