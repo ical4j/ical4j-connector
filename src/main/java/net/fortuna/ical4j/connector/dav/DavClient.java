@@ -34,8 +34,7 @@ package net.fortuna.ical4j.connector.dav;
 import net.fortuna.ical4j.connector.FailedOperationException;
 import net.fortuna.ical4j.connector.dav.enums.SupportedFeature;
 import net.fortuna.ical4j.connector.dav.property.CSDavPropertyName;
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
+import net.fortuna.ical4j.connector.dav.response.PropFindResponseHandler;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -75,6 +74,10 @@ public class DavClient {
 
 	private String userPath;
 
+	private String bearerAuth;
+
+	private CredentialsProvider credentialsProvider;
+
 	private final boolean preemptiveAuth;
 
 	/**
@@ -110,101 +113,59 @@ public class DavClient {
 		}
 	}
 
-	ArrayList<SupportedFeature> begin(String bearerAuth) throws IOException, FailedOperationException {
-	    ArrayList<SupportedFeature> supportedFeatures = new ArrayList<SupportedFeature>();
-	    
-	    begin();
-		DavPropertyNameSet props = new DavPropertyNameSet();
-        props.add(DavPropertyName.RESOURCETYPE);
-        props.add(CSDavPropertyName.CTAG);
-		DavPropertyName owner = DavPropertyName.create("owner", DavConstants.NAMESPACE);
-        props.add(owner);
+	public List<SupportedFeature> begin(String bearerAuth) throws IOException, FailedOperationException {
+		this.bearerAuth = bearerAuth;
+		return getSupportedFeatures();
+	}
 
-		HttpPropfind aGet = new HttpPropfind(principalPath, DavConstants.PROPFIND_BY_PROPERTY, props, 0);
-        aGet.addHeader( "Authorization", "Bearer " + bearerAuth );
-
-		RequestConfig config = RequestConfig.copy(aGet.getConfig()).setAuthenticationEnabled(true).build();
-		aGet.setConfig(config);
-
-		HttpResponse response = httpClient.execute(hostConfiguration, aGet, httpClientContext);
-		
-		if (response.getStatusLine().getStatusCode() >= 300) {
-			throw new FailedOperationException(String.format("Principals not found at [%s]", userPath));
-		} else {
-		    Header[] davHeaders = response.getHeaders(net.fortuna.ical4j.connector.dav.DavConstants.HEADER_DAV);
-		    for (int headerIndex = 0; headerIndex < davHeaders.length; headerIndex++) {
-		        Header header = davHeaders[headerIndex];
-		        HeaderElement[] elements = header.getElements();
-		        for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-		            String feature = elements[elementIndex].getName();
-		            if (feature != null) {
-		                SupportedFeature supportedFeature = SupportedFeature.findByDescription(feature);
-		                if (supportedFeature != null) {
-		                    supportedFeatures.add(supportedFeature);
-		                }
-		            }
-		        }
-		    }
-		}
-		return supportedFeatures;
-    }
-
-	ArrayList<SupportedFeature> begin(String username, char[] password) throws IOException, FailedOperationException {
-	    ArrayList<SupportedFeature> supportedFeatures = new ArrayList<SupportedFeature>();
-
+	public List<SupportedFeature> begin(String username, char[] password) throws IOException, FailedOperationException {
 		Credentials credentials = new UsernamePasswordCredentials(username, new String(password));
 
 		CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 		credentialsProvider.setCredentials(new AuthScope(hostConfiguration.getHostName(), hostConfiguration.getPort()),
 				credentials);
 
-		// Added to support iCal Server, who don't support Basic auth at all,
-		// only Kerberos and Digest
-		List<String> authPrefs = new ArrayList<String>(2);
-		authPrefs.add(AuthSchemes.DIGEST);
-		authPrefs.add(AuthSchemes.BASIC);
+		this.credentialsProvider = credentialsProvider;
+		return getSupportedFeatures();
+	}
 
+	public List<SupportedFeature> getSupportedFeatures() throws IOException, FailedOperationException {
 		begin(credentialsProvider);
 
 		DavPropertyNameSet props = new DavPropertyNameSet();
-        props.add(DavPropertyName.RESOURCETYPE);
-        props.add(CSDavPropertyName.CTAG);
+		props.add(DavPropertyName.RESOURCETYPE);
+		props.add(CSDavPropertyName.CTAG);
 		DavPropertyName owner = DavPropertyName.create("owner", DavConstants.NAMESPACE);
-        props.add(owner);
-		
-        // This is to get the Digest from the user
+		props.add(owner);
+
 		HttpPropfind aGet = new HttpPropfind(principalPath, DavConstants.PROPFIND_BY_PROPERTY, props, 0);
-		RequestConfig requestConfig = RequestConfig.copy(aGet.getConfig()).setAuthenticationEnabled(true)
-				.setTargetPreferredAuthSchemes(authPrefs).build();
-		aGet.setConfig(requestConfig);
-		HttpResponse response = httpClient.execute(hostConfiguration, aGet, httpClientContext);
-		
-		if (response.getStatusLine().getStatusCode() >= 300) {
-			throw new FailedOperationException(String.format("Principals not found at [%s]", userPath));
-		} else {
-		    Header[] davHeaders = response.getHeaders(net.fortuna.ical4j.connector.dav.DavConstants.HEADER_DAV);
-		    for (int headerIndex = 0; headerIndex < davHeaders.length; headerIndex++) {
-		        Header header = davHeaders[headerIndex];
-		        HeaderElement[] elements = header.getElements();
-		        for (int elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-		            String feature = elements[elementIndex].getName();
-		            if (feature != null) {
-		                SupportedFeature supportedFeature = SupportedFeature.findByDescription(feature);
-		                if (supportedFeature != null) {
-		                    supportedFeatures.add(supportedFeature);
-		                }
-		            }
-		        }
-		    }
+		if (bearerAuth != null) {
+			aGet.addHeader("Authorization", "Bearer " + bearerAuth);
 		}
-		return supportedFeatures;
+
+		RequestConfig.Builder builder = aGet.getConfig() == null ? RequestConfig.custom() : RequestConfig.copy(aGet.getConfig());
+		builder.setAuthenticationEnabled(true);
+		if (credentialsProvider != null) {
+			// Added to support iCal Server, who don't support Basic auth at all,
+			// only Kerberos and Digest
+			List<String> authPrefs = new ArrayList<String>(2);
+			authPrefs.add(AuthSchemes.DIGEST);
+			authPrefs.add(AuthSchemes.BASIC);
+			builder.setTargetPreferredAuthSchemes(authPrefs);
+		}
+		RequestConfig config = builder.build();
+		aGet.setConfig(config);
+
+		PropFindResponseHandler responseHandler = new PropFindResponseHandler(aGet);
+		responseHandler.accept(httpClient.execute(hostConfiguration, aGet, httpClientContext));
+		return responseHandler.getSupportedFeatures();
 	}
 
 	public HttpResponse execute(HttpRequestBase method) throws IOException {
-		return httpClient.execute(hostConfiguration, method, httpClientContext);
+		return execute(hostConfiguration, method);
 	}
 
 	public HttpResponse execute(HttpHost _hostConfiguration, HttpRequestBase method) throws IOException {
-	    return httpClient.execute(_hostConfiguration, method, httpClientContext);
+		return httpClient.execute(_hostConfiguration, method, httpClientContext);
 	}
 }

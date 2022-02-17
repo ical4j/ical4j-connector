@@ -1,36 +1,13 @@
-import aQute.bnd.gradle.Bundle
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'biz.aQute.bnd:biz.aQute.bnd.gradle:4.2.0'
-    }
-}
-
 plugins {
-    id 'pl.allegro.tech.build.axion-release' version '1.10.2'
-    id "com.jfrog.bintray" version "1.8.4"
+    id 'java'
+    id 'groovy'
+    id "biz.aQute.bnd.builder" version "5.1.2"
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+    id 'pl.allegro.tech.build.axion-release' version '1.13.3'
+    id "nebula.optional-base" version "3.0.3"
 }
-
-apply plugin: 'java'
-apply plugin: 'java-library'
-apply plugin: 'groovy'
-apply plugin: 'biz.aQute.bnd.builder'
-apply plugin: 'maven'
-apply plugin: 'maven-publish'
-apply plugin: 'jacoco'
-apply plugin: 'signing'
-apply plugin: 'pl.allegro.tech.build.axion-release'
-
-group = 'org.mnode.ical4j'
-description = '''
-A Java library for accessing iCalendar data stores
-'''
-
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
 
 repositories {
     mavenCentral()
@@ -40,135 +17,91 @@ repositories {
     }
 }
 
-ext {
-    slf4jVersion = '1.7.30'
-}
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
+    api "org.mnode.ical4j:ical4j:$ical4jVersion",
+            'org.mnode.ical4j:ical4j-extensions:1.0.4',
+            "org.mnode.ical4j:ical4j-vcard:$ical4jVCardVersion",
+            'commons-io:commons-io:2.7',
+            "org.apache.jackrabbit:jackrabbit-webdav:$jackrabbitWebdavVersion",
+            'javax.jcr:jcr:2.0',
+            'org.jcrom:jcrom:2.2.0',
+            "io.opentracing:opentracing-util:$openTracingVersion"
+
+    implementation "org.codehaus.groovy:groovy:$groovyVersion", optional
+
     compileOnly 'javax.servlet:servlet-api:2.5'
-    
-    compile 'org.mnode.ical4j:ical4j:2.2.6', 'org.mnode.ical4j:ical4j-extensions:1.0.3',
-            'org.mnode.ical4j:ical4j-vcard:1.0.5',
-            'commons-io:commons-io:2.3',
-            'org.apache.jackrabbit:jackrabbit-webdav:2.20.0',
-            'javax.jcr:jcr:2.0', 'org.jcrom:jcrom:2.0.0'
 
-    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0',
-            'org.apache.jackrabbit:jackrabbit-core:2.20.0'
+    testCompile 'org.apache.jackrabbit:jackrabbit-core:2.20.0',
+            "io.opentracing:opentracing-mock:$openTracingVersion"
 
-    testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion"
+
+    // junit
+    testImplementation 'org.junit.vintage:junit-vintage-engine:5.7.1'
+
+    // groovy-test
+    testImplementation "org.codehaus.groovy:groovy-test:$groovyVersion"
+
+    // spock
+    testImplementation platform("org.spockframework:spock-bom:2.0-M4-groovy-3.0"),
+            "org.spockframework:spock-core",
+            "org.slf4j:slf4j-log4j12:$slf4jVersion"
 }
 
-jacocoTestReport {
-    reports {
-        xml.enabled true
-        html.enabled false
-    }
+test {
+    useJUnitPlatform()
 }
 
 javadoc {
     if (JavaVersion.current().isJava8Compatible()) {
         options.addStringOption('Xdoclint:none', '-quiet')
     }
-}
-
-task bundle(type: Bundle) {
-    from(project.rootDir) {
-        include "LICENSE.txt"
+    options {
+        links 'https://docs.oracle.com/en/java/javase/11/docs/api/',
+                'http://ical4j.github.io/docs/ical4j/api/3.1.2/'
     }
-    from sourceSets.main.output
-    bndfile = 'bnd.bnd'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    archiveClassifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from 'build/docs/javadoc'
 }
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
-    archiveClassifier = 'sources'
+    archiveClassifier.set('sources')
 }
 
-jar.enabled = false
-build.dependsOn bundle
-
 artifacts {
-    archives bundle
     archives javadocJar
     archives sourcesJar
 }
 
 scmVersion {
     tag {
-        prefix = 'ical4j-connector'
+        prefix = 'ical4j-connector-'
     }
     versionCreator 'versionWithBranch'
-    branchVersionCreator = [
-        'master': 'simple'
-    ]
+    branchVersionCreator = ['master': 'simple']
+    nextVersion {
+        suffix = 'pre'
+        separator = '-'
+    }
 }
 
+group = 'org.mnode.ical4j'
+description = 'A Java library for accessing iCalendar data stores'
 version = scmVersion.version
 
 ext {
     isReleaseVersion = !version.endsWith("SNAPSHOT")
 }
 
-if (hasProperty('sonatype_username')) {
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: sonatype_username, password: sonatype_password)
-                }
-                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
-                    authentication(userName: sonatype_username, password: sonatype_password)
-                }
-
-                pom.project {
-                    name project.name
-                    packaging 'jar'
-                    description project.description
-                    url 'http://ical4j.github.io'
-
-                    scm {
-                        url 'https://github.com/ical4j/ical4j-connector'
-                        connection 'scm:git@github.com:ical4j/ical4j-connector.git'
-                        developerConnection 'scm:git@github.com:ical4j/ical4j-connector.git'
-                    }
-
-                    licenses {
-                        license {
-                            name 'iCal4j - License'
-                            url 'https://raw.githubusercontent.com/ical4j/ical4j/master/LICENSE'
-                            distribution 'repo'
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id 'fortuna'
-                            name 'Ben Fortuna'
-                        }
-                        developer {
-                            id 'elvisrobert'
-                            name 'Pascal Robert'
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-
 publishing {
     publications {
-        mavenArtifacts(MavenPublication) {
+        ical4j_connector(MavenPublication) {
             from components.java
             artifact javadocJar
             artifact sourcesJar
@@ -193,43 +126,20 @@ publishing {
             }
         }
     }
+
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = !isReleaseVersion ? "https://oss.sonatype.org/content/repositories/snapshots/" : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
+    }
 }
 
 signing {
-    required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
-//    sign configurations.archives
-    sign publishing.publications.mavenArtifacts
-}
-
-if (hasProperty('bintray_user')) {
-    bintray {
-        user = bintray_user
-        key = bintray_key
-        pkg {
-            repo = 'maven'
-            name = 'ical4j-connector'
-            userOrg = 'ical4j'
-            licenses = ['BSD']
-            vcsUrl = 'https://github.com/ical4j/ical4j-connector.git'
-            version {
-                name = scmVersion.version
-                desc = "iCal4j Connector $scmVersion.version"
-                released = new Date()
-                vcsTag = "ical4j-connector-$scmVersion.version"
-                gpg {
-                    sign = isReleaseVersion
-                }
-                if (hasProperty('sonatype_username')) {
-                    mavenCentralSync {
-                        sync = isReleaseVersion
-                        user = sonatype_username //OSS user token: mandatory
-                        password = sonatype_password //OSS user password: mandatory
-//                close = '0' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
-                    }
-                }
-            }
-        }
-//    configurations = ['archives']
-        publications = ['mavenArtifacts']
-    }
+    required { isReleaseVersion }
+    sign publishing.publications.ical4j_connector
 }

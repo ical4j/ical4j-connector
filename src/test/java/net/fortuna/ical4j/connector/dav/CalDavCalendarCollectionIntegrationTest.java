@@ -31,12 +31,13 @@
  */
 package net.fortuna.ical4j.connector.dav;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import net.fortuna.ical4j.connector.CalendarCollectionTest;
+import org.junit.Ignore;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * $Id$
@@ -46,6 +47,7 @@ import net.fortuna.ical4j.connector.CalendarCollectionTest;
  * @author Ben
  *
  */
+@Ignore
 public class CalDavCalendarCollectionIntegrationTest extends TestSuite {
     
     public static Test suite() throws MalformedURLException {

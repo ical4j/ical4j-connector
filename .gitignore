@@ -2,5 +2,5 @@
 ical4j-connector.iml
 build
 .gradle
-gradle.properties
 out
+target

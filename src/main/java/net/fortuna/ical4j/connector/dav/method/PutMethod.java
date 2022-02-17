@@ -36,6 +36,7 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.validate.ValidationException;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardOutputter;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 
@@ -50,7 +51,7 @@ import java.io.IOException;
  * @author Ben
  *
  */
-public class PutMethod extends org.apache.http.client.methods.HttpPut {
+public class PutMethod extends HttpPut {
 
     private final CalendarOutputter calendarOutputter;
     private final VCardOutputter vCardOutputter;

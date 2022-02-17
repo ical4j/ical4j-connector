@@ -40,7 +40,7 @@ import net.fortuna.ical4j.util.Configurator;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @param <C>
@@ -61,7 +61,7 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
 	
 	private final URL rootUrl;
 	
-	private ArrayList<SupportedFeature> supportedFeatures;
+	private List<SupportedFeature> supportedFeatures;
 	
     /**
      * Server implementation-specific path resolution.
@@ -176,7 +176,7 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
      * of the connect call.
      * @return
      */
-    public ArrayList<SupportedFeature> supportedFeatures() {
+    public List<SupportedFeature> supportedFeatures() {
         return supportedFeatures;
     }
     

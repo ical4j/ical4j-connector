@@ -40,289 +40,79 @@ package net.fortuna.ical4j.connector.dav;
  * 
  *         $Id$
  */
-public abstract class PathResolver {
+public enum PathResolver {
+
+    /**
+	 *
+	 */
+    CHANDLER( "/dav/%s/", "/dav/users/%s"),
+
+    RADICALE("/%s", "/%s/"),
+
+    BAIKAL("/calendars/%s", "/calendars/%s/"),
 
     /**
 	 * 
 	 */
-    public static final PathResolver CHANDLER = new ChandlerPathResolver();
+    CGP("/CalDAV/", "/CalDAV/"),
 
     /**
 	 * 
 	 */
-    public static final PathResolver CGP = new CgpPathResolver();
+    KMS("/caldav/", null),
 
     /**
 	 * 
 	 */
-    public static final PathResolver KMS = new KmsPathResolver();
+    ZIMBRA("/principals/users/%s/", "/dav/%s/"),
 
     /**
 	 * 
 	 */
-    public static final PathResolver ZIMBRA = new ZimbraPathResolver();
+    ICAL_SERVER("/principals/users/%s/", "/dav/%s/"),
 
     /**
 	 * 
 	 */
-    public static final PathResolver ICAL_SERVER = new ICalServerPathResolver();
-
-    /**
-	 * 
-	 */
-    public static final PathResolver CALENDAR_SERVER = new CalendarServerPathResolver();
+    CALENDAR_SERVER("/dav/%s/", "/dav/%s/"),
     
-    public static final PathResolver GCAL = new GCalPathResolver();
+    GCAL("/calendar/dav/%s/user/", "/calendar/dav/%s/events/"),
 
-    public static final PathResolver SOGO = new SOGoPathResolver();
+    SOGO("/SOGo/dav/%s/", "/SOGo/dav/%s/"),
     
-    public static final PathResolver DAVICAL = new DAViCalPathResolver();
+    DAVICAL("/caldav.php/%s/", "/caldav.php/%s/"),
     
-    public static final PathResolver BEDEWORK = new BedeworkPathResolver();
+    BEDEWORK("/ucaldav/principals/users/%s/", "/ucaldav/users/%s/"),
 
-    public static final PathResolver ORACLE_CS = new OracleCalendarServerPathResolver();
+    ORACLE_CS("/dav/principals/%s/", "/dav/home/%s/"),
     
-    public static final PathResolver GENERIC = new GenericPathResolver();
+    GENERIC("%s", "%s");
 
+
+    private final String userPathBase;
+
+    private final String principalPathBase;
+
+    PathResolver(String principalPathBase, String userPathBase) {
+        this.principalPathBase = principalPathBase;
+        this.userPathBase = userPathBase;
+    }
 
     /**
      * Resolves the path component for a user's calendar store URL.
      * @param username a username
      * @return the user path for a server implementation
      */
-    public abstract String getUserPath(String username);
+    public String getUserPath(String username) {
+        return String.format(userPathBase, username);
+    }
 
     /**
      * Resolves the path component for a principal URL.
      * @param username a username
      * @return the principal path for a server implementation
      */
-    public abstract String getPrincipalPath(String username);
-
-    /**
-     * A {@link PathResolver} implementation for connecting to Chandler Server instances.
-     * 
-     * @author fortuna
-     * 
-     *         Created on: 02/04/2009
-     * 
-     *         $Id$
-     */
-    private static class ChandlerPathResolver extends PathResolver {
-
-        @Override
-        public String getPrincipalPath(String username) {
-            return "/dav/users/" + username;
-        }
-
-        @Override
-        public String getUserPath(String username) {
-            return "/dav/" + username + "/";
-        }
-    }
-
-    /**
-     * A {@link PathResolver} implementation for connecting to CommuniGate Pro instances.
-     * 
-     * @author fortuna
-     * 
-     *         Created on: 02/04/2009
-     * 
-     *         $Id$
-     */
-    private static class CgpPathResolver extends PathResolver {
-
-        @Override
-        public String getPrincipalPath(String username) {
-            return "/CalDAV/";
-        }
-
-        @Override
-        public String getUserPath(String arg0) {
-            return "/CalDAV/";
-        }
-    }
-
-    /**
-     * A {@link PathResolver} implementation for connecting to Kerio MailServer instances.
-     * 
-     * @author fortuna
-     * 
-     *         Created on: 02/04/2009
-     * 
-     *         $Id$
-     */
-    private static class KmsPathResolver extends PathResolver {
-
-        @Override
-        public String getPrincipalPath(String username) {
-            return "/caldav/";
-        }
-
-        @Override
-        public String getUserPath(String arg0) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-    }
-
-    /**
-     * A {@link PathResolver} implementation for connecting to Zimbra instances.
-     * 
-     * @author fortuna
-     * 
-     *         Created on: 02/04/2009
-     * 
-     *         $Id$
-     */
-    private static class ZimbraPathResolver extends PathResolver {
-
-        @Override
-        public String getPrincipalPath(String username) {
-            return "/principals/users/" + username + "/";
-        }
-
-        @Override
-        public String getUserPath(String username) {
-            return "/dav/" + username + "/";
-        }
-    }
-
-    /**
-     * A {@link PathResolver} implementation for connecting to iCal Server (Mac OS X Server) instances.
-     * 
-     * @author Pascal Robert
-     * 
-     *         Created on: 05/04/2009
-     */
-    private static class ICalServerPathResolver extends PathResolver {
-
-        @Override
-        public String getPrincipalPath(String username) {
-            return "/principals/users/" + username + "/";
-        }
-
-        @Override
-        public String getUserPath(String username) {
-            return "/dav/" + username + "/";
-        }
-    }
-
-    /**
-     * A {@link PathResolver} implementation for connecting to Calendar Server (open source version of iCal Server)
-     * instances.
-     * 
-     * @author Pascal Robert
-     * 
-     *         Created on: 05/04/2009
-     */
-    private static class CalendarServerPathResolver extends PathResolver {
-
-        @Override
-        public String getPrincipalPath(String username) {
-          return "/dav/" + username + "/";
-        }
-
-        @Override
-        public String getUserPath(String username) {
-            return "/dav/" + username + "/";
-        }
-    }
-
-    private static class GCalPathResolver extends PathResolver {
-
-        @Override
-        public String getPrincipalPath(String username) {
-          return "/calendar/dav/" + username + "/user/";
-        }
-
-        @Override
-        public String getUserPath(String username) {
-            return "/calendar/dav/" + username + "/events/";
-        }
-    }
-    
-    private static class SOGoPathResolver extends PathResolver {
-
-      @Override
-      public String getPrincipalPath(String username) {
-        return "/SOGo/dav/" + username + "/";
-      }
-
-      @Override
-      public String getUserPath(String username) {
-        return "/SOGo/dav/" + username + "/";
-      }
-    }
-    
-    private static class DAViCalPathResolver extends PathResolver {
-
-      @Override
-      public String getPrincipalPath(String username) {
-        return "/caldav.php/" + username + "/";
-      }
-
-      @Override
-      public String getUserPath(String username) {
-        return "/caldav.php/" + username + "/";
-      }
-    }
-    
-    private static class BedeworkPathResolver extends PathResolver {
-
-      @Override
-      public String getPrincipalPath(String username) {
-        return "/ucaldav/principals/users/" + username + "/";
-      }
-
-      @Override
-      public String getUserPath(String username) {
-        return "/ucaldav/users/" + username + "/";
-      }
-    }
-    
-    private static class OracleCalendarServerPathResolver extends PathResolver {
-
-      @Override
-      public String getPrincipalPath(String username) {
-        return "/dav/principals/" + username + "/";
-      }
-
-      @Override
-      public String getUserPath(String username) {
-        return "/dav/home/" + username + "/";
-      }
-    }
-    
-    public static class GenericPathResolver extends PathResolver {
-
-        private String principalPath;
-        private String userPath;
-        
-        public String principalPath() {
-            return principalPath;
-        }
-        
-        public void setPrincipalPath(String principalPath) {
-            this.principalPath = principalPath;
-        }
-        
-        @Override
-        public String getPrincipalPath(String username) {
-          return principalPath + "/" + username + "/";
-        }
-
-        public String userPath() {
-            return userPath;
-        }
-        
-        public void setUserPath(String userPath) {
-            this.userPath = userPath;
-        }
-        
-        @Override
-        public String getUserPath(String username) {
-            return userPath + "/" + username;
-        }
+    public String getPrincipalPath(String username) {
+        return String.format(principalPathBase, username);
     }
 }

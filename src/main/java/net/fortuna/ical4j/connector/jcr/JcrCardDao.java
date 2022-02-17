@@ -37,6 +37,7 @@ import javax.jcr.Session;
 
 import org.jcrom.Jcrom;
 import org.jcrom.dao.AbstractJcrDAO;
+import org.jcrom.util.NodeFilter;
 
 /**
  * 
@@ -63,7 +64,7 @@ public class JcrCardDao extends AbstractJcrDAO<JcrCard> {
      * @return a list of cards with the specified UID
      */
     public List<JcrCard> findByUid(String path, String uid) {
-        return super.findByXPath("/jcr:root" + path + "/*[@uid='" + uid + "']", "*", -1);
+        return super.findByXPath("/jcr:root" + path + "/*[@uid='" + uid + "']", new NodeFilter("*", -1, -1));
     }
 
 }
