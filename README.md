@@ -1,3 +1,6 @@
+[Jackrabbit WebDAV]: https://jackrabbit.apache.org/jcr/components/jackrabbit-webdav-library.html
+[DAVResource]: https://jackrabbit.apache.org/api/trunk/org/apache/jackrabbit/webdav/DavResource.html
+
 # iCal4j Connector
 
 A client library with support for various iCalendar servers, including support for CalDAV.
@@ -10,8 +13,8 @@ most popular services implement DAV extensions for Calendaring (CalDAV) and VCar
 ## CalDAV and CardDAV
 
 The iCal4j Connector now supports three approaches for integrating with CalDAV and CardDAV servers. First
-there is a low-level DAV client that supports HTTP methods for communicating with WebDAV servers. Built on
-this is the DAVResource implementation that supports response caching and path abstraction for different
+there is a low-level DAV client that supports HTTP methods for communicating with WebDAV servers. The 
+[DAVResource] implementation that builds on the [Jackrabbit WebDAV] library supports response caching and path abstraction for different
 server implementations. Finally the Store and Collection interfaces provide a high-level abstraction for
 CalDAV and CardDAV resource management including collection discovery.
 
@@ -32,9 +35,9 @@ Note that whilst the `DavClientFactory` currently returns a concrete type, it is
 interfaces for local references.
 
 ```java
-CalDavSupport caldav = clientFactory.newInstance("https://dav.example.com/.wellknown/caldav");
+CalDavSupport caldav = clientFactory.newInstance("https://dav.example.com/.well-known/caldav");
 
-CardDavSupport carddav = clientFactory.newInstance("https://dav.example.com/.wellknown/carddav");
+CardDavSupport carddav = clientFactory.newInstance("https://dav.example.com/.well-known/carddav");
 ```
 
 #### Authentication
@@ -50,19 +53,26 @@ DavPropertySet props = new DavPropertySet();
 props.add(new DavPropertyBuilder<>().name(DavPropertyName.DISPLAYNAME).value('Test Collection').build());
 props.add(new DavPropertyBuilder<>().name(CalDavPropertyName.CALENDAR_DESCRIPTION)
         .value('A simple mkcalendar test').build());
-caldav.mkCalendar('/admin/test', props);
+caldav.mkCalendar('admin/test', props);
 ```
 
 Existing calendar resources are retrieved via the `GET` method.
 
 ```java
-Calendar calendar = caldav.getCalendar('/admin/test');
+Calendar calendar = caldav.getCalendar('admin/test');
 ```
 
 Resource and collection metadata is accessed via the `PROPFIND` method.
 
 ```java
-DavPropertySet props = caldav.propFind('/admin', SecurityConstants.PRINCIPAL_COLLECTION_SET);
+DavPropertySet props = caldav.propFind('admin', SecurityConstants.PRINCIPAL_COLLECTION_SET);
+```
+
+Note that to support multiple CalDAV implementations you may need to use a PathResolver.
+
+```java
+String path = PathResolver.Defaults.RADICALE.getRepositoryPath("test", "admin");
+Calendar calendar = caldav.getCalendar(path);
 ```
 
 ### DavResource
@@ -75,7 +85,7 @@ DavClientConfiguration configuration = new DavClientConfiguration().withPreempti
         .withFollowRedirects(true);
 DavClientFactory clientFactory = new DavClientFactory(configuration);
 
-DavLocatorFactory locatorFactory = new CalDavLocatorFactory(PathResolver.RADICALE);
+DavLocatorFactory locatorFactory = new CalDavLocatorFactory(PathResolver.Defaults.RADICALE);
 DavResourceLocator locator = locatorFactory.createResourceLocator("https://dav.example.com",
         "user", "testcal");
 
@@ -140,6 +150,17 @@ store.connect('admin', 'admin'.toCharArray());
 for (CalendarCollection collection : store.getCollections()) {
         System.out.println("Collection name: " + collection.getDisplayName());
 }
+```
+
+Collections are accessed via a store instance.
+
+```java
+CalendarCollection collection = store.getCollection("testcol");
+System.out.println("Collection description: " + collection.getDescription());
+System.out.println("Collection timezone: " + collection.getTimeZone());
+
+// retrieve a calendar resource filtered on UID
+Calendar cal = collection.getCalendar(...);
 ```
 
 ## References
