@@ -31,11 +31,10 @@
  */
 package net.fortuna.ical4j.connector.dav
 
-import net.fortuna.ical4j.connector.CalendarStore;
-import spock.lang.Ignore;
-import spock.lang.Shared;
-import spock.lang.Specification;
-
+import net.fortuna.ical4j.connector.CalendarStore
+import spock.lang.Ignore
+import spock.lang.Shared
+import spock.lang.Specification
 
 class ChandlerHubSpec extends Specification {
 	
@@ -47,7 +46,7 @@ class ChandlerHubSpec extends Specification {
 	def setupSpec() {
 		def prodId = '-//Ben Fortuna//iCal4j Connector 1.0//EN'
 		def url = new URL('https://hub.chandlerproject.org')
-		def pathResolver = PathResolver.CHANDLER;
+		def pathResolver = PathResolver.Defaults.CHANDLER;
 		
 		calendarStore = new CalDavCalendarStore(prodId, url, pathResolver)
 	}
