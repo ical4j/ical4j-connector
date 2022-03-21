@@ -60,7 +60,7 @@ public class MkCalendar extends BaseDavRequest {
         super(uri);
         MkCalendarInfo mkcalendar = new MkCalendarInfo();
         mkcalendar.setProperties(properties);
-        System.out.println("properties: " + properties.getContentSize());
+//        System.out.println("properties: " + properties.getContentSize());
         setEntity(XmlEntity.create(mkcalendar));
     }
 
