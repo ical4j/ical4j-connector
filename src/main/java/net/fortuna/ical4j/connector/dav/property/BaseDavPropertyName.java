@@ -45,87 +45,87 @@ import static org.apache.jackrabbit.webdav.DavConstants.NAMESPACE;
  * @author probert
  * 
  */
-public class BaseDavPropertyName {
+public interface BaseDavPropertyName {
 
-    public static final ReportType EXPAND_PROPERTY = ReportType.register(DeltaVConstants.XML_EXPAND_PROPERTY,
+    ReportType EXPAND_PROPERTY = ReportType.register(DeltaVConstants.XML_EXPAND_PROPERTY,
             DeltaVConstants.NAMESPACE, ExpandPropertyReport.class);
     /**
      * Indicates the maximum amount of additional storage available to be allocated to a resource. RFC 4331
      */
-    private static final String PROPERTY_QUOTA_AVAILABLE_BYTES = "quota-available-bytes";
+    String PROPERTY_QUOTA_AVAILABLE_BYTES = "quota-available-bytes";
 
     /**
      * Contains the amount of storage counted against the quota on a resource. RFC 4331
      */
-    private static final String PROPERTY_QUOTA_USED_BYTES = "quota-used-bytes";
+    String PROPERTY_QUOTA_USED_BYTES = "quota-used-bytes";
 
     /**
      * The DAV:resource-id property is a REQUIRED property that enables clients to determine whether two bindings
      * are to the same resource. rfc5842
      */
-    private static final String PROPERTY_RESOURCE_ID = "resource-id";
+    String PROPERTY_RESOURCE_ID = "resource-id";
 
     /**
      * This property identifies the reports that are supported by the resource. RFC 3253
      */
-    private static final String PROPERTY_SUPPORTED_REPORT_SET = "supported-report-set";
+    String PROPERTY_SUPPORTED_REPORT_SET = "supported-report-set";
 
     /**
      * Contains the value of the synchronization token as it would be returned by a
      * DAV:sync-collection report RFC 6578
      */
-    private static final String PROPERTY_SYNC_TOKEN = "sync-token";
+    String PROPERTY_SYNC_TOKEN = "sync-token";
 
     /**
      * DAV:add-member is a protected property (see [RFC4918], Section 15) defined on WebDAV collections,
      * and contains the "Add-Member" URI for that collection. RFC 5995
      */
-    private static final String PROPERTY_ADD_MEMBER = "add-member";
+    String PROPERTY_ADD_MEMBER = "add-member";
 
     /**
      * &lt;prop&gt; element
      */
-    public static final DavPropertyName PROP = DavPropertyName.create(DavConstants.XML_PROP, NAMESPACE);
+    DavPropertyName PROP = DavPropertyName.create(DavConstants.XML_PROP, NAMESPACE);
 
     /**
      * Contains the amount of storage counted against the quota on a resource. rfc4331
      */
-    public static final DavPropertyName QUOTA_USED_BYTES = DavPropertyName.create(
+    DavPropertyName QUOTA_USED_BYTES = DavPropertyName.create(
             PROPERTY_QUOTA_USED_BYTES, NAMESPACE);
 
     /**
      * Indicates the maximum amount of additional storage available to be allocated to a resource rfc4331
      */
-    public static final DavPropertyName QUOTA_AVAILABLE_BYTES = DavPropertyName.create(
+    DavPropertyName QUOTA_AVAILABLE_BYTES = DavPropertyName.create(
             PROPERTY_QUOTA_AVAILABLE_BYTES, NAMESPACE);
 
     /**
      * The DAV:resource-id property is a REQUIRED property that enables clients to determine whether two bindings 
      * are to the same resource. rfc5842
      */
-    public static final DavPropertyName RESOURCE_ID = DavPropertyName.create(
+    DavPropertyName RESOURCE_ID = DavPropertyName.create(
             PROPERTY_RESOURCE_ID, NAMESPACE);
     
     /**
      * This property identifies the reports that are supported by the resource. RFC 3253
      */
-    public static final DavPropertyName SUPPORTED_REPORT_SET = DavPropertyName.create(
+    DavPropertyName SUPPORTED_REPORT_SET = DavPropertyName.create(
             PROPERTY_SUPPORTED_REPORT_SET, NAMESPACE);
     
     /**
      * Contains the value of the synchronization token as it would be returned by a 
      * DAV:sync-collection report RFC 6578
      */    
-    public static final DavPropertyName SYNC_TOKEN = DavPropertyName.create(
+    DavPropertyName SYNC_TOKEN = DavPropertyName.create(
             PROPERTY_SYNC_TOKEN, NAMESPACE);
     
     /**
      * DAV:add-member is a protected property (see [RFC4918], Section 15) defined on WebDAV collections, 
      * and contains the "Add-Member" URI for that collection. RFC 5995
      */   
-    public static final DavPropertyName ADD_MEMBER = DavPropertyName.create(
+    DavPropertyName ADD_MEMBER = DavPropertyName.create(
             PROPERTY_ADD_MEMBER, NAMESPACE);
 
-    public static final DavPropertyName CURRENT_USER_PRINCIPAL = DavPropertyName.create(
+    DavPropertyName CURRENT_USER_PRINCIPAL = DavPropertyName.create(
             "current-user-principal", NAMESPACE);
 }

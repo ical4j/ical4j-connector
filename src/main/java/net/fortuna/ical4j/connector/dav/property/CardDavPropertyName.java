@@ -44,24 +44,24 @@ import org.apache.jackrabbit.webdav.xml.Namespace;
  * @author Ben
  * 
  */
-public class CardDavPropertyName {
+public interface CardDavPropertyName {
 
     /**
      * Identifies the URL of any WebDAV collections that contain address book collections
      * owned by the associated principal resource. rfc6352
      */
-    private static final String PROPERTY_ADDRESSBOOK_HOME_SET = "addressbook-home-set";
+    String PROPERTY_ADDRESSBOOK_HOME_SET = "addressbook-home-set";
 
     /**
      * Specifies what media types are allowed for address object resources in an address
      * book collection. rfc6352
      */
-    private static final String PROPERTY_SUPPORTED_ADDRESS_DATA = "supported-address-data";
+    String PROPERTY_SUPPORTED_ADDRESS_DATA = "supported-address-data";
 
     /**
      * for carddav
      */
-    private static final String PROPERTY_MAX_IMAGE_SIZE = "max-image-size";
+    String PROPERTY_MAX_IMAGE_SIZE = "max-image-size";
 
     /**
      * Specifies one of the following:
@@ -75,49 +75,49 @@ public class CardDavPropertyName {
      *
      * RFC 6352
      */
-    private static final String PROPERTY_ADDRESS_DATA = "address-data";
+    String PROPERTY_ADDRESS_DATA = "address-data";
 
     /**
      *
      */
-    private static final String PROPERTY_MAX_RESOURCE_SIZE = "max-resource-size";
+    String PROPERTY_MAX_RESOURCE_SIZE = "max-resource-size";
 
     /**
      * CardDAV namespace
      */
-    public static final Namespace NAMESPACE = Namespace.getNamespace("C", "urn:ietf:params:xml:ns:carddav");
+    Namespace NAMESPACE = Namespace.getNamespace("C", "urn:ietf:params:xml:ns:carddav");
 
-    public static final ReportType ADDRESSBOOK_QUERY = ReportType.register("addressbook-query", NAMESPACE,
+    ReportType ADDRESSBOOK_QUERY = ReportType.register("addressbook-query", NAMESPACE,
             PrincipalMatchReport.class);
     /**
      * 
      */
-    public static final DavPropertyName MAX_RESOURCE_SIZE = DavPropertyName.create(
+    DavPropertyName MAX_RESOURCE_SIZE = DavPropertyName.create(
             PROPERTY_MAX_RESOURCE_SIZE, NAMESPACE);
 
     /**
      * Purpose: Identifies the URL of any WebDAV collections that contain address book collections owned by the associated
      * principal resource. RFC : rfc6352
      */
-    public static final DavPropertyName ADDRESSBOOK_HOME_SET = DavPropertyName.create(PROPERTY_ADDRESSBOOK_HOME_SET,
+    DavPropertyName ADDRESSBOOK_HOME_SET = DavPropertyName.create(PROPERTY_ADDRESSBOOK_HOME_SET,
             NAMESPACE);
     
     /**
      * 
      */
-    public static final DavPropertyName SUPPORTED_ADDRESS_DATA = DavPropertyName.create(
+    DavPropertyName SUPPORTED_ADDRESS_DATA = DavPropertyName.create(
             PROPERTY_SUPPORTED_ADDRESS_DATA, NAMESPACE);
 
     /**
      * 
      */
-    public static final DavPropertyName MAX_IMAGE_SIZE = DavPropertyName.create(
+    DavPropertyName MAX_IMAGE_SIZE = DavPropertyName.create(
             PROPERTY_MAX_IMAGE_SIZE, NAMESPACE);
     
     /**
      * 
      */
-    public static final DavPropertyName ADDRESS_DATA = DavPropertyName.create(
+    DavPropertyName ADDRESS_DATA = DavPropertyName.create(
             PROPERTY_ADDRESS_DATA, NAMESPACE);
 
 }

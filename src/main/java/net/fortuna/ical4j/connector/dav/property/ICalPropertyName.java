@@ -40,27 +40,25 @@ import org.apache.jackrabbit.webdav.xml.Namespace;
  * @author probert
  * 
  */
-public class ICalPropertyName {
+public interface ICalPropertyName {
 
     /**
      * Apple's iCal client use this property to store the color of the calendar, set by the user in iCal.
      */
-    private static final String PROPERTY_CALENDAR_COLOR = "calendar-color";
+    String PROPERTY_CALENDAR_COLOR = "calendar-color";
 
     /**
      *
      */
-    private static final String PROPERTY_CALENDAR_ORDER = "calendar-order";
+    String PROPERTY_CALENDAR_ORDER = "calendar-order";
 
     /**
      * Namespace used by the iCal client from Apple.
      */
-    public static final Namespace ICAL_NAMESPACE = Namespace.getNamespace("I", "http://apple.com/ns/ical/");
+    Namespace ICAL_NAMESPACE = Namespace.getNamespace("I", "http://apple.com/ns/ical/");
 
-    public static final DavPropertyName CALENDAR_COLOR = DavPropertyName.create(
-            PROPERTY_CALENDAR_COLOR, ICAL_NAMESPACE);
+    DavPropertyName CALENDAR_COLOR = DavPropertyName.create(PROPERTY_CALENDAR_COLOR, ICAL_NAMESPACE);
 
-    public static final DavPropertyName CALENDAR_ORDER = DavPropertyName.create(
-            PROPERTY_CALENDAR_ORDER, ICAL_NAMESPACE);
+    DavPropertyName CALENDAR_ORDER = DavPropertyName.create(PROPERTY_CALENDAR_ORDER, ICAL_NAMESPACE);
 
 }
