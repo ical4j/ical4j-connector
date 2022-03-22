@@ -1,3 +1,12 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.palantir.gradle.revapi:gradle-revapi:1.5.0'
+    }
+}
+
 plugins {
     id 'java'
     id 'groovy'
@@ -8,6 +17,8 @@ plugins {
     id 'pl.allegro.tech.build.axion-release' version '1.13.3'
     id "nebula.optional-base" version "3.0.3"
 }
+
+apply plugin: 'com.palantir.revapi'
 
 repositories {
     mavenCentral()
@@ -92,10 +103,15 @@ scmVersion {
     }
     versionCreator 'versionWithBranch'
     branchVersionCreator = ['master': 'simple']
+    branchVersionCreator = ['feature/refactor': 'simple']
     nextVersion {
         suffix = 'pre'
         separator = '-'
     }
+}
+
+revapi {
+    oldVersion = revApiOldVersion
 }
 
 group = 'org.mnode.ical4j'
