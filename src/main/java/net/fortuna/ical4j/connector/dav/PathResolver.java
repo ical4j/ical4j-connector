@@ -63,70 +63,46 @@ public interface PathResolver {
      * @param resourcePath a path component representing a resource
      * @return a string representing the repository path to the resource
      */
-    String getRepositoryPath(String resourcePath, String wspPath);
+    String getRepositoryRoot(String resourcePath, String wspPath);
 
     String getResourcePath(String repositoryPath, String wspPath);
 
     enum Defaults implements PathResolver {
-        /**
-         *
-         */
+
         CHANDLER("/dav", "/%s/", "/users/%s",
-                Pattern.compile("/users/(\\w+)/?")),
+                "/users/(\\w+)/?"),
 
-        RADICALE("/", "/", "/%s/",
-                Pattern.compile("^/([\\w]+)/?$")),
+        RADICALE("", "/", "/%s", "/([\\w]+)/?"),
 
-        BAIKAL("/dav.php/", "/", "/calendars/%s/",
-                Pattern.compile("^/calendars/(\\w+)/?$")),
+        BAIKAL("/dav.php", "/", "/calendars/%s",
+                "/calendars/([\\w]+)/?"),
 
-        /**
-         *
-         */
-        CGP("/CalDAV","/", "/",
-                Pattern.compile("/(\\w+)/?")),
+        CGP("/CalDAV","/", "/", "/(\\w+)/?"),
 
-        /**
-         *
-         */
-        KMS("/caldav","/", "/",
-                Pattern.compile("/(\\w+)/?")),
+        KMS("/caldav","/", "/", "/(\\w+)/?"),
 
-        /**
-         *
-         */
         ZIMBRA("","/principals/users/%s/", "/dav/%s/",
-                Pattern.compile("/(\\w+)/?")),
+                "/(\\w+)/?"),
 
-        /**
-         *
-         */
         ICAL_SERVER("", "/principals/users/%s/", "/dav/%s/",
-                Pattern.compile("/(\\w+)/?")),
+                "/(\\w+)/?"),
 
-        /**
-         *
-         */
-        CALENDAR_SERVER("/dav", "/%s/", "/%s/",
-                Pattern.compile("/(\\w+)/?")),
+        CALENDAR_SERVER("/dav", "/%s/", "/%s", "/(\\w+)/?"),
 
         GCAL("/caldav/v2", "/%s/user", "/%s/events",
-                Pattern.compile("/\\w+/events/?")),
+                "/\\w+/events/?"),
 
-        SOGO("/dav","/%s/", "/%s/",
-                Pattern.compile("/(\\w+)/?")),
+        SOGO("/dav","/%s/", "/%s/", "/(\\w+)/?"),
 
-        DAVICAL("/caldav.php","/%s/", "/%s/",
-                Pattern.compile("/(\\w+)/?")),
+        DAVICAL("/caldav.php","/%s/", "/%s/", "/(\\w+)/?"),
 
-        BEDEWORK("/ucaldav","/principals/users/%s/", "/users/%s/",
-                Pattern.compile("/users/(\\w+)/?")),
+        BEDEWORK("/ucaldav","/principals/users/%s/", "/users/%s",
+                "/users/(\\w+)/?"),
 
         ORACLE_CS("/dav","/principals/%s/", "/home/%s/",
-                Pattern.compile("/home/(\\w+)/?")),
+                "/home/(\\w+)/?"),
 
-        GENERIC("","/%s", "/%s",
-                Pattern.compile("/(\\w+)"));
+        GENERIC("","/%s", "/%s", "/(\\w+)");
 
         private final String rootPath;
 
@@ -137,11 +113,11 @@ public interface PathResolver {
         private final Pattern calendarPathPattern;
 
         Defaults(String rootPath, String principalPathBase, String calendarPathBase,
-                 Pattern calendarPathPattern) {
+                 String calendarPathPattern) {
             this.rootPath = rootPath;
             this.principalPathBase = principalPathBase;
             this.calendarPathBase = calendarPathBase;
-            this.calendarPathPattern = calendarPathPattern;
+            this.calendarPathPattern = Pattern.compile("^" + rootPath + calendarPathPattern + "$");
         }
 
         @Override
@@ -156,16 +132,16 @@ public interface PathResolver {
          * @return the user path for a server implementation
          */
         @Override
-        public String getRepositoryPath(String resourcePath, String wspPath) {
-            if (wspPath != null) {
-                return String.format("%s/%s", wspPath, String.format(calendarPathBase, resourcePath));
+        public String getRepositoryRoot(String resourcePath, String wspPath) {
+            if (wspPath != null && !wspPath.isEmpty()) {
+                return rootPath + String.format("%s/%s", wspPath, String.format(calendarPathBase, resourcePath));
             } else {
-                return String.format(calendarPathBase, resourcePath);
+                return rootPath + String.format(calendarPathBase, resourcePath);
             }
         }
 
         /**
-         * Reverse resolution of a calendar identifer from a repository path.
+         * Reverse resolution of a calendar identifier from a repository path.
          * @param repositoryPath a repository path
          * @return a calendar id
          */
@@ -173,7 +149,11 @@ public interface PathResolver {
         public String getResourcePath(String repositoryPath, String wspPath) {
             Matcher matcher = calendarPathPattern.matcher(repositoryPath);
             if (matcher.matches() && matcher.groupCount() > 0) {
-                return String.format("%s/%s", wspPath, matcher.group(1));
+                if (wspPath != null && !wspPath.isEmpty()) {
+                    return String.format("%s/%s", wspPath, matcher.group(1));
+                } else {
+                    return matcher.group(1);
+                }
             }
             return null;
         }

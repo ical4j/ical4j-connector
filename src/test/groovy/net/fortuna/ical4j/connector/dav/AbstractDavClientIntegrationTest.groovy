@@ -66,7 +66,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
                 .newInstance(href)
 
         and: 'a resource path'
-        def path = getPathResolver().getRepositoryPath('test', 'admin')
+        def path = getPathResolver().getRepositoryRoot('test', 'admin')
 
         when: 'a session is started'
         client.begin(getCredentialsProvider())
@@ -91,7 +91,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
                 .newInstance(href)
 
         and: 'a non-existent resource path'
-        def path = getPathResolver().getRepositoryPath('test', 'notexist')
+        def path = getPathResolver().getRepositoryRoot('test', 'notexist')
 
         when: 'a session is started'
         client.begin(getCredentialsProvider())
@@ -113,7 +113,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
                 .newInstance(href)
 
         and: 'a resource path'
-        def path = getPathResolver().getRepositoryPath('test', 'admin')
+        def path = getPathResolver().getRepositoryRoot('test', 'admin')
 
         when: 'a session is started'
         client.begin(getCredentialsProvider())
@@ -141,7 +141,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
                 .newInstance(href)
 
         and: 'a resource path'
-        def path = getPathResolver().getRepositoryPath('admin', null)
+        def path = getPathResolver().getRepositoryRoot('admin', null)
 
         when: 'a session is started'
         client.begin(getCredentialsProvider())
@@ -170,7 +170,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         def client = new DavClientFactory().newInstance(href)
 
         and: 'a resource path'
-        def path = getPathResolver().getRepositoryPath('admin', null)
+        def path = getPathResolver().getRepositoryRoot('admin', null)
 
         when: 'a session is started'
         client.begin(getCredentialsProvider())
