@@ -13,6 +13,7 @@ import java.util.List;
 public interface WebDavSupport {
 
     /**
+     * <pre>
      *    The PROPFIND method retrieves properties defined on the resource
      *    identified by the Request-URI, if the resource does not have any
      *    internal members, or on the resource identified by the Request-URI
@@ -91,6 +92,7 @@ public interface WebDavSupport {
      *    Some PROPFIND results MAY be cached, with care, as there is no cache
      *    validation mechanism for most properties.  This method is both safe
      *    and idempotent (see Section 9.1 of [RFC2616]).
+     *    </pre>
      *
      * @param path a resource URI
      * @param propertyNames the set of properties to return
@@ -126,6 +128,7 @@ public interface WebDavSupport {
     DavPropertySet propFindType(String path, int type) throws IOException;
 
     /**
+     * <pre>
      *    The PROPPATCH method processes instructions specified in the request
      *    body to set and/or remove properties defined on the resource
      *    identified by the Request-URI.
@@ -155,6 +158,7 @@ public interface WebDavSupport {
      *
      *    This method is idempotent, but not safe (see Section 9.1 of
      *    [RFC2616]).  Responses to this method MUST NOT be cached.
+     *    </pre>
      * @return
      */
     MultiStatusResponse propPatch(String path, List<? extends PropEntry> changeList) throws IOException;
@@ -180,6 +184,7 @@ public interface WebDavSupport {
     }
 
     /**
+     * <pre>
      *    MKCOL creates a new collection resource at the location specified by
      *    the Request-URI.  If the Request-URI is already mapped to a resource,
      *    then the MKCOL MUST fail.  During MKCOL processing, a server MUST
@@ -207,10 +212,12 @@ public interface WebDavSupport {
      *
      *    This method is idempotent, but not safe (see Section 9.1 of
      *    [RFC2616]).  Responses to this method MUST NOT be cached.
+     *    </pre>
      */
     void mkCol(String path);
 
     /**
+     * <pre>
      *    The semantics of GET are unchanged when applied to a collection,
      *    since GET is defined as, "retrieve whatever information (in the form
      *    of an entity) is identified by the Request-URI" [RFC2616].  GET, when
@@ -223,6 +230,7 @@ public interface WebDavSupport {
      *    Similarly, since the definition of HEAD is a GET without a response
      *    message body, the semantics of HEAD are unmodified when applied to
      *    collection resources.
+     *    </pre>
      *    
      * @param <T>
      * @return
@@ -232,15 +240,18 @@ public interface WebDavSupport {
     <T> T head(String path, ResponseHandler<T> handler) throws IOException;
 
     /**
+     * <pre>
      *    Since by definition the actual function performed by POST is
      *    determined by the server and often depends on the particular
      *    resource, the behavior of POST when applied to collections cannot be
      *    meaningfully modified because it is largely undefined.  Thus, the
      *    semantics of POST are unmodified when applied to a collection.
+     *    </pre>
      */
     void post();
 
     /**
+     * <pre>
      *    DELETE is defined in [RFC2616], Section 9.7, to "delete the resource
      *    identified by the Request-URI".  However, WebDAV changes some DELETE
      *    handling requirements.
@@ -254,6 +265,7 @@ public interface WebDavSupport {
      *    Thus, after a successful DELETE operation (and in the absence of
      *    other actions), a subsequent GET/HEAD/PROPFIND request to the target
      *    Request-URI MUST return 404 (Not Found).
+     *    </pre>
      *
      * 
      * @param path
@@ -263,6 +275,7 @@ public interface WebDavSupport {
     void delete(String path) throws IOException, DavException;
 
     /**
+     * <pre>
      *    The COPY method creates a duplicate of the source resource identified
      *    by the Request-URI, in the destination resource identified by the URI
      *    in the Destination header.  The Destination header MUST be present.
@@ -277,10 +290,12 @@ public interface WebDavSupport {
      *
      *    This method is idempotent, but not safe (see Section 9.1 of
      *    [RFC2616]).  Responses to this method MUST NOT be cached.
+     *    </pre>
      */
     void copy(String src, String dest) throws DavException, IOException;
 
     /**
+     * <pre>
      *    The MOVE operation on a non-collection resource is the logical
      *    equivalent of a copy (COPY), followed by consistency maintenance
      *    processing, followed by a delete of the source, where all three
@@ -307,10 +322,12 @@ public interface WebDavSupport {
      *
      *    This method is idempotent, but not safe (see Section 9.1 of
      *    [RFC2616]).  Responses to this method MUST NOT be cached.
+     *    </pre>
      */
     void move(String src, String dest) throws IOException, DavException;
 
     /**
+     * <pre>
      *    The following sections describe the LOCK method, which is used to
      *    take out a lock of any access type and to refresh an existing lock.
      *    These sections on the LOCK method describe only those semantics that
@@ -322,10 +339,12 @@ public interface WebDavSupport {
      *
      *    This method is neither idempotent nor safe (see Section 9.1 of
      *    [RFC2616]).  Responses to this method MUST NOT be cached.
+     *    </pre>
      */
     void lock(String path);
 
     /**
+     * <pre>
      *    The UNLOCK method removes the lock identified by the lock token in
      *    the Lock-Token request header.  The Request-URI MUST identify a
      *    resource within the scope of the lock.
@@ -351,6 +370,7 @@ public interface WebDavSupport {
      *
      *    This method is idempotent, but not safe (see Section 9.1 of
      *    [RFC2616]).  Responses to this method MUST NOT be cached.
+     *    </pre>
      */
     void unlock(String path);
 }

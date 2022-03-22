@@ -21,6 +21,7 @@ import java.util.Map;
 public interface CalDavSupport extends WebDavSupport {
 
     /**
+     * <pre>
      *    An HTTP request using the MKCALENDAR method creates a new calendar
      *    collection resource.  A server MAY restrict calendar collection
      *    creation to particular collections.
@@ -89,6 +90,7 @@ public interface CalDavSupport extends WebDavSupport {
      *       exists at the Request-URI.  The DAV:resourcetype of the calendar
      *       collection MUST contain both DAV:collection and CALDAV:calendar
      *       XML elements.
+     *       </pre>
      *
      * @param uri the (partial) URI of the collection to create
      * @param properties a set of DAV properties to initialise the collection
@@ -105,6 +107,7 @@ public interface CalDavSupport extends WebDavSupport {
     }
 
     /**
+     * <pre>
      *    The REPORT method (defined in Section 3.6 of [RFC3253]) provides an
      *    extensible mechanism for obtaining information about one or more
      *    resources.  Unlike the PROPFIND method, which returns the value of
@@ -117,6 +120,7 @@ public interface CalDavSupport extends WebDavSupport {
      *
      *    CalDAV servers MUST support the DAV:expand-property REPORT defined in
      *    Section 3.8 of [RFC3253].
+     *    </pre>
      *
      * @param uri
      * @param query
