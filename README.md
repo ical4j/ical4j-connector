@@ -13,10 +13,13 @@ most popular services implement DAV extensions for Calendaring (CalDAV) and VCar
 ## CalDAV and CardDAV
 
 The iCal4j Connector now supports three approaches for integrating with CalDAV and CardDAV servers. First
-there is a low-level DAV client that supports HTTP methods for communicating with WebDAV servers. The 
-[DAVResource] implementation that builds on the [Jackrabbit WebDAV] library supports response caching and path abstraction for different
-server implementations. Finally the Store and Collection interfaces provide a high-level abstraction for
-CalDAV and CardDAV resource management including collection discovery.
+there is a low-level DAV client that supports HTTP methods for communicating with WebDAV servers. This is
+defined by the CalDAVSupport and CardDAVSupport interfaces. The 
+[DAVResource] implementation that builds on the [Jackrabbit WebDAV] library supports response caching and path 
+abstraction for different
+server implementations. Finally the CalendarStore, CardStore, CalendarCollection and CardCollection interfaces provide 
+a higher-level abstraction for
+Calendar and VCard resource management including collection discovery.
 
 ### DAV Client
 
