@@ -12,8 +12,10 @@ import spock.lang.Ignore
 import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME
 import static org.apache.jackrabbit.webdav.property.DavPropertyName.RESOURCETYPE
 import static org.apache.jackrabbit.webdav.security.SecurityConstants.*
+import static org.ical4j.connector.dav.SupportedFeature.*
 import static org.ical4j.connector.dav.property.BaseDavPropertyName.CURRENT_USER_PRINCIPAL
 import static org.ical4j.connector.dav.property.BaseDavPropertyName.SUPPORTED_REPORT_SET
+import static org.ical4j.connector.dav.property.CalDavPropertyName.*
 import static org.ical4j.connector.dav.property.CardDavPropertyName.ADDRESSBOOK_HOME_SET
 
 abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest {
