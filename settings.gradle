@@ -1,0 +1,6 @@
+rootProject.name = 'ical4j-connector'
+
+include 'ical4j-connector-api'
+include 'ical4j-connector-dav'
+include 'ical4j-connector-jcr'
+//include 'ical4j-connector-jpa'

@@ -1,0 +1,7 @@
+dependencies {
+    api project(":ical4j-connector-api"),
+            "org.apache.jackrabbit:jackrabbit-webdav:$jackrabbitWebdavVersion"
+
+    compileOnly 'javax.servlet:servlet-api:2.5'
+
+}

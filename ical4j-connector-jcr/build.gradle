@@ -1,0 +1,8 @@
+dependencies {
+    api project(":ical4j-connector-api"),
+            'javax.jcr:jcr:2.0',
+            'org.jcrom:jcrom:2.2.0'
+
+    testImplementation 'org.apache.jackrabbit:jackrabbit-core:2.21.9',
+            "io.opentracing:opentracing-mock:$openTracingVersion"
+}
