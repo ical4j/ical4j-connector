@@ -39,6 +39,24 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
         } catch (ObjectNotFoundException e) {
 
         }
+        save(card);
+    }
+
+    @Override
+    public void merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
+        Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
+        VCard existing = null;
+        try {
+            existing = getCard(uid.getValue());
+        } catch (ObjectNotFoundException e) {
+            throw new ObjectStoreException(e);
+        }
+        existing.addAll(card.getProperties());
+        save(card);
+    }
+
+    private void save(VCard card) throws ObjectStoreException {
+        Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
 
         try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".vcf"))) {
             new VCardOutputter(false).output(card, writer);

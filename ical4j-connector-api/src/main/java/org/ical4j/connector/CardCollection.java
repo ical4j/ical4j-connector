@@ -51,6 +51,8 @@ public interface CardCollection extends ObjectCollection<VCard> {
      */
     void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException;
 
+    void merge(VCard card) throws ObjectStoreException, ConstraintViolationException;
+
     /**
      * Remove an existing card from the collection.
      *
@@ -60,4 +62,6 @@ public interface CardCollection extends ObjectCollection<VCard> {
      * @throws FailedOperationException
      */
     VCard removeCard(String uid) throws ObjectNotFoundException, FailedOperationException;
+
+    VCard getCard(String uid) throws ObjectNotFoundException, FailedOperationException;
 }
