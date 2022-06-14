@@ -35,7 +35,7 @@ class LocalCalendarCollectionTest extends Specification {
 
         then: 'a new calendar file is created'
         new File('build/local/public_holidays',
-                "${calendar.getComponent(Component.VEVENT).getProperty(Property.UID).getValue()}.ics").exists()
+                "${calendar.getComponent(Component.VEVENT).get().getRequiredProperty(Property.UID).getValue()}.ics").exists()
     }
 
     def 'test remove calendar from collection'() {
@@ -64,7 +64,7 @@ class LocalCalendarCollectionTest extends Specification {
 
         then: 'the exsiting calendar file is deleted'
         !new File('build/local/public_holidays',
-                "${calendar.getComponent(Component.VEVENT).getProperty(Property.UID).getValue()}.ics").exists()
+                "${calendar.getComponent(Component.VEVENT).get().getRequiredProperty(Property.UID).getValue()}.ics").exists()
 
         and: 'removed calendar is identical to added'
         removed == calendar

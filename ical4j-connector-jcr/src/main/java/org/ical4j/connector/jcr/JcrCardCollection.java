@@ -32,7 +32,7 @@
 package org.ical4j.connector.jcr;
 
 import net.fortuna.ical4j.model.ConstraintViolationException;
-import net.fortuna.ical4j.vcard.Property.Id;
+import net.fortuna.ical4j.vcard.PropertyName;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.property.Uid;
 import org.apache.commons.logging.Log;
@@ -46,6 +46,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 
@@ -97,10 +98,10 @@ public class JcrCardCollection extends AbstractJcrObjectCollection<VCard> implem
         JcrCard jcrCard = null;
         boolean update = false;
         
-        Uid uid = (Uid) card.getProperty(Id.UID);
-        if (uid != null) {
+        Optional<Uid> uid = card.getProperty(PropertyName.UID.toString());
+        if (uid.isPresent()) {
             List<JcrCard> jcrCards = getCardDao().findByUid(
-                    getStore().getJcrom().getPath(this) + "/cards", uid.getValue());
+                    getStore().getJcrom().getPath(this) + "/cards", uid.get().getValue());
             if (!jcrCards.isEmpty()) {
                 jcrCard = jcrCards.get(0);
                 update = true;

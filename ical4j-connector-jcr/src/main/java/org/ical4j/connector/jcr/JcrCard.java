@@ -32,7 +32,7 @@
 package org.ical4j.connector.jcr;
 
 import net.fortuna.ical4j.data.ParserException;
-import net.fortuna.ical4j.vcard.Property.Id;
+import net.fortuna.ical4j.vcard.PropertyName;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardBuilder;
 import net.fortuna.ical4j.vcard.property.Uid;
@@ -44,6 +44,7 @@ import org.jcrom.annotations.JcrFileNode;
 import org.jcrom.annotations.JcrProperty;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * 
@@ -86,10 +87,10 @@ public final class JcrCard extends AbstractJcrEntity {
     public void setCard(VCard card) {
         this.card = card;
         
-        Uid uidProp = (Uid) card.getProperty(Id.UID);
-        if (uidProp != null) {
-            setName(uidProp.getValue());
-            this.uid = uidProp.getValue();
+        Optional<Uid> uidProp = card.getProperty(PropertyName.UID.toString());
+        if (uidProp.isPresent()) {
+            setName(uidProp.get().getValue());
+            this.uid = uidProp.get().getValue();
         }
         else {
             setName("card");

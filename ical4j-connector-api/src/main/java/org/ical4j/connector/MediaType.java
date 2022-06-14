@@ -59,7 +59,7 @@ public enum MediaType {
     
     private String version;
 
-    private static Set<String> index = new HashSet<String>();
+    private static Set<String> index = new HashSet<>();
 
     static {
         for (MediaType mediaType : MediaType.values()) {

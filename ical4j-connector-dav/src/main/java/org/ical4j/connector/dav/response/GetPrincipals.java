@@ -32,7 +32,7 @@ public class GetPrincipals extends AbstractResponseHandler<List<Attendee>> {
                 DavProperty<?> displayNameFromResponse = propertiesInResponse.get("displayname",
                         DavConstants.NAMESPACE);
                 if ((displayNameFromResponse != null) && (displayNameFromResponse.getValue() != null)) {
-                    resource.getParameters().add(new Cn((String) displayNameFromResponse.getValue()));
+                    resource.add(new Cn((String) displayNameFromResponse.getValue()));
                 }
 
                 URI calAddressUri = getCalAddress(propertiesInResponse);
@@ -42,7 +42,7 @@ public class GetPrincipals extends AbstractResponseHandler<List<Attendee>> {
 
                 DavProperty<?> calendarUserType = propertiesInResponse.get(CalDavPropertyName.USER_TYPE);
                 if ((calendarUserType != null) && (calendarUserType.getValue() != null)) {
-                    resource.getParameters().add(new CuType((String) calendarUserType.getValue()));
+                    resource.add(new CuType((String) calendarUserType.getValue()));
                 }
 
                 resources.add(resource);

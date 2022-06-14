@@ -1,7 +1,7 @@
 package org.ical4j.connector.local
 
 import net.fortuna.ical4j.vcard.ContentBuilder
-import net.fortuna.ical4j.vcard.Property
+import net.fortuna.ical4j.vcard.PropertyName
 import spock.lang.Specification
 
 class LocalCardCollectionTest extends Specification {
@@ -27,7 +27,7 @@ class LocalCardCollectionTest extends Specification {
 
         then: 'a new card file is created'
         new File('build/local/contacts',
-                "${card.getProperty(Property.Id.UID).getValue()}.vcf").exists()
+                "${card.getRequiredProperty(PropertyName.UID as String).getValue()}.vcf").exists()
     }
 
     def 'test remove card from collection'() {
@@ -48,11 +48,11 @@ class LocalCardCollectionTest extends Specification {
         collection.addCard(card)
 
         when: 'the card is removed'
-        def removed = collection.removeCard(card.getProperty(Property.Id.UID).value)
+        def removed = collection.removeCard(card.getRequiredProperty(PropertyName.UID as String).value)
 
         then: 'the existing card file is deleted'
         !new File('build/local/contacts',
-                "${card.getProperty(Property.Id.UID).getValue()}.vcf").exists()
+                "${card.getRequiredProperty(PropertyName.UID as String).getValue()}.vcf").exists()
 
         and: 'removed card is identical to added'
         removed == card

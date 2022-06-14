@@ -36,6 +36,9 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VFreeBusy;
 import net.fortuna.ical4j.model.parameter.CuType;
 import net.fortuna.ical4j.model.property.*;
+import net.fortuna.ical4j.model.property.immutable.ImmutableCalScale;
+import net.fortuna.ical4j.model.property.immutable.ImmutableMethod;
+import net.fortuna.ical4j.model.property.immutable.ImmutableVersion;
 import net.fortuna.ical4j.util.FixedUidGenerator;
 import net.fortuna.ical4j.util.UidGenerator;
 import org.apache.jackrabbit.webdav.DavException;
@@ -322,30 +325,30 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         ArrayList<ScheduleResponse> responses = new ArrayList<ScheduleResponse>();
 
         Calendar calendar = new Calendar();
-        calendar.getProperties().add(new ProdId(getProdId()));
-        calendar.getProperties().add(Version.VERSION_2_0);
-        calendar.getProperties().add(CalScale.GREGORIAN);
-        calendar.getProperties().add(Method.REQUEST);
+        calendar.add(new ProdId(getProdId()));
+        calendar.add(ImmutableVersion.VERSION_2_0);
+        calendar.add(ImmutableCalScale.GREGORIAN);
+        calendar.add(ImmutableMethod.REQUEST);
 
         VFreeBusy fbComponent = new VFreeBusy();
 
-        fbComponent.getProperties().add(organizer);
+        fbComponent.add(organizer);
 
-        fbComponent.getProperties().add(startTime);
-        fbComponent.getProperties().add(endTime);
+        fbComponent.add(startTime);
+        fbComponent.add(endTime);
 
         String strAttendee = "";
         if (attendees != null) {
             for (Iterator<Attendee> itrAttendee = attendees.iterator(); itrAttendee.hasNext();) {
                 Attendee attendee = itrAttendee.next();
-                fbComponent.getProperties().add(attendee);
+                fbComponent.add(attendee);
                 strAttendee += attendee.getValue() + ",";
             }
             strAttendee = strAttendee.substring(0, strAttendee.length() - 1);
         }
 
         UidGenerator ug = new FixedUidGenerator(ramdomizer.nextInt() + "");
-        fbComponent.getProperties().add(ug.generateUid());
+        fbComponent.add(ug.generateUid());
         calendar.getComponents().add(fbComponent);
 
         return getClient().freeBusy(findScheduleOutbox(), calendar, organizer);

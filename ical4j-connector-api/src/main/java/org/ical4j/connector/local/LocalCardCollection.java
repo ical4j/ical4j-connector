@@ -2,7 +2,7 @@ package org.ical4j.connector.local;
 
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.ConstraintViolationException;
-import net.fortuna.ical4j.vcard.Property;
+import net.fortuna.ical4j.vcard.PropertyName;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardBuilder;
 import net.fortuna.ical4j.vcard.VCardOutputter;
@@ -10,9 +10,9 @@ import net.fortuna.ical4j.vcard.property.Uid;
 import org.ical4j.connector.*;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,10 +29,7 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
 
     @Override
     public void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
-        Uid uid = card.getProperty(Property.Id.UID);
-        if (uid == null) {
-            throw new ConstraintViolationException("A valid UID was not found.");
-        }
+        Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
 
         try {
             VCard existing = getCard(uid.getValue());
@@ -52,7 +49,7 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
 
     public VCard getCard(String uid) throws ObjectNotFoundException {
         try {
-            return new VCardBuilder(new FileInputStream(new File(getRoot(), uid + ".vcf"))).build();
+            return new VCardBuilder(Files.newInputStream(new File(getRoot(), uid + ".vcf").toPath())).build();
         } catch (IOException | ParserException e) {
             throw new ObjectNotFoundException(String.format("Card not found: %s", uid), e);
         }
@@ -76,7 +73,7 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
         if (componentFiles != null) {
             try {
                 for (File file : componentFiles) {
-                    VCardBuilder builder = new VCardBuilder(new FileInputStream(file));
+                    VCardBuilder builder = new VCardBuilder(Files.newInputStream(file.toPath()));
                     cards.add(builder.build());
                 }
             } catch (IOException | ParserException e) {

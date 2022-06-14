@@ -54,6 +54,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 
@@ -134,36 +135,36 @@ public class JcrCalendar extends AbstractJcrEntity {
             
             // save first available summary..
             if (summary == null) {
-                Summary summaryProp = (Summary) ((Component) component).getProperty(Property.SUMMARY);
-                if (summaryProp != null) {
-                    this.summary = summaryProp.getValue();
+                Optional<Summary> summaryProp = ((Component) component).getProperty(Property.SUMMARY);
+                if (summaryProp.isPresent()) {
+                    this.summary = summaryProp.get().getValue();
                 }
             }
             
             // save first available description..
             if (description == null) {
-                Description descriptionProp = (Description) ((Component) component).getProperty(Property.DESCRIPTION);
-                if (descriptionProp != null) {
+                Optional<Description> descriptionProp = ((Component) component).getProperty(Property.DESCRIPTION);
+                if (descriptionProp.isPresent()) {
                     description = new JcrFile();
                     description.setName("text");
                     description.setMimeType("text/plain");
-                    description.setDataProvider(new JcrDataProviderImpl(descriptionProp.getValue().getBytes()));
+                    description.setDataProvider(new JcrDataProviderImpl(descriptionProp.get().getValue().getBytes()));
                     description.setLastModified(java.util.Calendar.getInstance());
                 }
             }
             
             // save attachments..
             attachments.clear();
-            PropertyList attachments = ((Component) component).getProperties(Property.ATTACH);
-            for (Object attach : attachments) {
+            List<Attach> attachments = ((Component) component).getProperties(Property.ATTACH);
+            for (Attach attach : attachments) {
                 try {
                     JcrFile attachment = new JcrFile();
                     attachment.setName("attachment");
-                    if (Value.BINARY.equals(((Property) attach).getParameter(Parameter.VALUE))) {
+                    if (Value.BINARY.equals(attach.getParameter(Parameter.VALUE))) {
                         attachment.setDataProvider(new JcrDataProviderImpl(((Attach) attach).getBinary()));
-                        FmtType contentType = (FmtType) ((Property) attach).getParameter(Parameter.FMTTYPE);
-                        if (contentType != null) {
-                            attachment.setMimeType(contentType.getValue());
+                        Optional<FmtType> contentType = attach.getParameter(Parameter.FMTTYPE);
+                        if (contentType.isPresent()) {
+                            attachment.setMimeType(contentType.get().getValue());
                         }
                     }
                     else {

@@ -33,7 +33,7 @@ package org.ical4j.connector.dav;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
-import net.fortuna.ical4j.vcard.Property.Id;
+import net.fortuna.ical4j.vcard.PropertyName;
 import net.fortuna.ical4j.vcard.VCard;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
@@ -213,7 +213,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      * @see org.ical4j.connector.CardCollection#addCard(net.fortuna.ical4j.vcard.VCard)
      */
     public void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
-        net.fortuna.ical4j.vcard.property.Uid uid = card.getProperty(Id.UID);
+        net.fortuna.ical4j.vcard.property.Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
 
         String path = getPath();
         if (!path.endsWith("/")) {
