@@ -120,4 +120,5 @@ public interface CardDavPropertyName {
     DavPropertyName ADDRESS_DATA = DavPropertyName.create(
             PROPERTY_ADDRESS_DATA, NAMESPACE);
 
+    DavPropertyName ADDRESSBOOK_DESCRIPTION = DavPropertyName.create("addressbook-description", NAMESPACE);
 }

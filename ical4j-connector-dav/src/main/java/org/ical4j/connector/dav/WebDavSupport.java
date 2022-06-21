@@ -4,6 +4,7 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.property.*;
+import org.ical4j.connector.ObjectStoreException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -214,7 +215,7 @@ public interface WebDavSupport {
      *    [RFC2616]).  Responses to this method MUST NOT be cached.
      *    </pre>
      */
-    void mkCol(String path);
+    void mkCol(String path, DavPropertySet properties) throws ObjectStoreException, DavException, IOException;
 
     /**
      * <pre>

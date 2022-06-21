@@ -35,6 +35,7 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.vcard.PropertyName;
 import net.fortuna.ical4j.vcard.VCard;
+import net.fortuna.ical4j.vcard.property.Uid;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
@@ -73,38 +74,38 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      * @param id
      */
     CardDavCollection(CardDavStore CardDavCalendarStore, String id) {
-        this(CardDavCalendarStore, id, null, null);
+        this(CardDavCalendarStore, id, id, null);
     }
 
     /**
      * Only {@link CardDavStore} should be calling this, so default modifier is applied.
      * 
-     * @param CardDavCalendarStore
+     * @param cardDavStore
      * @param id
      * @param displayName
      * @param description
      */
-    CardDavCollection(CardDavStore CardDavCalendarStore, String id, String displayName, String description) {
+    CardDavCollection(CardDavStore cardDavStore, String id, String displayName, String description) {
 
-        super(CardDavCalendarStore, id);
+        super(cardDavStore, id);
         properties.add(new DavPropertyBuilder<>().name(DISPLAYNAME).value(displayName).build());
-        properties.add(new DavPropertyBuilder<>().name(CalDavPropertyName.CALENDAR_DESCRIPTION).value(description).build());
+        properties.add(new DavPropertyBuilder<>().name(CardDavPropertyName.ADDRESSBOOK_DESCRIPTION).value(description).build());
     }
 
-    CardDavCollection(CardDavStore CardDavCalendarStore, String id, DavPropertySet _properties) {
-        this(CardDavCalendarStore, id, null, null);
+    CardDavCollection(CardDavStore cardDavStore, String id, DavPropertySet _properties) {
+        this(cardDavStore, id, null, null);
         this.properties = _properties;
     }
 
     /**
-     * Creates this collection on the CalDAV server.
+     * Creates this collection on the CardDAV server.
      * 
      * @throws IOException
      * @throws ObjectStoreException
      */
     final void create() throws IOException, ObjectStoreException {
         try {
-            getStore().getClient().mkCalendar(getPath(), properties);
+            getStore().getClient().mkCol(getPath(), properties);
         } catch (DavException e) {
             throw new ObjectStoreException("Failed to create collection", e);
         }
@@ -213,22 +214,47 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      * @see org.ical4j.connector.CardCollection#addCard(net.fortuna.ical4j.vcard.VCard)
      */
     public void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
-        net.fortuna.ical4j.vcard.property.Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
+        save(card);
+    }
+
+    @Override
+    public void merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
+        Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
+        VCard existing = null;
+        try {
+            existing = getCard(uid.getValue());
+        } catch (ObjectNotFoundException | FailedOperationException e) {
+            throw new ObjectStoreException(e);
+        }
+        existing.addAll(card.getProperties());
+        save(card);
+    }
+
+    private void save(VCard card) throws ObjectStoreException {
+        Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
 
         String path = getPath();
         if (!path.endsWith("/")) {
             path = path.concat("/");
         }
-
         try {
             getStore().getClient().put(path + uid.getValue() + ".vcf", card, null);
         } catch (IOException | FailedOperationException e) {
             throw new ObjectStoreException("Error creating calendar on server", e);
-        }        
+        }
     }
 
     @Override
     public VCard removeCard(String uid) throws ObjectNotFoundException, FailedOperationException {
         return null;
+    }
+
+    @Override
+    public VCard getCard(String uid) throws ObjectNotFoundException, FailedOperationException {
+        try {
+            return getStore().getClient().getVCard(uid);
+        } catch (IOException e) {
+            throw new FailedOperationException(e);
+        }
     }
 }
