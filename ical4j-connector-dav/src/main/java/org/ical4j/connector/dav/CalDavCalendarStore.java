@@ -160,8 +160,8 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     }
 
     public String findCalendarHomeSet() throws ParserConfigurationException, IOException, DavException {
-        String propfindUri = getHostURL() + pathResolver.getPrincipalPath(getUserName());
-        return findCalendarHomeSet(propfindUri);
+        String propfindPath = pathResolver.getPrincipalPath(getUserName());
+        return findCalendarHomeSet(propfindPath);
     }
 
     /**
@@ -198,18 +198,13 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      */
     public List<CalDavCalendarCollection> getCollections() throws ObjectStoreException, ObjectNotFoundException {
         try {
-            String calHomeSetUri = findCalendarHomeSet();
-            if (calHomeSetUri == null) {
+            String calHomeSetPath = findCalendarHomeSet();
+            if (calHomeSetPath == null) {
                 throw new ObjectNotFoundException("No calendar-home-set attribute found for the user");
             }
-            String urlForcalendarHomeSet = getHostURL() + calHomeSetUri;
-            return getCollectionsForHomeSet(this, urlForcalendarHomeSet);
-        } catch (DavException de) {
+            return getCollectionsForHomeSet(this, calHomeSetPath);
+        } catch (DavException | IOException | ParserConfigurationException de) {
             throw new ObjectStoreException(de);
-        } catch (IOException ioe) {
-            throw new ObjectStoreException(ioe);
-        } catch (ParserConfigurationException pce) {
-            throw new ObjectStoreException(pce);
         }
     }
     

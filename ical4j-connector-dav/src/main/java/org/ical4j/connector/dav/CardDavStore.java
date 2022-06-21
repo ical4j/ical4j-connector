@@ -136,8 +136,8 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
     }
 
     protected String findAddressBookHomeSet() throws ParserConfigurationException, IOException, DavException {
-        String propfindUri = getHostURL() + pathResolver.getPrincipalPath(getUserName());
-        return findAddressBookHomeSet(propfindUri);
+        String propfindPath = pathResolver.getPrincipalPath(getUserName());
+        return findAddressBookHomeSet(propfindPath);
     }
 
     /**
@@ -170,12 +170,11 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
      */
     public List<CardDavCollection> getCollections() throws ObjectStoreException, ObjectNotFoundException {
         try {
-            String calHomeSetUri = findAddressBookHomeSet();
-            if (calHomeSetUri == null) {
+            String calHomeSetPath = findAddressBookHomeSet();
+            if (calHomeSetPath == null) {
                 throw new ObjectNotFoundException("No " + CardDavPropertyName.ADDRESSBOOK_HOME_SET + " attribute found for the user");
             }
-            String urlForcalendarHomeSet = getHostURL() + calHomeSetUri;
-            return getCollectionsForHomeSet(this, urlForcalendarHomeSet);
+            return getCollectionsForHomeSet(this, calHomeSetPath);
         } catch (DavException | IOException | ParserConfigurationException e) {
             throw new ObjectStoreException(e);
         }

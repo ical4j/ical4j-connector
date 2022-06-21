@@ -171,10 +171,6 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
     	return davClient;
     }
     
-    public URL getHostURL() {
-    	return rootUrl;
-    }
-    
     /**
      * Returns a list of supported features, based on the DAV header in the response 
      * of the connect call.
