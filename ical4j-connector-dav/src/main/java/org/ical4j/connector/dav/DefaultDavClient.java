@@ -69,6 +69,8 @@ import org.ical4j.connector.ObjectStoreException;
 import org.ical4j.connector.dav.method.*;
 import org.ical4j.connector.dav.property.CSDavPropertyName;
 import org.ical4j.connector.dav.request.CalendarQuery;
+import org.ical4j.connector.dav.request.MkCalendarEntity;
+import org.ical4j.connector.dav.request.MkColEntity;
 import org.ical4j.connector.dav.response.*;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.lambda.Unchecked;
@@ -119,7 +121,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	DefaultDavClient(@NotNull URL href, DavClientConfiguration clientConfiguration) {
 
 		this.hostConfiguration = new HttpHost(href.getHost(), href.getPort(), href.getProtocol());
-		this.repositoryPath = href.getPath();
+		this.repositoryPath = href.getPath().isEmpty() ? "/" : href.getPath();
 		this.clientConfiguration = clientConfiguration;
 	}
 
@@ -185,7 +187,8 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 
 	@Override
 	public void mkCalendar(String path, DavPropertySet properties) throws IOException, ObjectStoreException, DavException {
-		MkCalendar mkCalendarMethod = new MkCalendar(resolvePath(path), properties);
+		MkCalendar mkCalendarMethod = new MkCalendar(resolvePath(path));
+		mkCalendarMethod.setEntity(XmlEntity.create(new MkCalendarEntity().withProperties(properties)));
 		HttpResponse httpResponse = execute(mkCalendarMethod);
 		if (!mkCalendarMethod.succeeded(httpResponse)) {
 			throw new ObjectStoreException(httpResponse.getStatusLine().getStatusCode() + ": "
@@ -194,8 +197,14 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	}
 
 	@Override
-	public void mkCol(String path) {
-		throw new UnsupportedOperationException("Not yet implemented");
+	public void mkCol(String path, DavPropertySet properties) throws ObjectStoreException, DavException, IOException {
+		HttpMkcol mkcolMethod = new HttpMkcol(resolvePath(path));
+		mkcolMethod.setEntity(XmlEntity.create(new MkColEntity().withProperties(properties)));
+		HttpResponse httpResponse = execute(mkcolMethod);
+		if (!mkcolMethod.succeeded(httpResponse)) {
+			throw new ObjectStoreException(httpResponse.getStatusLine().getStatusCode() + ": "
+					+ httpResponse.getStatusLine().getReasonPhrase());
+		}
 	}
 
 	@Override

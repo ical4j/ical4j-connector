@@ -34,11 +34,7 @@ package org.ical4j.connector.dav.method;
 import org.apache.http.HttpResponse;
 import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.client.methods.BaseDavRequest;
-import org.apache.jackrabbit.webdav.client.methods.XmlEntity;
-import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.ical4j.connector.dav.request.MkCalendarInfo;
 
-import java.io.IOException;
 import java.net.URI;
 
 /**
@@ -56,19 +52,16 @@ public class MkCalendar extends BaseDavRequest {
      */
     private static final String METHOD_MKCALENDAR = "MKCALENDAR";
 
-    public MkCalendar(URI uri, DavPropertySet properties) throws IOException {
+    public MkCalendar(URI uri) {
         super(uri);
-        MkCalendarInfo mkcalendar = new MkCalendarInfo();
-        mkcalendar.setProperties(properties);
 //        System.out.println("properties: " + properties.getContentSize());
-        setEntity(XmlEntity.create(mkcalendar));
     }
 
     /**
      * @param uri a new calendar URI
      */
-    public MkCalendar(String uri, DavPropertySet properties) throws IOException {
-        this(URI.create(uri), properties);
+    public MkCalendar(String uri) {
+        this(URI.create(uri));
     }
 
     /**

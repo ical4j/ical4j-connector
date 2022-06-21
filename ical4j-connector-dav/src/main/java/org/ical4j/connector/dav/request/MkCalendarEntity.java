@@ -31,9 +31,10 @@
  */
 package org.ical4j.connector.dav.request;
 
-import org.apache.jackrabbit.webdav.DavConstants;
+import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
+import org.ical4j.connector.dav.property.CalDavPropertyName;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -45,7 +46,7 @@ import org.w3c.dom.Element;
  * @author Ben
  *
  */
-public class MkCalendarInfo implements XmlSerializable, XmlSupport {
+public class MkCalendarEntity implements XmlSerializable, XmlSupport {
 
     /**
      * 
@@ -68,11 +69,16 @@ public class MkCalendarInfo implements XmlSerializable, XmlSupport {
         this.properties = properties;
     }
 
+    public MkCalendarEntity withProperties(DavPropertySet properties) {
+        this.properties = properties;
+        return this;
+    }
+
     /**
      * {@inheritDoc}
      */
     public Element toXml(Document document) {
-        Element set = newDavElement(document, DavConstants.XML_SET, properties.toXml(document));
-        return newCalDavElement(document, XML_MKCALENDAR, set);
+        return newElement(document, XML_MKCALENDAR, CalDavPropertyName.NAMESPACE,
+                newElement(document, DavPropertyName.XML_SET, DavPropertyName.NAMESPACE, properties.toXml(document)));
     }
 }
