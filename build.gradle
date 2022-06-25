@@ -9,7 +9,7 @@ buildscript {
 
 plugins {
     id 'signing'
-    id 'pl.allegro.tech.build.axion-release' version '1.13.1'
+    id 'pl.allegro.tech.build.axion-release' version '1.13.6'
     id "nebula.optional-base" version "3.0.3" apply false
     id 'biz.aQute.bnd.builder' version "$bndVersion" apply false
     id 'org.javamodularity.moduleplugin' version '1.8.10' apply false
@@ -20,7 +20,14 @@ scmVersion {
         prefix = 'ical4j-connector-'
     }
     versionCreator 'versionWithBranch'
-    branchVersionCreator = ['master': 'simple']
+    branchVersionCreator = [
+            'master': 'simple',
+            'feature/refactor': 'simple',
+    ]
+    nextVersion {
+        suffix = 'pre'
+        separator = '-'
+    }
 }
 
 configure(subprojects) {
@@ -51,16 +58,33 @@ iCalendar support for integration architectures like Apache Camel
     dependencies {
         api "org.mnode.ical4j:ical4j:$ical4jVersion",
                 "org.mnode.ical4j:ical4j-vcard:$ical4jVCardVersion",
+                "org.mnode.ical4j:ical4j-serializer:$ical4jSerializerVersion",
                 'commons-io:commons-io:2.11.0',
                 "org.jooq:jool-java-8:$joolVersion",
                 "org.jetbrains:annotations:$jetbrainsVersion"
 
         implementation "org.codehaus.groovy:groovy:$groovyVersion", optional
 
+        implementation ("org.eclipse.jetty:jetty-server:$jettyVersion") {
+            exclude group: 'org.slf4j', module: 'slf4j-api'
+        }
+        implementation ("org.eclipse.jetty:jetty-servlet:$jettyVersion") {
+            exclude group: 'org.slf4j', module: 'slf4j-api'
+        }
+
+        implementation "info.picocli:picocli:$picocliVersion"
+
+        compileOnly 'org.osgi:osgi.core:8.0.0',
+                'org.osgi:org.osgi.service.component.annotations:1.5.0',
+                'org.osgi:org.osgi.service.metatype.annotations:1.4.1',
+                'org.osgi:org.osgi.annotation:6.0.0'
+
         // testcontainers
         testImplementation "org.testcontainers:testcontainers:$testcontainersVersion",
                 "org.testcontainers:spock:$testcontainersVersion"
 
+        testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion",
+                "org.apache.logging.log4j:log4j:$log4jVersion"
     }
 
     task javadocJar(type: Jar, dependsOn: javadoc) {
