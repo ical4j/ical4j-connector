@@ -46,7 +46,6 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 
@@ -81,39 +80,52 @@ public class JcrCardCollection extends AbstractJcrObjectCollection<VCard> implem
      * {@inheritDoc}
      */
     public void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
-        
+        save(card);
+    }
+
+    @Override
+    public void merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
+        Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
+        VCard existing = null;
+        try {
+            existing = getCard(uid.getValue());
+        } catch (ObjectNotFoundException | FailedOperationException e) {
+            throw new ObjectStoreException(e);
+        }
+        existing.addAll(card.getProperties());
+        save(card);
+    }
+
+    private void save(VCard card) throws ObjectStoreException {
+
         // initialise cards node..
         try {
             try {
                 getNode().getNode("cards");
-            }
-            catch (PathNotFoundException e) {
+            } catch (PathNotFoundException e) {
                 getNode().addNode("cards");
             }
-        }
-        catch (RepositoryException e) {
+        } catch (RepositoryException e) {
             throw new ObjectStoreException("Unexpected error", e);
         }
-        
+
         JcrCard jcrCard = null;
         boolean update = false;
-        
-        Optional<Uid> uid = card.getProperty(PropertyName.UID.toString());
-        if (uid.isPresent()) {
-            List<JcrCard> jcrCards = getCardDao().findByUid(
-                    getStore().getJcrom().getPath(this) + "/cards", uid.get().getValue());
-            if (!jcrCards.isEmpty()) {
-                jcrCard = jcrCards.get(0);
-                update = true;
-            }
+
+        Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
+        List<JcrCard> jcrCards = getCardDao().findByUid(getStore().getJcrom().getPath(this) + "/cards",
+                uid.getValue());
+        if (!jcrCards.isEmpty()) {
+            jcrCard = jcrCards.get(0);
+            update = true;
         }
-        
+
         if (jcrCard == null) {
             jcrCard = new JcrCard();
         }
-        
+
         jcrCard.setCard(card);
-        
+
         if (update) {
             getCardDao().update(jcrCard);
         }
@@ -124,6 +136,11 @@ public class JcrCardCollection extends AbstractJcrObjectCollection<VCard> implem
 
     @Override
     public VCard removeCard(String uid) throws ObjectNotFoundException, FailedOperationException {
+        return null;
+    }
+
+    @Override
+    public VCard getCard(String uid) throws ObjectNotFoundException, FailedOperationException {
         return null;
     }
 
