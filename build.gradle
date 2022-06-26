@@ -35,7 +35,7 @@ configure(subprojects) {
     apply plugin: 'maven-publish'
     apply plugin: 'groovy'
     apply plugin: 'biz.aQute.bnd.builder'
-    apply plugin: 'org.javamodularity.moduleplugin'
+//    apply plugin: 'org.javamodularity.moduleplugin'
     apply plugin: 'nebula.optional-base'
 
     repositories {
