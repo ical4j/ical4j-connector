@@ -6,18 +6,18 @@ public class CalDavLocatorFactory extends AbstractLocatorFactory {
 
     private final PathResolver pathResolver;
 
-    public CalDavLocatorFactory(PathResolver pathResolver) {
-        super(pathResolver.getRootPath());
+    public CalDavLocatorFactory(String pathPrefix, PathResolver pathResolver) {
+        super(pathPrefix);
         this.pathResolver = pathResolver;
     }
 
     @Override
     protected String getRepositoryPath(String resourcePath, String wspPath) {
-        return pathResolver.getRepositoryRoot(resourcePath, wspPath);
+        return pathResolver.getRepositoryPath(resourcePath, wspPath);
     }
 
     @Override
     protected String getResourcePath(String repositoryPath, String wspPath) {
-        return pathResolver.getResourcePath(repositoryPath, wspPath);
+        return pathResolver.getResourceName(repositoryPath, wspPath);
     }
 }
