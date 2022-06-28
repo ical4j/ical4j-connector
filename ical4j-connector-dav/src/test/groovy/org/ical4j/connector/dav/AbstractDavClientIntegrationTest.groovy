@@ -24,10 +24,6 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
 
     abstract CredentialsProvider getCredentialsProvider()
 
-    String getContainerUrl() {
-        "http://$container.containerIpAddress:${container.getMappedPort(getContainerPort())}$pathResolver.rootPath"
-    }
-
     def 'assert preemptive auth configuration'() {
         given: 'a dav client factory configured for preemptive auth'
         DavClientFactory clientFactory = new DavClientFactory().withPreemptiveAuth(true)
@@ -47,11 +43,11 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         given: 'a dav client instance'
         URL href = URI.create(getContainerUrl()).toURL()
         def client = new DavClientFactory().withPreemptiveAuth(true)
-                .withFollowRedirects(true)
+                .withFollowRedirects(true).withCredentialsProvider(getCredentialsProvider())
                 .newInstance(href)
 
         when: 'a session is started'
-        client.begin(getCredentialsProvider())
+//        client.begin(getCredentialsProvider())
         def supportedFeatures= client.getSupportedFeatures()
 
         then: 'authentication is successful'
@@ -65,7 +61,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
                 .newInstance(href)
 
         and: 'a resource path'
-        def path = getPathResolver().getRepositoryRoot('test', 'admin')
+        def path = getPathResolver().getRepositoryPath('test', 'admin')
 
         when: 'a session is started'
         client.begin(getCredentialsProvider())
@@ -90,7 +86,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
                 .newInstance(href)
 
         and: 'a non-existent resource path'
-        def path = getPathResolver().getRepositoryRoot('test', 'notexist')
+        def path = getPathResolver().getRepositoryPath('test', 'notexist')
 
         when: 'a session is started'
         client.begin(getCredentialsProvider())
@@ -112,7 +108,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
                 .newInstance(href)
 
         and: 'a resource path'
-        def path = getPathResolver().getRepositoryRoot('test', 'admin')
+        def path = getPathResolver().getRepositoryPath('test', 'admin')
 
         when: 'a session is started'
         client.begin(getCredentialsProvider())
@@ -140,7 +136,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
                 .newInstance(href)
 
         and: 'a resource path'
-        def path = getPathResolver().getRepositoryRoot('admin', null)
+        def path = getPathResolver().getRepositoryPath('admin', null)
 
         when: 'a session is started'
         client.begin(getCredentialsProvider())
@@ -169,7 +165,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         def client = new DavClientFactory().newInstance(href)
 
         and: 'a resource path'
-        def path = getPathResolver().getRepositoryRoot('admin', null)
+        def path = getPathResolver().getRepositoryPath('admin', null)
 
         when: 'a session is started'
         client.begin(getCredentialsProvider())

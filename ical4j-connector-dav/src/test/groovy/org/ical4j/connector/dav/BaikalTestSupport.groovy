@@ -16,6 +16,8 @@ interface BaikalTestSupport {
 
     default String getContainerConfigPath() { '/var/www/baikal/config/baikal.yaml' }
 
+    default String getRepositoryPath() { '/dav.php' }
+
     default PathResolver getPathResolver() { PathResolver.Defaults.BAIKAL }
 
     default CredentialsProvider getCredentialsProvider() {

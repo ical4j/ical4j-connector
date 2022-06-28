@@ -22,7 +22,9 @@ abstract class AbstractIntegrationTest extends Specification {
 
     abstract String getContainerConfigPath();
 
+    abstract String getRepositoryPath();
+
     String getContainerUrl() {
-        "http://$container.containerIpAddress:${container.getMappedPort(getContainerPort())}"
+        "http://$container.containerIpAddress:${container.getMappedPort(getContainerPort())}${getRepositoryPath()}"
     }
 }

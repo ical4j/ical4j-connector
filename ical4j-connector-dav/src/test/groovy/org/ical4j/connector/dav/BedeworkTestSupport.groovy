@@ -16,6 +16,8 @@ interface BedeworkTestSupport {
 
     default String getContainerConfigPath() { null }
 
+    default String getRepositoryPath() { '/ucaldav' }
+
     default PathResolver getPathResolver() { PathResolver.Defaults.BEDEWORK }
 
     default CredentialsProvider getCredentialsProvider() {

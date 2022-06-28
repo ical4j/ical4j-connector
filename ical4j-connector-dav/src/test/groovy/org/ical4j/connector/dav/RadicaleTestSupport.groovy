@@ -14,7 +14,11 @@ interface RadicaleTestSupport {
 
     default String getConfigPath() { 'src/test/resources/radicale.config' }
 
-    default String getContainerConfigPath() { '/config/config' }
+    default String getContainerConfigPath() { '/config/config.1' }
+
+    default String getRepositoryPath() { '/' }
+
+    default String getPathPrefix() { '/' }
 
     default PathResolver getPathResolver() { PathResolver.Defaults.RADICALE }
 

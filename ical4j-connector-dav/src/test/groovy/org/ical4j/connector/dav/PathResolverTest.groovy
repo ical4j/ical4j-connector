@@ -13,15 +13,15 @@ class PathResolverTest extends Specification {
 
         where:
         pathResolver                            | expectedPath
-        PathResolver.Defaults.RADICALE        | '/'
-        PathResolver.Defaults.BAIKAL          | '/dav.php/'
-        PathResolver.Defaults.BEDEWORK        | '/ucaldav/principals/users/testcal/'
-        PathResolver.Defaults.CALENDAR_SERVER | '/dav/testcal/'
+        PathResolver.Defaults.RADICALE        | '/testcal'
+        PathResolver.Defaults.BAIKAL          | '/testcal'
+        PathResolver.Defaults.BEDEWORK        | '/principals/users/testcal/'
+        PathResolver.Defaults.CALENDAR_SERVER | '/testcal/'
     }
 
     def 'verify calendar path resolution'() {
         when: 'a calendar path is resolved'
-        def path = pathResolver.getRepositoryRoot('testcal', '')
+        def path = pathResolver.getRepositoryPath('testcal', '')
 
         then: 'the result is as expected'
         path == expectedPath
@@ -36,16 +36,16 @@ class PathResolverTest extends Specification {
 
     def 'verify calendar id resolution'() {
         when: 'a calendar id is resolved from a path'
-        def id = pathResolver.getResourcePath(repositoryPath, '')
+        def id = pathResolver.getResourceName(repositoryPath, '')
 
         then: 'the result is as expected'
         id == 'testcal'
 
         where:
         pathResolver                            | repositoryPath
-        PathResolver.Defaults.RADICALE        | '/testcal/'
-        PathResolver.Defaults.BAIKAL          | '/dav.php/calendars/testcal/'
-        PathResolver.Defaults.BEDEWORK        | '/ucaldav/users/testcal/'
-        PathResolver.Defaults.CALENDAR_SERVER | '/dav/testcal/'
+        PathResolver.Defaults.RADICALE        | '/testcal'
+        PathResolver.Defaults.BAIKAL          | '/calendars/testcal'
+        PathResolver.Defaults.BEDEWORK        | '/users/testcal'
+        PathResolver.Defaults.CALENDAR_SERVER | '/testcal'
     }
 }

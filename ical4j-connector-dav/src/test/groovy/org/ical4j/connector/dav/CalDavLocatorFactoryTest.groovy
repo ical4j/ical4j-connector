@@ -7,7 +7,7 @@ class CalDavLocatorFactoryTest extends Specification {
 
     def 'test locator creation from href'() {
         given: 'a locator factory'
-        CalDavLocatorFactory locatorFactory = [pathResolver]
+        CalDavLocatorFactory locatorFactory = [prefix, pathResolver]
 
         when: 'a locator is created'
         DavResourceLocator locator = locatorFactory.createResourceLocator(prefix, href)
@@ -44,7 +44,7 @@ class CalDavLocatorFactoryTest extends Specification {
 
     def 'test locator creation from workspace and resource path'() {
         given: 'a locator factory'
-        CalDavLocatorFactory locatorFactory = [pathResolver]
+        CalDavLocatorFactory locatorFactory = [prefix, pathResolver]
 
         when: 'a locator is created'
         DavResourceLocator locator = locatorFactory.createResourceLocator(prefix, workspacePath, path, path == resourcePath)
@@ -62,12 +62,12 @@ class CalDavLocatorFactoryTest extends Specification {
         pathResolver                    | prefix                                            | href                                         | workspacePath | workspaceName | path      | resourcePath
         PathResolver.Defaults.RADICALE | 'https://www.example.com/dav'                     | 'https://www.example.com/dav/admin/testcal'                    | '/admin' | 'admin' | '/admin/testcal'     | '/admin/testcal'
         PathResolver.Defaults.BAIKAL   | 'https://www.example.com/dav/dav.php'             | 'https://www.example.com/dav/dav.php/admin/testcal'            | '/admin' | 'admin' | '/admin/testcal'     | '/admin/testcal'
-        PathResolver.Defaults.GCAL     | 'https://apidata.googleusercontent.com/caldav/v2' | 'https://apidata.googleusercontent.com/caldav/v2/calid/events' | '/calid' | 'calid' | '/calid/events'      | '/calid/events'
+        PathResolver.Defaults.GCAL     | '/caldav/v2' | '/caldav/v2/calid/events' | '/calid' | 'calid' | '/calid/events'      | '/calid/events'
         PathResolver.Defaults.SOGO     | 'https://www.example.com/SOGo/dav'                | 'https://www.example.com/SOGo/dav/admin/testcal'               | '/admin' | 'admin' | '/admin/testcal'     | '/admin/testcal'
 
         PathResolver.Defaults.RADICALE | 'https://www.example.com/dav'                     | 'https://www.example.com/dav/admin/testcal'                    | '/admin' | 'admin' | '/testcal'           | '/admin/testcal'
         PathResolver.Defaults.BAIKAL   | 'https://www.example.com/dav/dav.php'             | 'https://www.example.com/dav/dav.php/admin/testcal'            | '/admin' | 'admin' | '/calendars/testcal' | '/admin/testcal'
-        PathResolver.Defaults.GCAL     | 'https://apidata.googleusercontent.com/caldav/v2' | 'https://apidata.googleusercontent.com/caldav/v2/calid/events' | '/calid' | 'calid' | '/calid/events'      | null
+        PathResolver.Defaults.GCAL     | '/caldav/v2' | '/caldav/v2/calid/events' | '/calid' | 'calid' | '/calid/events'      | null
         PathResolver.Defaults.SOGO     | 'https://www.example.com/SOGo/dav'                | 'https://www.example.com/SOGo/dav/admin/testcal'               | '/admin' | 'admin' | '/testcal'           | '/admin/testcal'
 
     }

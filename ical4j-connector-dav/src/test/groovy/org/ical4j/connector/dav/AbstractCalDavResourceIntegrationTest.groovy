@@ -7,13 +7,15 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet
 
 abstract class AbstractCalDavResourceIntegrationTest extends AbstractIntegrationTest {
 
+    abstract String getPathPrefix();
+
     abstract PathResolver getPathResolver();
 
     abstract CredentialsProvider getCredentialsProvider()
 
     def 'test get property names'() {
         given: 'a dav client'
-        CalDavLocatorFactory locatorFactory = [getPathResolver()]
+        CalDavLocatorFactory locatorFactory = [getPathPrefix(), getPathResolver()]
         DefaultDavClient client = new DefaultDavClient(getContainerUrl(), new DavClientConfiguration())
         client.begin(getCredentialsProvider())
         
