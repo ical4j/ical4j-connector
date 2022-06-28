@@ -388,9 +388,9 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 		if (path == null) {
 			return repositoryPath;
 		} else if (path.startsWith("/")) {
-			return repositoryPath + path;
+			return (repositoryPath + path).replaceAll("/+", "/");
 		} else {
-			return repositoryPath + "/" + path;
+			return (repositoryPath + "/" + path).replaceAll("/+", "/");
 		}
 	}
 
