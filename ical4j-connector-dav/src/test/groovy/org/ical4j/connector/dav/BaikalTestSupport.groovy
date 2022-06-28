@@ -12,6 +12,10 @@ interface BaikalTestSupport {
 
     default int getContainerPort() { 80 }
 
+    default String getConfigPath() { 'src/test/resources/baikal.yaml' }
+
+    default String getContainerConfigPath() { '/var/www/baikal/config/baikal.yaml' }
+
     default PathResolver getPathResolver() { PathResolver.Defaults.BAIKAL }
 
     default CredentialsProvider getCredentialsProvider() {

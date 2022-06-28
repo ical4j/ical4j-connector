@@ -12,6 +12,10 @@ interface RadicaleTestSupport {
 
     default int getContainerPort() { 5232 }
 
+    default String getConfigPath() { 'src/test/resources/radicale.config' }
+
+    default String getContainerConfigPath() { '/config/config' }
+
     default PathResolver getPathResolver() { PathResolver.Defaults.RADICALE }
 
     default CredentialsProvider getCredentialsProvider() {

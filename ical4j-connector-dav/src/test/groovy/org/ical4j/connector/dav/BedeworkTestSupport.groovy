@@ -12,6 +12,10 @@ interface BedeworkTestSupport {
 
     default int getContainerPort() { 8080 }
 
+    default String getConfigPath() { null }
+
+    default String getContainerConfigPath() { null }
+
     default PathResolver getPathResolver() { PathResolver.Defaults.BEDEWORK }
 
     default CredentialsProvider getCredentialsProvider() {
