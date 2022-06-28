@@ -80,13 +80,6 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
     }
 
     /**
-     * @return the path
-     */
-    public final String getPath() {
-        return pathResolver == null ? rootUrl.getFile() : pathResolver.getRootPath();
-    }
-
-    /**
      * {@inheritDoc}
      */
     public final boolean connect() throws ObjectStoreException {

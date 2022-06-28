@@ -99,11 +99,12 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      * @return the absolute collection path
      */
     public final String getPath() {
+        return getStore().pathResolver.getResourceName("/" + getId(), getStore().getUserName());
 // FIXME fix for CGP...
-        if (!getId().endsWith("/")) {
-            return getId() + "/";
-        }
-        return getId();
+//        if (!getId().endsWith("/")) {
+//            return getId() + "/";
+//        }
+//        return getId();
     }
     
     /**
@@ -178,7 +179,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
             if (calTimezoneProp != null) {
                 return calTimezoneProp;
             }
-            return new Long(0);
+            return 0L;
         } catch (ObjectStoreException | IOException | DavException e) {
             throw new RuntimeException(e);
         }
@@ -193,7 +194,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
             if (calTimezoneProp != null) {
                 return calTimezoneProp;
             }
-            return new Long(0);
+            return 0L;
         } catch (ObjectStoreException | IOException | DavException e) {
             throw new RuntimeException(e);
         }
