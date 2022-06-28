@@ -47,7 +47,7 @@ configure(subprojects) {
 
     group = 'org.ical4j'
     description = '''\
-iCalendar support for integration architectures like Apache Camel
+A Java library for accessing iCalendar data stores
 '''
     version = rootProject.scmVersion.version
 
