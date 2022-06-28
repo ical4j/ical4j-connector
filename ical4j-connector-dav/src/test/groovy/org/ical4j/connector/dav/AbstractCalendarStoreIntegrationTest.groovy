@@ -1,19 +1,21 @@
 package org.ical4j.connector.dav
 
+import org.ical4j.connector.CalendarStore
 
-import org.ical4j.connector.ObjectStore
-
-abstract class AbstractDavObjectStoreIntegrationTest extends AbstractIntegrationTest {
+abstract class AbstractCalendarStoreIntegrationTest extends AbstractIntegrationTest {
 
     abstract PathResolver getPathResolver();
 
     def 'test find calendar home set'() {
         given: 'an object store'
-        ObjectStore store = new CalDavCalendarStore('ical4j-connector', URI.create(getContainerUrl()).toURL(),
+        CalendarStore store = new CalDavCalendarStore('ical4j-connector', URI.create(getContainerUrl()).toURL(),
             getPathResolver())
 
         and: 'a connection is established'
         store.connect('admin', 'admin'.toCharArray())
+
+        and: 'a collection is created'
+        store.addCollection('testCollection')
 
         when: 'calendar home set it requested'
         String calendarHomeSet = store.findCalendarHomeSet()
@@ -22,16 +24,16 @@ abstract class AbstractDavObjectStoreIntegrationTest extends AbstractIntegration
         calendarHomeSet != null
     }
 
-    def 'test calendar creation'() {
+    def 'test collection creation'() {
         given: 'an object store'
-        ObjectStore store = new CalDavCalendarStore('ical4j-connector', URI.create(getContainerUrl()).toURL(),
+        CalendarStore store = new CalDavCalendarStore('ical4j-connector', URI.create(getContainerUrl()).toURL(),
             getPathResolver())
 
         and: 'a connection is established'
         store.connect('admin', 'admin'.toCharArray())
 
         when: 'a new collection is added'
-        CalDavCalendarCollection collection = store.addCollection('/test/2')
+        CalDavCalendarCollection collection = store.addCollection('/test')
 
         then: 'the collection is created'
         collection != null
