@@ -51,6 +51,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.protocol.RequestDefaultHeaders;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.*;
 import org.apache.http.message.BasicHeader;
@@ -81,8 +82,10 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 
@@ -101,8 +104,6 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	protected HttpClient httpClient;
 
 	protected HttpClientContext httpClientContext;
-
-	private Header bearerAuth;
 
 	/**
 	 * Create a disconnected DAV client instance.
@@ -126,11 +127,12 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	}
 
 	void begin() {
-		httpClient = HttpClients.createDefault();
+		begin((CredentialsProvider) null);
 	}
 
 	public List<SupportedFeature> begin(String bearerAuth) throws IOException, FailedOperationException {
-		this.bearerAuth = new BasicHeader("Authorization", "Bearer " + bearerAuth);
+		clientConfiguration.withDefaultHeader("Authorization", "Bearer " + bearerAuth);
+		begin();
 		return getSupportedFeatures();
 	}
 
@@ -145,7 +147,13 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	}
 
 	void begin(CredentialsProvider credentialsProvider) {
+
 		HttpClientBuilder builder = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider);
+
+		Collection<Header> defaultHeaders = clientConfiguration.getDefaultHeaders().entrySet().stream()
+				.map(e -> new BasicHeader(e.getKey(), e.getValue())).collect(Collectors.toList());
+		builder.addInterceptorLast(new RequestDefaultHeaders(defaultHeaders));
+
 		if (clientConfiguration.isFollowRedirects()) {
 			builder.setRedirectStrategy(new LaxRedirectStrategy());
 		}
@@ -159,6 +167,18 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 		}
 	}
 
+	public HttpHost getHostConfiguration() {
+		return hostConfiguration;
+	}
+
+	public String getRepositoryPath() {
+		return repositoryPath;
+	}
+
+	public DavClientConfiguration getClientConfiguration() {
+		return clientConfiguration;
+	}
+
 	public List<SupportedFeature> getSupportedFeatures() throws IOException {
 		DavPropertyNameSet props = new DavPropertyNameSet();
 		props.add(DavPropertyName.RESOURCETYPE);
@@ -167,9 +187,6 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 		props.add(owner);
 
 		HttpPropfind aGet = new HttpPropfind(repositoryPath, DavConstants.PROPFIND_BY_PROPERTY, props, 0);
-		if (bearerAuth != null) {
-			aGet.addHeader(bearerAuth);
-		}
 
 		RequestConfig.Builder builder = aGet.getConfig() == null ? RequestConfig.custom() : RequestConfig.copy(aGet.getConfig());
 		builder.setAuthenticationEnabled(true);
@@ -371,9 +388,9 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 		if (path == null) {
 			return repositoryPath;
 		} else if (path.startsWith("/")) {
-			return repositoryPath + path.substring(1);
-		} else {
 			return repositoryPath + path;
+		} else {
+			return repositoryPath + "/" + path;
 		}
 	}
 

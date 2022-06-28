@@ -25,6 +25,11 @@ public class DavClientFactory {
         return this;
     }
 
+    public DavClientFactory withDefaultHeader(String name, String value) {
+        this.clientConfiguration = clientConfiguration.withDefaultHeader(name, value);
+        return this;
+    }
+
     public DavClientFactory withCredentialsProvider(CredentialsProvider credentialsProvider) {
         this.credentialsProvider = credentialsProvider;
         return this;
