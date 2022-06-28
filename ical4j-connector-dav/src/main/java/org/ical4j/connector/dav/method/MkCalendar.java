@@ -74,7 +74,8 @@ public class MkCalendar extends BaseDavRequest {
 
     @Override
     public boolean succeeded(HttpResponse response) {
-        return response.getStatusLine().getStatusCode() == DavServletResponse.SC_CREATED;
+        return response.getStatusLine().getStatusCode() == DavServletResponse.SC_CREATED
+                || response.getStatusLine().getStatusCode() == DavServletResponse.SC_OK;
     }
 
 }
