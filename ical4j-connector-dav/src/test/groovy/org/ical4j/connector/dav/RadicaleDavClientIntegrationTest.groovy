@@ -5,6 +5,6 @@ import org.testcontainers.containers.BindMode
 class RadicaleDavClientIntegrationTest extends AbstractDavClientIntegrationTest implements RadicaleTestSupport {
 
     def setup() {
-        container.addFileSystemBind('src/test/resources/htpasswd', '/etc/radicale/users', BindMode.READ_ONLY)
+        container.addFileSystemBind('src/test/resources/radicale/htpasswd', '/etc/radicale/users', BindMode.READ_ONLY)
     }
 }

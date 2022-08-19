@@ -12,9 +12,9 @@ interface RadicaleTestSupport {
 
     default int getContainerPort() { 5232 }
 
-    default String getConfigPath() { 'src/test/resources/radicale.config' }
+    default String getConfigPath() { 'src/test/resources/radicale/config' }
 
-    default String getContainerConfigPath() { '/config/config.1' }
+    default String getContainerConfigPath() { '/config/config' }
 
     default String getRepositoryPath() { '/' }
 

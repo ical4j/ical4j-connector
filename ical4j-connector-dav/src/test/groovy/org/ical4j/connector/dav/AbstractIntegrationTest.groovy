@@ -11,8 +11,11 @@ abstract class AbstractIntegrationTest extends Specification {
 
     @Shared
     GenericContainer container = new GenericContainer(getContainerImageName())
-            .withFileSystemBind(getConfigPath(), getContainerConfigPath(), BindMode.READ_ONLY)
+//            .withFileSystemBind(getConfigPath(), getContainerConfigPath(), BindMode.READ_ONLY)
             .withExposedPorts(getContainerPort())
+    .withFileSystemBind('src/test/resources/baikal/db', '/var/www/baikal/Specific/db', BindMode.READ_WRITE)
+    .withFileSystemBind('src/test/resources/baikal/config', '/var/www/baikal/config', BindMode.READ_WRITE)
+
 
     abstract String getContainerImageName();
 

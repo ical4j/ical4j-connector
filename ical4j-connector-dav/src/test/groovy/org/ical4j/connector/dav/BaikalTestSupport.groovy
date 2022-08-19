@@ -12,9 +12,9 @@ interface BaikalTestSupport {
 
     default int getContainerPort() { 80 }
 
-    default String getConfigPath() { 'src/test/resources/baikal.yaml' }
+    default String getConfigPath() { 'src/test/resources/baikal/baikal.yaml' }
 
-    default String getContainerConfigPath() { '/var/www/baikal/config/baikal.yaml' }
+    default String getContainerConfigPath() { '/var/www/baikal/config/baikal.yaml.1' }
 
     default String getRepositoryPath() { '/dav.php' }
 
