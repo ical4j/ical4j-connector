@@ -3,6 +3,6 @@ dependencies {
             'javax.jcr:jcr:2.0',
             'org.jcrom:jcrom:2.2.0'
 
-    testImplementation 'org.apache.jackrabbit:jackrabbit-core:2.21.9',
+    testImplementation "org.apache.jackrabbit:jackrabbit-core:$jackrabbitCoreVersion",
             "io.opentracing:opentracing-mock:$openTracingVersion"
 }
