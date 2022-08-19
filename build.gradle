@@ -58,7 +58,7 @@ A Java library for accessing iCalendar data stores
     dependencies {
         api "org.mnode.ical4j:ical4j:$ical4jVersion",
                 "org.mnode.ical4j:ical4j-vcard:$ical4jVCardVersion",
-                "org.mnode.ical4j:ical4j-serializer:$ical4jSerializerVersion",
+                "org.ical4j:ical4j-serializer:$ical4jSerializerVersion",
                 'commons-io:commons-io:2.11.0',
                 "org.jooq:jool-java-8:$joolVersion",
                 "org.jetbrains:annotations:$jetbrainsVersion"
