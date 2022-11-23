@@ -32,6 +32,7 @@
 package org.ical4j.connector;
 
 
+import net.fortuna.ical4j.filter.FilterExpression;
 
 /**
  * @param <T> the object type stored by the collection
@@ -61,6 +62,16 @@ public interface ObjectCollection<T> {
      * @throws ObjectStoreException where an unexpected error occurs
      */
     Iterable<T> getComponents() throws ObjectStoreException;
+
+    /**
+     * Returns a subset of objects that satisfy the specified filter expression.
+     * @param filterExpression an iCal4j component filter expression
+     * @return an iterable of objects matching the specified filter expressions
+     * @throws ObjectStoreException when an unexpected error occurs.
+     */
+    default Iterable<T> query(FilterExpression filterExpression) throws ObjectStoreException {
+        throw new UnsupportedOperationException("Collection filtering not yet supported");
+    }
 
     /**
      * Returns a property value for the collection.
