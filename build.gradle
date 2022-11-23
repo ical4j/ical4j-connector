@@ -87,6 +87,16 @@ A Java library for accessing iCalendar data stores
                 "org.apache.logging.log4j:log4j:$log4jVersion"
     }
 
+    jar {
+        manifest {
+            attributes (
+                    'Implementation-Title': 'iCal4j Connector',
+                    'Implementation-Version': version,
+                    'Implementation-Vendor': 'Ben Fortuna'
+            )
+        }
+    }
+
     task javadocJar(type: Jar, dependsOn: javadoc) {
         archiveClassifier.set('javadoc')
         from 'build/docs/javadoc'
