@@ -11,6 +11,7 @@ import org.ical4j.connector.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,12 +37,12 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
     }
 
     @Override
-    public String getMinDateTime() {
+    public Instant getMinDateTime() {
         return null;
     }
 
     @Override
-    public String getMaxDateTime() {
+    public Instant getMaxDateTime() {
         return null;
     }
 
@@ -57,24 +58,23 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
 
     @Override
     public void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
-        Uid uid = Calendars.getUid(calendar);
-        if (uid == null) {
-            throw new ConstraintViolationException("A valid UID was not found.");
-        }
+        Calendar[] uidCalendars = calendar.split();
+        for (Calendar c : uidCalendars) {
+            Uid uid = c.getUid();
+            try {
+                Calendar existing = getCalendar(uid.getValue());
 
-        try {
-            Calendar existing = getCalendar(uid.getValue());
+                // TODO: potentially merge/replace existing..
+                throw new ObjectStoreException("Calendar already exists");
+            } catch (ObjectNotFoundException e) {
 
-            // TODO: potentially merge/replace existing..
-            throw new ObjectStoreException("Calendar already exists");
-        } catch (ObjectNotFoundException e) {
+            }
 
-        }
-
-        try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".ics"))) {
-            new CalendarOutputter(false).output(calendar, writer);
-        } catch (IOException e) {
-            throw new ObjectStoreException("Error writing calendar file", e);
+            try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".ics"))) {
+                new CalendarOutputter(false).output(calendar, writer);
+            } catch (IOException e) {
+                throw new ObjectStoreException("Error writing calendar file", e);
+            }
         }
     }
 
