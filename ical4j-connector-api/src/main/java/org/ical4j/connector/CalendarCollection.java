@@ -34,6 +34,8 @@ package org.ical4j.connector;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
 
+import java.time.Instant;
+
 /**
  * $Id$
  *
@@ -79,14 +81,14 @@ public interface CalendarCollection extends ObjectCollection<Calendar> {
      * that the server is willing to accept for any DATE or DATE-TIME value in
      * a calendar object resource stored in a calendar collection.
      */
-    String getMinDateTime();
+    Instant getMinDateTime();
     
     /**
      * @return a DATE-TIME value indicating the latest date and time (in UTC)
      * that the server is willing to accept for any DATE or DATE-TIME value in
      * a calendar object resource stored in a calendar collection.
      */
-    String getMaxDateTime();
+    Instant getMaxDateTime();
     
     /**
      * @return a numeric value indicating the maximum number of recurrence instances
