@@ -33,10 +33,7 @@ package org.ical4j.connector.dav;
 
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
-import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.ConstraintViolationException;
-import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.*;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 import org.apache.jackrabbit.webdav.DavException;
@@ -60,6 +57,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -201,9 +199,10 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * Provides a DATE-TIME value indicating the latest date and time (in UTC) that the server is willing to accept for
      * any DATE or DATE-TIME value in a calendar object resource stored in a calendar collection.
      */
-    public String getMaxDateTime() {
+    public Instant getMaxDateTime() {
         try {
-            return getProperty(CalDavPropertyName.MAX_DATE_TIME, String.class);
+            return Instant.from(TemporalAdapter.parse(
+                    getProperty(CalDavPropertyName.MAX_DATE_TIME, String.class)).getTemporal());
         } catch (ObjectStoreException | IOException | DavException e) {
             throw new RuntimeException(e);
         }
@@ -241,9 +240,10 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * Provides a DATE-TIME value indicating the earliest date and time (in UTC) that the server is willing to accept
      * for any DATE or DATE-TIME value in a calendar object resource stored in a calendar collection.
      */
-    public String getMinDateTime() {
+    public Instant getMinDateTime() {
         try {
-            return getProperty(CalDavPropertyName.MIN_DATE_TIME, String.class);
+            return Instant.from(TemporalAdapter.parse(
+                getProperty(CalDavPropertyName.MIN_DATE_TIME, String.class)).getTemporal());
         } catch (ObjectStoreException | IOException | DavException e) {
             throw new RuntimeException(e);
         }
