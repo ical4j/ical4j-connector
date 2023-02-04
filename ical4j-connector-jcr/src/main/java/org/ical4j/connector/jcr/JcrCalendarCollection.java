@@ -42,6 +42,7 @@ import org.jcrom.annotations.JcrProperty;
 
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -263,9 +264,9 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection<Calendar>
     /**
      * {@inheritDoc}
      */
-    public String getMaxDateTime() {
+    public Instant getMaxDateTime() {
         if (maxDateTime != null) {
-            return maxDateTime.toString();
+            return maxDateTime.toInstant();
         }
         return null;
     }
@@ -287,9 +288,9 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection<Calendar>
     /**
      * {@inheritDoc}
      */
-    public String getMinDateTime() {
+    public Instant getMinDateTime() {
         if (minDateTime != null) {
-            return minDateTime.toString();
+            return minDateTime.toInstant();
         }
         return null;
     }
