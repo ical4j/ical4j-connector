@@ -4,24 +4,23 @@ import net.fortuna.ical4j.model.Calendar
 import net.fortuna.ical4j.model.Component
 import net.fortuna.ical4j.model.DefaultTimeZoneRegistryFactory
 import net.fortuna.ical4j.util.Calendars
-import spock.lang.Specification
 
-class LocalCalendarStoreTest extends Specification {
+class LocalCalendarStoreTest extends AbstractLocalTest {
 
     def 'test create collection'() {
         given: 'a new local calendar store'
-        LocalCalendarStore calendarStore = [new File('build', 'local')]
+        LocalCalendarStore calendarStore = [storeLocation]
 
         when: 'a new collection is added'
         LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
 
         then: 'a local collection directory is added'
-        new File('build/local', 'public_holidays').exists()
+        new File(storeLocation, 'public_holidays').exists()
     }
 
     def 'test create and initialise collection'() {
         given: 'a new local calendar store'
-        LocalCalendarStore calendarStore = [new File('build', 'local')]
+        LocalCalendarStore calendarStore = [storeLocation]
 
         and: 'a timezone calendar'
         Calendar timezone = Calendars.wrap(new DefaultTimeZoneRegistryFactory().createRegistry()
@@ -32,7 +31,7 @@ class LocalCalendarStoreTest extends Specification {
                 'Victorian public holidays', [Component.VEVENT] as String[], timezone)
 
         then: 'a local collection directory is added'
-        new File('build/local', 'public_holidays').exists()
+        new File(storeLocation, 'public_holidays').exists()
 
         and: 'the collection properties are saved'
         collection.displayName == 'Public Holidays'

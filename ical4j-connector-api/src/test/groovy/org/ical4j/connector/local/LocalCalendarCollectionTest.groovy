@@ -6,13 +6,12 @@ import net.fortuna.ical4j.model.ContentBuilder
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.util.Calendars
 import net.fortuna.ical4j.util.RandomUidGenerator
-import spock.lang.Specification
 
-class LocalCalendarCollectionTest extends Specification {
+class LocalCalendarCollectionTest extends AbstractLocalTest {
 
     def 'test add calendar to collection'() {
         given: 'a local calendar collection'
-        LocalCalendarStore calendarStore = [new File('build', 'local')]
+        LocalCalendarStore calendarStore = [storeLocation]
         LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
 
         and: 'a calendar object'
@@ -34,13 +33,13 @@ class LocalCalendarCollectionTest extends Specification {
         collection.addCalendar(calendar)
 
         then: 'a new calendar file is created'
-        new File('build/local/public_holidays',
-                "${calendar.getComponent(Component.VEVENT).get().getRequiredProperty(Property.UID).getValue()}.ics").exists()
+        new File(storeLocation,
+                "public_holidays/${calendar.getComponent(Component.VEVENT).get().getRequiredProperty(Property.UID).getValue()}.ics").exists()
     }
 
     def 'test remove calendar from collection'() {
         given: 'a local calendar collection'
-        LocalCalendarStore calendarStore = [new File('build', 'local')]
+        LocalCalendarStore calendarStore = [storeLocation]
         LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
 
         and: 'a calendar object that is added to the collection'
@@ -63,8 +62,8 @@ class LocalCalendarCollectionTest extends Specification {
         def removed = collection.removeCalendar(Calendars.getUid(calendar).value)
 
         then: 'the exsiting calendar file is deleted'
-        !new File('build/local/public_holidays',
-                "${calendar.getComponent(Component.VEVENT).get().getRequiredProperty(Property.UID).getValue()}.ics").exists()
+        !new File(storeLocation,
+                "public_holidays/${calendar.getComponent(Component.VEVENT).get().getRequiredProperty(Property.UID).getValue()}.ics").exists()
 
         and: 'removed calendar is identical to added'
         removed == calendar

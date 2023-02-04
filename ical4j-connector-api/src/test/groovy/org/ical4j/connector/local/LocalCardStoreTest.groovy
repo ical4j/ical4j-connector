@@ -3,24 +3,23 @@ package org.ical4j.connector.local
 import net.fortuna.ical4j.model.Calendar
 import net.fortuna.ical4j.model.DefaultTimeZoneRegistryFactory
 import net.fortuna.ical4j.util.Calendars
-import spock.lang.Specification
 
-class LocalCardStoreTest extends Specification {
+class LocalCardStoreTest extends AbstractLocalTest {
 
     def 'test create collection'() {
         given: 'a new local card store'
-        LocalCardStore cardStore = [new File('build', 'local')]
+        LocalCardStore cardStore = [storeLocation]
 
         when: 'a new collection is added'
         LocalCardCollection collection = cardStore.addCollection('contacts')
 
         then: 'a local collection directory is added'
-        new File('build/local', 'contacts').exists()
+        new File(storeLocation, 'contacts').exists()
     }
 
     def 'test create and initialise collection'() {
         given: 'a new local card store'
-        LocalCardStore cardStore = [new File('build', 'local')]
+        LocalCardStore cardStore = [storeLocation]
 
         and: 'a timezone card'
         Calendar timezone = Calendars.wrap(new DefaultTimeZoneRegistryFactory().createRegistry()
@@ -31,7 +30,7 @@ class LocalCardStoreTest extends Specification {
                 'Personal Contacts', ['VCARD'] as String[], timezone)
 
         then: 'a local collection directory is added'
-        new File('build/local', 'contacts').exists()
+        new File(storeLocation, 'contacts').exists()
 
         and: 'the collection properties are saved'
         collection.displayName == 'Contacts'

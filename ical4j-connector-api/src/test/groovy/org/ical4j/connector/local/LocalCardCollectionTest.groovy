@@ -2,13 +2,12 @@ package org.ical4j.connector.local
 
 import net.fortuna.ical4j.vcard.ContentBuilder
 import net.fortuna.ical4j.vcard.PropertyName
-import spock.lang.Specification
 
-class LocalCardCollectionTest extends Specification {
+class LocalCardCollectionTest extends AbstractLocalTest {
 
     def 'test add card to collection'() {
         given: 'a local card collection'
-        LocalCardStore cardStore = [new File('build', 'local')]
+        LocalCardStore cardStore = [storeLocation]
         LocalCardCollection collection = cardStore.addCollection('contacts')
 
         and: 'a card object'
@@ -26,13 +25,13 @@ class LocalCardCollectionTest extends Specification {
         collection.addCard(card)
 
         then: 'a new card file is created'
-        new File('build/local/contacts',
-                "${card.getRequiredProperty(PropertyName.UID as String).getValue()}.vcf").exists()
+        new File(storeLocation,
+                "contacts/${card.getRequiredProperty(PropertyName.UID as String).getValue()}.vcf").exists()
     }
 
     def 'test remove card from collection'() {
         given: 'a local card collection'
-        LocalCardStore cardStore = [new File('build', 'local')]
+        LocalCardStore cardStore = [storeLocation]
         LocalCardCollection collection = cardStore.addCollection('contacts')
 
         and: 'a card object added'
@@ -51,8 +50,8 @@ class LocalCardCollectionTest extends Specification {
         def removed = collection.removeCard(card.getRequiredProperty(PropertyName.UID as String).value)
 
         then: 'the existing card file is deleted'
-        !new File('build/local/contacts',
-                "${card.getRequiredProperty(PropertyName.UID as String).getValue()}.vcf").exists()
+        !new File(storeLocation,
+                "contacts/${card.getRequiredProperty(PropertyName.UID as String).getValue()}.vcf").exists()
 
         and: 'removed card is identical to added'
         removed == card
