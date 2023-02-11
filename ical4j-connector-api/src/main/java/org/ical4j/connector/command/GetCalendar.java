@@ -6,7 +6,7 @@ import org.ical4j.connector.ObjectNotFoundException;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "get-calendar", description = "Retrieve a calendar object with specified UID")
-public class GetCalendarCommand implements Runnable {
+public class GetCalendar extends AbstractCommand<CalendarCollection> {
 
     private final CalendarCollection collection;
 
@@ -14,11 +14,11 @@ public class GetCalendarCommand implements Runnable {
 
     private Calendar calendar;
 
-    public GetCalendarCommand(CalendarCollection collection) {
+    public GetCalendar(CalendarCollection collection) {
         this.collection = collection;
     }
 
-    public GetCalendarCommand withCalendarUid(String calendarUid) {
+    public GetCalendar withCalendarUid(String calendarUid) {
         this.calendarUid = calendarUid;
         return this;
     }

@@ -7,7 +7,9 @@ import org.ical4j.connector.ObjectStoreException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract  class AbstractLocalObjectStore<C extends AbstractLocalObjectCollection<?>> implements ObjectStore<C> {
 
@@ -55,12 +57,16 @@ public abstract  class AbstractLocalObjectStore<C extends AbstractLocalObjectCol
         try {
             collection = getCollection(id);
         } catch (ObjectNotFoundException e) {
-            collection = newCollection(id);
+            try {
+                collection = newCollection(id);
+            } catch (IOException ex) {
+                throw new ObjectStoreException(ex);
+            }
         }
         return collection;
     }
 
-    protected abstract C newCollection(String id);
+    protected abstract C newCollection(String id) throws IOException;
 
     @Override
     public C addCollection(String id, String displayName, String description, String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
@@ -87,11 +93,21 @@ public abstract  class AbstractLocalObjectStore<C extends AbstractLocalObjectCol
         if (!collectionDir.exists() || !collectionDir.isDirectory()) {
             throw new ObjectNotFoundException("Unable to retrieve collection");
         }
-        return newCollection(id);
+        try {
+            return newCollection(id);
+        } catch (IOException e) {
+            throw new ObjectStoreException(e);
+        }
     }
 
     @Override
     public List<C> getCollections() {
-        return null;
+        return Arrays.stream(root.list()).map(name -> {
+            try {
+                return newCollection(name);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).collect(Collectors.toList());
     }
 }

@@ -3,6 +3,7 @@ package org.ical4j.connector.local;
 import org.ical4j.connector.CalendarStore;
 
 import java.io.File;
+import java.io.IOException;
 
 public class LocalCalendarStore extends AbstractLocalObjectStore<LocalCalendarCollection>
         implements CalendarStore<LocalCalendarCollection> {
@@ -12,7 +13,7 @@ public class LocalCalendarStore extends AbstractLocalObjectStore<LocalCalendarCo
     }
 
     @Override
-    protected LocalCalendarCollection newCollection(String id) {
+    protected LocalCalendarCollection newCollection(String id) throws IOException {
         return new LocalCalendarCollection(new File(getRoot(), id));
     }
 }

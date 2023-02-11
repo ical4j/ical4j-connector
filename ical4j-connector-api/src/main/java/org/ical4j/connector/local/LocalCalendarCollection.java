@@ -22,8 +22,9 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
         SUPPORTED_MEDIA_TYPES[0] = MediaType.ICALENDAR_2_0;
     }
 
-    public LocalCalendarCollection(File root) {
+    public LocalCalendarCollection(File root) throws IOException {
         super(root);
+        setDisplayName(root.getName());
     }
 
     @Override
@@ -71,7 +72,7 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
             }
 
             try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".ics"))) {
-                new CalendarOutputter(false).output(calendar, writer);
+                new CalendarOutputter(false).output(c, writer);
             } catch (IOException e) {
                 throw new ObjectStoreException("Error writing calendar file", e);
             }

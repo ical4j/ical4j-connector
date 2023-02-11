@@ -7,17 +7,17 @@ import org.ical4j.connector.ObjectStoreException;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "update-card", description = "Persist vCard object from input data")
-public class UpdateVCardCommand implements Runnable {
+public class UpdateCard extends AbstractCommand<CardCollection> {
 
     private final CardCollection collection;
 
     private VCard card;
 
-    public UpdateVCardCommand(CardCollection collection) {
+    public UpdateCard(CardCollection collection) {
         this.collection = collection;
     }
 
-    public UpdateVCardCommand withCard(VCard card) {
+    public UpdateCard withCard(VCard card) {
         this.card = card;
         return this;
     }

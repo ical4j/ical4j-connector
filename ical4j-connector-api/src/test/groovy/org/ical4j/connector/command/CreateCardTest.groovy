@@ -5,7 +5,7 @@ import net.fortuna.ical4j.vcard.VCard
 import org.ical4j.connector.CardCollection
 import spock.lang.Specification
 
-class CreateVCardCommandTest extends Specification {
+class CreateCardTest extends Specification {
 
     def 'test create card'() {
         given: 'a mock card collection'
@@ -15,7 +15,7 @@ class CreateVCardCommandTest extends Specification {
         VCard card = []
 
         when: 'a create card command is run'
-        new CreateVCardCommand(collection).withCard(card).run()
+        new CreateCard(collection).withCard(card).run()
 
         then: 'collection add card is invoked'
         1 * collection.addCard(card)

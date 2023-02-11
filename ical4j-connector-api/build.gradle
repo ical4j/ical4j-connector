@@ -1,2 +1,15 @@
+apply plugin: 'application'
+
 dependencies {
+    runtimeOnly project(':ical4j-connector-dav'), project(':ical4j-connector-jcr')
+}
+
+application {
+    mainClass = 'org.ical4j.connector.ConnectorServerMain'
+}
+
+distributions {
+    main {
+        distributionBaseName = 'ical4j-connector'
+    }
 }

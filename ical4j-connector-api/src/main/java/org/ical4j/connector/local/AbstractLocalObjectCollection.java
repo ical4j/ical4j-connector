@@ -92,4 +92,9 @@ public abstract class AbstractLocalObjectCollection<T> implements ObjectCollecti
         properties.store(new FileWriter(new File(root, PROPERTIES_FILE_NAME)), String.format("%s", new Date()));
     }
 
+
+    @Override
+    public String toString() {
+        return String.format("LocalCollection[%s]", getDisplayName());
+    }
 }
