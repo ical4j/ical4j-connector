@@ -313,8 +313,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * Add a new calendar object in the collection. Creation will be done on the server right away.
      */
     @Override
-    public void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
+    public Uid addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
         writeCalendarOnServer(calendar, true);
+        return calendar.getRequiredProperty(Property.UID);
     }
 
     /**
@@ -415,15 +416,18 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     /**
      * {@inheritDoc}
      */
-    public final void merge(Calendar calendar) throws FailedOperationException, ObjectStoreException {
+    public final Uid[] merge(Calendar calendar) throws FailedOperationException, ObjectStoreException {
+        List<Uid> uids = new ArrayList<>();
         try {
             Calendar[] uidCalendars = Calendars.split(calendar);
             for (int i = 0; i < uidCalendars.length; i++) {
                 addCalendar(uidCalendars[i]);
+                uids.add(uidCalendars[i].getRequiredProperty(Property.UID));
             }
         } catch (ConstraintViolationException cve) {
             throw new FailedOperationException("Invalid calendar format", cve);
         }
+        return uids.toArray(new Uid[0]);
     }
 
     /**

@@ -45,6 +45,7 @@ import org.ical4j.connector.ObjectStoreException;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -79,12 +80,14 @@ public class JcrCardCollection extends AbstractJcrObjectCollection<VCard> implem
     /**
      * {@inheritDoc}
      */
-    public void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
+    public Uid addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
+        Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
         save(card);
+        return uid;
     }
 
     @Override
-    public void merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
+    public Uid[] merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
         Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
         VCard existing = null;
         try {
@@ -94,6 +97,7 @@ public class JcrCardCollection extends AbstractJcrObjectCollection<VCard> implem
         }
         existing.addAll(card.getProperties());
         save(card);
+        return Collections.singletonList(uid).toArray(new Uid[0]);
     }
 
     private void save(VCard card) throws ObjectStoreException {

@@ -54,6 +54,7 @@ import org.ical4j.connector.dav.response.GetVCardData;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.util.Collections;
 
 import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME;
 
@@ -213,12 +214,14 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     /* (non-Javadoc)
      * @see org.ical4j.connector.CardCollection#addCard(net.fortuna.ical4j.vcard.VCard)
      */
-    public void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
+    public Uid addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
+        Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
         save(card);
+        return uid;
     }
 
     @Override
-    public void merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
+    public Uid[] merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
         Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
         VCard existing = null;
         try {
@@ -228,6 +231,8 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
         }
         existing.addAll(card.getProperties());
         save(card);
+
+        return Collections.singletonList(uid).toArray(new Uid[0]);
     }
 
     private void save(VCard card) throws ObjectStoreException {

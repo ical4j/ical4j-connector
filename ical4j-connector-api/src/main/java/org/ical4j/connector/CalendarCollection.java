@@ -33,6 +33,7 @@ package org.ical4j.connector;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
+import net.fortuna.ical4j.model.property.Uid;
 
 import java.time.Instant;
 
@@ -105,10 +106,11 @@ public interface CalendarCollection extends ObjectCollection<Calendar> {
     /**
      * Stores the specified calendar in this collection.
      * @param calendar a calendar object instance to be added to the collection
+     * @return the UID extracted from the specified calendar
      * @throws ObjectStoreException when an unexpected error occurs (implementation-specific)
      * @throws ConstraintViolationException if the specified calendar has no single unique identifier (UID)
      */
-    void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException;
+    Uid addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException;
     
     /**
      * Returns the calendar object with the specified UID.
@@ -125,13 +127,14 @@ public interface CalendarCollection extends ObjectCollection<Calendar> {
     Calendar removeCalendar(String uid) throws FailedOperationException, ObjectStoreException, ObjectNotFoundException;
     
     /**
-     * Merges the specified calendar object with this collecton. This is done by
+     * Merges the specified calendar object with this collection. This is done by
      * decomposing the calendar object into a set of objects per unique identifier (UID)
      * and adding these objects to the collection.
      * @param calendar a calendar object instance to merge into the collection
+     * @return a list of UIDs extracted from the specified calendar
      * @throws FailedOperationException where the merge operation fails
      */
-    void merge(Calendar calendar) throws FailedOperationException, ObjectStoreException;
+    Uid[] merge(Calendar calendar) throws FailedOperationException, ObjectStoreException;
     
     /**
      * Exports the entire collection as a single calendar object.

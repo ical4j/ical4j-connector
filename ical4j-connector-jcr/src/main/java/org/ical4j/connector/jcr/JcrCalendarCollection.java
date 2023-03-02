@@ -33,6 +33,7 @@ package org.ical4j.connector.jcr;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
+import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 import org.apache.commons.logging.Log;
@@ -120,8 +121,9 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection<Calendar>
     /**
      * {@inheritDoc}
      */
-    public void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
+    public Uid addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
         addCalendar(calendar, true);
+        return calendar.getRequiredProperty(Property.UID);
     }
     
     private void addCalendar(Calendar calendar, boolean saveChanges)
@@ -337,17 +339,20 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection<Calendar>
     /**
      * {@inheritDoc}
      */
-    public void merge(Calendar calendar) throws FailedOperationException, ObjectStoreException {
+    public Uid[] merge(Calendar calendar) throws FailedOperationException, ObjectStoreException {
+        List<Uid> uids = new ArrayList<>();
         try {
             Calendar[] uidCalendars = Calendars.split(calendar);
             for (int i = 0; i < uidCalendars.length; i++) {
                 addCalendar(uidCalendars[i], false);
+                uids.add(uidCalendars[i].getRequiredProperty(Property.UID));
             }
             saveChanges();
         }
         catch (ConstraintViolationException cve) {
             throw new FailedOperationException("Invalid calendar format", cve);
         }
+        return uids.toArray(new Uid[0]);
     }
 
     /**

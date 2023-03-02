@@ -33,6 +33,7 @@ package org.ical4j.connector;
 
 import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.vcard.VCard;
+import net.fortuna.ical4j.vcard.property.Uid;
 
 /**
  * $Id$
@@ -46,12 +47,20 @@ public interface CardCollection extends ObjectCollection<VCard> {
 
     /**
      * @param card a vCard object instance
+     * @return the UID extracted from the vCard
      * @throws ObjectStoreException where an unexpected error occurs
      * @throws ConstraintViolationException where the specified object is not valid
      */
-    void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException;
+    Uid addCard(VCard card) throws ObjectStoreException, ConstraintViolationException;
 
-    void merge(VCard card) throws ObjectStoreException, ConstraintViolationException;
+    /**
+     *
+     * @param card
+     * @return a list of UIDs extracted from the vCard data
+     * @throws ObjectStoreException
+     * @throws ConstraintViolationException
+     */
+    Uid[] merge(VCard card) throws ObjectStoreException, ConstraintViolationException;
 
     /**
      * Remove an existing card from the collection.
