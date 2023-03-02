@@ -18,6 +18,8 @@ public abstract  class AbstractLocalObjectStore<C extends AbstractLocalObjectCol
     AbstractLocalObjectStore(File root) {
         if (root.exists() && !root.isDirectory()) {
             throw new IllegalArgumentException("Root must be a directory");
+        } else if (!root.exists() && !root.mkdirs()) {
+            throw new IllegalArgumentException("Unable to initialise root directory");
         }
         this.root = root;
     }

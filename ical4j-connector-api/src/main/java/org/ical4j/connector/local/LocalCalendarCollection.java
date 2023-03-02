@@ -4,6 +4,7 @@ import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
+import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 import org.ical4j.connector.*;
@@ -13,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calendar> implements CalendarCollection {
@@ -25,6 +27,7 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
     public LocalCalendarCollection(File root) throws IOException {
         super(root);
         setDisplayName(root.getName());
+        setSupportedComponents(new String[]{"VEVENT", "VTODO", "VJOURNAL"});
     }
 
     @Override
@@ -58,7 +61,7 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
     }
 
     @Override
-    public void addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
+    public Uid addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
         Calendar[] uidCalendars = calendar.split();
         for (Calendar c : uidCalendars) {
             Uid uid = c.getUid();
@@ -77,6 +80,7 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
                 throw new ObjectStoreException("Error writing calendar file", e);
             }
         }
+        return calendar.getRequiredProperty(Property.UID);
     }
 
     @Override
@@ -98,7 +102,8 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
     }
 
     @Override
-    public void merge(Calendar calendar) {
+    public Uid[] merge(Calendar calendar) {
+        return Collections.emptyList().toArray(new Uid[0]);
     }
 
     @Override

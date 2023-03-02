@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> implements CardCollection {
@@ -23,12 +24,12 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
         SUPPORTED_MEDIA_TYPES[0] = MediaType.VCARD_4_0;
     }
 
-    public LocalCardCollection(File root) {
+    public LocalCardCollection(File root) throws IOException {
         super(root);
     }
 
     @Override
-    public void addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
+    public Uid addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
         Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
 
         try {
@@ -40,10 +41,12 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
 
         }
         save(card);
+
+        return uid;
     }
 
     @Override
-    public void merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
+    public Uid[] merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
         Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
         VCard existing = null;
         try {
@@ -53,6 +56,8 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
         }
         existing.addAll(card.getProperties());
         save(card);
+
+        return Collections.singletonList(uid).toArray(new Uid[0]);
     }
 
     private void save(VCard card) throws ObjectStoreException {
