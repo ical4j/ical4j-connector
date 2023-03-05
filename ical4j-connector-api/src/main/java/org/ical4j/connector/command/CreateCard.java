@@ -2,19 +2,20 @@ package org.ical4j.connector.command;
 
 import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.vcard.VCard;
+import net.fortuna.ical4j.vcard.property.Uid;
 import org.ical4j.connector.CardCollection;
+import org.ical4j.connector.CardStore;
+import org.ical4j.connector.ObjectNotFoundException;
 import org.ical4j.connector.ObjectStoreException;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "create-card", description = "Persist vCard object from input data")
-public class CreateCard extends AbstractCommand<CardCollection> {
-
-    private final CardCollection collection;
+public class CreateCard extends AbstractCollectionCommand<CardCollection, Uid> {
 
     private VCard card;
 
-    public CreateCard(CardCollection collection) {
-        this.collection = collection;
+    public CreateCard(CardStore store) {
+        super("default", card -> {}, store);
     }
 
     public CreateCard withCard(VCard card) {
@@ -25,8 +26,8 @@ public class CreateCard extends AbstractCommand<CardCollection> {
     @Override
     public void run() {
         try {
-            collection.addCard(card);
-        } catch (ObjectStoreException | ConstraintViolationException e) {
+            getConsumer().accept(getCollection().addCard(card));
+        } catch (ObjectStoreException | ConstraintViolationException | ObjectNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

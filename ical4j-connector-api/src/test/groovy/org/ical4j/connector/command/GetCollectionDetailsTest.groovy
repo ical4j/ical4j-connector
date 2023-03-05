@@ -11,7 +11,7 @@ class GetCollectionDetailsTest extends Specification {
         ObjectStore store = Mock()
 
         when: 'a get collection command is run'
-        new GetCollectionDetails(store).withCollectionName('testCollection').run()
+        new GetCollectionDetails((collection) -> {}, store).withCollectionName('testCollection').run()
 
         then: 'store get collection is invoked'
         1 * store.getCollection('testCollection')

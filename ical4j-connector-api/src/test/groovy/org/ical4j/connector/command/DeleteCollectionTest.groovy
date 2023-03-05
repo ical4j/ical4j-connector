@@ -11,7 +11,7 @@ class DeleteCollectionTest extends Specification {
         ObjectStore store = Mock()
 
         when: 'a delete collection command is run'
-        new DeleteCollection(store).withCollectionName('testCollection').run()
+        new DeleteCollection((collection) -> {}, store).withCollectionName('testCollection').run()
 
         then: 'store remove collection is invoked'
         1 * store.removeCollection('testCollection')

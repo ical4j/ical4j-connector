@@ -1,22 +1,20 @@
 package org.ical4j.connector.command;
 
-import org.ical4j.connector.ObjectCollection;
-import org.ical4j.connector.ObjectStore;
-import org.ical4j.connector.ObjectStoreFactory;
+import java.util.function.Consumer;
 
-public abstract class AbstractCommand<T extends ObjectCollection<?>> implements Runnable {
+/**
+ * Base class for all commands that will invoke the specified consumer upon execution completion.
+ * @param <T> the command result type
+ */
+public abstract class AbstractCommand<T> implements Runnable {
 
-    private final ObjectStore<T> store;
+    private final Consumer<T> consumer;
 
-    public AbstractCommand() {
-        this.store = new ObjectStoreFactory().newInstance();
+    public AbstractCommand(Consumer<T> consumer) {
+        this.consumer = consumer;
     }
 
-    public AbstractCommand(ObjectStore<T> store) {
-        this.store = store;
-    }
-
-    public ObjectStore<T> getStore() {
-        return store;
+    public final Consumer<T> getConsumer() {
+        return consumer;
     }
 }
