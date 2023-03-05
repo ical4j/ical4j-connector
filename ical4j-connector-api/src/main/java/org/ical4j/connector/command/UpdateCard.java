@@ -11,13 +11,15 @@ import picocli.CommandLine;
 
 import java.util.function.Consumer;
 
+import static org.ical4j.connector.ObjectCollection.DEFAULT_COLLECTION;
+
 @CommandLine.Command(name = "update-card", description = "Persist vCard object from input data")
 public class UpdateCard extends AbstractCollectionCommand<CardCollection, Uid[]> {
 
     private VCard card;
 
     public UpdateCard() {
-        super("default", card -> {});
+        super(DEFAULT_COLLECTION, card -> {});
     }
 
     public UpdateCard(String collectionName, Consumer<Uid[]> consumer) {

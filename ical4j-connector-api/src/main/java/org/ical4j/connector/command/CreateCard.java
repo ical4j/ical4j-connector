@@ -9,13 +9,15 @@ import org.ical4j.connector.ObjectNotFoundException;
 import org.ical4j.connector.ObjectStoreException;
 import picocli.CommandLine;
 
+import static org.ical4j.connector.ObjectCollection.DEFAULT_COLLECTION;
+
 @CommandLine.Command(name = "create-card", description = "Persist vCard object from input data")
 public class CreateCard extends AbstractCollectionCommand<CardCollection, Uid> {
 
     private VCard card;
 
     public CreateCard(CardStore store) {
-        super("default", card -> {}, store);
+        super(DEFAULT_COLLECTION, card -> {}, store);
     }
 
     public CreateCard withCard(VCard card) {

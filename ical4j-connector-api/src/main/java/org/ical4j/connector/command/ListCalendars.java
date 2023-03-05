@@ -7,15 +7,17 @@ import picocli.CommandLine;
 
 import java.util.List;
 
+import static org.ical4j.connector.ObjectCollection.DEFAULT_COLLECTION;
+
 @CommandLine.Command(name = "list-calendars", description = "List calendars in a calendar collection")
 public class ListCalendars extends AbstractCollectionCommand<CalendarCollection, List<Calendar>> {
 
     public ListCalendars() {
-        super("default", collection -> {});
+        super(DEFAULT_COLLECTION, collection -> {});
     }
 
     public ListCalendars(ObjectStore<CalendarCollection> store) {
-        super("default", collection -> {}, store);
+        super(DEFAULT_COLLECTION, collection -> {}, store);
     }
 
     public ListCalendars(String collectionName, ObjectStore<CalendarCollection> store) {

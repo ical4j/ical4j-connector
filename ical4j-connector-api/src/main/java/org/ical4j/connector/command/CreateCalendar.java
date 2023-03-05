@@ -9,17 +9,19 @@ import org.ical4j.connector.ObjectNotFoundException;
 import org.ical4j.connector.ObjectStoreException;
 import picocli.CommandLine;
 
+import static org.ical4j.connector.ObjectCollection.DEFAULT_COLLECTION;
+
 @CommandLine.Command(name = "create-calendar", description = "Persist calendar object from input data")
 public class CreateCalendar extends AbstractCollectionCommand<CalendarCollection, Uid> {
 
     private Calendar calendar;
 
     public CreateCalendar() {
-        super("default", calendar -> {});
+        super(DEFAULT_COLLECTION, calendar -> {});
     }
 
     public CreateCalendar(CalendarStore<CalendarCollection> store) {
-        super("default", uid -> {}, store);
+        super(DEFAULT_COLLECTION, uid -> {}, store);
     }
 
     public CreateCalendar(String collectionName, CalendarStore<CalendarCollection> store) {

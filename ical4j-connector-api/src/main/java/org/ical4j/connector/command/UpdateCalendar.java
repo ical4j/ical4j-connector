@@ -5,17 +5,19 @@ import net.fortuna.ical4j.model.property.Uid;
 import org.ical4j.connector.*;
 import picocli.CommandLine;
 
+import static org.ical4j.connector.ObjectCollection.DEFAULT_COLLECTION;
+
 @CommandLine.Command(name = "update-calendar", description = "Update calendar object matching input parameters")
 public class UpdateCalendar extends AbstractCollectionCommand<CalendarCollection, Uid[]> {
 
     private Calendar calendar;
 
     public UpdateCalendar() {
-        super("default", uids -> {});
+        super(DEFAULT_COLLECTION, uids -> {});
     }
 
     public UpdateCalendar(ObjectStore<CalendarCollection> store) {
-        super("default", uids -> {}, store);
+        super(DEFAULT_COLLECTION, uids -> {}, store);
     }
 
     public UpdateCalendar(String collectionName, ObjectStore<CalendarCollection> store) {

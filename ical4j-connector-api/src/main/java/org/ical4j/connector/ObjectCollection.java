@@ -45,7 +45,9 @@ import net.fortuna.ical4j.filter.FilterExpression;
  *
  */
 public interface ObjectCollection<T> {
-    
+
+    String DEFAULT_COLLECTION = "default";
+
     /**
      * @return the collection name
      */
