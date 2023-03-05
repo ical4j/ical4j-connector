@@ -1,6 +1,18 @@
 apply plugin: 'application'
 
+java {
+    registerFeature('jettyHttp') {
+        usingSourceSet(sourceSets.main)
+    }
+}
+
 dependencies {
+    implementation 'jakarta.ws.rs:jakarta.ws.rs-api:3.1.0'
+
+    jettyHttpImplementation 'org.glassfish.jersey.containers:jersey-container-jetty-http:3.1.1',
+            'org.glassfish.jersey.inject:jersey-hk2:3.1.1',
+            'org.glassfish.jersey.media:jersey-media-json-jackson:3.1.1'
+
     runtimeOnly project(':ical4j-connector-dav'), project(':ical4j-connector-jcr')
 }
 
