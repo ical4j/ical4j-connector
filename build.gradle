@@ -55,6 +55,11 @@ A Java library for accessing iCalendar data stores
         isReleaseVersion = !version.endsWith("SNAPSHOT")
     }
 
+    java {
+        withJavadocJar()
+        withSourcesJar()
+    }
+
     dependencies {
         api "org.mnode.ical4j:ical4j:$ical4jVersion",
                 "org.mnode.ical4j:ical4j-vcard:$ical4jVCardVersion",
@@ -97,16 +102,6 @@ A Java library for accessing iCalendar data stores
         }
     }
 
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        archiveClassifier.set('javadoc')
-        from 'build/docs/javadoc'
-    }
-
-    task sourcesJar(type: Jar) {
-        from sourceSets.main.allSource
-        archiveClassifier.set('sources')
-    }
-
     artifacts {
         archives jar
         archives javadocJar
@@ -130,8 +125,6 @@ A Java library for accessing iCalendar data stores
         publications {
             "$name"(MavenPublication) {
                 from components.java
-                artifact javadocJar
-                artifact sourcesJar
                 pom.withXml {
                     asNode().appendNode('name', name)
                     asNode().appendNode('description', description)
