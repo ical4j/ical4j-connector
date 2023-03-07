@@ -12,6 +12,8 @@ import org.ical4j.connector.command.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.ical4j.connector.ObjectCollection.DEFAULT_COLLECTION;
+
 @Path("/collections")
 public class CollectionController extends AbstractController {
 
@@ -34,7 +36,7 @@ public class CollectionController extends AbstractController {
     public Response createCollection(@Context Request req) {
         return response(() -> {
             AtomicReference<ObjectCollection<?>> result = new AtomicReference<>();
-            new CreateCollection(result::set, store).withCollectionName("default").run();
+            new CreateCollection(result::set, store).withCollectionName(DEFAULT_COLLECTION).run();
             return result.get();
         }, req);
     }
