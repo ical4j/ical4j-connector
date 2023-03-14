@@ -117,6 +117,12 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         }
     }
 
+    @Override
+    public List<String> listObjectUids() {
+        //TODO: extract UIDs from calendar objects..
+        return null;
+    }
+
     /**
      * @return an array of calendar objects
      * @deprecated Use the getEvents() method

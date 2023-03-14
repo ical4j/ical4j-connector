@@ -34,6 +34,8 @@ package org.ical4j.connector;
 
 import net.fortuna.ical4j.filter.FilterExpression;
 
+import java.util.List;
+
 /**
  * @param <T> the object type stored by the collection
  * 
@@ -57,7 +59,13 @@ public interface ObjectCollection<T> {
      * @return the collection description
      */
     String getDescription();
-    
+
+    /**
+     * Return a list of object identifiers in the collection
+     * @return a list of object identifiers
+     */
+    List<String> listObjectUids();
+
     /**
      * Returns all objects stored in the collection.
      * @return an array of collection objects

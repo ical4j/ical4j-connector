@@ -77,6 +77,12 @@ public class JcrCardCollection extends AbstractJcrObjectCollection<VCard> implem
 //        cards = new ArrayList<JcrCard>();
     }
 
+    @Override
+    public List<String> listObjectUids() {
+        //TODO: extract UIDs from vcard DAO..
+        return null;
+    }
+
     /**
      * {@inheritDoc}
      */

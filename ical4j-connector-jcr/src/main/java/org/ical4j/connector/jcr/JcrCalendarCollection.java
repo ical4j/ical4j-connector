@@ -117,7 +117,13 @@ public class JcrCalendarCollection extends AbstractJcrObjectCollection<Calendar>
         }
         return collectionDao;
     }
-    
+
+    @Override
+    public List<String> listObjectUids() {
+        //TODO: extract UIDs from calendar DAO..
+        return null;
+    }
+
     /**
      * {@inheritDoc}
      */

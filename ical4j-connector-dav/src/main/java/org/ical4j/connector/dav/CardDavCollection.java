@@ -55,6 +55,7 @@ import org.ical4j.connector.dav.response.GetVCardData;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME;
 
@@ -191,6 +192,12 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      */
     public String getDescription() {
         // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<String> listObjectUids() {
+        //TODO: extract UIDs from vcards..
         return null;
     }
 

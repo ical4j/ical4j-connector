@@ -4,7 +4,6 @@ import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
-import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 import org.ical4j.connector.*;
@@ -14,8 +13,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calendar> implements CalendarCollection {
 
@@ -61,26 +61,29 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
     }
 
     @Override
+    public List<String> listObjectUids() {
+        return Arrays.stream(getObjectFiles()).map(file -> file.getName().split(".ics")[0])
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Uid addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
-        Calendar[] uidCalendars = calendar.split();
-        for (Calendar c : uidCalendars) {
-            Uid uid = c.getUid();
-            try {
-                Calendar existing = getCalendar(uid.getValue());
+        Uid uid = calendar.getUid();
+        try {
+            Calendar existing = getCalendar(uid.getValue());
 
-                // TODO: potentially merge/replace existing..
-                throw new ObjectStoreException("Calendar already exists");
-            } catch (ObjectNotFoundException e) {
+            // TODO: potentially merge/replace existing..
+            throw new ObjectStoreException("Calendar already exists");
+        } catch (ObjectNotFoundException e) {
 
-            }
-
-            try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".ics"))) {
-                new CalendarOutputter(false).output(c, writer);
-            } catch (IOException e) {
-                throw new ObjectStoreException("Error writing calendar file", e);
-            }
         }
-        return calendar.getRequiredProperty(Property.UID);
+
+        try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".ics"))) {
+            new CalendarOutputter(false).output(calendar, writer);
+        } catch (IOException e) {
+            throw new ObjectStoreException("Error writing calendar file", e);
+        }
+        return uid;
     }
 
     @Override
@@ -102,8 +105,26 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
     }
 
     @Override
-    public Uid[] merge(Calendar calendar) {
-        return Collections.emptyList().toArray(new Uid[0]);
+    public Uid[] merge(Calendar calendar) throws ObjectStoreException {
+        Calendar[] uidCalendars = calendar.split();
+        for (Calendar c : uidCalendars) {
+            Uid uid = c.getUid();
+            try {
+                Calendar existing = getCalendar(uid.getValue());
+
+                // TODO: potentially merge/replace existing..
+                throw new ObjectStoreException("Calendar already exists");
+            } catch (ObjectNotFoundException e) {
+
+            }
+
+            try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".ics"))) {
+                new CalendarOutputter(false).output(c, writer);
+            } catch (IOException e) {
+                throw new ObjectStoreException("Error writing calendar file", e);
+            }
+        }
+        return Arrays.stream(uidCalendars).map(Calendar::getUid).toArray(Uid[]::new);
     }
 
     @Override
@@ -115,8 +136,7 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
     public Iterable<Calendar> getComponents() throws ObjectStoreException {
         List<Calendar> calendars = new ArrayList<>();
 
-        File[] componentFiles = getRoot().listFiles(pathname ->
-                !pathname.isDirectory() && pathname.getName().endsWith(".ics"));
+        File[] componentFiles = getObjectFiles();
         if (componentFiles != null) {
             try {
                 for (File file : componentFiles) {
@@ -127,5 +147,10 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
             }
         }
         return calendars;
+    }
+
+    private File[] getObjectFiles() {
+        return getRoot().listFiles(pathname ->
+                !pathname.isDirectory() && pathname.getName().endsWith(".ics"));
     }
 }

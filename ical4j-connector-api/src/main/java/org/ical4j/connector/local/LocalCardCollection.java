@@ -14,8 +14,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> implements CardCollection {
 
@@ -26,6 +28,12 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
 
     public LocalCardCollection(File root) throws IOException {
         super(root);
+    }
+
+    @Override
+    public List<String> listObjectUids() {
+        return Arrays.stream(getObjectFiles()).map(file -> file.getName().split(".vcf")[0])
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -91,8 +99,7 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
     public Iterable<VCard> getComponents() throws ObjectStoreException {
         List<VCard> cards = new ArrayList<>();
 
-        File[] componentFiles = getRoot().listFiles(pathname ->
-                !pathname.isDirectory() && pathname.getName().endsWith(".vcf"));
+        File[] componentFiles = getObjectFiles();
         if (componentFiles != null) {
             try {
                 for (File file : componentFiles) {
@@ -104,5 +111,10 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
             }
         }
         return cards;
+    }
+
+    private File[] getObjectFiles() {
+        return getRoot().listFiles(pathname ->
+                !pathname.isDirectory() && pathname.getName().endsWith(".vcf"));
     }
 }
