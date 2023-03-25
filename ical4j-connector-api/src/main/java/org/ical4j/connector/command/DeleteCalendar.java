@@ -4,6 +4,8 @@ import net.fortuna.ical4j.model.Calendar;
 import org.ical4j.connector.*;
 import picocli.CommandLine;
 
+import java.util.function.Consumer;
+
 import static org.ical4j.connector.ObjectCollection.DEFAULT_COLLECTION;
 
 @CommandLine.Command(name = "delete-calendar", description = "Delete calendar objects with specified UID")
@@ -13,15 +15,19 @@ public class DeleteCalendar extends AbstractCollectionCommand<CalendarCollection
     private String calendarUid;
 
     public DeleteCalendar() {
-        super(DEFAULT_COLLECTION, calendar -> {});
+        super(DEFAULT_COLLECTION);
+    }
+
+    public DeleteCalendar(String collectionName, Consumer<Calendar> consumer) {
+        super(collectionName, consumer);
     }
 
     public DeleteCalendar(ObjectStore<CalendarCollection> store) {
-        super(DEFAULT_COLLECTION, calendar -> {}, store);
+        super(DEFAULT_COLLECTION, store);
     }
 
     public DeleteCalendar(String collectionName, ObjectStore<CalendarCollection> store) {
-        super(DEFAULT_COLLECTION, calendar -> {}, store);
+        super(collectionName, store);
     }
 
     public DeleteCalendar withCalendarUid(String calendarUid) {

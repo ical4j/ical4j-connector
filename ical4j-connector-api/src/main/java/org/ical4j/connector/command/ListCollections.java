@@ -9,11 +9,13 @@ import picocli.CommandLine;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static org.ical4j.connector.command.DefaultOutputHandlers.STDOUT_LIST_PRINTER;
+
 @CommandLine.Command(name = "list-collections", description = "List collections in an object store")
 public class ListCollections extends AbstractStoreCommand<ObjectCollection<?>, List<ObjectCollection<?>>> {
 
     public ListCollections() {
-        super(list -> {list.forEach(System.out::println);});
+        super(STDOUT_LIST_PRINTER());
     }
 
     public ListCollections(Consumer<List<ObjectCollection<?>>> consumer) {

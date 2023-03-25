@@ -6,26 +6,36 @@ import org.ical4j.connector.ObjectStore;
 import picocli.CommandLine;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.ical4j.connector.ObjectCollection.DEFAULT_COLLECTION;
+import static org.ical4j.connector.command.DefaultOutputHandlers.STDOUT_LIST_PRINTER;
 
-@CommandLine.Command(name = "list-calendars", description = "List calendars in a calendar collection")
+@CommandLine.Command(name = "list-calendars", description = "List calendar UIDs in a calendar collection")
 public class ListCalendars extends AbstractCollectionCommand<CalendarCollection, List<Calendar>> {
 
     public ListCalendars() {
-        super(DEFAULT_COLLECTION, collection -> {});
+        super(DEFAULT_COLLECTION, STDOUT_LIST_PRINTER());
+    }
+
+    public ListCalendars(String collectionName, Consumer<List<Calendar>> consumer) {
+        super(collectionName, consumer);
     }
 
     public ListCalendars(ObjectStore<CalendarCollection> store) {
-        super(DEFAULT_COLLECTION, collection -> {}, store);
+        super(DEFAULT_COLLECTION, STDOUT_LIST_PRINTER(), store);
     }
 
     public ListCalendars(String collectionName, ObjectStore<CalendarCollection> store) {
-        super(collectionName, collection -> {}, store);
+        super(collectionName, STDOUT_LIST_PRINTER(), store);
     }
 
     @Override
     public void run() {
-        //TODO: add support for get all calendars in calendar collection..
+//        try {
+//            getConsumer().accept(getCollection().listObjectUids());
+//        } catch (ObjectStoreException | ObjectNotFoundException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 }
