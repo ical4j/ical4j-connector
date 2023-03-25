@@ -11,13 +11,15 @@ class CreateCalendarTest extends Specification {
         given: 'a mock calendar collection'
         CalendarStore store = Mock()
         CalendarCollection collection = Mock()
-        store.getCollection(_) >> collection
+        store.getCollection('testCollection') >> collection
 
         and: 'a calendar instance'
         Calendar calendar = []
 
         when: 'a create calendar command is run'
-        new CreateCalendar('testCollection', store).withCalendar(calendar).run()
+        new CreateCalendar(store)
+                .withCalendar(calendar)
+                .withCollectionName('testCollection').run()
 
         then: 'collection add calendar is invoked'
         1 * collection.addCalendar(calendar)

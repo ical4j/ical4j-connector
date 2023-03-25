@@ -8,10 +8,19 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractCommand<T> implements Runnable {
 
-    private final Consumer<T> consumer;
+    private Consumer<T> consumer;
+
+    public AbstractCommand() {
+        this.consumer = DefaultOutputHandlers.STDOUT_PRINTER();
+    }
 
     public AbstractCommand(Consumer<T> consumer) {
         this.consumer = consumer;
+    }
+
+    public AbstractCommand<T> withConsumer(Consumer<T> consumer) {
+        this.consumer = consumer;
+        return this;
     }
 
     public final Consumer<T> getConsumer() {
