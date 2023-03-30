@@ -18,17 +18,20 @@ public abstract class AbstractCardCommand<T> extends AbstractCollectionCommand<C
     protected Input input;
 
     static class Input {
-        @CommandLine.Option(names = {"-U", "--url"}, required = true)
+        @CommandLine.Option(names = {"-url"}, required = true)
         protected URL url;
 
-        @CommandLine.Option(names = {"-F", "--file"}, required = true)
+        @CommandLine.Option(names = {"-file"}, required = true)
         protected String filename;
 
-        @CommandLine.Option(names = {"--stdin"}, required = true)
+        @CommandLine.Option(names = {"-", "--stdin"}, required = true)
         protected boolean stdin;
     }
 
     private VCard card;
+
+    public AbstractCardCommand() {
+    }
 
     public AbstractCardCommand(String collectionName) {
         super(collectionName);

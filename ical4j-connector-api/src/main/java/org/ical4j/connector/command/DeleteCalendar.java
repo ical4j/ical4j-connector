@@ -11,11 +11,11 @@ import static org.ical4j.connector.ObjectCollection.DEFAULT_COLLECTION;
 @CommandLine.Command(name = "delete-calendar", description = "Delete calendar objects with specified UID")
 public class DeleteCalendar extends AbstractCollectionCommand<CalendarCollection, Calendar> {
 
-    @CommandLine.Option(names = {"-I", "--uid"})
+    @CommandLine.Option(names = {"-uid"})
     private String calendarUid;
 
     public DeleteCalendar() {
-        super(DEFAULT_COLLECTION);
+        super();
     }
 
     public DeleteCalendar(String collectionName, Consumer<Calendar> consumer) {

@@ -9,15 +9,14 @@ import picocli.CommandLine;
 
 import java.util.function.Consumer;
 
-import static org.ical4j.connector.ObjectCollection.DEFAULT_COLLECTION;
-
 @CommandLine.Command(name = "get-calendar", description = "Retrieve a calendar object with specified UID")
 public class GetCalendar extends AbstractCollectionCommand<CalendarCollection, Calendar> {
 
+    @CommandLine.Option(names = {"-uid"})
     private String calendarUid;
 
     public GetCalendar() {
-        super(DEFAULT_COLLECTION, calendar -> {});
+        super();
     }
 
     public GetCalendar(String collectionName, Consumer<Calendar> consumer) {

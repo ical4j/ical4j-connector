@@ -11,10 +11,11 @@ import java.util.function.Consumer;
 @CommandLine.Command(name = "delete-collection", description = "Purge a collection")
 public class DeleteCollection extends AbstractStoreCommand<ObjectCollection<?>, ObjectCollection<?>> {
 
+    @CommandLine.Option(names = {"-name"})
     private String collectionName;
 
     public DeleteCollection() {
-        super(collection -> {});
+        super();
     }
 
     public DeleteCollection(Consumer<ObjectCollection<?>> consumer) {

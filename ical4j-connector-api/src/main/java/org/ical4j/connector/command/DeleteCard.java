@@ -6,15 +6,14 @@ import picocli.CommandLine;
 
 import java.util.function.Consumer;
 
-import static org.ical4j.connector.ObjectCollection.DEFAULT_COLLECTION;
-
 @CommandLine.Command(name = "delete-card", description = "Delete vCard objects with specified UID")
 public class DeleteCard extends AbstractCollectionCommand<CardCollection, VCard> {
 
+    @CommandLine.Option(names = {"-uid"})
     private String cardUid;
 
     public DeleteCard() {
-        super(DEFAULT_COLLECTION, vCard -> {});
+        super();
     }
 
     public DeleteCard(String collectionName, Consumer<VCard> consumer) {

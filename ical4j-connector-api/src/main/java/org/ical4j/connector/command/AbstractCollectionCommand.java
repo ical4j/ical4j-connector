@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractCollectionCommand<T extends ObjectCollection<?>, R> extends AbstractStoreCommand<T, R> {
 
-    @CommandLine.Option(names = {"-C", "--collection"})
+    @CommandLine.Option(names = {"-collection"})
     private String collectionName;
 
     public AbstractCollectionCommand() {

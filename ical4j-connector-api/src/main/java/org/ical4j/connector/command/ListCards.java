@@ -2,8 +2,12 @@ package org.ical4j.connector.command;
 
 import net.fortuna.ical4j.vcard.VCard;
 import org.ical4j.connector.CardCollection;
+import org.ical4j.connector.FailedOperationException;
+import org.ical4j.connector.ObjectNotFoundException;
+import org.ical4j.connector.ObjectStoreException;
 import picocli.CommandLine;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -23,10 +27,14 @@ public class ListCards extends AbstractCollectionCommand<CardCollection, List<VC
 
     @Override
     public void run() {
-//        try {
-//            getConsumer().accept(getCollection().listObjectUids());
-//        } catch (ObjectStoreException | ObjectNotFoundException e) {
-//            throw new RuntimeException(e);
-//        }
+        try {
+            List<VCard> cards = new ArrayList<>();
+            for (String uid : getCollection().listObjectUids()) {
+                cards.add(getCollection().getCard(uid));
+            }
+            getConsumer().accept(cards);
+        } catch (ObjectStoreException | ObjectNotFoundException | FailedOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

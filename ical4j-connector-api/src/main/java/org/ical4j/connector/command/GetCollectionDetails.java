@@ -11,10 +11,11 @@ import java.util.function.Consumer;
 @CommandLine.Command(name = "get-collection", description = "Retrieve a collection")
 public class GetCollectionDetails extends AbstractStoreCommand<ObjectCollection<?>, ObjectCollection<?>> {
 
+    @CommandLine.Option(names = {"-name"})
     private String collectionName;
 
     public GetCollectionDetails() {
-        super(collection -> {});
+        super();
     }
 
     public GetCollectionDetails(Consumer<ObjectCollection<?>> consumer) {

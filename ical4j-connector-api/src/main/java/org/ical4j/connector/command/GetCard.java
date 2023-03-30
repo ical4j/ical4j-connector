@@ -6,15 +6,14 @@ import picocli.CommandLine;
 
 import java.util.function.Consumer;
 
-import static org.ical4j.connector.ObjectCollection.DEFAULT_COLLECTION;
-
 @CommandLine.Command(name = "get-card", description = "Retrieve a vCard object with specified UID")
 public class GetCard extends AbstractCollectionCommand<CardCollection, VCard> {
 
+    @CommandLine.Option(names = {"-uid"})
     private String cardUid;
 
     public GetCard() {
-        super(DEFAULT_COLLECTION, vCard -> {});
+        super();
     }
 
     public GetCard(String collectionName, Consumer<VCard> consumer) {

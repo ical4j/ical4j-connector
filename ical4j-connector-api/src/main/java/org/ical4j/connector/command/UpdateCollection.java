@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 public class UpdateCollection extends AbstractStoreCommand<ObjectCollection<?>, Void> {
 
     public UpdateCollection() {
-        super(v -> {});
+        super();
     }
 
     public UpdateCollection(Consumer<Void> consumer) {

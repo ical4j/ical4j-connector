@@ -24,17 +24,20 @@ public abstract class AbstractCalendarCommand<T> extends AbstractCollectionComma
     protected Input input;
 
     static class Input {
-        @CommandLine.Option(names = {"-U", "--url"}, required = true)
+        @CommandLine.Option(names = {"-url"}, required = true)
         protected URL url;
 
-        @CommandLine.Option(names = {"-F", "--file"}, required = true)
+        @CommandLine.Option(names = {"-file"}, required = true)
         protected String filename;
 
-        @CommandLine.Option(names = {"--stdin"}, required = true)
+        @CommandLine.Option(names = {"-", "--stdin"}, required = true)
         protected boolean stdin;
     }
 
     private Calendar calendar;
+
+    public AbstractCalendarCommand() {
+    }
 
     public AbstractCalendarCommand(String collectionName) {
         super(collectionName);
