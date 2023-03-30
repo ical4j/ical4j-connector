@@ -17,7 +17,7 @@ class UpdateCardTest extends Specification {
         VCard card = []
 
         when: 'an update card command is run'
-        new UpdateCard('default', (uid) -> {}, store).withCard(card).run()
+        new CardCommand.UpdateCard('default', (uid) -> {}, store).withCard(card).run()
 
         then: 'collection merge is invoked'
         1 * store.getCollection('default') >> collection

@@ -13,7 +13,7 @@ class DeleteCardTest extends Specification {
         CardCollection collection = Mock()
 
         when: 'a delete card command is run'
-        new DeleteCard('default', (card) -> {}, store).withCardUid('1234').run()
+        new CardCommand.DeleteCard('default', (card) -> {}, store).withCardUid('1234').run()
 
         then: 'collection remove card is invoked'
         1 * store.getCollection('default') >> collection

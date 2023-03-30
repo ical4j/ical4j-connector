@@ -17,7 +17,7 @@ class UpdateCalendarTest extends Specification {
         Calendar calendar = []
 
         when: 'a update calendar command is run'
-        new UpdateCalendar('testCollection', store).withCalendar(calendar).run()
+        new CalendarCommand.UpdateCalendar('testCollection', store).withCalendar(calendar).run()
 
         then: 'collection merge is invoked'
         1 * collection.merge(calendar)

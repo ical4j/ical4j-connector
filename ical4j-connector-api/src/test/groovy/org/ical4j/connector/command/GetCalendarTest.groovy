@@ -12,7 +12,7 @@ class GetCalendarTest extends Specification {
         CalendarCollection collection = Mock()
 
         when: 'a get calendar command is run'
-        new GetCalendar('default', (calendar) -> {}, store).withCalendarUid('1234').run()
+        new CalendarCommand.GetCalendar('default', (calendar) -> {}, store).withCalendarUid('1234').run()
 
         then: 'collection get calendar is invoked'
         1 * store.getCollection('default') >> collection

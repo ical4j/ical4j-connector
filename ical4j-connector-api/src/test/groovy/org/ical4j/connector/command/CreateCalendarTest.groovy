@@ -17,7 +17,7 @@ class CreateCalendarTest extends Specification {
         Calendar calendar = []
 
         when: 'a create calendar command is run'
-        new CreateCalendar(store)
+        new CalendarCommand.CreateCalendar(store)
                 .withCalendar(calendar)
                 .withCollectionName('testCollection').run()
 

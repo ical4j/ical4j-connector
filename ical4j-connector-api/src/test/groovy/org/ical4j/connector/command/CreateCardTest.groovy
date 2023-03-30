@@ -17,7 +17,7 @@ class CreateCardTest extends Specification {
         VCard card = []
 
         when: 'a create card command is run'
-        new CreateCard(store).withCard(card).run()
+        new CardCommand.CreateCard(store).withCard(card).run()
 
         then: 'collection add card is invoked'
         1 * store.getCollection('default') >> collection

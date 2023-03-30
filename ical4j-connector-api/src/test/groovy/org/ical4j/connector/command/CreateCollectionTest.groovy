@@ -11,7 +11,7 @@ class CreateCollectionTest extends Specification {
         ObjectStore store = Mock()
 
         when: 'a create collection command is run'
-        new CreateCollection((collection) -> {}, store).withCollectionName('testCollection').run()
+        new CollectionCommand.CreateCollection((collection) -> {}, store).withCollectionName('testCollection').run()
 
         then: 'store add collection is invoked'
         1 * store.addCollection('testCollection')

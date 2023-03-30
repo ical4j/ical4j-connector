@@ -13,7 +13,7 @@ class GetCardTest extends Specification {
         CardCollection collection = Mock()
 
         when: 'a get card command is run'
-        new GetCard('default', (card) -> {}, store).withCardUid('1234').run()
+        new CardCommand.GetCard('default', (card) -> {}, store).withCardUid('1234').run()
 
         then: 'collection get card is invoked'
         1 * store.getCollection('default') >> collection

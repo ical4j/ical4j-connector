@@ -14,7 +14,7 @@ class DeleteCalendarTest extends Specification {
         store.getCollection(_) >> collection
 
         when: 'a delete calendar command is run'
-        new DeleteCalendar('testCollection', store).withCalendarUid('1234').run()
+        new CalendarCommand.DeleteCalendar('testCollection', store).withCalendarUid('1234').run()
 
         then: 'collection remove calendar is invoked'
         1 * collection.removeCalendar('1234')
