@@ -18,7 +18,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'org.ical4j.connector.ConnectorServerMain'
+    mainClass = 'org.ical4j.connector.ConnectorMain'
 }
 
 distributions {
