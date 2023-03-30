@@ -19,6 +19,10 @@ public abstract class AbstractCollectionCommand<T extends ObjectCollection<?>, R
     @CommandLine.Option(names = {"-C", "--collection"})
     private String collectionName;
 
+    public AbstractCollectionCommand() {
+        this(ObjectCollection.DEFAULT_COLLECTION);
+    }
+
     public AbstractCollectionCommand(String collectionName) {
         this.collectionName = collectionName;
     }
