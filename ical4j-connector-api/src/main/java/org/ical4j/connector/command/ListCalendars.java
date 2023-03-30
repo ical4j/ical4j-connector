@@ -2,9 +2,12 @@ package org.ical4j.connector.command;
 
 import net.fortuna.ical4j.model.Calendar;
 import org.ical4j.connector.CalendarCollection;
+import org.ical4j.connector.ObjectNotFoundException;
 import org.ical4j.connector.ObjectStore;
+import org.ical4j.connector.ObjectStoreException;
 import picocli.CommandLine;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -32,10 +35,14 @@ public class ListCalendars extends AbstractCollectionCommand<CalendarCollection,
 
     @Override
     public void run() {
-//        try {
-//            getConsumer().accept(getCollection().listObjectUids());
-//        } catch (ObjectStoreException | ObjectNotFoundException e) {
-//            throw new RuntimeException(e);
-//        }
+        try {
+            List<Calendar> calendars = new ArrayList<>();
+            for (String uid : getCollection().listObjectUids()) {
+                calendars.add(getCollection().getCalendar(uid));
+            }
+            getConsumer().accept(calendars);
+        } catch (ObjectStoreException | ObjectNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
