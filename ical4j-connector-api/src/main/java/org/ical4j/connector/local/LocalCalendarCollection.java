@@ -129,7 +129,15 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
 
     @Override
     public Calendar export() {
-        return null;
+        Calendar export = new Calendar();
+        for (File object : getObjectFiles()) {
+            try {
+                export = export.merge(Calendars.load(object.getAbsolutePath()));
+            } catch (IOException | ParserException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return export;
     }
 
     @Override

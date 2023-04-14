@@ -6,16 +6,15 @@ import net.fortuna.ical4j.model.ContentBuilder
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.util.Calendars
 import net.fortuna.ical4j.util.RandomUidGenerator
+import spock.lang.Shared
 
 class LocalCalendarCollectionTest extends AbstractLocalTest {
 
-    def 'test add calendar to collection'() {
-        given: 'a local calendar collection'
-        LocalCalendarStore calendarStore = [storeLocation]
-        LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
+    @Shared
+    Calendar calendar
 
-        and: 'a calendar object'
-        Calendar calendar = new ContentBuilder().with {
+    def setupSpec() {
+        calendar = new ContentBuilder().with {
             calendar {
                 prodid '-//Ben Fortuna//iCal4j 1.0//EN'
                 version '2.0'
@@ -28,6 +27,12 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
                 }
             }
         }
+    }
+
+    def 'test add calendar to collection'() {
+        given: 'a local calendar collection'
+        LocalCalendarStore calendarStore = [storeLocation]
+        LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
 
         when: 'the new calendar is added to the collection'
         collection.addCalendar(calendar)
@@ -43,19 +48,6 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
         LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
 
         and: 'a calendar object that is added to the collection'
-        Calendar calendar = new ContentBuilder().with {
-            calendar {
-                prodid '-//Ben Fortuna//iCal4j 1.0//EN'
-                version '2.0'
-                vevent {
-                    uid new RandomUidGenerator().generateUid()
-                    dtstamp()
-                    dtstart('20090810', parameters: parameters { value 'DATE' })
-                    action 'DISPLAY'
-                    attach('http://example.com/attachment', parameters: parameters() { value 'URI' })
-                }
-            }
-        }
         collection.addCalendar(calendar)
 
         when: 'the calendar is removed from the collection'
@@ -67,5 +59,50 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
 
         and: 'removed calendar is identical to added'
         removed == calendar
+    }
+
+    def 'test get calendar from collection'() {
+        given: 'a local calendar collection'
+        LocalCalendarStore calendarStore = [storeLocation]
+        LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
+
+        and: 'a calendar object that is added to the collection'
+        collection.addCalendar(calendar)
+
+        when: 'the calendar is retrieved from the collection'
+        def retrieved = collection.getCalendar(Calendars.getUid(calendar).value)
+
+        then: 'retrieved calendar is identical to added'
+        retrieved == calendar
+    }
+
+    def 'test list object uids in collection'() {
+        given: 'a local calendar collection'
+        LocalCalendarStore calendarStore = [storeLocation]
+        LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
+
+        and: 'a calendar object that is added to the collection'
+        collection.addCalendar(calendar)
+
+        when: 'the collection object uids are listed'
+        def uids = collection.listObjectUids()
+
+        then: 'the added calendar uid is in the list'
+        uids.contains(Calendars.getUid(calendar).value)
+    }
+
+    def 'test export collection'() {
+        given: 'a local calendar collection'
+        LocalCalendarStore calendarStore = [storeLocation]
+        LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
+
+        and: 'a calendar object that is added to the collection'
+        collection.addCalendar(calendar)
+
+        when: 'the collection is exported'
+        def export = collection.export()
+
+        then: 'the exported collection is identical to added'
+        export == calendar
     }
 }
