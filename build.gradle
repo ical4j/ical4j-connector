@@ -70,15 +70,6 @@ A Java library for accessing iCalendar data stores
 
         implementation "org.codehaus.groovy:groovy:$groovyVersion", optional
 
-        implementation ("org.eclipse.jetty:jetty-server:$jettyVersion") {
-            exclude group: 'org.slf4j', module: 'slf4j-api'
-        }
-        implementation ("org.eclipse.jetty:jetty-servlet:$jettyVersion") {
-            exclude group: 'org.slf4j', module: 'slf4j-api'
-        }
-
-        implementation "info.picocli:picocli:$picocliVersion"
-
         compileOnly 'org.osgi:osgi.core:8.0.0',
                 'org.osgi:org.osgi.service.component.annotations:1.5.0',
                 'org.osgi:org.osgi.service.metatype.annotations:1.4.1',
