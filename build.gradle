@@ -75,6 +75,13 @@ A Java library for accessing iCalendar data stores
                 'org.osgi:org.osgi.service.metatype.annotations:1.4.1',
                 'org.osgi:org.osgi.annotation:6.0.0'
 
+        // spock
+        testImplementation platform("org.spockframework:spock-bom:2.1-groovy-3.0"),
+                "org.spockframework:spock-core"
+
+        // junit
+        testImplementation "org.junit.vintage:junit-vintage-engine:$junitVintageVersion"
+
         // testcontainers
         testImplementation "org.testcontainers:testcontainers:$testcontainersVersion",
                 "org.testcontainers:spock:$testcontainersVersion"
@@ -87,7 +94,7 @@ A Java library for accessing iCalendar data stores
         manifest {
             attributes (
                     'Implementation-Title': 'iCal4j Connector',
-                    'Implementation-Version': version,
+                    'Implementation-Version': archiveVersion,
                     'Implementation-Vendor': 'Ben Fortuna'
             )
         }
