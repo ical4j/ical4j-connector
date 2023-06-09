@@ -1,7 +1,0 @@
-apply plugin: 'application'
-
-dependencies {
-    implementation 'jakarta.ws.rs:jakarta.ws.rs-api:3.1.0'
-
-    testImplementation "org.slf4j:slf4j-log4j12:$slf4jVersion", "org.apache.logging.log4j:log4j:$log4jVersion"
-}
