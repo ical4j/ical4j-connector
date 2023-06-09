@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract  class AbstractLocalObjectStore<C extends AbstractLocalObjectCollection<?>> implements ObjectStore<C> {
@@ -16,12 +17,12 @@ public abstract  class AbstractLocalObjectStore<C extends AbstractLocalObjectCol
     private final File root;
 
     AbstractLocalObjectStore(File root) {
+        this.root = Objects.requireNonNull(root);
         if (root.exists() && !root.isDirectory()) {
             throw new IllegalArgumentException("Root must be a directory");
         } else if (!root.exists() && !root.mkdirs()) {
             throw new IllegalArgumentException("Unable to initialise root directory");
         }
-        this.root = root;
     }
 
     protected File getRoot() {
@@ -85,8 +86,10 @@ public abstract  class AbstractLocalObjectStore<C extends AbstractLocalObjectCol
     }
 
     @Override
-    public C removeCollection(String id) {
-        return null;
+    public C removeCollection(String id) throws ObjectNotFoundException, ObjectStoreException {
+        C collection = getCollection(id);
+        collection.delete();
+        return collection;
     }
 
     @Override

@@ -40,4 +40,41 @@ class LocalCalendarStoreTest extends AbstractLocalTest {
         collection.timeZone == timezone
 
     }
+
+    def 'test get collection'() {
+        given: 'a new local calendar store'
+        LocalCalendarStore calendarStore = [storeLocation]
+
+        and: 'a timezone calendar'
+        Calendar timezone = Calendars.wrap(new DefaultTimeZoneRegistryFactory().createRegistry()
+                .getTimeZone('Australia/Melbourne').getVTimeZone())
+
+        and: 'a new collection is added'
+        calendarStore.addCollection('public_holidays', 'Public Holidays',
+                'Victorian public holidays', [Component.VEVENT] as String[], timezone)
+
+        when: 'collection is retrieved'
+        LocalCalendarCollection collection = calendarStore.getCollection('public_holidays')
+
+        then: 'the collection properties are saved'
+        collection.displayName == 'Public Holidays'
+        collection.description == 'Victorian public holidays'
+        collection.supportedComponentTypes == [Component.VEVENT] as String[]
+        collection.timeZone == timezone
+
+    }
+
+    def 'test remove collection'() {
+        given: 'a new local calendar store'
+        LocalCalendarStore calendarStore = [storeLocation]
+
+        when: 'a new collection is added'
+        calendarStore.addCollection('public_holidays')
+
+        and: 'the collection is removed'
+        LocalCalendarCollection collection = calendarStore.removeCollection('public_holidays')
+
+        then: 'a local collection directory is deleted'
+        !new File(storeLocation, 'public_holidays').exists()
+    }
 }

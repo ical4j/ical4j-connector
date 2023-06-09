@@ -2,9 +2,11 @@ package org.ical4j.connector.local;
 
 import net.fortuna.ical4j.model.Calendar;
 import org.ical4j.connector.ObjectCollection;
+import org.ical4j.connector.ObjectStoreException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 public abstract class AbstractLocalObjectCollection<T> implements ObjectCollection<T> {
 
@@ -13,10 +15,10 @@ public abstract class AbstractLocalObjectCollection<T> implements ObjectCollecti
     private final LocalCollectionConfiguration configuration;
 
     public AbstractLocalObjectCollection(File root) throws IOException {
+        this.root = Objects.requireNonNull(root);
         if (!root.isDirectory()) {
             throw new IllegalArgumentException("Root must be a directory");
         }
-        this.root = root;
         File configRoot = new File(root, LocalCollectionConfiguration.DEFAULT_CONFIG_DIR);
         if ((configRoot.exists() && !configRoot.isDirectory()) ||
                 (!configRoot.exists() && !configRoot.mkdirs())) {
@@ -61,6 +63,17 @@ public abstract class AbstractLocalObjectCollection<T> implements ObjectCollecti
 
     public void setTimeZone(Calendar timezone) throws IOException {
         configuration.setTimeZone(timezone);
+    }
+
+    @Override
+    public void delete() throws ObjectStoreException {
+        if (Objects.requireNonNull(
+                root.list((root, name) -> !name.equals(LocalCollectionConfiguration.DEFAULT_CONFIG_DIR))).length > 0) {
+            throw new ObjectStoreException("Collection is not empty. Remove all contents before deleting.");
+        }
+        if (!configuration.delete() || !root.delete()) {
+            throw new ObjectStoreException("Unable to delete collection");
+        }
     }
 
     @Override

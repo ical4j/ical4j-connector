@@ -4,7 +4,6 @@ import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.util.Calendars;
-import net.fortuna.ical4j.util.ResourceLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +12,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Date;
 import java.util.Properties;
 
@@ -40,10 +40,10 @@ public class LocalCollectionConfiguration {
         }
         this.root = root;
         this.properties = new Properties();
-        try (InputStream in = ResourceLoader.getResourceAsStream(PROPERTIES_FILE_NAME)) {
+        try (InputStream in = Files.newInputStream(new File(root, PROPERTIES_FILE_NAME).toPath())) {
             properties.load(in);
         } catch (IOException | NullPointerException e) {
-            LOG.info("ical4j.properties not found.");
+            LOG.info("ical4j config not found.");
         }
     }
 
@@ -87,7 +87,18 @@ public class LocalCollectionConfiguration {
         new CalendarOutputter(false).output(timezone, new FileWriter(new File(root, TIMEZONE_FILE_NAME)));
     }
 
+    public boolean delete() {
+        new File(root, PROPERTIES_FILE_NAME).delete();
+        new File(root, TIMEZONE_FILE_NAME).delete();
+        return root.delete();
+    }
+
     private void saveProperties() throws IOException {
-        properties.store(new FileWriter(new File(root, PROPERTIES_FILE_NAME)), String.format("%s", new Date()));
+//        if (!root.exists() && !root.mkdirs()) {
+//            throw new IOException("Unable to create config directory");
+//        }
+        try (FileWriter fw = new FileWriter(new File(root, PROPERTIES_FILE_NAME))) {
+            properties.store(fw, String.format("%s", new Date()));
+        }
     }
 }

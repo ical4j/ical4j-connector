@@ -113,6 +113,15 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
         return cards;
     }
 
+    @Override
+    public VCard[] export() throws ObjectStoreException {
+        List<VCard> export = new ArrayList<>();
+        for (VCard card : getComponents()) {
+            export.add(card);
+        }
+        return export.toArray(new VCard[0]);
+    }
+
     private File[] getObjectFiles() {
         return getRoot().listFiles(pathname ->
                 !pathname.isDirectory() && pathname.getName().endsWith(".vcf"));

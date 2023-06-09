@@ -9,7 +9,7 @@ abstract class AbstractLocalTest extends Specification {
     File storeLocation
 
     def setup() {
-        storeLocation = ['build', 'local']
+        storeLocation = ['build', getClass().name]
     }
 
     def cleanup() {

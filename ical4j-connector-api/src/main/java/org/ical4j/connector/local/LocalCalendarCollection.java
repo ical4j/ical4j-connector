@@ -26,8 +26,8 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
 
     public LocalCalendarCollection(File root) throws IOException {
         super(root);
-        setDisplayName(root.getName());
-        setSupportedComponents(new String[]{"VEVENT", "VTODO", "VJOURNAL"});
+//        setDisplayName(root.getName());
+//        setSupportedComponents(new String[]{"VEVENT", "VTODO", "VJOURNAL"});
     }
 
     @Override

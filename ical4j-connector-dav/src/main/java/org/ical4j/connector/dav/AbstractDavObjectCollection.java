@@ -294,10 +294,10 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      * @throws IOException if there is a communication error
      * @throws ObjectStoreException where an unexpected error occurs
      */
-    public final void delete() throws HttpResponseException, IOException, ObjectStoreException {
+    public final void delete() throws ObjectStoreException {
         try {
             getStore().getClient().delete(getPath());
-        } catch (DavException e) {
+        } catch (DavException | IOException e) {
             throw new ObjectStoreException("Failed to delete resource", e);
         }
     }

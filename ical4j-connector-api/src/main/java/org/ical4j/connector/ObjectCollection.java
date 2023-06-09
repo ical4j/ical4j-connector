@@ -91,5 +91,9 @@ public interface ObjectCollection<T> {
      * @return a value of the specified type, or null if no property is found
      */
 //    <T> T getProperty(String propertyName, Class<T> type);
-    
+
+    /**
+     * Remove the collection from the underlying storage implementation.
+     */
+    void delete() throws ObjectStoreException;
 }

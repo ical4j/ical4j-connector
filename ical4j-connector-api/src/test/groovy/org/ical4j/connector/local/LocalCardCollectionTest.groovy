@@ -1,17 +1,18 @@
 package org.ical4j.connector.local
 
+
 import net.fortuna.ical4j.vcard.ContentBuilder
 import net.fortuna.ical4j.vcard.PropertyName
+import net.fortuna.ical4j.vcard.VCard
+import spock.lang.Shared
 
 class LocalCardCollectionTest extends AbstractLocalTest {
 
-    def 'test add card to collection'() {
-        given: 'a local card collection'
-        LocalCardStore cardStore = [storeLocation]
-        LocalCardCollection collection = cardStore.addCollection('contacts')
+    @Shared
+    VCard card
 
-        and: 'a card object'
-        def card = new ContentBuilder().vcard() {
+    def setupSpec() {
+        card = new ContentBuilder().vcard() {
             version '4.0'
             uid UUID.randomUUID().toString()
             fn 'test'
@@ -20,6 +21,12 @@ class LocalCardCollectionTest extends AbstractLocalTest {
             }
             photo(value: 'http://example.com', parameters: [value('uri')])
         }
+    }
+
+    def 'test add card to collection'() {
+        given: 'a local card collection'
+        LocalCardStore cardStore = [storeLocation]
+        LocalCardCollection collection = cardStore.addCollection('contacts')
 
         when: 'the new card is added to the collection'
         collection.addCard(card)
@@ -35,15 +42,6 @@ class LocalCardCollectionTest extends AbstractLocalTest {
         LocalCardCollection collection = cardStore.addCollection('contacts')
 
         and: 'a card object added'
-        def card = new ContentBuilder().vcard() {
-            version '4.0'
-            uid UUID.randomUUID().toString()
-            fn 'test'
-            n('example') {
-                value 'text'
-            }
-            photo(value: 'http://example.com', parameters: [value('uri')])
-        }
         collection.addCard(card)
 
         when: 'the card is removed'
@@ -55,5 +53,50 @@ class LocalCardCollectionTest extends AbstractLocalTest {
 
         and: 'removed card is identical to added'
         removed == card
+    }
+
+    def 'test get card from collection'() {
+        given: 'a local card collection'
+        LocalCardStore cardStore = [storeLocation]
+        LocalCardCollection collection = cardStore.addCollection('contacts')
+
+        and: 'a card object added'
+        collection.addCard(card)
+
+        when: 'the card is removed'
+        def retrieved = collection.getCard(card.getRequiredProperty(PropertyName.UID as String).value)
+
+        then: 'retrieved card is identical to added'
+        retrieved == card
+    }
+
+    def 'test list object uids in collection'() {
+        given: 'a local card collection'
+        LocalCardStore cardStore = [storeLocation]
+        LocalCardCollection collection = cardStore.addCollection('contacts')
+
+        and: 'a card object that is added to the collection'
+        collection.addCard(card)
+
+        when: 'the collection object uids are listed'
+        def uids = collection.listObjectUids()
+
+        then: 'the added calendar uid is in the list'
+        uids.contains(card.getRequiredProperty(PropertyName.UID as String).value)
+    }
+
+    def 'test export collection'() {
+        given: 'a local card collection'
+        LocalCardStore cardStore = [storeLocation]
+        LocalCardCollection collection = cardStore.addCollection('contacts')
+
+        and: 'a card object that is added to the collection'
+        collection.addCard(card)
+
+        when: 'the collection is exported'
+        def export = collection.export()
+
+        then: 'the exported collection is identical to added'
+        export == [card] as VCard[]
     }
 }

@@ -73,4 +73,11 @@ public interface CardCollection extends ObjectCollection<VCard> {
     VCard removeCard(String uid) throws ObjectNotFoundException, FailedOperationException;
 
     VCard getCard(String uid) throws ObjectNotFoundException, FailedOperationException;
+
+    /**
+     * Exports the entire collection as an array of objects.
+     * @return a vCard object array that contains all cards in the collection
+     * @throws ObjectStoreException where an unexpected error occurs
+     */
+    VCard[] export() throws ObjectStoreException;
 }

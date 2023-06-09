@@ -98,7 +98,9 @@ public interface ObjectStore<C extends ObjectCollection<?>> {
      * returned. Otherwise returns null.
      * @throws ObjectStoreException where an unexpected error occurs
      * @throws ObjectNotFoundException if a collection with the specified identifier doesn't exist
+     * @deprecated use {@link ObjectCollection#delete()} instead
      */
+    @Deprecated
     C removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException;
     
     /**

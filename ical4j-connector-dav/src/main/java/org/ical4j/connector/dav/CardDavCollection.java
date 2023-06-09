@@ -31,7 +31,6 @@
  */
 package org.ical4j.connector.dav;
 
-import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.vcard.PropertyName;
 import net.fortuna.ical4j.vcard.VCard;
@@ -143,7 +142,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     /**
      * {@inheritDoc}
      */
-    public Calendar export() throws ObjectStoreException {
+    public VCard[] export() throws ObjectStoreException {
         throw new UnsupportedOperationException("not implemented");
     }
         

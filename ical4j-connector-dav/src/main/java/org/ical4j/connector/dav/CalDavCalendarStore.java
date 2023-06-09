@@ -261,11 +261,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      */
     public CalDavCalendarCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         CalDavCalendarCollection collection = getCollection(id);
-        try {
-            collection.delete();
-        } catch (IOException e) {
-            throw new ObjectStoreException(String.format("unable to remove collection '%s'", id), e);
-        }
+        collection.delete();
         return collection;
     }
 

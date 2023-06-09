@@ -222,11 +222,7 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
      */
     public CardDavCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         CardDavCollection collection = getCollection(id);
-        try {
-            collection.delete();
-        } catch (IOException e) {
-            throw new ObjectStoreException(String.format("unable to remove collection '%s'", id), e);
-        }
+        collection.delete();
         return collection;
     }
 
