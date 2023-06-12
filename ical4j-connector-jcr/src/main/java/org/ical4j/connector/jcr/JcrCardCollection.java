@@ -170,7 +170,12 @@ public class JcrCardCollection extends AbstractJcrObjectCollection<VCard> implem
         }
         return cards;
     }
-    
+
+    @Override
+    public VCard[] export() throws ObjectStoreException {
+        return new VCard[0];
+    }
+
     /**
      * @return
      */
