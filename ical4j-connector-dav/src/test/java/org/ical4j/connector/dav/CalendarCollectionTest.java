@@ -57,7 +57,7 @@ import java.util.Set;
  * 
  */
 @Ignore
-public class CalendarCollectionTest<T extends CalendarCollection> extends ObjectCollectionTest<T> {
+public class CalendarCollectionTest<C extends CalendarCollection> extends ObjectCollectionTest<Calendar, C> {
 
     private static final String[] SUPPORTED_COMPONENTS = { Component.VAVAILABILITY, Component.VJOURNAL,
             Component.VEVENT, Component.VFREEBUSY, Component.VTODO };
@@ -69,7 +69,7 @@ public class CalendarCollectionTest<T extends CalendarCollection> extends Object
      * @param username
      * @param password
      */
-    public CalendarCollectionTest(String testMethod, ObjectStoreLifecycle<T> lifecycle,
+    public CalendarCollectionTest(String testMethod, ObjectStoreLifecycle<Calendar, C> lifecycle,
             String username, char[] password) {
         super(testMethod, lifecycle, username, password, SUPPORTED_COMPONENTS);
     }

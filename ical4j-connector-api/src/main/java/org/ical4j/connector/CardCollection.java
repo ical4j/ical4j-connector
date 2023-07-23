@@ -33,7 +33,13 @@ package org.ical4j.connector;
 
 import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.vcard.VCard;
+import net.fortuna.ical4j.vcard.VCardList;
 import net.fortuna.ical4j.vcard.property.Uid;
+import org.ical4j.connector.local.LocalCalendarCollection;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * $Id$
@@ -73,6 +79,18 @@ public interface CardCollection extends ObjectCollection<VCard> {
     VCard removeCard(String uid) throws ObjectNotFoundException, FailedOperationException;
 
     VCard getCard(String uid) throws ObjectNotFoundException, FailedOperationException;
+
+    default VCardList getCards(String... uids) throws FailedOperationException {
+        List<VCard> cards = new ArrayList<>();
+        for (String uid : uids) {
+            try {
+                cards.add(getCard(uid));
+            } catch (ObjectNotFoundException e) {
+                LoggerFactory.getLogger(LocalCalendarCollection.class).warn("Calendar not found: " + uid);
+            }
+        }
+        return new VCardList(cards);
+    }
 
     /**
      * Exports the entire collection as an array of objects.

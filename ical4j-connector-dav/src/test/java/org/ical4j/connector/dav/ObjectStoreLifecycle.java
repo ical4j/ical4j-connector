@@ -42,7 +42,7 @@ import org.ical4j.connector.ObjectStore;
  * @author Ben
  *
  */
-public interface ObjectStoreLifecycle<T extends ObjectCollection<?>> {
+public interface ObjectStoreLifecycle<T, C extends ObjectCollection<T>> {
 
     /**
      * Initialise the calendar store.
@@ -57,5 +57,5 @@ public interface ObjectStoreLifecycle<T extends ObjectCollection<?>> {
     /**
      * @return
      */
-    ObjectStore<T> getObjectStore();
+    ObjectStore<T, C> getObjectStore();
 }

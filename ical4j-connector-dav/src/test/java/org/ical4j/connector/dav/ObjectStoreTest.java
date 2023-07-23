@@ -50,13 +50,13 @@ import org.junit.Ignore;
  *         $Id$
  */
 @Ignore
-public class ObjectStoreTest<T extends ObjectCollection<?>> extends TestCase {
+public class ObjectStoreTest<T, C extends ObjectCollection<T>> extends TestCase {
 
     private static final Log LOG = LogFactory.getLog(ObjectStoreTest.class);
 
-    private final ObjectStoreLifecycle<T> lifecycle;
+    private final ObjectStoreLifecycle<T, C> lifecycle;
 
-    private ObjectStore<T> store;
+    private ObjectStore<T, C> store;
 
     private final String username;
 
@@ -70,7 +70,7 @@ public class ObjectStoreTest<T extends ObjectCollection<?>> extends TestCase {
      * @param username
      * @param password
      */
-    public ObjectStoreTest(String testMethod, ObjectStoreLifecycle<T> lifecycle, String username, char[] password) {
+    public ObjectStoreTest(String testMethod, ObjectStoreLifecycle<T, C> lifecycle, String username, char[] password) {
         super(testMethod);
         this.lifecycle = lifecycle;
         this.username = username;
@@ -92,7 +92,7 @@ public class ObjectStoreTest<T extends ObjectCollection<?>> extends TestCase {
 
         // ensure collection doesn't exist prior to tests..
         try {
-            store.removeCollection(collectionName);
+            store.getCollection(collectionName).delete();
         } catch (Exception e) {
         }
     }
@@ -111,7 +111,7 @@ public class ObjectStoreTest<T extends ObjectCollection<?>> extends TestCase {
      * Test method for {@link org.ical4j.connector.jcr.RepositoryCalendarStore#addCollection(java.lang.String)}.
      */
     public void testAddCollection() throws ObjectStoreException {
-        T collection = store.addCollection(collectionName);
+        C collection = store.addCollection(collectionName);
         assertNotNull(collection);
     }
 
@@ -121,7 +121,7 @@ public class ObjectStoreTest<T extends ObjectCollection<?>> extends TestCase {
      * @throws ObjectNotFoundException
      */
     public void testGetCollection() throws ObjectStoreException, ObjectNotFoundException {
-        T collection = null;
+        C collection = null;
         try {
             store.getCollection(collectionName);
             fail("Should throw " + ObjectNotFoundException.class.getSimpleName());
@@ -142,10 +142,9 @@ public class ObjectStoreTest<T extends ObjectCollection<?>> extends TestCase {
      */
     public void testRemoveCollection() throws ObjectStoreException, ObjectNotFoundException {
         store.addCollection(collectionName);
-        T collection = store.getCollection(collectionName);
+        C collection = store.getCollection(collectionName);
         assertNotNull(collection);
-        collection = store.removeCollection(collectionName);
-        assertNotNull(collection);
+        collection.delete();
 
         try {
             store.getCollection(collectionName);

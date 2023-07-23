@@ -3,6 +3,8 @@ package org.ical4j.connector.local;
 import net.fortuna.ical4j.model.Calendar;
 import org.ical4j.connector.ObjectCollection;
 import org.ical4j.connector.ObjectStoreException;
+import org.ical4j.connector.event.ListenerList;
+import org.ical4j.connector.event.ObjectCollectionListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +15,8 @@ public abstract class AbstractLocalObjectCollection<T> implements ObjectCollecti
     private final File root;
 
     private final LocalCollectionConfiguration configuration;
+
+    private final ListenerList<ObjectCollectionListener<T>> listenerList;
 
     public AbstractLocalObjectCollection(File root) throws IOException {
         this.root = Objects.requireNonNull(root);
@@ -25,6 +29,7 @@ public abstract class AbstractLocalObjectCollection<T> implements ObjectCollecti
             throw new IOException("Unable to initialise collection config");
         }
         this.configuration = new LocalCollectionConfiguration(configRoot);
+        this.listenerList = new ListenerList<>();
     }
 
     protected File getRoot() {
@@ -74,6 +79,11 @@ public abstract class AbstractLocalObjectCollection<T> implements ObjectCollecti
         if (!configuration.delete() || !root.delete()) {
             throw new ObjectStoreException("Unable to delete collection");
         }
+    }
+
+    @Override
+    public ListenerList<ObjectCollectionListener<T>> getObjectCollectionListeners() {
+        return listenerList;
     }
 
     @Override

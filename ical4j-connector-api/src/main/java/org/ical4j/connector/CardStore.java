@@ -32,6 +32,8 @@
 package org.ical4j.connector;
 
 
+import net.fortuna.ical4j.vcard.VCard;
+
 /**
  * @param <C> the collection type supported by the store
  * 
@@ -42,6 +44,6 @@ package org.ical4j.connector;
  * @author Ben
  *
  */
-public interface CardStore<C extends CardCollection> extends ObjectStore<C> {
+public interface CardStore<C extends CardCollection> extends ObjectStore<VCard, C> {
 
 }

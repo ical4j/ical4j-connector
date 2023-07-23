@@ -33,9 +33,16 @@ package org.ical4j.connector;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.ConstraintViolationException;
+import net.fortuna.ical4j.model.component.VFreeBusy;
 import net.fortuna.ical4j.model.property.Uid;
+import net.fortuna.ical4j.util.Calendars;
+import org.ical4j.connector.local.LocalCalendarCollection;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.time.temporal.Temporal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * $Id$
@@ -102,6 +109,11 @@ public interface CalendarCollection extends ObjectCollection<Calendar> {
      * in any instance of a calendar object resource stored in a calendar collection.
      */
     Integer getMaxAttendeesPerInstance();
+
+    default Calendar getFreeBusy(Temporal start, Temporal end) {
+        //XXX: construct from all events in the collection..
+        return Calendars.wrap(new VFreeBusy());
+    }
     
     /**
      * Stores the specified calendar in this collection.
@@ -118,7 +130,19 @@ public interface CalendarCollection extends ObjectCollection<Calendar> {
      * @return a calendar object or null if no calendar with the specified UID exists
      */
     Calendar getCalendar(String uid) throws ObjectNotFoundException;
-    
+
+    default List<Calendar> getCalendars(String... uids) {
+        List<Calendar> calendars = new ArrayList<>();
+        for (String uid : uids) {
+            try {
+                calendars.add(getCalendar(uid));
+            } catch (ObjectNotFoundException e) {
+                LoggerFactory.getLogger(LocalCalendarCollection.class).warn("Calendar not found: " + uid);
+            }
+        }
+        return calendars;
+    }
+
     /**
      * @param uid the UID of the calendar to remove
      * @return the calendar that was successfully removed from the collection

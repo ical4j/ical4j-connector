@@ -36,6 +36,9 @@ import net.fortuna.ical4j.model.Calendar;
 import java.util.List;
 
 /**
+ * Implementors provide support for management of persistent object collections. Typically this will include
+ * most CRUD operations as well as caller authentication.
+ *
  * @param <C> the type of collection supported by the store
  * 
  * $Id$
@@ -45,7 +48,7 @@ import java.util.List;
  * @author Ben
  *
  */
-public interface ObjectStore<C extends ObjectCollection<?>> {
+public interface ObjectStore<T, C extends ObjectCollection<T>> extends ObjectStoreListenerSupport<T> {
 
     /**
      * Connect to a object store anonymously.

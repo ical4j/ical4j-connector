@@ -47,17 +47,17 @@ import java.io.IOException;
  *         $Id$
  */
 @Ignore
-public class ObjectCollectionTest<T extends ObjectCollection<?>> extends TestCase {
+public class ObjectCollectionTest<T, C extends ObjectCollection<T>> extends TestCase {
 
-    private final ObjectStoreLifecycle<T> lifecycle;
+    private final ObjectStoreLifecycle<T, C> lifecycle;
 
-    private ObjectStore<T> store;
+    private ObjectStore<T, C> store;
 
     private final String username;
 
     private final char[] password;
 
-    private T collection;
+    private C collection;
 
     private final String collectionId = "myCollection";
 
@@ -73,7 +73,7 @@ public class ObjectCollectionTest<T extends ObjectCollection<?>> extends TestCas
      * @param username
      * @param password
      */
-    public ObjectCollectionTest(String testMethod, ObjectStoreLifecycle<T> lifecycle, String username, char[] password,
+    public ObjectCollectionTest(String testMethod, ObjectStoreLifecycle<T, C> lifecycle, String username, char[] password,
             String[] supportedComponents) {
         super(testMethod);
         this.lifecycle = lifecycle;
@@ -99,7 +99,7 @@ public class ObjectCollectionTest<T extends ObjectCollection<?>> extends TestCas
      * 
      */
     protected void removeCollection() throws ObjectStoreException, ObjectNotFoundException {
-        getStore().removeCollection(collectionId);
+        getStore().getCollection(collectionId).delete();
     }
 
     /*
@@ -130,7 +130,7 @@ public class ObjectCollectionTest<T extends ObjectCollection<?>> extends TestCas
     /**
      * @return the store
      */
-    protected final ObjectStore<T> getStore() {
+    protected final ObjectStore<T, C> getStore() {
         return store;
     }
 
@@ -138,7 +138,7 @@ public class ObjectCollectionTest<T extends ObjectCollection<?>> extends TestCas
      * @return the collection
      * @throws ObjectStoreException
      */
-    protected final T getCollection() throws ObjectStoreException {
+    protected final C getCollection() throws ObjectStoreException {
         if (collection == null) {
             try {
                 collection = getStore().getCollection(collectionId);

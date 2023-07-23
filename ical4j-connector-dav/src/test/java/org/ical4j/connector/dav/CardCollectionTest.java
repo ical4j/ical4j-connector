@@ -31,6 +31,7 @@
  */
 package org.ical4j.connector.dav;
 
+import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardBuilder;
 import net.fortuna.ical4j.vcard.VCardFileFilter;
 import org.ical4j.connector.CardCollection;
@@ -50,8 +51,7 @@ import java.io.FilenameFilter;
  * $Id$
  */
 @Ignore
-public class CardCollectionTest<T extends CardCollection> extends
-        ObjectCollectionTest<T> {
+public class CardCollectionTest extends ObjectCollectionTest<VCard, CardCollection> {
 
     private static final String[] SUPPORTED_COMPONENTS = {};
     
@@ -62,7 +62,7 @@ public class CardCollectionTest<T extends CardCollection> extends
      * @param password
      * @param supportedComponents
      */
-    public CardCollectionTest(String testMethod, ObjectStoreLifecycle<T> lifecycle, String username,
+    public CardCollectionTest(String testMethod, ObjectStoreLifecycle<VCard, CardCollection> lifecycle, String username,
             char[] password) {
         super(testMethod, lifecycle, username, password, SUPPORTED_COMPONENTS);
     }

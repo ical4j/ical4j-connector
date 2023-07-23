@@ -32,6 +32,7 @@
 package org.ical4j.connector;
 
 
+import net.fortuna.ical4j.model.Calendar;
 
 /**
  * Design contract for calendar collection stores.
@@ -45,7 +46,7 @@ package org.ical4j.connector;
  * @author Ben
  *
  */
-public interface CalendarStore<C extends CalendarCollection> extends ObjectStore<C> {
+public interface CalendarStore<C extends CalendarCollection> extends ObjectStore<Calendar, C> {
     
     /**
      * Merges the specified calendar with an existing calendar in the store with the

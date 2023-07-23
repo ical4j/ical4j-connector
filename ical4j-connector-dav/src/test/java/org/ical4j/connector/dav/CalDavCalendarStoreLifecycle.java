@@ -31,6 +31,7 @@
  */
 package org.ical4j.connector.dav;
 
+import net.fortuna.ical4j.model.Calendar;
 import org.ical4j.connector.CalendarStore;
 import org.ical4j.connector.ObjectStore;
 
@@ -44,7 +45,7 @@ import java.net.URL;
  * @author Ben
  *
  */
-public class CalDavCalendarStoreLifecycle implements ObjectStoreLifecycle<CalDavCalendarCollection> {
+public class CalDavCalendarStoreLifecycle implements ObjectStoreLifecycle<Calendar, CalDavCalendarCollection> {
 
     protected static final String PRODID = "-//Ben Fortuna//iCal4j Connector 1.0//EN";
 
@@ -60,7 +61,7 @@ public class CalDavCalendarStoreLifecycle implements ObjectStoreLifecycle<CalDav
 //        storePath = BASE_STORE_PATH + id + "/";
     }
     
-    public ObjectStore<CalDavCalendarCollection> getObjectStore() {
+    public ObjectStore<Calendar, CalDavCalendarCollection> getObjectStore() {
         return store;
     }
 

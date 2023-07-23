@@ -42,6 +42,8 @@ import org.ical4j.connector.ObjectCollection;
 import org.ical4j.connector.ObjectStoreException;
 import org.ical4j.connector.dav.property.BaseDavPropertyName;
 import org.ical4j.connector.dav.property.CalDavPropertyName;
+import org.ical4j.connector.event.ListenerList;
+import org.ical4j.connector.event.ObjectCollectionListener;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -61,7 +63,7 @@ import java.util.List;
  */
 public abstract class AbstractDavObjectCollection<T> implements ObjectCollection<T> {
 
-    private final AbstractDavObjectStore<?> store;
+    private final AbstractDavObjectStore<T, ? extends ObjectCollection<T>> store;
 
     private final String id;
     
@@ -71,20 +73,23 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
     
     private boolean _isReadOnly;
 
+    private final ListenerList<ObjectCollectionListener<T>> listenerList;
+
     /**
      * @param store the container store for the collection
      * @param id collection identifier
      */
-    public AbstractDavObjectCollection(AbstractDavObjectStore<?> store, String id) {
+    public AbstractDavObjectCollection(AbstractDavObjectStore<T, ? extends ObjectCollection<T>> store, String id) {
         this.store = store;
         this.id = id;
         this.properties = new DavPropertySet();
+        this.listenerList = new ListenerList<>();
     }
 
     /**
      * @return the store
      */
-    public final AbstractDavObjectStore<?> getStore() {
+    public final AbstractDavObjectStore<T, ? extends ObjectCollection<T>> getStore() {
         return store;
     }
 
@@ -310,5 +315,10 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
      */
     public final boolean exists() throws HttpResponseException, IOException, ObjectStoreException {
         return !getStore().getClient().propFind(getPath(), CalDavCalendarCollection.propertiesForFetch()).isEmpty();
+    }
+
+    @Override
+    public ListenerList<ObjectCollectionListener<T>> getObjectCollectionListeners() {
+        return listenerList;
     }
 }

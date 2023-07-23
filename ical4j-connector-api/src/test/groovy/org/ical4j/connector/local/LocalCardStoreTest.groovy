@@ -3,6 +3,9 @@ package org.ical4j.connector.local
 import net.fortuna.ical4j.model.Calendar
 import net.fortuna.ical4j.model.DefaultTimeZoneRegistryFactory
 import net.fortuna.ical4j.util.Calendars
+import net.fortuna.ical4j.vcard.VCard
+import org.ical4j.connector.event.ObjectStoreEvent
+import org.ical4j.connector.event.ObjectStoreListener
 
 class LocalCardStoreTest extends AbstractLocalTest {
 
@@ -10,11 +13,19 @@ class LocalCardStoreTest extends AbstractLocalTest {
         given: 'a new local card store'
         LocalCardStore cardStore = [storeLocation]
 
+        and: 'a store listener'
+        ObjectStoreEvent<VCard> event
+        ObjectStoreListener<VCard> listener = { event = it } as ObjectStoreListener
+        cardStore.addObjectStoreListener(listener)
+
         when: 'a new collection is added'
         LocalCardCollection collection = cardStore.addCollection('contacts')
 
         then: 'a local collection directory is added'
         new File(storeLocation, 'contacts').exists()
+
+        and: 'the listener is notified'
+        event != null && event.collection == collection
     }
 
     def 'test create and initialise collection'() {

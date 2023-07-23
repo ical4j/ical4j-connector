@@ -83,6 +83,10 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
         } catch (IOException e) {
             throw new ObjectStoreException("Error writing calendar file", e);
         }
+
+        // notify listeners..
+        fireOnAddEvent(this, calendar);
+
         return uid;
     }
 
@@ -101,6 +105,10 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
         if (!new File(getRoot(), uid + ".ics").delete()) {
             throw new FailedOperationException("Unable to delete calendar: " + uid);
         }
+
+        // notify listeners..
+        fireOnRemoveEvent(this, calendar);
+
         return calendar;
     }
 
@@ -124,6 +132,10 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
                 throw new ObjectStoreException("Error writing calendar file", e);
             }
         }
+
+        // notify listeners..
+        fireOnMergeEvent(this, calendar);
+
         return Arrays.stream(uidCalendars).map(Calendar::getUid).toArray(Uid[]::new);
     }
 

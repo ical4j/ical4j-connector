@@ -74,16 +74,16 @@ public class CalDavCalendarCollectionIntegrationTest extends TestSuite {
 //        suite.addTest(new CalendarCollectionTest("testGetMaxInstances",
 //                new CalDavCalendarStoreLifecycle(url, path), username, password));
         
-        suite.addTest(new CalendarCollectionTest<CalDavCalendarCollection>("testGetMaxResourceSize",
+        suite.addTest(new CalendarCollectionTest("testGetMaxResourceSize",
                 new CalDavCalendarStoreLifecycle(url, PathResolver.Defaults.RADICALE), username, password));
         
 //        suite.addTest(new CalendarCollectionTest("testGetMinDateTime",
 //                new CalDavCalendarStoreLifecycle(url, path), username, password));
         
-        suite.addTest(new CalendarCollectionTest<CalDavCalendarCollection>("testGetSupportedComponentTypes",
+        suite.addTest(new CalendarCollectionTest("testGetSupportedComponentTypes",
                 new CalDavCalendarStoreLifecycle(url, PathResolver.Defaults.RADICALE), username, password));
         
-        suite.addTest(new CalendarCollectionTest<CalDavCalendarCollection>("testGetCalendars",
+        suite.addTest(new CalendarCollectionTest("testGetCalendars",
                 new CalDavCalendarStoreLifecycle(url, PathResolver.Defaults.RADICALE), username, password));
 
         return suite;

@@ -36,6 +36,8 @@ import org.ical4j.connector.FailedOperationException;
 import org.ical4j.connector.ObjectCollection;
 import org.ical4j.connector.ObjectStore;
 import org.ical4j.connector.ObjectStoreException;
+import org.ical4j.connector.event.ListenerList;
+import org.ical4j.connector.event.ObjectStoreListener;
 
 import java.io.IOException;
 import java.net.URL;
@@ -49,7 +51,7 @@ import java.util.List;
  * 
  * @author fortuna
  */
-public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> implements ObjectStore<C> {
+public abstract class AbstractDavObjectStore<T, C extends ObjectCollection<T>> implements ObjectStore<T, C> {
 
     private final DavClientFactory clientFactory;
 
@@ -67,6 +69,8 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
      */
     protected final PathResolver pathResolver;
 
+    private final ListenerList<ObjectStoreListener<T>> listenerList;
+
     /**
      * @param url the URL of a CalDAV server instance
      * @param pathResolver the path resolver for the CalDAV server type
@@ -77,6 +81,7 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
         this.clientFactory = new DavClientFactory()
                 .withPreemptiveAuth("true".equals(Configurator.getProperty("ical4j.connector.dav.preemptiveauth")
                         .orElse("false")));
+        this.listenerList = new ListenerList<>();
     }
 
     /**
@@ -176,5 +181,9 @@ public abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> impl
     public boolean isSupportCalendarProxy() {
         return supportedFeatures.contains(SupportedFeature.CALENDAR_PROXY);
     }
-    
+
+    @Override
+    public ListenerList<ObjectStoreListener<T>> getObjectStoreListeners() {
+        return listenerList;
+    }
 }

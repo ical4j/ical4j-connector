@@ -50,6 +50,9 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
         }
         save(card);
 
+        // notify listeners..
+        fireOnAddEvent(this, card);
+
         return uid;
     }
 
@@ -64,6 +67,9 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
         }
         existing.addAll(card.getProperties());
         save(card);
+
+        // notify listeners..
+        fireOnMergeEvent(this, card);
 
         return Collections.singletonList(uid).toArray(new Uid[0]);
     }
@@ -92,6 +98,10 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
         if (!new File(getRoot(), uid + ".vcf").delete()) {
             throw new FailedOperationException("Unable to delete card: " + uid);
         }
+
+        // notify listeners..
+        fireOnRemoveEvent(this, card);
+
         return card;
     }
 

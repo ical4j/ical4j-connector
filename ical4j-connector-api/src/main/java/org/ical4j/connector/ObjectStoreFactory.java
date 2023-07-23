@@ -17,11 +17,11 @@ public class ObjectStoreFactory {
         this.properties = properties;
     }
 
-    public <C extends ObjectCollection<?>> ObjectStore<C> newInstance() {
+    public <T, C extends ObjectCollection<T>> ObjectStore<T, C> newInstance() {
 
 //        try {
 //            return (ObjectStore<C>) new LocalCalendarStore(Files.createTempDirectory("ical-local").toFile());
-            return (ObjectStore<C>) new LocalCalendarStore(new File("ical-local"));
+            return (ObjectStore<T, C>) new LocalCalendarStore(new File("ical-local"));
 //        } catch (IOException e) {
 //            throw new RuntimeException(e);
 //        }

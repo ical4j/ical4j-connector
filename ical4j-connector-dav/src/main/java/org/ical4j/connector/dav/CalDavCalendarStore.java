@@ -80,7 +80,7 @@ import static org.ical4j.connector.dav.ResourceType.*;
  * @author Ben
  * 
  */
-public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCollection> implements
+public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, CalDavCalendarCollection> implements
         CalendarStore<CalDavCalendarCollection> {
 
     private final String prodId;

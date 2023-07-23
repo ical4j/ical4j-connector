@@ -6,6 +6,8 @@ import net.fortuna.ical4j.model.ContentBuilder
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.util.Calendars
 import net.fortuna.ical4j.util.RandomUidGenerator
+import org.ical4j.connector.event.ObjectCollectionEvent
+import org.ical4j.connector.event.ObjectCollectionListener
 import spock.lang.Shared
 
 class LocalCalendarCollectionTest extends AbstractLocalTest {
@@ -34,12 +36,20 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
         LocalCalendarStore calendarStore = [storeLocation]
         LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
 
+        and: 'a collection listener'
+        ObjectCollectionEvent<Calendar> event
+        ObjectCollectionListener<Calendar> listener = { event = it } as ObjectCollectionListener
+        collection.addObjectCollectionListener(listener)
+
         when: 'the new calendar is added to the collection'
         collection.addCalendar(calendar)
 
         then: 'a new calendar file is created'
         new File(storeLocation,
                 "public_holidays/${calendar.getComponent(Component.VEVENT).get().getRequiredProperty(Property.UID).getValue()}.ics").exists()
+
+        and: 'the listener is notified'
+        event != null && event.object == calendar
     }
 
     def 'test remove calendar from collection'() {

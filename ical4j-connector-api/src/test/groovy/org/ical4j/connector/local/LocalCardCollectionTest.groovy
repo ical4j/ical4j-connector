@@ -4,6 +4,8 @@ package org.ical4j.connector.local
 import net.fortuna.ical4j.vcard.ContentBuilder
 import net.fortuna.ical4j.vcard.PropertyName
 import net.fortuna.ical4j.vcard.VCard
+import org.ical4j.connector.event.ObjectCollectionEvent
+import org.ical4j.connector.event.ObjectCollectionListener
 import spock.lang.Shared
 
 class LocalCardCollectionTest extends AbstractLocalTest {
@@ -28,12 +30,20 @@ class LocalCardCollectionTest extends AbstractLocalTest {
         LocalCardStore cardStore = [storeLocation]
         LocalCardCollection collection = cardStore.addCollection('contacts')
 
+        and: 'a collection listener'
+        ObjectCollectionEvent<VCard> event
+        ObjectCollectionListener<VCard> listener = { event = it } as ObjectCollectionListener
+        collection.addObjectCollectionListener(listener)
+
         when: 'the new card is added to the collection'
         collection.addCard(card)
 
         then: 'a new card file is created'
         new File(storeLocation,
                 "contacts/${card.getRequiredProperty(PropertyName.UID as String).getValue()}.vcf").exists()
+
+        and: 'the listener is notified'
+        event != null && event.object == card
     }
 
     def 'test remove card from collection'() {

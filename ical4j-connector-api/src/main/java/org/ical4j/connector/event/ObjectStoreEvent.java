@@ -58,7 +58,7 @@ public class ObjectStoreEvent<T> extends EventObject {
      * @param source the event source
      * @param collection the affected collection
      */
-    public ObjectStoreEvent(ObjectStore<ObjectCollection<T>> source, ObjectCollection<T> collection) {
+    public ObjectStoreEvent(ObjectStore<T, ? extends ObjectCollection<T>> source, ObjectCollection<T> collection) {
         super(source);
         this.collection = collection;
     }

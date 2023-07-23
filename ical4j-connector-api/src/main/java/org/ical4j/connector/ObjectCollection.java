@@ -37,6 +37,9 @@ import net.fortuna.ical4j.filter.FilterExpression;
 import java.util.List;
 
 /**
+ * Implementors provide support for a persistent collection of objects. A collection will typically support
+ * most CRUD operations as well as filter queries.
+ *
  * @param <T> the object type stored by the collection
  * 
  * $Id$
@@ -46,7 +49,7 @@ import java.util.List;
  * @author Ben
  *
  */
-public interface ObjectCollection<T> {
+public interface ObjectCollection<T> extends ObjectCollectionListenerSupport<T> {
 
     String DEFAULT_COLLECTION = "default";
 

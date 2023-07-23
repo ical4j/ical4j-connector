@@ -32,6 +32,7 @@
 package org.ical4j.connector.dav;
 
 import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.vcard.VCard;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
@@ -62,7 +63,7 @@ import java.util.stream.Collectors;
  * @author Ben
  * 
  */
-public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection> implements
+public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCollection> implements
         CardStore<CardDavCollection> {
 
     private final String prodId;

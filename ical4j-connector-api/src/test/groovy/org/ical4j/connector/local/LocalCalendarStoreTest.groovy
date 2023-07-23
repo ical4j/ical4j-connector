@@ -4,6 +4,8 @@ import net.fortuna.ical4j.model.Calendar
 import net.fortuna.ical4j.model.Component
 import net.fortuna.ical4j.model.DefaultTimeZoneRegistryFactory
 import net.fortuna.ical4j.util.Calendars
+import org.ical4j.connector.event.ObjectStoreEvent
+import org.ical4j.connector.event.ObjectStoreListener
 
 class LocalCalendarStoreTest extends AbstractLocalTest {
 
@@ -11,11 +13,19 @@ class LocalCalendarStoreTest extends AbstractLocalTest {
         given: 'a new local calendar store'
         LocalCalendarStore calendarStore = [storeLocation]
 
+        and: 'a store listener'
+        ObjectStoreEvent<Calendar> event
+        ObjectStoreListener<Calendar> listener = { event = it } as ObjectStoreListener
+        calendarStore.addObjectStoreListener(listener)
+
         when: 'a new collection is added'
         LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
 
         then: 'a local collection directory is added'
         new File(storeLocation, 'public_holidays').exists()
+
+        and: 'the listener is notified'
+        event != null && event.collection == collection
     }
 
     def 'test create and initialise collection'() {
@@ -69,10 +79,10 @@ class LocalCalendarStoreTest extends AbstractLocalTest {
         LocalCalendarStore calendarStore = [storeLocation]
 
         when: 'a new collection is added'
-        calendarStore.addCollection('public_holidays')
+        LocalCalendarCollection c = calendarStore.addCollection('public_holidays')
 
         and: 'the collection is removed'
-        LocalCalendarCollection collection = calendarStore.removeCollection('public_holidays')
+        c.delete()
 
         then: 'a local collection directory is deleted'
         !new File(storeLocation, 'public_holidays').exists()
