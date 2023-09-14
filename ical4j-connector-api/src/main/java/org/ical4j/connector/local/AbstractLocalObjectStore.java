@@ -1,11 +1,9 @@
 package org.ical4j.connector.local;
 
 import net.fortuna.ical4j.model.Calendar;
+import org.ical4j.connector.AbstractObjectStore;
 import org.ical4j.connector.ObjectNotFoundException;
-import org.ical4j.connector.ObjectStore;
 import org.ical4j.connector.ObjectStoreException;
-import org.ical4j.connector.event.ListenerList;
-import org.ical4j.connector.event.ObjectStoreListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,11 +12,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObjectCollection<T>> implements ObjectStore<T, C> {
+public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObjectCollection<T>> extends AbstractObjectStore<T, C> {
 
     private final File root;
-
-    private final ListenerList<ObjectStoreListener<T>> listenerList;
 
     AbstractLocalObjectStore(File root) {
         this.root = Objects.requireNonNull(root);
@@ -27,7 +23,6 @@ public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObject
         } else if (!root.exists() && !root.mkdirs()) {
             throw new IllegalArgumentException("Unable to initialise root directory");
         }
-        listenerList = new ListenerList<>();
     }
 
     protected File getRoot() {
@@ -131,10 +126,5 @@ public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObject
                 throw new RuntimeException(e);
             }
         }).collect(Collectors.toList());
-    }
-
-    @Override
-    public ListenerList<ObjectStoreListener<T>> getObjectStoreListeners() {
-        return listenerList;
     }
 }
