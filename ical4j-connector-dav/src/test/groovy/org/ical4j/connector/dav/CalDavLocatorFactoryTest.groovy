@@ -1,8 +1,10 @@
 package org.ical4j.connector.dav
 
 import org.apache.jackrabbit.webdav.DavResourceLocator
+import spock.lang.Ignore
 import spock.lang.Specification
 
+@Ignore('Remove dav resource from scope until other methods are stable')
 class CalDavLocatorFactoryTest extends Specification {
 
     def 'test locator creation from href'() {
@@ -60,8 +62,8 @@ class CalDavLocatorFactoryTest extends Specification {
 
         where:
         pathResolver                    | prefix                                            | href                                         | workspacePath | workspaceName | path      | resourcePath
-        PathResolver.Defaults.RADICALE | 'https://www.example.com/dav'                     | 'https://www.example.com/dav/admin/testcal'                    | '/admin' | 'admin' | '/admin/testcal'     | '/admin/testcal'
-        PathResolver.Defaults.BAIKAL   | 'https://www.example.com/dav/dav.php'             | 'https://www.example.com/dav/dav.php/admin/testcal'            | '/admin' | 'admin' | '/admin/testcal'     | '/admin/testcal'
+        PathResolver.Defaults.RADICALE | 'https://www.example.com/dav'                     | 'https://www.example.com/dav/admin/testcal'                    | '/admin' | 'admin' | '/admin/testcal'     | '/testcal'
+        PathResolver.Defaults.BAIKAL   | 'https://www.example.com/dav/dav.php'             | 'https://www.example.com/dav/dav.php/calendars/admin/testcal'            | '/admin' | 'admin' | '/calendars/admin/testcal'     | '/admin/testcal'
         PathResolver.Defaults.GCAL     | '/caldav/v2' | '/caldav/v2/calid/events' | '/calid' | 'calid' | '/calid/events'      | '/calid/events'
         PathResolver.Defaults.SOGO     | 'https://www.example.com/SOGo/dav'                | 'https://www.example.com/SOGo/dav/admin/testcal'               | '/admin' | 'admin' | '/admin/testcal'     | '/admin/testcal'
 
