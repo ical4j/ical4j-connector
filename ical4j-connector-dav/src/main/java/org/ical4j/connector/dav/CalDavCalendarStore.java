@@ -64,10 +64,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.ical4j.connector.dav.ResourceType.*;
@@ -142,11 +139,19 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
      */
     public CalDavCalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
+            String resourcePath = pathResolver.getCalendarPath(id, "test");
             DavPropertyNameSet principalsProps = CalDavCalendarCollection.propertiesForFetch();
-            return getClient().propFindResources(id, principalsProps,
-                    CALENDAR, CALENDAR_PROXY_READ, CALENDAR_PROXY_WRITE).entrySet().stream()
-                    .map(e -> new CalDavCalendarCollection(this, e.getKey(), e.getValue()))
-                    .collect(Collectors.toList()).get(0);
+            Map<String, DavPropertySet> res = getClient().propFindResources(resourcePath, principalsProps,
+                    CALENDAR, CALENDAR_PROXY_READ, CALENDAR_PROXY_WRITE);
+            if (!res.isEmpty()) {
+                DavPropertySet props = res.entrySet().iterator().next().getValue();
+                return new CalDavCalendarCollection(this, id, props);
+//            .entrySet().stream()
+//                    .map(e -> new CalDavCalendarCollection(this, e.getKey(), e.getValue()))
+//                    .collect(Collectors.toList()).get(0);
+            } else {
+                return null;
+            }
         } catch (IOException e) {
             throw new ObjectStoreException(String.format("unable to get collection '%s'", id), e);
         }
@@ -160,7 +165,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     }
 
     public String findCalendarHomeSet() throws ParserConfigurationException, IOException, DavException {
-        String propfindPath = pathResolver.getPrincipalPath(getUserName());
+        String propfindPath = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
         return findCalendarHomeSet(propfindPath);
     }
 
@@ -233,7 +238,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     
     protected List<CalDavCalendarCollection> getDelegatedCollections(ExpandPropertyQuery.Type type) throws Exception {
 
-        String methodUri = this.pathResolver.getPrincipalPath(getUserName());
+        String methodUri = this.pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
 
         ExpandPropertyQuery expandPropertyReport = new ExpandPropertyQuery(type)
                 .withPropertyName(DavPropertyName.DISPLAYNAME)
@@ -294,7 +299,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     }
 
     protected String findInboxOrOutbox(DavPropertyName type) throws ParserConfigurationException, IOException, DavException {
-        String propfindUri = pathResolver.getPrincipalPath(getUserName());
+        String propfindUri = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
 
         DavPropertyNameSet principalsProps = new DavPropertyNameSet();
         principalsProps.add(type);
@@ -388,7 +393,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     
     protected List<Attendee> executePrincipalPropSearch(Element principalPropSearch) throws DavException, IOException, URISyntaxException {        
         PrincipalPropertySearchInfo rinfo = new PrincipalPropertySearchInfo(principalPropSearch, 0);
-        String methodUri = this.pathResolver.getPrincipalPath(getUserName());
+        String methodUri = this.pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
         return getClient().findPrincipals(methodUri, rinfo);
     }
 }

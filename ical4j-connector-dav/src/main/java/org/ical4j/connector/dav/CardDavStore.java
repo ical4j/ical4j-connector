@@ -137,7 +137,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
     }
 
     protected String findAddressBookHomeSet() throws ParserConfigurationException, IOException, DavException {
-        String propfindPath = pathResolver.getPrincipalPath(getUserName());
+        String propfindPath = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
         return findAddressBookHomeSet(propfindPath);
     }
 
@@ -199,7 +199,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
     public List<CardDavCollection> getDelegatedCollections() throws Exception {
 
 
-        String methodUri = this.pathResolver.getPrincipalPath(getUserName());
+        String methodUri = this.pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
 
         ExpandPropertyQuery expandPropertyWrite = new ExpandPropertyQuery(ExpandPropertyQuery.Type.PROXY_WRITE_FOR)
                 .withPropertyName(DavPropertyName.DISPLAYNAME)

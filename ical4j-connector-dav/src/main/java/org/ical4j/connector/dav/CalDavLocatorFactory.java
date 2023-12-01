@@ -13,7 +13,7 @@ public class CalDavLocatorFactory extends AbstractLocatorFactory {
 
     @Override
     protected String getRepositoryPath(String resourcePath, String wspPath) {
-        return pathResolver.getRepositoryPath(resourcePath, wspPath);
+        return pathResolver.getCalendarPath(resourcePath, wspPath);
     }
 
     @Override
