@@ -26,7 +26,7 @@ build:
 
 changelog:
 	git log "$(CHANGELOG_START_TAG)...$(CHANGELOG_END_TAG)" \
-    	--pretty=format:'* %s [View commit](http://github.com/ical4j/ical4j/commit/%H)' --reverse | grep -v Merge
+    	--pretty=format:'* %s [View commit](http://github.com/ical4j/ical4j-connector/commit/%H)' --reverse | grep -v Merge
 
 currentVersion:
 	./gradlew -q currentVersion
@@ -39,6 +39,9 @@ listApiChanges:
 
 approveApiChanges:
 	./gradlew :revapiAcceptAllBreaks --justification $(CHANGE_JUSTIFICATION)
+
+install:
+	./gradlew publishToMavenLocal
 
 verify:
 	./gradlew verify

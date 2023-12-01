@@ -9,7 +9,7 @@ buildscript {
 
 plugins {
     id 'signing'
-    id 'pl.allegro.tech.build.axion-release' version '1.13.6'
+    id 'pl.allegro.tech.build.axion-release' version '1.15.1'
     id "nebula.optional-base" version "3.0.3" apply false
     id 'biz.aQute.bnd.builder' version "$bndVersion" apply false
     id 'org.javamodularity.moduleplugin' version '1.8.10' apply false
@@ -40,6 +40,10 @@ configure(subprojects) {
 
     repositories {
         mavenCentral()
+        mavenLocal()
+        maven {
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
+        }
     }
 
     sourceCompatibility = 8
