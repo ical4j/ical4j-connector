@@ -8,8 +8,6 @@ on:
 
 permissions: read-all
 
-permissions: read-all
-
 jobs:
   gradle:
     name: Test with Java ${{ matrix.jdk }}
