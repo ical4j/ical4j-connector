@@ -37,6 +37,7 @@ import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
+import org.ical4j.connector.AbstractObjectCollection;
 import org.ical4j.connector.MediaType;
 import org.ical4j.connector.ObjectCollection;
 import org.ical4j.connector.ObjectStoreException;
@@ -61,7 +62,7 @@ import java.util.List;
  *
  * @author fortuna
  */
-public abstract class AbstractDavObjectCollection<T> implements ObjectCollection<T> {
+public abstract class AbstractDavObjectCollection<T> extends AbstractObjectCollection<T> {
 
     private final AbstractDavObjectStore<T, ? extends ObjectCollection<T>> store;
 
@@ -103,14 +104,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
     /**
      * @return the absolute collection path
      */
-    public final String getPath() {
-        return getStore().pathResolver.getResourceName("/" + getId(), getStore().getUserName());
-// FIXME fix for CGP...
-//        if (!getId().endsWith("/")) {
-//            return getId() + "/";
-//        }
-//        return getId();
-    }
+    abstract String getPath();
     
     /**
      * Returns a list of the kinds of resource type for this collection. For example, for a collection that supports
@@ -169,7 +163,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
                     }
                 }
             }
-            return mediaTypes.toArray(new MediaType[mediaTypes.size()]);
+            return mediaTypes.toArray(new MediaType[0]);
         } catch (ObjectStoreException | IOException | DavException e) {
             throw new RuntimeException(e);
         }
@@ -211,7 +205,7 @@ public abstract class AbstractDavObjectCollection<T> implements ObjectCollection
     public String getOwnerHref() {
         String ownerHref = null;
         try {
-            ArrayList<Node> ownerProp;
+            List<Node> ownerProp;
             ownerProp = getProperty(SecurityConstants.OWNER, ArrayList.class);
             if (ownerProp != null) {
                 for (Node child : ownerProp) {
