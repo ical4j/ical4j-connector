@@ -7,16 +7,16 @@ import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardBuilder;
 import net.fortuna.ical4j.vcard.VCardOutputter;
 import net.fortuna.ical4j.vcard.property.Uid;
-import org.ical4j.connector.*;
+import org.ical4j.connector.CardCollection;
+import org.ical4j.connector.FailedOperationException;
+import org.ical4j.connector.MediaType;
+import org.ical4j.connector.ObjectStoreException;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> implements CardCollection {
@@ -31,41 +31,38 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
     }
 
     @Override
-    public List<String> listObjectUids() {
+    public List<String> listObjectUIDs() {
         return Arrays.stream(getObjectFiles()).map(file -> file.getName().split(".vcf")[0])
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Uid addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
-        Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
+    public String add(VCard card) throws ObjectStoreException, ConstraintViolationException {
+        Uid uid = card.getRequiredProperty(PropertyName.UID);
 
-        try {
-            VCard existing = getCard(uid.getValue());
-
+        Optional<VCard> existing = get(uid.getValue());
+        if (existing.isPresent()) {
             // TODO: potentially merge/replace existing..
             throw new ObjectStoreException("Card already exists");
-        } catch (ObjectNotFoundException e) {
-
         }
-        save(card);
+
+        try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".vcf"))) {
+            new VCardOutputter(false).output(card, writer);
+        } catch (IOException e) {
+            throw new ObjectStoreException("Error writing card file", e);
+        }
 
         // notify listeners..
         fireOnAddEvent(this, card);
 
-        return uid;
+        return uid.getValue();
     }
 
     @Override
     public Uid[] merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
         Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
-        VCard existing = null;
-        try {
-            existing = getCard(uid.getValue());
-        } catch (ObjectNotFoundException e) {
-            throw new ObjectStoreException(e);
-        }
-        existing.addAll(card.getProperties());
+        Optional<VCard> existing = get(uid.getValue());
+        existing.ifPresent(vCard -> vCard.addAll(card.getProperties()));
         save(card);
 
         // notify listeners..
@@ -84,51 +81,59 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
         }
     }
 
-    public VCard getCard(String uid) throws ObjectNotFoundException {
+    public Optional<VCard> get(String uid) {
+        File cardFile = new File(getRoot(), uid + ".vcf");
+        if (!cardFile.exists()) {
+            return Optional.empty();
+        }
+
         try {
-            return new VCardBuilder(Files.newInputStream(new File(getRoot(), uid + ".vcf").toPath())).build();
+            return Optional.of(new VCardBuilder(Files.newInputStream(cardFile.toPath())).build());
         } catch (IOException | ParserException e) {
-            throw new ObjectNotFoundException(String.format("Card not found: %s", uid), e);
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public VCard removeCard(String uid) throws ObjectNotFoundException, FailedOperationException {
-        VCard card = getCard(uid);
-        if (!new File(getRoot(), uid + ".vcf").delete()) {
-            throw new FailedOperationException("Unable to delete card: " + uid);
-        }
-
-        // notify listeners..
-        fireOnRemoveEvent(this, card);
-
-        return card;
-    }
-
-    @Override
-    public Iterable<VCard> getComponents() throws ObjectStoreException {
-        List<VCard> cards = new ArrayList<>();
-
-        File[] componentFiles = getObjectFiles();
-        if (componentFiles != null) {
-            try {
-                for (File file : componentFiles) {
-                    VCardBuilder builder = new VCardBuilder(Files.newInputStream(file.toPath()));
-                    cards.add(builder.build());
+    public List<VCard> removeAll(String... uid) throws FailedOperationException {
+        List<VCard> removed = new ArrayList<>();
+        for (String u : uid) {
+            File cardFile = new File(getRoot(), u + ".vcf");
+            if (cardFile.exists()) {
+                Optional<VCard> card = get(u);
+                if (card.isPresent()) {
+                    if (!cardFile.delete()) {
+                        throw new FailedOperationException("Unable to delete card: " + u);
+                    }
+                    removed.add(card.get());
+                    fireOnRemoveEvent(this, card.get());
                 }
-            } catch (IOException | ParserException e) {
-                throw new ObjectStoreException(e);
             }
         }
-        return cards;
+        return removed;
     }
 
+//    @Override
+//    public Iterable<VCard> getAll() throws ObjectStoreException {
+//        List<VCard> cards = new ArrayList<>();
+//
+//        File[] componentFiles = getObjectFiles();
+//        if (componentFiles != null) {
+//            try {
+//                for (File file : componentFiles) {
+//                    VCardBuilder builder = new VCardBuilder(Files.newInputStream(file.toPath()));
+//                    cards.add(builder.build());
+//                }
+//            } catch (IOException | ParserException e) {
+//                throw new ObjectStoreException(e);
+//            }
+//        }
+//        return cards;
+//    }
+
     @Override
-    public VCard[] export() throws ObjectStoreException {
-        List<VCard> export = new ArrayList<>();
-        for (VCard card : getComponents()) {
-            export.add(card);
-        }
+    public VCard[] export() {
+        List<VCard> export = new ArrayList<>(getAll());
         return export.toArray(new VCard[0]);
     }
 

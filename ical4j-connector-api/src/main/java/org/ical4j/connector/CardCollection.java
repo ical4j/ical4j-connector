@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * $Id$
@@ -56,8 +57,12 @@ public interface CardCollection extends ObjectCollection<VCard> {
      * @return the UID extracted from the vCard
      * @throws ObjectStoreException where an unexpected error occurs
      * @throws ConstraintViolationException where the specified object is not valid
+     * @deprecated use {@link ObjectCollection#add(Object)}
      */
-    Uid addCard(VCard card) throws ObjectStoreException, ConstraintViolationException;
+    @Deprecated
+    default Uid addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
+        return new Uid(add(card));
+    }
 
     /**
      *
@@ -75,11 +80,37 @@ public interface CardCollection extends ObjectCollection<VCard> {
      * @return the card object that was removed from the collection
      * @throws ObjectNotFoundException
      * @throws FailedOperationException
+     * @deprecated use {@link ObjectCollection#removeAll(String...)}
+     *
      */
-    VCard removeCard(String uid) throws ObjectNotFoundException, FailedOperationException;
+    @Deprecated
+    default VCard removeCard(String uid) throws ObjectNotFoundException, FailedOperationException {
+        List<VCard> result = removeAll(uid);
+        return result.get(0);
+    }
 
-    VCard getCard(String uid) throws ObjectNotFoundException, FailedOperationException;
+    /**
+     *
+     * @param uid
+     * @return
+     * @throws ObjectNotFoundException
+     * @throws FailedOperationException
+     * @deprecated use {@link ObjectCollection#getAll(String...)}
+     */
+    @Deprecated
+    default VCard getCard(String uid) throws ObjectNotFoundException, FailedOperationException {
+        Optional<VCard> card = get(uid);
+        return card.orElse(null);
+    }
 
+    /**
+     *
+     * @param uids
+     * @return
+     * @throws FailedOperationException
+     * @deprecated use {@link ObjectCollection#getAll(String...)}
+     */
+    @Deprecated
     default VCardList getCards(String... uids) throws FailedOperationException {
         List<VCard> cards = new ArrayList<>();
         for (String uid : uids) {
@@ -95,7 +126,6 @@ public interface CardCollection extends ObjectCollection<VCard> {
     /**
      * Exports the entire collection as an array of objects.
      * @return a vCard object array that contains all cards in the collection
-     * @throws ObjectStoreException where an unexpected error occurs
      */
-    VCard[] export() throws ObjectStoreException;
+    VCard[] export();
 }

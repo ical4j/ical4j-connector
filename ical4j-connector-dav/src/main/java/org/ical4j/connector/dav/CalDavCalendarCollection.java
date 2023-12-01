@@ -42,10 +42,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
-import org.ical4j.connector.CalendarCollection;
-import org.ical4j.connector.FailedOperationException;
-import org.ical4j.connector.ObjectNotFoundException;
-import org.ical4j.connector.ObjectStoreException;
+import org.ical4j.connector.*;
 import org.ical4j.connector.dav.property.*;
 import org.ical4j.connector.dav.request.CalendarQuery;
 import org.ical4j.connector.dav.request.EventQuery;
@@ -60,6 +57,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME;
 
@@ -103,6 +101,11 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         this.properties = _properties;
     }
 
+    @Override
+    String getPath() {
+        return getStore().pathResolver.getCalendarPath(getId(), "test");
+    }
+
     /**
      * Creates this collection on the CalDAV server.
      * 
@@ -118,7 +121,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     }
 
     @Override
-    public List<String> listObjectUids() {
+    public List<String> listObjectUIDs() {
         //TODO: extract UIDs from calendar objects..
         return null;
     }
@@ -126,7 +129,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     /**
      * @return an array of calendar objects
      * @deprecated Use the getEvents() method
-     * @see CalendarCollection#getComponents()
+     * @see ObjectCollection#getAll(String...) 
      */
     @Deprecated
     public Iterable<Calendar> getCalendars() {
@@ -319,9 +322,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * Add a new calendar object in the collection. Creation will be done on the server right away.
      */
     @Override
-    public Uid addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
+    public String add(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
         writeCalendarOnServer(calendar, true);
-        return calendar.getRequiredProperty(Property.UID);
+        return calendar.getRequiredProperty(Property.UID).getValue();
     }
 
     /**
@@ -376,8 +379,12 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * {@inheritDoc}
      */
     @Override
-    public Calendar getCalendar(String uid) throws ObjectNotFoundException {
-        return getCalendarFromUri(defaultUriFromUid(uid));
+    public Optional<Calendar> get(String uid) {
+        try {
+            return Optional.of(getCalendarFromUri(defaultUriFromUid(uid)));
+        } catch (ObjectNotFoundException e) {
+            return Optional.empty();
+        }
     }
 
     /**
@@ -400,8 +407,16 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     /**
      * {@inheritDoc}
      */
-    public Calendar removeCalendar(String uid) throws FailedOperationException, ObjectStoreException, ObjectNotFoundException {
-        return removeCalendarFromUri(defaultUriFromUid(uid));
+    public List<Calendar> removeAll(String... uid) {
+        List<Calendar> result = new ArrayList<>();
+        for (String u : uid) {
+            try {
+                result.add(removeCalendarFromUri(defaultUriFromUid(u)));
+            } catch (FailedOperationException | ObjectStoreException | ObjectNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return result;
     }
 
     /**
@@ -427,7 +442,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         try {
             Calendar[] uidCalendars = Calendars.split(calendar);
             for (int i = 0; i < uidCalendars.length; i++) {
-                addCalendar(uidCalendars[i]);
+                add(uidCalendars[i]);
                 uids.add(uidCalendars[i].getRequiredProperty(Property.UID));
             }
         } catch (ConstraintViolationException cve) {
@@ -439,14 +454,14 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     /**
      * {@inheritDoc}
      */
-    public Calendar export() throws ObjectStoreException {
+    public Calendar export() {
         throw new UnsupportedOperationException("not implemented");
     }
 
     /**
      * {@inheritDoc}
      */
-    public Iterable<Calendar> getComponents() throws ObjectStoreException {
+    public Iterable<Calendar> getAll() throws ObjectStoreException {
         return getComponentsByType(Component.VEVENT);
     }
 

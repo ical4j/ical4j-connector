@@ -3,10 +3,12 @@ package org.ical4j.connector.local;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
-import org.ical4j.connector.*;
+import org.ical4j.connector.CalendarCollection;
+import org.ical4j.connector.FailedOperationException;
+import org.ical4j.connector.MediaType;
+import org.ical4j.connector.ObjectStoreException;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -15,6 +17,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calendar> implements CalendarCollection {
@@ -61,55 +64,63 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
     }
 
     @Override
-    public List<String> listObjectUids() {
+    public List<String> listObjectUIDs() {
         return Arrays.stream(getObjectFiles()).map(file -> file.getName().split(".ics")[0])
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Uid addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
-        Uid uid = calendar.getUid();
-        try {
-            Calendar existing = getCalendar(uid.getValue());
-
+    public String add(Calendar object) throws ObjectStoreException {
+        Uid uid = object.getUid();
+        Optional<Calendar> existing = get(uid.getValue());
+        if (existing.isPresent()) {
             // TODO: potentially merge/replace existing..
             throw new ObjectStoreException("Calendar already exists");
-        } catch (ObjectNotFoundException e) {
-
         }
 
         try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".ics"))) {
-            new CalendarOutputter(false).output(calendar, writer);
+            new CalendarOutputter(false).output(object, writer);
         } catch (IOException e) {
             throw new ObjectStoreException("Error writing calendar file", e);
         }
 
         // notify listeners..
-        fireOnAddEvent(this, calendar);
+        fireOnAddEvent(this, object);
 
-        return uid;
+        return uid.getValue();
     }
 
     @Override
-    public Calendar getCalendar(String uid) throws ObjectNotFoundException {
+    public Optional<Calendar> get(String uid) {
+        File calendarFile = new File(getRoot(), uid + ".ics");
+        if (!calendarFile.exists()) {
+            return Optional.empty();
+        }
+
         try {
-            return Calendars.load(new File(getRoot(), uid + ".ics").getAbsolutePath());
+            return Optional.of(Calendars.load(calendarFile.getAbsolutePath()));
         } catch (IOException | ParserException e) {
-            throw new ObjectNotFoundException(String.format("Calendar not found: %s", uid), e);
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public Calendar removeCalendar(String uid) throws FailedOperationException, ObjectNotFoundException {
-        Calendar calendar = getCalendar(uid);
-        if (!new File(getRoot(), uid + ".ics").delete()) {
-            throw new FailedOperationException("Unable to delete calendar: " + uid);
+    public List<Calendar> removeAll(String... uid) throws FailedOperationException {
+        List<Calendar> removed = new ArrayList<>();
+        for (String u : uid) {
+            File calendarFile = new File(getRoot(), u + ".ics");
+            if (calendarFile.exists()) {
+                Optional<Calendar> cal = get(u);
+                if (cal.isPresent()) {
+                    if (!calendarFile.delete()) {
+                        throw new FailedOperationException("Unable to delete calendar: " + u);
+                    }
+                    removed.add(cal.get());
+                    fireOnRemoveEvent(this, cal.get());
+                }
+            }
         }
-
-        // notify listeners..
-        fireOnRemoveEvent(this, calendar);
-
-        return calendar;
+        return removed;
     }
 
     @Override
@@ -117,13 +128,11 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
         Calendar[] uidCalendars = calendar.split();
         for (Calendar c : uidCalendars) {
             Uid uid = c.getUid();
-            try {
-                Calendar existing = getCalendar(uid.getValue());
+            Optional<Calendar> existing = get(uid.getValue());
 
+            if (existing.isPresent()) {
                 // TODO: potentially merge/replace existing..
                 throw new ObjectStoreException("Calendar already exists");
-            } catch (ObjectNotFoundException e) {
-
             }
 
             try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".ics"))) {
@@ -152,22 +161,22 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
         return export;
     }
 
-    @Override
-    public Iterable<Calendar> getComponents() throws ObjectStoreException {
-        List<Calendar> calendars = new ArrayList<>();
-
-        File[] componentFiles = getObjectFiles();
-        if (componentFiles != null) {
-            try {
-                for (File file : componentFiles) {
-                    calendars.add(Calendars.load(file.getAbsolutePath()));
-                }
-            } catch (IOException | ParserException e) {
-                throw new ObjectStoreException(e);
-            }
-        }
-        return calendars;
-    }
+//    @Override
+//    public Iterable<Calendar> getAll() throws ObjectStoreException {
+//        List<Calendar> calendars = new ArrayList<>();
+//
+//        File[] componentFiles = getObjectFiles();
+//        if (componentFiles != null) {
+//            try {
+//                for (File file : componentFiles) {
+//                    calendars.add(Calendars.load(file.getAbsolutePath()));
+//                }
+//            } catch (IOException | ParserException e) {
+//                throw new ObjectStoreException(e);
+//            }
+//        }
+//        return calendars;
+//    }
 
     private File[] getObjectFiles() {
         return getRoot().listFiles(pathname ->

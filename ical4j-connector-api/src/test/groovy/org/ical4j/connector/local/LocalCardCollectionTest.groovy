@@ -36,11 +36,11 @@ class LocalCardCollectionTest extends AbstractLocalTest {
         collection.addObjectCollectionListener(listener)
 
         when: 'the new card is added to the collection'
-        collection.addCard(card)
+        collection.add(card)
 
         then: 'a new card file is created'
         new File(storeLocation,
-                "contacts/${card.getRequiredProperty(PropertyName.UID as String).getValue()}.vcf").exists()
+                "contacts/${card.getRequiredProperty(PropertyName.UID).getValue()}.vcf").exists()
 
         and: 'the listener is notified'
         event != null && event.object == card
@@ -52,17 +52,17 @@ class LocalCardCollectionTest extends AbstractLocalTest {
         LocalCardCollection collection = cardStore.addCollection('contacts')
 
         and: 'a card object added'
-        collection.addCard(card)
+        collection.add(card)
 
         when: 'the card is removed'
-        def removed = collection.removeCard(card.getRequiredProperty(PropertyName.UID as String).value)
+        def removed = collection.removeAll(card.getRequiredProperty(PropertyName.UID).value)
 
         then: 'the existing card file is deleted'
         !new File(storeLocation,
-                "contacts/${card.getRequiredProperty(PropertyName.UID as String).getValue()}.vcf").exists()
+                "contacts/${card.getRequiredProperty(PropertyName.UID).getValue()}.vcf").exists()
 
         and: 'removed card is identical to added'
-        removed == card
+        removed.contains(card)
     }
 
     def 'test get card from collection'() {
@@ -71,13 +71,13 @@ class LocalCardCollectionTest extends AbstractLocalTest {
         LocalCardCollection collection = cardStore.addCollection('contacts')
 
         and: 'a card object added'
-        collection.addCard(card)
+        collection.add(card)
 
         when: 'the card is removed'
-        def retrieved = collection.getCard(card.getRequiredProperty(PropertyName.UID as String).value)
+        def retrieved = collection.get(card.getRequiredProperty(PropertyName.UID).value)
 
         then: 'retrieved card is identical to added'
-        retrieved == card
+        retrieved == Optional.of(card)
     }
 
     def 'test list object uids in collection'() {
@@ -86,13 +86,13 @@ class LocalCardCollectionTest extends AbstractLocalTest {
         LocalCardCollection collection = cardStore.addCollection('contacts')
 
         and: 'a card object that is added to the collection'
-        collection.addCard(card)
+        collection.add(card)
 
         when: 'the collection object uids are listed'
-        def uids = collection.listObjectUids()
+        def uids = collection.listObjectUIDs()
 
         then: 'the added calendar uid is in the list'
-        uids.contains(card.getRequiredProperty(PropertyName.UID as String).value)
+        uids.contains(card.getRequiredProperty(PropertyName.UID).value)
     }
 
     def 'test export collection'() {
@@ -101,7 +101,7 @@ class LocalCardCollectionTest extends AbstractLocalTest {
         LocalCardCollection collection = cardStore.addCollection('contacts')
 
         and: 'a card object that is added to the collection'
-        collection.addCard(card)
+        collection.add(card)
 
         when: 'the collection is exported'
         def export = collection.export()

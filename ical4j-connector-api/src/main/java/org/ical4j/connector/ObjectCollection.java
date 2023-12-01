@@ -34,7 +34,9 @@ package org.ical4j.connector;
 
 import net.fortuna.ical4j.filter.FilterExpression;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementors provide support for a persistent collection of objects. A collection will typically support
@@ -67,14 +69,57 @@ public interface ObjectCollection<T> extends ObjectCollectionListenerSupport<T> 
      * Return a list of object identifiers in the collection
      * @return a list of object identifiers
      */
-    List<String> listObjectUids();
+    List<String> listObjectUIDs();
 
     /**
-     * Returns all objects stored in the collection.
-     * @return an array of collection objects
-     * @throws ObjectStoreException where an unexpected error occurs
+     * Returns a list of objects found with the specified UIDs. Where no UID is specified all objects
+     * are returned.
+     * @param uid zero or more
+     * @return a list of all found objects
      */
-    Iterable<T> getComponents() throws ObjectStoreException;
+    default List<T> getAll(String...uid) {
+        List<T> result = new ArrayList<>();
+        if (uid.length > 0) {
+            for (String u : uid) {
+                Optional<T> cal = get(u);
+                cal.ifPresent(result::add);
+            }
+        } else {
+            for (String u : listObjectUIDs()) {
+                Optional<T> cal = get(u);
+                cal.ifPresent(result::add);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Return a single object with the specified UID if it exists.
+     * @param uid
+     * @return an optional reference to an existing object
+     */
+    Optional<T> get(String uid);
+
+    /**
+     * Add a single object entity identified by an embedded UID value.
+     * @param object
+     * @return the UID discovered in the object entity
+     * @throws ObjectStoreException
+     */
+    String add(T object) throws ObjectStoreException;
+
+    /**
+     * Remove one or more objects found matching the specified UIDs. Where no UID is specified no
+     * action will be performed.
+     *
+     * Removal of all objects from a collection may be achieved as follows:
+     *
+     * <code>collection.removeAll(collection.listObjectUIDs().toArray(new String[0]))</code>
+     *
+     * @param uid
+     * @return a list of found objects that were removed
+     */
+    List<T> removeAll(String...uid) throws FailedOperationException;
 
     /**
      * Returns a subset of objects that satisfy the specified filter expression.
@@ -82,7 +127,7 @@ public interface ObjectCollection<T> extends ObjectCollectionListenerSupport<T> 
      * @return an iterable of objects matching the specified filter expressions
      * @throws ObjectStoreException when an unexpected error occurs.
      */
-    default Iterable<T> query(FilterExpression filterExpression) throws ObjectStoreException {
+    default List<T> query(FilterExpression filterExpression) {
         throw new UnsupportedOperationException("Collection filtering not yet supported");
     }
 

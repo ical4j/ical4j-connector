@@ -55,6 +55,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME;
 
@@ -96,6 +97,11 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     CardDavCollection(CardDavStore cardDavStore, String id, DavPropertySet _properties) {
         this(cardDavStore, id, null, null);
         this.properties = _properties;
+    }
+
+    @Override
+    String getPath() {
+        return getStore().pathResolver.getCardPath(getId(), getStore().getSessionConfiguration().getWorkspace());
     }
 
     /**
@@ -142,7 +148,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     /**
      * {@inheritDoc}
      */
-    public VCard[] export() throws ObjectStoreException {
+    public VCard[] export() {
         throw new UnsupportedOperationException("not implemented");
     }
         
@@ -195,7 +201,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     }
 
     @Override
-    public List<String> listObjectUids() {
+    public List<String> listObjectUIDs() {
         //TODO: extract UIDs from vcards..
         return null;
     }
@@ -203,7 +209,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     /* (non-Javadoc)
      * @see org.ical4j.connector.ObjectCollection#getComponents()
      */
-    public Iterable<VCard> getComponents() throws ObjectStoreException {
+    public Iterable<VCard> getAll() throws ObjectStoreException {
         try {
             DavPropertyNameSet properties = new DavPropertyNameSet();
             properties.add(DavPropertyName.GETETAG);
@@ -220,10 +226,10 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     /* (non-Javadoc)
      * @see org.ical4j.connector.CardCollection#addCard(net.fortuna.ical4j.vcard.VCard)
      */
-    public Uid addCard(VCard card) throws ObjectStoreException, ConstraintViolationException {
+    public String add(VCard card) throws ObjectStoreException, ConstraintViolationException {
         Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
         save(card);
-        return uid;
+        return uid.getValue();
     }
 
     @Override
@@ -256,16 +262,16 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     }
 
     @Override
-    public VCard removeCard(String uid) throws ObjectNotFoundException, FailedOperationException {
+    public List<VCard> removeAll(String... uid) {
         return null;
     }
 
     @Override
-    public VCard getCard(String uid) throws ObjectNotFoundException, FailedOperationException {
+    public Optional<VCard> get(String uid) {
         try {
-            return getStore().getClient().getVCard(uid);
+            return Optional.of(getStore().getClient().getVCard(uid));
         } catch (IOException e) {
-            throw new FailedOperationException(e);
+            throw new RuntimeException(e);
         }
     }
 }

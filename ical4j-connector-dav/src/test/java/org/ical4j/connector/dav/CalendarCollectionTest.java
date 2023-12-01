@@ -195,7 +195,7 @@ public class CalendarCollectionTest<C extends CalendarCollection> extends Object
      * @throws ObjectStoreException
      */
     public void testGetCalendars() throws ObjectStoreException {
-        Iterable<Calendar> calendars = getCollection().getComponents();
+        Iterable<Calendar> calendars = getCollection().getAll();
         assertNotNull(calendars);
     }
 }

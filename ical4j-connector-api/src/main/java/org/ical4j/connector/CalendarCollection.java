@@ -36,12 +36,9 @@ import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.model.component.VFreeBusy;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
-import org.ical4j.connector.local.LocalCalendarCollection;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.temporal.Temporal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -121,34 +118,44 @@ public interface CalendarCollection extends ObjectCollection<Calendar> {
      * @return the UID extracted from the specified calendar
      * @throws ObjectStoreException when an unexpected error occurs (implementation-specific)
      * @throws ConstraintViolationException if the specified calendar has no single unique identifier (UID)
+     * @deprecated use {@link ObjectCollection#add(Object)}
      */
-    Uid addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException;
+    @Deprecated
+    default Uid addCalendar(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
+        return new Uid(add(calendar));
+    }
     
     /**
      * Returns the calendar object with the specified UID.
      * @param uid the UID associated with the returned calendar
      * @return a calendar object or null if no calendar with the specified UID exists
+     * @deprecated use {@link ObjectCollection#getAll(String...)}
      */
-    Calendar getCalendar(String uid) throws ObjectNotFoundException;
+    @Deprecated
+    default Calendar getCalendar(String uid) throws ObjectNotFoundException {
+        return get(uid).orElse(null);
+    }
 
+    /**
+     *
+     * @param uids
+     * @return
+     * @deprecated use {@link ObjectCollection#getAll(String...)}
+     */
+    @Deprecated
     default List<Calendar> getCalendars(String... uids) {
-        List<Calendar> calendars = new ArrayList<>();
-        for (String uid : uids) {
-            try {
-                calendars.add(getCalendar(uid));
-            } catch (ObjectNotFoundException e) {
-                LoggerFactory.getLogger(LocalCalendarCollection.class).warn("Calendar not found: " + uid);
-            }
-        }
-        return calendars;
+        return getAll(uids);
     }
 
     /**
      * @param uid the UID of the calendar to remove
      * @return the calendar that was successfully removed from the collection
-     * @throws ObjectStoreException where an unexpected error occurs
+     * @deprecated use {@link ObjectCollection#removeAll(String...)}
      */
-    Calendar removeCalendar(String uid) throws FailedOperationException, ObjectStoreException, ObjectNotFoundException;
+    @Deprecated
+    default Calendar removeCalendar(String uid) throws FailedOperationException {
+        return removeAll(uid).get(0);
+    }
     
     /**
      * Merges the specified calendar object with this collection. This is done by
@@ -163,7 +170,6 @@ public interface CalendarCollection extends ObjectCollection<Calendar> {
     /**
      * Exports the entire collection as a single calendar object.
      * @return a calendar object instance that contains all calendars in the collection
-     * @throws ObjectStoreException where an unexpected error occurs
      */
-    Calendar export() throws ObjectStoreException;
+    Calendar export();
 }

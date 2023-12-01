@@ -16,9 +16,9 @@ public abstract class AbstractLocalObjectCollection<T> extends AbstractObjectCol
 
     public AbstractLocalObjectCollection(File root) throws IOException {
         this.root = Objects.requireNonNull(root);
-        if (!root.isDirectory()) {
-            throw new IllegalArgumentException("Root must be a directory");
-        }
+//        if (!root.isDirectory()) {
+//            throw new IllegalArgumentException("Root must be a directory");
+//        }
         File configRoot = new File(root, LocalCollectionConfiguration.DEFAULT_CONFIG_DIR);
         if ((configRoot.exists() && !configRoot.isDirectory()) ||
                 (!configRoot.exists() && !configRoot.mkdirs())) {

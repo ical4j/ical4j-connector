@@ -4,7 +4,6 @@ import net.fortuna.ical4j.model.Calendar
 import net.fortuna.ical4j.model.Component
 import net.fortuna.ical4j.model.ContentBuilder
 import net.fortuna.ical4j.model.Property
-import net.fortuna.ical4j.util.Calendars
 import net.fortuna.ical4j.util.RandomUidGenerator
 import org.ical4j.connector.event.ObjectCollectionEvent
 import org.ical4j.connector.event.ObjectCollectionListener
@@ -42,7 +41,7 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
         collection.addObjectCollectionListener(listener)
 
         when: 'the new calendar is added to the collection'
-        collection.addCalendar(calendar)
+        collection.add(calendar)
 
         then: 'a new calendar file is created'
         new File(storeLocation,
@@ -58,17 +57,17 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
         LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
 
         and: 'a calendar object that is added to the collection'
-        collection.addCalendar(calendar)
+        collection.add(calendar)
 
         when: 'the calendar is removed from the collection'
-        def removed = collection.removeCalendar(Calendars.getUid(calendar).value)
+        def removed = collection.removeAll(calendar.getUid().value)
 
         then: 'the exsiting calendar file is deleted'
         !new File(storeLocation,
                 "public_holidays/${calendar.getComponent(Component.VEVENT).get().getRequiredProperty(Property.UID).getValue()}.ics").exists()
 
         and: 'removed calendar is identical to added'
-        removed == calendar
+        removed.contains(calendar)
     }
 
     def 'test get calendar from collection'() {
@@ -77,13 +76,13 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
         LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
 
         and: 'a calendar object that is added to the collection'
-        collection.addCalendar(calendar)
+        collection.add(calendar)
 
         when: 'the calendar is retrieved from the collection'
-        def retrieved = collection.getCalendar(Calendars.getUid(calendar).value)
+        def retrieved = collection.get(calendar.getUid().value)
 
         then: 'retrieved calendar is identical to added'
-        retrieved == calendar
+        retrieved == Optional.of(calendar)
     }
 
     def 'test list object uids in collection'() {
@@ -92,13 +91,13 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
         LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
 
         and: 'a calendar object that is added to the collection'
-        collection.addCalendar(calendar)
+        collection.add(calendar)
 
         when: 'the collection object uids are listed'
-        def uids = collection.listObjectUids()
+        def uids = collection.listObjectUIDs()
 
         then: 'the added calendar uid is in the list'
-        uids.contains(Calendars.getUid(calendar).value)
+        uids.contains(calendar.getUid().value)
     }
 
     def 'test export collection'() {
@@ -107,7 +106,7 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
         LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
 
         and: 'a calendar object that is added to the collection'
-        collection.addCalendar(calendar)
+        collection.add(calendar)
 
         when: 'the collection is exported'
         def export = collection.export()
