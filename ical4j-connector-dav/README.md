@@ -74,7 +74,7 @@ DavPropertySet props = caldav.propFind('admin', SecurityConstants.PRINCIPAL_COLL
 Note that to support multiple CalDAV implementations you may need to use a PathResolver.
 
 ```java
-String path = PathResolver.Defaults.RADICALE.getRepositoryPath("test", "admin");
+String path = PathResolver.Defaults.RADICALE.getCalendarPath("test", "admin");
 Calendar calendar = caldav.getCalendar(path);
 ```
 
