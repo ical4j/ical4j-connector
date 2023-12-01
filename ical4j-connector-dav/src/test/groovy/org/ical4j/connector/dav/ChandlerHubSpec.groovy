@@ -58,7 +58,7 @@ class ChandlerHubSpec extends Specification {
 	@Ignore
 	def 'verify successful connection'() {
 		setup: 'connect to chandler hub'
-		assert calendarStore.connect(username, password.toCharArray())
+		assert calendarStore.connect(new DavSessionConfiguration().withUser(username).withPassword( password.toCharArray()))
 		
 		expect: 'is connected'
 		assert calendarStore.isConnected()
