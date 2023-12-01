@@ -32,12 +32,10 @@
 package org.ical4j.connector.dav;
 
 import net.fortuna.ical4j.util.Configurator;
+import org.ical4j.connector.AbstractObjectStore;
 import org.ical4j.connector.FailedOperationException;
 import org.ical4j.connector.ObjectCollection;
-import org.ical4j.connector.ObjectStore;
 import org.ical4j.connector.ObjectStoreException;
-import org.ical4j.connector.event.ListenerList;
-import org.ical4j.connector.event.ObjectStoreListener;
 
 import java.io.IOException;
 import java.net.URL;
@@ -51,25 +49,32 @@ import java.util.List;
  * 
  * @author fortuna
  */
-public abstract class AbstractDavObjectStore<T, C extends ObjectCollection<T>> implements ObjectStore<T, C> {
+public abstract class AbstractDavObjectStore<T, C extends ObjectCollection<T>> extends AbstractObjectStore<T, C> {
 
+    /**
+     * Factory used to create new client instances on connect..
+     */
     private final DavClientFactory clientFactory;
 
-	private DefaultDavClient davClient;
-	
-	private String username;
-    private String bearerAuth;
-	
-	private final URL rootUrl;
-	
-	private List<SupportedFeature> supportedFeatures;
-	
+    /**
+     * URL of the target DAV server.
+     */
+    private final URL rootUrl;
+
     /**
      * Server implementation-specific path resolution.
      */
     protected final PathResolver pathResolver;
 
-    private final ListenerList<ObjectStoreListener<T>> listenerList;
+    /**
+     * DAV client instance initialised on connect. A new instance is created each time a connect
+     * method is invoked.
+     */
+	private DefaultDavClient davClient;
+	
+	private DavSessionConfiguration sessionConfiguration;
+
+	private List<SupportedFeature> supportedFeatures;
 
     /**
      * @param url the URL of a CalDAV server instance
@@ -81,62 +86,52 @@ public abstract class AbstractDavObjectStore<T, C extends ObjectCollection<T>> i
         this.clientFactory = new DavClientFactory()
                 .withPreemptiveAuth("true".equals(Configurator.getProperty("ical4j.connector.dav.preemptiveauth")
                         .orElse("false")));
-        this.listenerList = new ListenerList<>();
     }
 
     /**
-     * {@inheritDoc}
+     * Reconnect with an existing session configuration.
      */
     public final boolean connect() throws ObjectStoreException {
-//        DavClientConfiguration configuration = new DavClientConfiguration().withRepositoryUrl(rootUrl)
-//                .withPrincipalPath(pathResolver.getPrincipalPath(getUserName()))
-//                .withUserPath(pathResolver.getUserPath(getUserName()));
-
-        davClient = clientFactory.newInstance(rootUrl);
-        davClient.begin();
-
-        return true;
+        return connect(sessionConfiguration);
     }
 
-
-    public final boolean connect( String bearerAuth ) throws ObjectStoreException {
-        try {
-//            DavClientConfiguration configuration = new DavClientConfiguration().withRepositoryUrl(rootUrl)
-//                    .withPrincipalPath(rootUrl.getFile())
-//                    .withUserPath(rootUrl.getFile());
-
-            davClient = clientFactory.newInstance(rootUrl);
-            davClient.begin( bearerAuth );
-
-            this.bearerAuth = bearerAuth;
-        } catch (IOException | FailedOperationException ioe) {
-            throw new ObjectStoreException( ioe );
-        }
-
-        return true;
+    /**
+     *
+     * @param bearerAuth
+     * @return
+     * @throws ObjectStoreException
+     *
+     * @deprecated use {@link AbstractDavObjectStore#connect(DavSessionConfiguration)} instead.
+     */
+    @Deprecated
+    public final boolean connect(String bearerAuth) throws ObjectStoreException {
+        return connect(new DavSessionConfiguration().withBearerAuth(bearerAuth));
     }
 
 
     /**
      * {@inheritDoc}
      * @throws FailedOperationException 
-     * @throws IOException 
+     * @throws IOException
+     *
+     * @deprecated use {@link AbstractDavObjectStore#connect(DavSessionConfiguration)} instead.
      */
+    @Deprecated
     public final boolean connect(String username, char[] password) throws ObjectStoreException {
+        return connect(new DavSessionConfiguration().withUser(username).withPassword(password));
+    }
+
+    public final boolean connect(DavSessionConfiguration sessionConfiguration) throws ObjectStoreException {
+        this.sessionConfiguration = sessionConfiguration;
     	try {
-            this.username = username;
-
-//            DavClientConfiguration configuration = new DavClientConfiguration().withRepositoryUrl(rootUrl)
-//                    .withPrincipalPath(pathResolver.getPrincipalPath(getUserName()))
-//                    .withUserPath(pathResolver.getUserPath(getUserName()));
-
         	davClient = clientFactory.newInstance(rootUrl);
-        	supportedFeatures = davClient.begin(username, password);
-    	}
-    	catch (IOException | FailedOperationException ioe) {
+            if (sessionConfiguration.getCredentialsProvider() != null) {
+                davClient.begin(sessionConfiguration.getCredentialsProvider());
+            }
+            supportedFeatures = davClient.getSupportedFeatures();
+    	} catch (IOException ioe) {
     		throw new ObjectStoreException(ioe);
     	}
-
         return true;
     }
 
@@ -145,7 +140,7 @@ public abstract class AbstractDavObjectStore<T, C extends ObjectCollection<T>> i
      */
     public final void disconnect() {
     	davClient = null;
-    	username = null;
+        supportedFeatures = null;
     }
 
     /**
@@ -160,15 +155,22 @@ public abstract class AbstractDavObjectStore<T, C extends ObjectCollection<T>> i
      * 
      * @return the username stored in the HTTP credentials
      * @author Pascal Robert
+     *
+     * @deprecated use {@link AbstractDavObjectStore#getSessionConfiguration()} instead.
      */
+    @Deprecated
     protected String getUserName() {
-    	return username;
+    	return sessionConfiguration.getUser();
     }
     
     public DefaultDavClient getClient() {
     	return davClient;
     }
-    
+
+    public DavSessionConfiguration getSessionConfiguration() {
+        return sessionConfiguration;
+    }
+
     /**
      * Returns a list of supported features, based on the DAV header in the response 
      * of the connect call.
@@ -180,10 +182,5 @@ public abstract class AbstractDavObjectStore<T, C extends ObjectCollection<T>> i
     
     public boolean isSupportCalendarProxy() {
         return supportedFeatures.contains(SupportedFeature.CALENDAR_PROXY);
-    }
-
-    @Override
-    public ListenerList<ObjectStoreListener<T>> getObjectStoreListeners() {
-        return listenerList;
     }
 }
