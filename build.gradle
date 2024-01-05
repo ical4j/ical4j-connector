@@ -9,8 +9,7 @@ buildscript {
 
 plugins {
     id 'signing'
-    id 'pl.allegro.tech.build.axion-release' version '1.15.1'
-    id "nebula.optional-base" version "3.0.3" apply false
+    id 'pl.allegro.tech.build.axion-release' version '1.13.6'
     id 'biz.aQute.bnd.builder' version "$bndVersion" apply false
     id 'org.javamodularity.moduleplugin' version '1.8.10' apply false
 }
@@ -36,7 +35,6 @@ configure(subprojects) {
     apply plugin: 'groovy'
     apply plugin: 'biz.aQute.bnd.builder'
 //    apply plugin: 'org.javamodularity.moduleplugin'
-    apply plugin: 'nebula.optional-base'
 
     repositories {
         mavenCentral()
@@ -66,13 +64,7 @@ A Java library for accessing iCalendar data stores
 
     dependencies {
         api "org.mnode.ical4j:ical4j:$ical4jVersion",
-                "org.mnode.ical4j:ical4j-vcard:$ical4jVCardVersion",
-                "org.ical4j:ical4j-serializer:$ical4jSerializerVersion",
-                'commons-io:commons-io:2.11.0',
-                "org.jooq:jool-java-8:$joolVersion",
-                "org.jetbrains:annotations:$jetbrainsVersion"
-
-        implementation "org.codehaus.groovy:groovy:$groovyVersion", optional
+                "org.mnode.ical4j:ical4j-vcard:$ical4jVCardVersion"
 
         compileOnly 'org.osgi:osgi.core:8.0.0',
                 'org.osgi:org.osgi.service.component.annotations:1.5.0',
@@ -80,7 +72,8 @@ A Java library for accessing iCalendar data stores
                 'org.osgi:org.osgi.annotation:6.0.0'
 
         // spock
-        testImplementation platform("org.spockframework:spock-bom:2.1-groovy-3.0"),
+        testImplementation platform("org.spockframework:spock-bom:$spockVersion"),
+                'commons-io:commons-io:2.11.0',
                 "org.spockframework:spock-core"
 
         // junit
@@ -102,12 +95,6 @@ A Java library for accessing iCalendar data stores
                     'Implementation-Vendor': 'Ben Fortuna'
             )
         }
-    }
-
-    artifacts {
-        archives jar
-        archives javadocJar
-        archives sourcesJar
     }
 
     test {
@@ -152,7 +139,8 @@ A Java library for accessing iCalendar data stores
         repositories {
             maven {
                 name = "OSSRH"
-                url = version.endsWith('SNAPSHOT') ? "https://s01.oss.sonatype.org/content/repositories/snapshots/" : "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                url = version.endsWith('SNAPSHOT') ? "https://s01.oss.sonatype.org/content/repositories/snapshots/" \
+                        : "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
                 credentials {
                     username = System.getenv("MAVEN_USERNAME")
                     password = System.getenv("MAVEN_PASSWORD")
