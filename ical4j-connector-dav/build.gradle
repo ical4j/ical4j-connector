@@ -1,0 +1,8 @@
+dependencies {
+    api project(":ical4j-connector-api"),
+            "org.apache.jackrabbit:jackrabbit-webdav:$jackrabbitWebdavVersion",
+            "org.jetbrains:annotations:$jetbrainsVersion",
+            "org.jooq:jool-java-8:$joolVersion"
+
+    implementation 'javax.servlet:servlet-api:2.5'
+}
