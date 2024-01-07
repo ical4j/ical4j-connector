@@ -1,17 +1,10 @@
 package org.ical4j.connector.dav
 
-import org.apache.http.client.CredentialsProvider
+
+import org.ical4j.connector.CalendarCollection
 import org.ical4j.connector.CalendarStore
 
 abstract class AbstractCalendarStoreIntegrationTest extends AbstractIntegrationTest {
-
-    abstract PathResolver getPathResolver();
-
-    abstract CredentialsProvider getCredentialsProvider()
-
-    abstract String getUser()
-
-    abstract String getWorkspace()
 
     def 'test find calendar home set'() {
         given: 'an object store'
@@ -23,16 +16,16 @@ abstract class AbstractCalendarStoreIntegrationTest extends AbstractIntegrationT
                 .withUser(getUser()).withWorkspace(getWorkspace()))
 
         and: 'a collection is created'
-        store.addCollection('testCollection')
+        CalendarCollection collection = store.addCollection('testCollection5')
 
         when: 'calendar home set it requested'
         String calendarHomeSet = store.findCalendarHomeSet()
         
         then: 'the calendar home set is retrieved'
-        calendarHomeSet != null
+        calendarHomeSet == expectedValues['calendar-home-set']
 
         cleanup:
-        store.getCollection('testCollection').delete()
+        collection.delete()
     }
 
     def 'test collection creation'() {

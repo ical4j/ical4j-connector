@@ -1,5 +1,6 @@
 package org.ical4j.connector.dav
 
+import org.apache.http.client.CredentialsProvider
 import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.spock.Testcontainers
@@ -11,23 +12,30 @@ abstract class AbstractIntegrationTest extends Specification {
 
     @Shared
     GenericContainer container = new GenericContainer(getContainerImageName())
-//            .withFileSystemBind(getConfigPath(), getContainerConfigPath(), BindMode.READ_ONLY)
-            .withExposedPorts(getContainerPort())
-    .withFileSystemBind('src/test/resources/baikal/db', '/var/www/baikal/Specific/db', BindMode.READ_WRITE)
-    .withFileSystemBind('src/test/resources/baikal/config', '/var/www/baikal/config', BindMode.READ_WRITE)
-
+            .withExposedPorts(getContainerPort()).with(container -> {
+        getBindMounts().forEach { container.withFileSystemBind(it.v1, it.v2, it.v3)}
+        container
+    })
 
     abstract String getContainerImageName();
 
     abstract int getContainerPort();
 
-    abstract String getConfigPath();
-
-    abstract String getContainerConfigPath();
+    abstract List<Tuple3<String, String, BindMode>> getBindMounts();
 
     abstract String getRepositoryPath();
 
     String getContainerUrl() {
         "http://$container.containerIpAddress:${container.getMappedPort(getContainerPort())}${getRepositoryPath()}"
     }
+
+    abstract PathResolver getPathResolver();
+
+    abstract CredentialsProvider getCredentialsProvider()
+
+    abstract String getUser()
+
+    abstract String getWorkspace()
+
+    abstract Map<String, ?> getExpectedValues()
 }

@@ -1,8 +1,5 @@
 package org.ical4j.connector.dav
 
-
-import static org.ical4j.connector.dav.SupportedFeature.*
-
 class BaikalIntegrationTest extends AbstractIntegrationTest implements BaikalTestSupport {
 
     def 'test client authentication'() {
@@ -15,6 +12,6 @@ class BaikalIntegrationTest extends AbstractIntegrationTest implements BaikalTes
         def supportedFeatures = client.begin(getCredentialsProvider())
 
         then: 'authentication is successful'
-        client.getSupportedFeatures() == Arrays.asList(CALENDAR_ACCESS, ADDRESSBOOK, EXTENDED_MKCOL)
+        client.getSupportedFeatures() == expectedValues['supported-features']
     }
 }

@@ -12,16 +12,24 @@ interface BedeworkTestSupport {
 
     default int getContainerPort() { 8080 }
 
-    default String getConfigPath() { null }
-
-    default String getContainerConfigPath() { null }
+    default List<Tuple<?>> getBindMounts() {
+        []
+    }
 
     default String getRepositoryPath() { '/ucaldav' }
 
     default PathResolver getPathResolver() { PathResolver.Defaults.BEDEWORK }
 
+    default String getUser() { 'test' }
+
+    default String getWorkspace() { 'test' }
+
+    default Map<String, ?> getExpectedValues() {
+        ['calendar-home-set': '/calendars/test']
+    }
+
     default CredentialsProvider getCredentialsProvider() {
-        Credentials credentials = new UsernamePasswordCredentials('admin', 'admin');
+        Credentials credentials = new UsernamePasswordCredentials(getUser(), 'test');
         CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(AuthScope.ANY, credentials);
         credentialsProvider

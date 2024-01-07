@@ -1,12 +1,12 @@
 package org.ical4j.connector.dav
 
-import net.fortuna.ical4j.model.Calendar
-import org.apache.http.client.CredentialsProvider
+
 import org.apache.http.impl.client.BasicAuthCache
 import org.apache.jackrabbit.webdav.DavException
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet
 import org.apache.jackrabbit.webdav.property.DavPropertySet
 import org.ical4j.connector.dav.property.DavPropertyBuilder
+import org.ical4j.connector.dav.request.CalendarQuery
 import spock.lang.Ignore
 
 import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME
@@ -18,14 +18,6 @@ import static org.ical4j.connector.dav.property.CalDavPropertyName.*
 import static org.ical4j.connector.dav.property.CardDavPropertyName.ADDRESSBOOK_HOME_SET
 
 abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest {
-
-    abstract PathResolver getPathResolver()
-
-    abstract String getWorkspace()
-
-    abstract CredentialsProvider getCredentialsProvider()
-
-    abstract List<SupportedFeature> getSupportedFeatures()
 
     def 'assert preemptive auth configuration'() {
         given: 'a dav client factory configured for preemptive auth'
@@ -54,7 +46,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         def supportedFeatures= client.getSupportedFeatures()
 
         then: 'authentication is successful'
-        supportedFeatures == getSupportedFeatures()
+        supportedFeatures == expectedValues['supported-features']
     }
 
     def 'test create collection'() {
@@ -123,10 +115,11 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         client.mkCalendar(path, props)
 
         and: 'the collection is retrieved via get'
-        Calendar calendar = client.getCalendar(path)
+        CalendarQuery query = ['VCALENDAR']
+        Map<String, DavPropertySet> result = client.report(path, query, CALENDAR_DATA)
 
         then: 'the retrieved calendar is as expected'
-        calendar != null
+        result.isEmpty()
 
         cleanup: 'remove collection'
         client.delete(path)
