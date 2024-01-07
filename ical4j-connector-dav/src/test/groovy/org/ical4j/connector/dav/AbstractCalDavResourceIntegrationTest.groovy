@@ -21,7 +21,7 @@ abstract class AbstractCalDavResourceIntegrationTest extends AbstractIntegration
         
         and: 'a caldav resource'
         CalDavResourceFactory resourceFactory = []
-        CalDavResource resource = [resourceFactory, locatorFactory.createResourceLocator('', getContainerUrl()),
+        CalDavResource resource = [resourceFactory, locatorFactory.createResourceLocator('', getContainerUrl() + '/newcol'),
                                    new DavPropertySet(), client, null]
 
         when: 'property names are requested'
