@@ -78,7 +78,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * @param id
      */
     CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id) {
-        this(calDavCalendarStore, id, null, null);
+        this(calDavCalendarStore, id, id, "");
     }
 
     /**

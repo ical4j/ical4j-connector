@@ -76,7 +76,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      * @param id
      */
     CardDavCollection(CardDavStore CardDavCalendarStore, String id) {
-        this(CardDavCalendarStore, id, id, null);
+        this(CardDavCalendarStore, id, id, "");
     }
 
     /**
@@ -95,7 +95,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     }
 
     CardDavCollection(CardDavStore cardDavStore, String id, DavPropertySet _properties) {
-        this(cardDavStore, id, null, null);
+        this(cardDavStore, id, id, "");
         this.properties = _properties;
     }
 
