@@ -64,11 +64,11 @@ import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.PropEntry;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
-import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.ical4j.connector.FailedOperationException;
 import org.ical4j.connector.ObjectStoreException;
 import org.ical4j.connector.dav.method.*;
 import org.ical4j.connector.dav.property.CSDavPropertyName;
+import org.ical4j.connector.dav.property.CalDavPropertyName;
 import org.ical4j.connector.dav.request.CalendarQuery;
 import org.ical4j.connector.dav.request.MkCalendarEntity;
 import org.ical4j.connector.dav.request.MkColEntity;
@@ -252,13 +252,13 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	}
 
 	@Override
-	public Map<String, DavPropertySet> report(String path, CalendarQuery query, ReportType reportType,
-								   DavPropertyNameSet propertyNames) throws IOException, ParserConfigurationException {
-		ReportInfo info = new ReportInfo(reportType, 1, propertyNames);
-		info.setContentElement(query.build());
+	public Map<String, DavPropertySet> report(String path, CalendarQuery query, DavPropertyNameSet propertyNames)
+			throws IOException, ParserConfigurationException {
 
-		HttpReport method = new HttpReport(resolvePath(path), info);
-		return execute(method, new GetCollections());
+		ReportInfo info = new ReportInfo(CalDavPropertyName.CALENDAR_QUERY, 1, propertyNames);
+		info.setContentElement(query.build());
+		
+		return report(path, info, new GetCollections());
 	}
 
 	@Override

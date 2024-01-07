@@ -7,7 +7,6 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
-import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.ical4j.connector.FailedOperationException;
 import org.ical4j.connector.ObjectStoreException;
 import org.ical4j.connector.dav.request.CalendarQuery;
@@ -99,11 +98,12 @@ public interface CalDavSupport extends WebDavSupport {
      */
     void mkCalendar(String uri, DavPropertySet properties) throws IOException, ObjectStoreException, DavException;
 
-    default Map<String, DavPropertySet> report(String path, CalendarQuery query, ReportType reportType,
-                                              DavPropertyName...propertyNames) throws IOException, ParserConfigurationException {
+    default Map<String, DavPropertySet> report(String path, CalendarQuery query, DavPropertyName...propertyNames)
+            throws IOException, ParserConfigurationException {
+
         DavPropertyNameSet nameSet = new DavPropertyNameSet();
         Arrays.stream(propertyNames).forEach(nameSet::add);
-        return report(path, query, reportType, nameSet);
+        return report(path, query, nameSet);
     }
 
     /**
@@ -124,14 +124,13 @@ public interface CalDavSupport extends WebDavSupport {
      *
      * @param uri
      * @param query
-     * @param reportType
      * @param propertyNames
      * @return
      * @throws IOException
      * @throws ParserConfigurationException
      */
-    Map<String, DavPropertySet> report(String uri, CalendarQuery query, ReportType reportType,
-                                       DavPropertyNameSet propertyNames) throws IOException, ParserConfigurationException;
+    Map<String, DavPropertySet> report(String uri, CalendarQuery query, DavPropertyNameSet propertyNames)
+            throws IOException, ParserConfigurationException;
 
     <T> T report(String path, ReportInfo info, ResponseHandler<T> handler) throws IOException,
             ParserConfigurationException;
