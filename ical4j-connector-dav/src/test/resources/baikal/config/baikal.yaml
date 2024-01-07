@@ -1,5 +1,5 @@
 system:
-    configured_version: 0.9.3
+    configured_version: 0.9.4
     timezone: Australia/Melbourne
     card_enabled: true
     cal_enabled: true
