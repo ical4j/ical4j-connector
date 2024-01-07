@@ -1,0 +1,19 @@
+system:
+    configured_version: 0.9.3
+    timezone: Australia/Melbourne
+    card_enabled: true
+    cal_enabled: true
+    dav_auth_type: Digest
+    admin_passwordhash: c5c8aad193b35abb041407a27e76cb563196496c5d11ec3081fdb6110db67ba2
+    failed_access_message: 'user %u authentication failure for Baikal'
+    auth_realm: BaikalDAV
+    base_uri: ''
+    invite_from: noreply@ical4j.org
+database:
+    sqlite_file: /var/www/baikal/Specific/db/db.sqlite
+    mysql: false
+    mysql_host: ''
+    mysql_dbname: ''
+    mysql_username: ''
+    mysql_password: ''
+    encryption_key: e3eb31a9e8a2527c5f96e0603d0c76fe
