@@ -186,7 +186,8 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
 
         DavPropertySet props = getClient().propFind(propfindUri, principalsProps);
         if (props.contains(CalDavPropertyName.CALENDAR_HOME_SET)) {
-            return (String) props.get(CalDavPropertyName.CALENDAR_HOME_SET).getValue();
+            Element propElement = (Element) props.get(CalDavPropertyName.CALENDAR_HOME_SET).getValue();
+            return propElement.getFirstChild().getNodeValue();
         } else {
             throw new RuntimeException("Property not found");
         }
