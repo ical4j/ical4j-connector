@@ -10,8 +10,14 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -67,8 +73,18 @@ public abstract class AbstractResponseHandler<T> implements ResponseHandler<T> {
 
     protected MultiStatus getMultiStatus(HttpResponse response) throws DavException {
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_MULTI_STATUS) {
-            throw new RuntimeException("Unexpected status code");
+            throw new RuntimeException("Unexpected status code: " + response.getStatusLine().getStatusCode());
         }
         return getResponseBodyAsMultiStatus(response);
+    }
+
+    protected String toString(Document document) throws TransformerException, IOException {
+        DOMSource domSource = new DOMSource(document);
+        StringWriter writer = new StringWriter();
+        StreamResult result = new StreamResult(writer);
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = tf.newTransformer();
+        transformer.transform(domSource, result);
+        return writer.toString();
     }
 }
