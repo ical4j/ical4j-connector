@@ -21,7 +21,7 @@ scmVersion {
     versionCreator 'versionWithBranch'
     branchVersionCreator = [
             'master': 'simple',
-            'feature/refactor': 'simple',
+            'develop': 'simple',
     ]
     nextVersion {
         suffix = 'pre'
