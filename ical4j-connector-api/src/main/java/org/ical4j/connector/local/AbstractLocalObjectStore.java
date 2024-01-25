@@ -51,7 +51,12 @@ public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObject
 
     @Override
     public C addCollection(String id) throws ObjectStoreException {
-        File collectionDir = new File(root, id);
+        return addCollection(id, "default");
+    }
+
+    @Override
+    public C addCollection(String id, String workspace) throws ObjectStoreException {
+        File collectionDir = new File(getWorkspaceDir(workspace), id);
         if ((collectionDir.exists() && !collectionDir.isDirectory()) ||
                 (!collectionDir.exists() && !collectionDir.mkdirs())) {
             throw new ObjectStoreException("Unable to initialise collection");
@@ -61,7 +66,7 @@ public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObject
             collection = getCollection(id);
         } catch (ObjectNotFoundException e) {
             try {
-                collection = newCollection(id);
+                collection = newCollection(id, workspace);
             } catch (IOException ex) {
                 throw new ObjectStoreException(ex);
             }
@@ -73,11 +78,17 @@ public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObject
         return collection;
     }
 
-    protected abstract C newCollection(String id) throws IOException;
+    protected abstract C newCollection(String id, String workspace) throws IOException;
 
     @Override
     public C addCollection(String id, String displayName, String description, String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
-        C collection = addCollection(id);
+        return addCollection(id, displayName, description, supportedComponents, timezone, "default");
+    }
+
+    @Override
+    public C addCollection(String id, String displayName, String description, String[] supportedComponents,
+                           Calendar timezone, String workspace) throws ObjectStoreException {
+        C collection = addCollection(id, workspace);
         try {
             collection.setDisplayName(displayName);
             collection.setDescription(description);
@@ -106,12 +117,17 @@ public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObject
 
     @Override
     public C getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
-        File collectionDir = new File(root, id);
+        return getCollection(id, "default");
+    }
+
+    @Override
+    public C getCollection(String id, String workspace) throws ObjectStoreException, ObjectNotFoundException {
+        File collectionDir = new File(getWorkspaceDir(workspace), id);
         if (!collectionDir.exists() || !collectionDir.isDirectory()) {
             throw new ObjectNotFoundException("Unable to retrieve collection");
         }
         try {
-            return newCollection(id);
+            return newCollection(id, workspace);
         } catch (IOException e) {
             throw new ObjectStoreException(e);
         }
@@ -119,12 +135,30 @@ public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObject
 
     @Override
     public List<C> getCollections() {
-        return Arrays.stream(root.list()).map(name -> {
+        return getCollections("default");
+    }
+
+    @Override
+    public List<C> getCollections(String workspace) {
+        return Arrays.stream(Objects.requireNonNull(getWorkspaceDir(workspace).list())).map(name -> {
             try {
-                return newCollection(name);
+                return newCollection(name, workspace);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }).collect(Collectors.toList());
+    }
+
+    protected File getWorkspaceDir(String workspace) {
+        File workspaceDir = new File(root, workspace);
+        if (!workspaceDir.exists() && !workspaceDir.mkdir()) {
+            throw new IllegalArgumentException("Invalid workspace");
+        }
+        return workspaceDir;
+    }
+
+    @Override
+    public List<String> listWorkspaces() {
+        return Arrays.asList(Objects.requireNonNull(root.list()));
     }
 }

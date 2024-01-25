@@ -14,7 +14,7 @@ public class LocalCardStore extends AbstractLocalObjectStore<VCard, LocalCardCol
     }
 
     @Override
-    protected LocalCardCollection newCollection(String id) throws IOException {
-        return new LocalCardCollection(new File(getRoot(), id));
+    protected LocalCardCollection newCollection(String id, String workspace) throws IOException {
+        return new LocalCardCollection(new File(getWorkspaceDir(workspace), id));
     }
 }

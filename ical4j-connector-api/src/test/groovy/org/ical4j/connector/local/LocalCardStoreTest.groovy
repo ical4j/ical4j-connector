@@ -22,7 +22,7 @@ class LocalCardStoreTest extends AbstractLocalTest {
         LocalCardCollection collection = cardStore.addCollection('contacts')
 
         then: 'a local collection directory is added'
-        new File(storeLocation, 'contacts').exists()
+        new File(workspaceLocation, 'contacts').exists()
 
         and: 'the listener is notified'
         event != null && event.collection == collection
@@ -41,7 +41,7 @@ class LocalCardStoreTest extends AbstractLocalTest {
                 'Personal Contacts', ['VCARD'] as String[], timezone)
 
         then: 'a local collection directory is added'
-        new File(storeLocation, 'contacts').exists()
+        new File(workspaceLocation, 'contacts').exists()
 
         and: 'the collection properties are saved'
         collection.displayName == 'Contacts'

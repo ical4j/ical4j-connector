@@ -44,7 +44,7 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
         collection.add(calendar)
 
         then: 'a new calendar file is created'
-        new File(storeLocation,
+        new File(workspaceLocation,
                 "public_holidays/${calendar.getComponent(Component.VEVENT).get().getRequiredProperty(Property.UID).getValue()}.ics").exists()
 
         and: 'the listener is notified'
@@ -63,7 +63,7 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
         def removed = collection.removeAll(calendar.getUid().value)
 
         then: 'the exsiting calendar file is deleted'
-        !new File(storeLocation,
+        !new File(workspaceLocation,
                 "public_holidays/${calendar.getComponent(Component.VEVENT).get().getRequiredProperty(Property.UID).getValue()}.ics").exists()
 
         and: 'removed calendar is identical to added'

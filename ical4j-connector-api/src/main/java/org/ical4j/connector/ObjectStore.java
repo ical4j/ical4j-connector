@@ -81,7 +81,9 @@ public interface ObjectStore<T, C extends ObjectCollection<T>> extends ObjectSto
      * exists in the store
      */
     C addCollection(String id) throws ObjectStoreException;
-    
+
+    C addCollection(String id, String workspace) throws ObjectStoreException;
+
     /**
      * @param id a collection identifier
      * @param displayName the collection name
@@ -93,7 +95,10 @@ public interface ObjectStore<T, C extends ObjectCollection<T>> extends ObjectSto
      */
     C addCollection(String id, String displayName, String description,
             String[] supportedComponents, Calendar timezone) throws ObjectStoreException;
-    
+
+    C addCollection(String id, String displayName, String description,
+            String[] supportedComponents, Calendar timezone, String workspace) throws ObjectStoreException;
+
     /**
      * Removes the collection with specified id from the store.
      * @param id a collection identifier
@@ -105,7 +110,7 @@ public interface ObjectStore<T, C extends ObjectCollection<T>> extends ObjectSto
      */
     @Deprecated
     C removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException;
-    
+
     /**
      * @param id a collection identifier
      * @return an object collection with the specified id. If no collection with the specified id
@@ -115,5 +120,11 @@ public interface ObjectStore<T, C extends ObjectCollection<T>> extends ObjectSto
      */
     C getCollection(String id) throws ObjectStoreException, ObjectNotFoundException;
 
+    C getCollection(String id, String workspace) throws ObjectStoreException, ObjectNotFoundException;
+
     List<C> getCollections() throws ObjectStoreException, ObjectNotFoundException;
+
+    List<C> getCollections(String workspace) throws ObjectStoreException, ObjectNotFoundException;
+
+    List<String> listWorkspaces();
 }

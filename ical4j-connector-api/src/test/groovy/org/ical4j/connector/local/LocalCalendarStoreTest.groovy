@@ -22,7 +22,7 @@ class LocalCalendarStoreTest extends AbstractLocalTest {
         LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
 
         then: 'a local collection directory is added'
-        new File(storeLocation, 'public_holidays').exists()
+        new File(workspaceLocation, 'public_holidays').exists()
 
         and: 'the listener is notified'
         event != null && event.collection == collection
@@ -41,7 +41,7 @@ class LocalCalendarStoreTest extends AbstractLocalTest {
                 'Victorian public holidays', [Component.VEVENT] as String[], timezone)
 
         then: 'a local collection directory is added'
-        new File(storeLocation, 'public_holidays').exists()
+        new File(workspaceLocation, 'public_holidays').exists()
 
         and: 'the collection properties are saved'
         collection.displayName == 'Public Holidays'

@@ -39,7 +39,7 @@ class LocalCardCollectionTest extends AbstractLocalTest {
         collection.add(card)
 
         then: 'a new card file is created'
-        new File(storeLocation,
+        new File(workspaceLocation,
                 "contacts/${card.getRequiredProperty(PropertyName.UID).getValue()}.vcf").exists()
 
         and: 'the listener is notified'

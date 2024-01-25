@@ -96,6 +96,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     /**
      * {@inheritDoc}
      */
+    @Override
     public CalDavCalendarCollection addCollection(String id) throws ObjectStoreException {
         CalDavCalendarCollection collection = new CalDavCalendarCollection(this, id);
         try {
@@ -106,9 +107,15 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
         return collection;
     }
 
+    @Override
+    public CalDavCalendarCollection addCollection(String id, String workspace) throws ObjectStoreException {
+        throw new UnsupportedOperationException("Workspaces not yet implemented");
+    }
+
     /**
      * {@inheritDoc}
      */
+    @Override
     public CalDavCalendarCollection addCollection(String id, String displayName, String description,
             String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
 
@@ -119,6 +126,11 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
             throw new ObjectStoreException(String.format("unable to add collection '%s'", id), e);
         }
         return collection;
+    }
+
+    @Override
+    public CalDavCalendarCollection addCollection(String id, String displayName, String description, String[] supportedComponents, Calendar timezone, String workspace) throws ObjectStoreException {
+        throw new UnsupportedOperationException("Workspaces not yet implemented");
     }
 
     /**
@@ -137,6 +149,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     /**
      * {@inheritDoc}
      */
+    @Override
     public CalDavCalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
             String resourcePath = pathResolver.getCalendarPath(id, "test");
@@ -155,6 +168,11 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
         } catch (IOException e) {
             throw new ObjectStoreException(String.format("unable to get collection '%s'", id), e);
         }
+    }
+
+    @Override
+    public CalDavCalendarCollection getCollection(String id, String workspace) throws ObjectStoreException, ObjectNotFoundException {
+        throw new UnsupportedOperationException("Workspaces not yet implemented");
     }
 
     /**
@@ -202,6 +220,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
      * @throws IOException where a communications error occurs
      * @throws DavException where an error occurs calling the DAV method
      */
+    @Override
     public List<CalDavCalendarCollection> getCollections() throws ObjectStoreException, ObjectNotFoundException {
         try {
             String calHomeSetPath = findCalendarHomeSet();
@@ -213,9 +232,14 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
             throw new ObjectStoreException(de);
         }
     }
-    
+
+    @Override
+    public List<CalDavCalendarCollection> getCollections(String workspace) throws ObjectStoreException, ObjectNotFoundException {
+        throw new UnsupportedOperationException("Workspaces not yet implemented");
+    }
+
     protected List<CalDavCalendarCollection> getCollectionsForHomeSet(CalDavCalendarStore store,
-            String urlForcalendarHomeSet) throws IOException, DavException {
+                                                                      String urlForcalendarHomeSet) throws IOException, DavException {
 
         DavPropertyNameSet principalsProps = CalDavCalendarCollection.propertiesForFetch();
         return getClient().propFindResources(urlForcalendarHomeSet, principalsProps,
@@ -269,6 +293,11 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
         CalDavCalendarCollection collection = getCollection(id);
         collection.delete();
         return collection;
+    }
+
+    @Override
+    public List<String> listWorkspaces() {
+        throw new UnsupportedOperationException("Workspaces not yet implemented");
     }
 
     // public CalendarCollection replace(String id, CalendarCollection calendar) {

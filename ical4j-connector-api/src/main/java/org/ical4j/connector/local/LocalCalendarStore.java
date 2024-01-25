@@ -14,7 +14,7 @@ public class LocalCalendarStore extends AbstractLocalObjectStore<Calendar, Local
     }
 
     @Override
-    protected LocalCalendarCollection newCollection(String id) throws IOException {
-        return new LocalCalendarCollection(new File(getRoot(), id));
+    protected LocalCalendarCollection newCollection(String id, String workspace) throws IOException {
+        return new LocalCalendarCollection(new File(getWorkspaceDir(workspace), id));
     }
 }

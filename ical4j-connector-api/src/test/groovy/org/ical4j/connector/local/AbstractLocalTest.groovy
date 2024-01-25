@@ -6,10 +6,11 @@ import spock.lang.Specification
 abstract class AbstractLocalTest extends Specification {
 
     @Shared
-    File storeLocation
+    File storeLocation, workspaceLocation
 
     def setup() {
         storeLocation = ['build', getClass().name]
+        workspaceLocation = [storeLocation, 'default']
     }
 
     def cleanup() {

@@ -92,6 +92,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
     /**
      * {@inheritDoc}
      */
+    @Override
     public CardDavCollection addCollection(String id) throws ObjectStoreException {
         CardDavCollection collection = new CardDavCollection(this, id);
         try {
@@ -100,6 +101,11 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
             throw new ObjectStoreException(String.format("unable to add collection '%s'", id), e);
         }
         return collection;
+    }
+
+    @Override
+    public CardDavCollection addCollection(String id, String workspace) throws ObjectStoreException {
+        throw new UnsupportedOperationException("Workspaces not yet implemented");
     }
 
     /**
@@ -127,6 +133,11 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
         } catch (IOException e) {
             throw new ObjectStoreException(String.format("unable to get collection '%s'", id), e);
         }
+    }
+
+    @Override
+    public CardDavCollection getCollection(String id, String workspace) throws ObjectStoreException, ObjectNotFoundException {
+        throw new UnsupportedOperationException("Workspaces not yet implemented");
     }
 
     /**
@@ -180,9 +191,14 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
             throw new ObjectStoreException(e);
         }
     }
-    
+
+    @Override
+    public List<CardDavCollection> getCollections(String workspace) throws ObjectStoreException, ObjectNotFoundException {
+        throw new UnsupportedOperationException("Workspaces not yet implemented");
+    }
+
     protected List<CardDavCollection> getCollectionsForHomeSet(CardDavStore store,
-            String urlForcalendarHomeSet) throws IOException, DavException {
+                                                               String urlForcalendarHomeSet) throws IOException, DavException {
 
         DavPropertyNameSet principalsProps = CardDavCollection.propertiesForFetch();
         return getClient().propFindResources(urlForcalendarHomeSet, principalsProps, ResourceType.ADRESSBOOK).entrySet().stream()
@@ -221,6 +237,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
     /**
      * {@inheritDoc}
      */
+    @Override
     public CardDavCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         CardDavCollection collection = getCollection(id);
         collection.delete();
@@ -231,6 +248,12 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
     // // TODO Auto-generated method stub
     // return null;
     // }
+
+
+    @Override
+    public List<String> listWorkspaces() {
+        throw new UnsupportedOperationException("Workspaces not yet implemented");
+    }
 
     /**
      * @return the prodId
@@ -255,4 +278,8 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
         throw new UnsupportedOperationException("not implemented");
     }
 
+    @Override
+    public CardDavCollection addCollection(String id, String displayName, String description, String[] supportedComponents, Calendar timezone, String workspace) throws ObjectStoreException {
+        throw new UnsupportedOperationException("Workspaces not yet implemented");
+    }
 }
