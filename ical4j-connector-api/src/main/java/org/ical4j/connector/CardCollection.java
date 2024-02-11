@@ -31,9 +31,11 @@
  */
 package org.ical4j.connector;
 
+import net.fortuna.ical4j.filter.FilterExpression;
 import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardList;
+import net.fortuna.ical4j.vcard.filter.VCardFilter;
 import net.fortuna.ical4j.vcard.property.Uid;
 import org.ical4j.connector.local.LocalCalendarCollection;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * $Id$
@@ -121,6 +125,12 @@ public interface CardCollection extends ObjectCollection<VCard> {
             }
         }
         return new VCardList(cards);
+    }
+
+    @Override
+    default List<VCard> query(FilterExpression filterExpression) {
+        Predicate<VCard> filter = new VCardFilter().predicate(filterExpression);
+        return getAll().stream().filter(filter).collect(Collectors.toList());
     }
 
     /**

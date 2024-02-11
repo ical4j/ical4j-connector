@@ -31,7 +31,10 @@
  */
 package org.ical4j.connector;
 
+import net.fortuna.ical4j.filter.ComponentFilter;
+import net.fortuna.ical4j.filter.FilterExpression;
 import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ConstraintViolationException;
 import net.fortuna.ical4j.model.component.VFreeBusy;
 import net.fortuna.ical4j.model.property.Uid;
@@ -40,6 +43,8 @@ import net.fortuna.ical4j.util.Calendars;
 import java.time.Instant;
 import java.time.temporal.Temporal;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * $Id$
@@ -166,7 +171,13 @@ public interface CalendarCollection extends ObjectCollection<Calendar> {
      * @throws FailedOperationException where the merge operation fails
      */
     Uid[] merge(Calendar calendar) throws FailedOperationException, ObjectStoreException;
-    
+
+    @Override
+    default List<Calendar> query(FilterExpression filterExpression) {
+        Predicate<Component> filter = new ComponentFilter<>().predicate(filterExpression);
+        return getAll().stream().filter(c -> c.getComponents().stream().anyMatch(filter)).collect(Collectors.toList());
+    }
+
     /**
      * Exports the entire collection as a single calendar object.
      * @return a calendar object instance that contains all calendars in the collection
