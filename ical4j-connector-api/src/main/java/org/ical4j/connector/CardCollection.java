@@ -37,7 +37,6 @@ import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardList;
 import net.fortuna.ical4j.vcard.filter.VCardFilter;
 import net.fortuna.ical4j.vcard.property.Uid;
-import org.ical4j.connector.local.LocalCalendarCollection;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -121,7 +120,7 @@ public interface CardCollection extends ObjectCollection<VCard> {
             try {
                 cards.add(getCard(uid));
             } catch (ObjectNotFoundException e) {
-                LoggerFactory.getLogger(LocalCalendarCollection.class).warn("Calendar not found: " + uid);
+                LoggerFactory.getLogger(CardCollection.class).warn("Calendar not found: " + uid);
             }
         }
         return new VCardList(cards);
