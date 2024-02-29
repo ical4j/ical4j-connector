@@ -62,7 +62,7 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
     public Uid[] merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
         Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
         Optional<VCard> existing = get(uid.getValue());
-        existing.ifPresent(vCard -> vCard.addAll(card.getProperties()));
+        existing.ifPresent(vCard -> vCard.with(VCard.MERGE, card.getProperties()));
         save(card);
 
         // notify listeners..
