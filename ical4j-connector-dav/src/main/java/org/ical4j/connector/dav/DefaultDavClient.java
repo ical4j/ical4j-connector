@@ -59,7 +59,6 @@ import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.client.methods.*;
-import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.PropEntry;
@@ -67,8 +66,8 @@ import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.ical4j.connector.FailedOperationException;
 import org.ical4j.connector.ObjectStoreException;
 import org.ical4j.connector.dav.method.*;
-import org.ical4j.connector.dav.property.CSDavPropertyName;
 import org.ical4j.connector.dav.property.CalDavPropertyName;
+import org.ical4j.connector.dav.property.PropertyNameSets;
 import org.ical4j.connector.dav.request.CalendarQuery;
 import org.ical4j.connector.dav.request.MkCalendarEntity;
 import org.ical4j.connector.dav.request.MkColEntity;
@@ -180,13 +179,8 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	}
 
 	public List<SupportedFeature> getSupportedFeatures() throws IOException {
-		DavPropertyNameSet props = new DavPropertyNameSet();
-		props.add(DavPropertyName.RESOURCETYPE);
-		props.add(CSDavPropertyName.CTAG);
-		DavPropertyName owner = DavPropertyName.create(DavPropertyName.XML_OWNER, DavConstants.NAMESPACE);
-		props.add(owner);
-
-		HttpPropfind aGet = new HttpPropfind(repositoryPath, DavConstants.PROPFIND_BY_PROPERTY, props, 0);
+		HttpPropfind aGet = new HttpPropfind(repositoryPath, DavConstants.PROPFIND_BY_PROPERTY,
+				PropertyNameSets.PROPFIND_SUPPORTED_FEATURES, 0);
 
 		RequestConfig.Builder builder = aGet.getConfig() == null ? RequestConfig.custom() : RequestConfig.copy(aGet.getConfig());
 		builder.setAuthenticationEnabled(true);
@@ -226,20 +220,29 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 
 	@Override
 	public DavPropertySet propFind(String path, DavPropertyNameSet propertyNames) throws IOException {
-		HttpPropfind aGet = new HttpPropfind(resolvePath(path), propertyNames, 0);
-
-//		RequestConfig config = RequestConfig.custom().setAuthenticationEnabled(true).build();
-//		aGet.setConfig(config);
-		return execute(aGet, new GetResourceProperties());
+		return propFind(path, propertyNames, new GetResourceProperties());
 	}
 
+	@Override
+	public <T> T propFind(String path, DavPropertyNameSet propertyNames, ResponseHandler<T> handler)
+			throws IOException {
+		HttpPropfind aGet = new HttpPropfind(resolvePath(path), propertyNames, 0);
+		return execute(aGet, handler);
+	}
+
+	/**
+	 *
+	 * @param path
+	 * @param propertyNames
+	 * @param resourceTypes
+	 * @return
+	 * @throws IOException
+	 * @deprecated use {@link WebDavSupport#propFind(String, DavPropertyNameSet, ResponseHandler)} instead
+	 */
+	@Deprecated
 	public Map<String, DavPropertySet> propFindResources(String path, DavPropertyNameSet propertyNames,
 														 ResourceType...resourceTypes) throws IOException {
-		HttpPropfind aGet = new HttpPropfind(resolvePath(path), propertyNames, 0);
-
-//		RequestConfig config = RequestConfig.custom().setAuthenticationEnabled(true).build();
-//		aGet.setConfig(config);
-		return execute(aGet, new GetCollections(resourceTypes));
+		return propFind(path, propertyNames, new GetCollections(resourceTypes));
 	}
 
 	@Override

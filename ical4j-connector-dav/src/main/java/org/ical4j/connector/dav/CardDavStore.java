@@ -35,7 +35,6 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.vcard.VCard;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
-import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
@@ -46,8 +45,10 @@ import org.ical4j.connector.ObjectStoreException;
 import org.ical4j.connector.dav.property.BaseDavPropertyName;
 import org.ical4j.connector.dav.property.CalDavPropertyName;
 import org.ical4j.connector.dav.property.CardDavPropertyName;
+import org.ical4j.connector.dav.property.PropertyNameSets;
 import org.ical4j.connector.dav.request.ExpandPropertyQuery;
 import org.ical4j.connector.dav.response.GetCardDavCollections;
+import org.ical4j.connector.dav.response.GetCollections;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -126,8 +127,8 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
      */
     public CardDavCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
-            DavPropertyNameSet principalsProps = CardDavCollection.propertiesForFetch();
-            return getClient().propFindResources(id, principalsProps, ResourceType.ADRESSBOOK).entrySet().stream()
+            return getClient().propFind(id, PropertyNameSets.PROPFIND_CARD,
+                            new GetCollections(ResourceType.ADRESSBOOK)).entrySet().stream()
                     .map(e -> new CardDavCollection(this, e.getKey(), e.getValue()))
                     .collect(Collectors.toList()).get(0);
         } catch (IOException e) {
@@ -163,11 +164,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
      * @throws DavException
      */
     protected String findAddressBookHomeSet(String propfindUri) throws IOException {
-        DavPropertyNameSet principalsProps = new DavPropertyNameSet();
-        principalsProps.add(CardDavPropertyName.ADDRESSBOOK_HOME_SET);
-        principalsProps.add(DavPropertyName.DISPLAYNAME);
-
-        DavPropertySet props = getClient().propFind(propfindUri, principalsProps);
+        DavPropertySet props = getClient().propFind(propfindUri, PropertyNameSets.PROPFIND_CARD_HOME);
         return (String) props.get(CardDavPropertyName.ADDRESSBOOK_HOME_SET).getValue();
     }
 
@@ -200,8 +197,8 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
     protected List<CardDavCollection> getCollectionsForHomeSet(CardDavStore store,
                                                                String urlForcalendarHomeSet) throws IOException, DavException {
 
-        DavPropertyNameSet principalsProps = CardDavCollection.propertiesForFetch();
-        return getClient().propFindResources(urlForcalendarHomeSet, principalsProps, ResourceType.ADRESSBOOK).entrySet().stream()
+        return getClient().propFind(urlForcalendarHomeSet, PropertyNameSets.PROPFIND_CARD,
+                        new GetCollections(ResourceType.ADRESSBOOK)).entrySet().stream()
                 .map(e -> new CardDavCollection(this, e.getKey(), e.getValue()))
                 .collect(Collectors.toList());
     }

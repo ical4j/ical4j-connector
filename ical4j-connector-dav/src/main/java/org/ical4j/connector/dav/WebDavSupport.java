@@ -115,6 +115,8 @@ public interface WebDavSupport {
         return propFind(path, nameSet);
     }
 
+    <T> T propFind(String path, DavPropertyNameSet propertyNames, ResponseHandler<T> handler) throws IOException;
+
     default DavPropertySet propFindAll(String path) throws IOException {
         return propFindType(path, DavPropertyName.PROPFIND_ALL_PROP);
     }

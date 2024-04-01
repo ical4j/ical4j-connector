@@ -43,6 +43,7 @@ import org.ical4j.connector.ObjectCollection;
 import org.ical4j.connector.ObjectStoreException;
 import org.ical4j.connector.dav.property.BaseDavPropertyName;
 import org.ical4j.connector.dav.property.CalDavPropertyName;
+import org.ical4j.connector.dav.property.PropertyNameSets;
 import org.ical4j.connector.event.ListenerList;
 import org.ical4j.connector.event.ObjectCollectionListener;
 import org.w3c.dom.Element;
@@ -308,7 +309,7 @@ public abstract class AbstractDavObjectCollection<T> extends AbstractObjectColle
      * @throws ObjectStoreException where an unexpected error occurs
      */
     public final boolean exists() throws HttpResponseException, IOException, ObjectStoreException {
-        return !getStore().getClient().propFind(getPath(), CalDavCalendarCollection.propertiesForFetch()).isEmpty();
+        return !getStore().getClient().propFind(getPath(), PropertyNameSets.PROPFIND_CALENDAR).isEmpty();
     }
 
     @Override

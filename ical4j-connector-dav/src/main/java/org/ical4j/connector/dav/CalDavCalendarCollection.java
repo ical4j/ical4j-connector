@@ -37,13 +37,13 @@ import net.fortuna.ical4j.model.*;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.property.DavPropertyName;
-import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.ical4j.connector.*;
-import org.ical4j.connector.dav.property.*;
+import org.ical4j.connector.dav.property.CalDavPropertyName;
+import org.ical4j.connector.dav.property.DavPropertyBuilder;
+import org.ical4j.connector.dav.property.ICalPropertyName;
+import org.ical4j.connector.dav.property.PropertyNameSets;
 import org.ical4j.connector.dav.request.CalendarQuery;
 import org.ical4j.connector.dav.request.EventQuery;
 import org.ical4j.connector.dav.response.GetCalendarData;
@@ -157,10 +157,8 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      */
     public Iterable<Calendar> getComponentsByType(String componentType) {
         try {
-            DavPropertyNameSet propertyNames = new DavPropertyNameSet();
-            propertyNames.add(DavPropertyName.GETETAG);
-            propertyNames.add(CalDavPropertyName.CALENDAR_DATA);
-            ReportInfo info = new ReportInfo(CalDavPropertyName.CALENDAR_QUERY, 1, propertyNames);
+            ReportInfo info = new ReportInfo(CalDavPropertyName.CALENDAR_QUERY, 1,
+                    PropertyNameSets.REPORT_CALENDAR);
             info.setContentElement(new CalendarQuery(componentType).build());
 
             List<Calendar> calendars = getStore().getClient().report(getPath(), info, new GetCalendarData());
@@ -505,48 +503,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     public Calendar[] doFreeBusyQuery() {
         return new Calendar[0];
     }
-    
-    public static final DavPropertyNameSet propertiesForFetch() {
-        DavPropertyNameSet principalsProps = new DavPropertyNameSet();
 
-        principalsProps.add(BaseDavPropertyName.QUOTA_AVAILABLE_BYTES);
-        principalsProps.add(BaseDavPropertyName.QUOTA_USED_BYTES);
-        principalsProps.add(SecurityConstants.CURRENT_USER_PRIVILEGE_SET);
-        principalsProps.add(BaseDavPropertyName.PROP);
-        principalsProps.add(DavPropertyName.RESOURCETYPE);
-        principalsProps.add(DISPLAYNAME);
-        principalsProps.add(SecurityConstants.OWNER);
-
-        principalsProps.add(CalDavPropertyName.CALENDAR_DESCRIPTION);
-        principalsProps.add(CalDavPropertyName.SUPPORTED_CALENDAR_COMPONENT_SET);
-        principalsProps.add(CalDavPropertyName.FREE_BUSY_SET);
-        principalsProps.add(CalDavPropertyName.SCHEDULE_CALENDAR_TRANSP);
-        principalsProps.add(CalDavPropertyName.SCHEDULE_DEFAULT_CALENDAR_URL);
-        principalsProps.add(CalDavPropertyName.CALENDAR_TIMEZONE);
-        principalsProps.add(CalDavPropertyName.SUPPORTED_CALENDAR_DATA);
-        principalsProps.add(CalDavPropertyName.MAX_ATTENDEES_PER_INSTANCE);
-        principalsProps.add(CalDavPropertyName.MAX_DATE_TIME);
-        principalsProps.add(CalDavPropertyName.MIN_DATE_TIME);
-        principalsProps.add(CalDavPropertyName.MAX_INSTANCES);
-        principalsProps.add(CalDavPropertyName.MAX_RESOURCE_SIZE);
-
-        principalsProps.add(CSDavPropertyName.XMPP_SERVER);
-        principalsProps.add(CSDavPropertyName.XMPP_URI);
-        principalsProps.add(CSDavPropertyName.CTAG);
-        principalsProps.add(CSDavPropertyName.SOURCE);
-        principalsProps.add(CSDavPropertyName.SUBSCRIBED_STRIP_ALARMS);
-        principalsProps.add(CSDavPropertyName.SUBSCRIBED_STRIP_ATTACHMENTS);
-        principalsProps.add(CSDavPropertyName.SUBSCRIBED_STRIP_TODOS);
-        principalsProps.add(CSDavPropertyName.REFRESHRATE);
-        principalsProps.add(CSDavPropertyName.PUSH_TRANSPORTS);
-        principalsProps.add(CSDavPropertyName.PUSHKEY);
-
-        principalsProps.add(ICalPropertyName.CALENDAR_COLOR);
-        principalsProps.add(ICalPropertyName.CALENDAR_ORDER);
-        
-        return principalsProps;
-    }
-    
     @Override
     public String toString() {
         return "Display Name: " +  getDisplayName() + ", id: " + getId();

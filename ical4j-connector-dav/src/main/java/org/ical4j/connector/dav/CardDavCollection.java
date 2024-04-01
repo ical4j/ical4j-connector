@@ -36,19 +36,16 @@ import net.fortuna.ical4j.vcard.PropertyName;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.property.Uid;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.property.DavPropertyName;
-import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.ical4j.connector.CardCollection;
 import org.ical4j.connector.FailedOperationException;
 import org.ical4j.connector.ObjectNotFoundException;
 import org.ical4j.connector.ObjectStoreException;
-import org.ical4j.connector.dav.property.BaseDavPropertyName;
 import org.ical4j.connector.dav.property.CalDavPropertyName;
 import org.ical4j.connector.dav.property.CardDavPropertyName;
 import org.ical4j.connector.dav.property.DavPropertyBuilder;
+import org.ical4j.connector.dav.property.PropertyNameSets;
 import org.ical4j.connector.dav.response.GetVCardData;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -151,46 +148,6 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     public VCard[] export() {
         throw new UnsupportedOperationException("not implemented");
     }
-        
-    public static final DavPropertyNameSet propertiesForFetch() {
-        DavPropertyNameSet principalsProps = new DavPropertyNameSet();
-
-        /*
-         * TODO : to add the following properties
-            <C:me-card xmlns:C="http://calendarserver.org/ns/" /> 
-            <C:push-transports xmlns:C="http://calendarserver.org/ns/" /> 
-            <C:pushkey xmlns:C="http://calendarserver.org/ns/" /> 
-            <D:bulk-requests xmlns:D="http://me.com/_namespace/" /> 
-       */
-        
-        principalsProps.add(DISPLAYNAME);
-
-
-        principalsProps.add(SecurityConstants.CURRENT_USER_PRIVILEGE_SET);
-        principalsProps.add(DavPropertyName.RESOURCETYPE);
-        principalsProps.add(SecurityConstants.OWNER);
-        principalsProps.add(CardDavPropertyName.MAX_RESOURCE_SIZE);
-        principalsProps.add(BaseDavPropertyName.RESOURCE_ID);
-        principalsProps.add(BaseDavPropertyName.SUPPORTED_REPORT_SET);
-        principalsProps.add(BaseDavPropertyName.SYNC_TOKEN);
-        principalsProps.add(BaseDavPropertyName.ADD_MEMBER);
-        principalsProps.add(CardDavPropertyName.MAX_IMAGE_SIZE);
-        
-        /**
-         * FIXME jackrabbit generates an error when quota-used-bytes is sent.
-         * I suspect the problem is that the response have this attribute: e:dt="int"
-         */
-        //principalsProps.add(BaseDavPropertyName.QUOTA_USED_BYTES);
-        //principalsProps.add(BaseDavPropertyName.QUOTA_AVAILABLE_BYTES);
-        
-        /* In the absence of this property, the server MUST only accept data with the media type
-         * "text/vcard" and vCard version 3.0, and clients can assume that is
-         * all the server will accept.
-         */
-        principalsProps.add(CardDavPropertyName.SUPPORTED_ADDRESS_DATA);
-        
-        return principalsProps;
-    }
 
     /* (non-Javadoc)
      * @see org.ical4j.connector.ObjectCollection#getDescription()
@@ -211,11 +168,8 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      */
     public Iterable<VCard> getAll() throws ObjectStoreException {
         try {
-            DavPropertyNameSet properties = new DavPropertyNameSet();
-            properties.add(DavPropertyName.GETETAG);
-            properties.add(CardDavPropertyName.ADDRESS_DATA);
-
-            ReportInfo info = new ReportInfo(CardDavPropertyName.ADDRESSBOOK_QUERY, 1, properties);
+            ReportInfo info = new ReportInfo(CardDavPropertyName.ADDRESSBOOK_QUERY, 1,
+                    PropertyNameSets.REPORT_CARD);
 
             return getStore().getClient().report(getPath(), info, new GetVCardData());
         } catch (IOException | ParserConfigurationException e) {
