@@ -29,4 +29,4 @@ jobs:
         if: always()
         with:
           name: test-report
-          path: build/reports/tests
+          path: /home/runner/work/ical4j-connector/ical4j-connector/ical4j-connector-dav/build/reports/tests
