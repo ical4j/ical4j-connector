@@ -49,6 +49,7 @@ import org.ical4j.connector.dav.property.PropertyNameSets;
 import org.ical4j.connector.dav.request.ExpandPropertyQuery;
 import org.ical4j.connector.dav.response.GetCardDavCollections;
 import org.ical4j.connector.dav.response.GetCollections;
+import org.ical4j.connector.dav.response.GetPropertyValue;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -164,8 +165,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
      * @throws DavException
      */
     protected String findAddressBookHomeSet(String propfindUri) throws IOException {
-        DavPropertySet props = getClient().propFind(propfindUri, PropertyNameSets.PROPFIND_CARD_HOME);
-        return (String) props.get(CardDavPropertyName.ADDRESSBOOK_HOME_SET).getValue();
+        return getClient().propFind(propfindUri, PropertyNameSets.PROPFIND_CARD_HOME, new GetPropertyValue<>());
     }
 
     /**

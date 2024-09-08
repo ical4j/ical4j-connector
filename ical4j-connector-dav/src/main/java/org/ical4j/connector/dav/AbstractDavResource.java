@@ -3,10 +3,8 @@ package org.ical4j.connector.dav;
 import org.apache.http.HttpStatus;
 import org.apache.jackrabbit.webdav.*;
 import org.apache.jackrabbit.webdav.lock.*;
-import org.apache.jackrabbit.webdav.property.DavProperty;
-import org.apache.jackrabbit.webdav.property.DavPropertyName;
-import org.apache.jackrabbit.webdav.property.DavPropertySet;
-import org.apache.jackrabbit.webdav.property.PropEntry;
+import org.apache.jackrabbit.webdav.property.*;
+import org.ical4j.connector.dav.response.GetPropertyValue;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -59,14 +57,12 @@ public abstract class AbstractDavResource<T extends WebDavSupport> implements Da
 
     @Override
     public boolean isCollection() {
-        DavProperty<String> resourceType = getPropertyInternal(DavPropertyName.RESOURCETYPE);
-        return resourceType != null && resourceType.getValue().equals("collection");
+        return "collection".equals(getPropertyValue(DavPropertyName.RESOURCETYPE));
     }
 
     @Override
     public String getDisplayName() {
-        DavProperty<String> displayName = getPropertyInternal(DISPLAYNAME);
-        return displayName != null ? displayName.getValue() : null;
+        return getPropertyValue(DISPLAYNAME);
     }
 
     @Override
@@ -89,8 +85,8 @@ public abstract class AbstractDavResource<T extends WebDavSupport> implements Da
 
     @Override
     public long getModificationTime() {
-        DavProperty<Long> lastModified = getPropertyInternal(GETLASTMODIFIED);
-        return lastModified != null ? lastModified.getValue() : -1;
+        Long lastModified = getPropertyValue(GETLASTMODIFIED);
+        return lastModified != null ? lastModified : -1;
     }
 
     @Override
@@ -103,7 +99,7 @@ public abstract class AbstractDavResource<T extends WebDavSupport> implements Da
     @Override
     public DavPropertyName[] getPropertyNames() {
         try {
-            return this.client.propFindAll(getResourcePath()).getPropertyNames();
+            return this.client.propFindAll(getResourcePath()).get(0).getProperties().getPropertyNames();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -119,7 +115,7 @@ public abstract class AbstractDavResource<T extends WebDavSupport> implements Da
         DavProperty<?> property = properties.get(name);
         if (property == null) {
             try {
-                DavPropertySet result = client.propFind(getResourcePath(), name);
+                DavPropertySet result = client.propFind(getResourcePath(), name).get(0).getProperties();
                 this.properties.addAll(result);
                 property = properties.get(name);
             } catch (IOException e) {
@@ -129,9 +125,14 @@ public abstract class AbstractDavResource<T extends WebDavSupport> implements Da
         return property;
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> DavProperty<T> getPropertyInternal(DavPropertyName name) {
-        return (DavProperty<T>) getProperty(name);
+    private <P> P getPropertyValue(DavPropertyName name) {
+        DavPropertyNameSet nameSet = new DavPropertyNameSet();
+        nameSet.add(name);
+        try {
+            return client.propFind(getResourcePath(), nameSet, new GetPropertyValue<>());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

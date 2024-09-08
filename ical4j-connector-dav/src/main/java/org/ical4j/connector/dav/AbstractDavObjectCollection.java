@@ -33,8 +33,8 @@ package org.ical4j.connector.dav;
 
 import org.apache.http.client.HttpResponseException;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.ical4j.connector.AbstractObjectCollection;
@@ -44,6 +44,7 @@ import org.ical4j.connector.ObjectStoreException;
 import org.ical4j.connector.dav.property.BaseDavPropertyName;
 import org.ical4j.connector.dav.property.CalDavPropertyName;
 import org.ical4j.connector.dav.property.PropertyNameSets;
+import org.ical4j.connector.dav.response.GetPropertyValue;
 import org.ical4j.connector.event.ListenerList;
 import org.ical4j.connector.event.ObjectCollectionListener;
 import org.w3c.dom.Element;
@@ -229,13 +230,11 @@ public abstract class AbstractDavObjectCollection<T> extends AbstractObjectColle
      */
     public String getOwnerName() {
         if ((_ownerName == null) && (getOwnerHref() != null)) {
+            DavPropertyNameSet nameSet = new DavPropertyNameSet();
+            nameSet.add(DavPropertyName.DISPLAYNAME);
             try {
-                DavPropertySet propertySet = getStore().getClient().propFind(getOwnerHref(),
-                        DavPropertyName.DISPLAYNAME);
-                DavProperty<?> displayNameProp = propertySet.get(DavPropertyName.DISPLAYNAME);
-                if (displayNameProp != null) {
-                    _ownerName = (String)displayNameProp.getValue();
-                }
+                _ownerName = getStore().getClient().propFind(getOwnerHref(),
+                        nameSet, new GetPropertyValue<>());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
