@@ -1,6 +1,8 @@
 package org.ical4j.connector.dav
 
 
+import net.fortuna.ical4j.model.ContentBuilder
+import net.fortuna.ical4j.model.property.DtStart
 import org.apache.http.impl.client.BasicAuthCache
 import org.apache.jackrabbit.webdav.DavException
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet
@@ -8,9 +10,11 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet
 import org.ical4j.connector.dav.property.DavPropertyBuilder
 import org.ical4j.connector.dav.request.CalendarQuery
 import spock.lang.Ignore
+import spock.lang.Shared
 
-import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME
-import static org.apache.jackrabbit.webdav.property.DavPropertyName.RESOURCETYPE
+import java.time.LocalDateTime
+
+import static org.apache.jackrabbit.webdav.property.DavPropertyName.*
 import static org.apache.jackrabbit.webdav.security.SecurityConstants.*
 import static org.ical4j.connector.dav.property.BaseDavPropertyName.CURRENT_USER_PRINCIPAL
 import static org.ical4j.connector.dav.property.BaseDavPropertyName.SUPPORTED_REPORT_SET
@@ -18,6 +22,17 @@ import static org.ical4j.connector.dav.property.CalDavPropertyName.*
 import static org.ical4j.connector.dav.property.CardDavPropertyName.ADDRESSBOOK_HOME_SET
 
 abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest {
+
+    @Shared
+    CalDavSupport client
+
+    def setupSpec() {
+        DavClientFactory clientFactory = new DavClientFactory().withPreemptiveAuth(true)
+        URL href = URI.create(getContainerUrl()).toURL()
+        DefaultDavClient client = clientFactory.newInstance(href);
+        client.begin(getCredentialsProvider())
+        this.client = client;
+    }
 
     def 'assert preemptive auth configuration'() {
         given: 'a dav client factory configured for preemptive auth'
@@ -68,7 +83,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         client.mkCalendar(path, props)
 
         then: 'the collection exists'
-        client.propFind(path, props.propertyNames).asList() == props.asList()
+        client.propFind(path, props.propertyNames).get(0).getProperties().asList() == props.asList()
 
         cleanup: 'remove collection'
         client.delete(path)
@@ -96,6 +111,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         thrown(DavException)
     }
 
+    @Ignore('not working for radicale')
     def 'test get collection'() {
         given: 'a dav client instance'
         URL href = URI.create(getContainerUrl()).toURL()
@@ -114,12 +130,22 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
         props.add(new DavPropertyBuilder<>().name(CALENDAR_DESCRIPTION).value('A simple mkcalendar test').build())
         client.mkCalendar(path, props)
 
-        and: 'the collection is retrieved via get'
-        CalendarQuery query = ['VCALENDAR']
-        Map<String, DavPropertySet> result = client.report(path, query, CALENDAR_DATA)
+        then: 'the retrieved calendar props are as expected'
+        def result = client.propFind(path, DISPLAYNAME)
+        result.get(0).getProperties().get(DISPLAYNAME).value == 'Test Collection'
 
-        then: 'the retrieved calendar is as expected'
-        result.isEmpty()
+        and: 'when calendar is added'
+        client.put(path + '/test.ics', new ContentBuilder().calendar {
+            vevent {
+                summary 'test'
+                dtstart new DtStart<>(LocalDateTime.now())
+            }
+        }.withDefaults(), null);
+
+        then: 'calendar details are retrievable'
+        CalendarQuery query = []
+        def result2 = client.report(path, query, CALENDAR_DATA, GETETAG)
+        !result2.isEmpty()
 
         cleanup: 'remove collection'
         client.delete(path)
