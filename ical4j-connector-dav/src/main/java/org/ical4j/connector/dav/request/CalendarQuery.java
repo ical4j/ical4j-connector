@@ -7,17 +7,21 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.util.Arrays;
 
 public class CalendarQuery implements XmlSupport, XmlSerializable {
 
-    private final String componentType;
+    private final String[] componentType;
 
-    public CalendarQuery(String componentType) {
+    public CalendarQuery(String... componentType) {
         this.componentType = componentType;
     }
 
     public Element build() throws ParserConfigurationException {
         Document document = newXmlDocument();
+//        DomUtil.setNamespaceAttribute(document.getDocumentElement(), "xmlns:d", "DAV:");
+//        DomUtil.setNamespaceAttribute(document.getDocumentElement(), "xmlns:c",
+//                "urn:ietf:params:xml:ns:caldav");
         return toXml(document);
     }
 
@@ -25,6 +29,7 @@ public class CalendarQuery implements XmlSupport, XmlSerializable {
     public Element toXml(Document document) {
         return newCalDavElement(document, CalDavPropertyName.PROPERTY_FILTER,
                 newComponentFilter(document, Calendar.VCALENDAR,
-                        newComponentFilter(document, componentType)));
+                        Arrays.stream(componentType).map(t ->
+                                newComponentFilter(document, t)).toArray(Element[]::new)));
     }
 }
