@@ -26,7 +26,7 @@ jobs:
         run: ./gradlew check --console=plain --warning-mode all
 
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ needs.gradle.result != 'success' }}
         with:
           name: test-report
           path: /home/runner/work/ical4j-connector/ical4j-connector/ical4j-connector-dav/build/reports/tests
