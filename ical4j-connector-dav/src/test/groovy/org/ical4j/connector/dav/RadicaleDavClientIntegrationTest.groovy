@@ -1,10 +1,12 @@
 package org.ical4j.connector.dav
 
-import org.testcontainers.containers.BindMode
+
+import org.testcontainers.utility.MountableFile
 
 class RadicaleDavClientIntegrationTest extends AbstractDavClientIntegrationTest implements RadicaleTestSupport {
 
     def setup() {
-        container.addFileSystemBind('src/test/resources/radicale/htpasswd', '/etc/radicale/users', BindMode.READ_ONLY)
+        container.withCopyToContainer(MountableFile.forHostPath('src/test/resources/radicale/htpasswd',),
+                '/etc/radicale/users')
     }
 }
