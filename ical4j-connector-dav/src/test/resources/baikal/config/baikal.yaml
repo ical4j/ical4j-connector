@@ -3,7 +3,7 @@ system:
     timezone: Australia/Melbourne
     card_enabled: true
     cal_enabled: true
-    dav_auth_type: Digest
+    dav_auth_type: Basic
     admin_passwordhash: c5c8aad193b35abb041407a27e76cb563196496c5d11ec3081fdb6110db67ba2
     failed_access_message: 'user %u authentication failure for Baikal'
     auth_realm: BaikalDAV

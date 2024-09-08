@@ -58,7 +58,7 @@ public class PutCalendar extends AbstractPutMethod {
      */
     public PutCalendar(String uri) {
         super(uri);
-        this.calendarOutputter = new CalendarOutputter();
+        this.calendarOutputter = new CalendarOutputter(false);
     }
 
     /**
