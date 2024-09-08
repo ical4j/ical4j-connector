@@ -11,11 +11,12 @@ import org.ical4j.connector.FailedOperationException;
 import org.ical4j.connector.ObjectStoreException;
 import org.ical4j.connector.dav.request.CalendarQuery;
 import org.ical4j.connector.dav.response.GetCalendarResource;
+import org.ical4j.connector.dav.response.ResourceProps;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Map;
+import java.util.List;
 
 public interface CalDavSupport extends WebDavSupport {
 
@@ -98,7 +99,7 @@ public interface CalDavSupport extends WebDavSupport {
      */
     void mkCalendar(String uri, DavPropertySet properties) throws IOException, ObjectStoreException, DavException;
 
-    default Map<String, DavPropertySet> report(String path, CalendarQuery query, DavPropertyName...propertyNames)
+    default List<ResourceProps> report(String path, CalendarQuery query, DavPropertyName...propertyNames)
             throws IOException, ParserConfigurationException {
 
         DavPropertyNameSet nameSet = new DavPropertyNameSet();
@@ -129,7 +130,7 @@ public interface CalDavSupport extends WebDavSupport {
      * @throws IOException
      * @throws ParserConfigurationException
      */
-    Map<String, DavPropertySet> report(String uri, CalendarQuery query, DavPropertyNameSet propertyNames)
+    List<ResourceProps> report(String uri, CalendarQuery query, DavPropertyNameSet propertyNames)
             throws IOException, ParserConfigurationException;
 
     <T> T report(String path, ReportInfo info, ResponseHandler<T> handler) throws IOException,

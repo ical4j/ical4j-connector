@@ -35,6 +35,7 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.property.Attendee;
 import net.fortuna.ical4j.model.property.Organizer;
 import net.fortuna.ical4j.vcard.VCard;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -77,6 +78,7 @@ import org.jooq.lambda.Unchecked;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -219,7 +221,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	}
 
 	@Override
-	public DavPropertySet propFind(String path, DavPropertyNameSet propertyNames) throws IOException {
+	public List<ResourceProps> propFind(String path, DavPropertyNameSet propertyNames) throws IOException {
 		return propFind(path, propertyNames, new GetResourceProperties());
 	}
 
@@ -246,7 +248,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	}
 
 	@Override
-	public DavPropertySet propFindType(String path, int type) throws IOException {
+	public List<ResourceProps> propFindType(String path, int type) throws IOException {
 		HttpPropfind aGet = new HttpPropfind(resolvePath(path), type, 1);
 
 //		RequestConfig config = RequestConfig.custom().setAuthenticationEnabled(true).build();
@@ -255,13 +257,13 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	}
 
 	@Override
-	public Map<String, DavPropertySet> report(String path, CalendarQuery query, DavPropertyNameSet propertyNames)
+	public List<ResourceProps> report(String path, CalendarQuery query, DavPropertyNameSet propertyNames)
 			throws IOException, ParserConfigurationException {
 
 		ReportInfo info = new ReportInfo(CalDavPropertyName.CALENDAR_QUERY, 1, propertyNames);
 		info.setContentElement(query.build());
 		
-		return report(path, info, new GetCollections());
+		return report(path, info, new GetResourceProperties());
 	}
 
 	@Override
@@ -287,12 +289,16 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	@Override
 	public void put(String path, Calendar calendar, String etag) throws IOException, FailedOperationException {
 		PutCalendar httpPut = new PutCalendar(resolvePath(path));
-		httpPut.setEtag(etag);
+		if (etag != null) {
+			httpPut.setEtag(etag);
+		}
 		httpPut.setCalendar(calendar);
 		HttpResponse httpResponse = execute(httpPut);
 		if (!httpPut.succeeded(httpResponse)) {
+			StringWriter w = new StringWriter();
+			httpResponse.getEntity().writeTo(WriterOutputStream.builder().setWriter(w).get());
 			throw new FailedOperationException(
-					"Error creating calendar on server: " + httpResponse.getStatusLine());
+					"Error creating calendar on server: " + httpResponse.getStatusLine() + "-" + w);
 		}
 	}
 

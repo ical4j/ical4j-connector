@@ -5,6 +5,7 @@ import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.property.*;
 import org.ical4j.connector.ObjectStoreException;
+import org.ical4j.connector.dav.response.ResourceProps;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -95,12 +96,12 @@ public interface WebDavSupport {
      *    and idempotent (see Section 9.1 of [RFC2616]).
      *    </pre>
      *
-     * @param path a resource URI
+     * @param path          a resource URI
      * @param propertyNames the set of properties to return
      * @return a property set matching the requested property names
      * @throws IOException
      */
-    DavPropertySet propFind(String path, DavPropertyNameSet propertyNames) throws IOException;
+    List<ResourceProps> propFind(String path, DavPropertyNameSet propertyNames) throws IOException;
 
     /**
      *
@@ -109,7 +110,7 @@ public interface WebDavSupport {
      * @return
      * @throws IOException
      */
-    default DavPropertySet propFind(String path, DavPropertyName... propertyNames) throws IOException {
+    default List<ResourceProps> propFind(String path, DavPropertyName... propertyNames) throws IOException {
         DavPropertyNameSet nameSet = new DavPropertyNameSet();
         Arrays.stream(propertyNames).forEach(nameSet::add);
         return propFind(path, nameSet);
@@ -117,18 +118,17 @@ public interface WebDavSupport {
 
     <T> T propFind(String path, DavPropertyNameSet propertyNames, ResponseHandler<T> handler) throws IOException;
 
-    default DavPropertySet propFindAll(String path) throws IOException {
+    default List<ResourceProps> propFindAll(String path) throws IOException {
         return propFindType(path, DavPropertyName.PROPFIND_ALL_PROP);
     }
 
     /**
-     *
      * @param path
      * @param type
      * @return
      * @throws IOException
      */
-    DavPropertySet propFindType(String path, int type) throws IOException;
+    List<ResourceProps> propFindType(String path, int type) throws IOException;
 
     /**
      * <pre>
