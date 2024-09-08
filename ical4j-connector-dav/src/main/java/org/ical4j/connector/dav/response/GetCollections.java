@@ -8,12 +8,16 @@ import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.ical4j.connector.dav.ResourceType;
+import org.w3c.dom.Element;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Handle a DAV response by extracting identified collections and their associated properties.
+ */
 public class GetCollections extends AbstractResponseHandler<Map<String, DavPropertySet>> {
 
     private final List<String> resourceTypes;
@@ -28,7 +32,7 @@ public class GetCollections extends AbstractResponseHandler<Map<String, DavPrope
             MultiStatus multiStatus = getMultiStatus(response);
             return Arrays.stream(multiStatus.getResponses())
                     .filter(msr -> resourceTypes.containsAll(
-                            (List<String>) msr.getProperties(HttpStatus.SC_OK).get(DavPropertyName.RESOURCETYPE).getValue()))
+                            (List<Element>) msr.getProperties(HttpStatus.SC_OK).get(DavPropertyName.RESOURCETYPE).getValue()))
                     .collect(Collectors.toMap(MultiStatusResponse::getHref,
                             msr -> msr.getProperties(HttpStatus.SC_OK)));
         } catch (DavException e) {
