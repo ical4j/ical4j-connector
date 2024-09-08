@@ -11,6 +11,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.StringWriter;
 import java.util.Arrays;
 
 public interface XmlSupport {
@@ -110,5 +117,15 @@ public interface XmlSupport {
         timeRange.setAttribute(ATTRIBUTE_START, startTime);
         timeRange.setAttribute(ATTRIBUTE_END, endTime);
         return timeRange;
+    }
+
+    static String toString(Element node) throws TransformerException {
+        TransformerFactory transFactory = TransformerFactory.newInstance();
+        Transformer transformer = transFactory.newTransformer();
+        StringWriter buffer = new StringWriter();
+        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        transformer.transform(new DOMSource(node),
+                new StreamResult(buffer));
+        return buffer.toString();
     }
 }
