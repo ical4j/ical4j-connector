@@ -11,6 +11,7 @@ module ical4j.connector.dav {
     requires org.slf4j;
     requires static org.jetbrains.annotations;
     requires static org.hamcrest;
+    requires org.apache.commons.io;
 
     exports org.ical4j.connector.dav;
     exports org.ical4j.connector.dav.method;
