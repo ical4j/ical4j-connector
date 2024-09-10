@@ -38,7 +38,7 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
 
     @Override
     public String add(VCard card) throws ObjectStoreException, ConstraintViolationException {
-        Uid uid = card.getRequiredProperty(PropertyName.UID);
+        var uid = card.getRequiredProperty(PropertyName.UID);
 
         Optional<VCard> existing = get(uid.getValue());
         if (existing.isPresent()) {
@@ -46,7 +46,7 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
             throw new ObjectStoreException("Card already exists");
         }
 
-        try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".vcf"))) {
+        try (var writer = new FileWriter(new File(getRoot(), uid.getValue() + ".vcf"))) {
             new VCardOutputter(false).output(card, writer);
         } catch (IOException e) {
             throw new ObjectStoreException("Error writing card file", e);
@@ -60,7 +60,7 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
 
     @Override
     public Uid[] merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
-        Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
+        var uid = card.getRequiredProperty(PropertyName.UID.toString());
         Optional<VCard> existing = get(uid.getValue());
         existing.ifPresent(vCard -> vCard.with(VCard.MERGE, card.getProperties()));
         save(card);
@@ -72,9 +72,9 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
     }
 
     private void save(VCard card) throws ObjectStoreException {
-        Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
+        var uid = card.getRequiredProperty(PropertyName.UID.toString());
 
-        try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".vcf"))) {
+        try (var writer = new FileWriter(new File(getRoot(), uid.getValue() + ".vcf"))) {
             new VCardOutputter(false).output(card, writer);
         } catch (IOException e) {
             throw new ObjectStoreException("Error writing card file", e);
@@ -82,7 +82,7 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
     }
 
     public Optional<VCard> get(String uid) {
-        File cardFile = new File(getRoot(), uid + ".vcf");
+        var cardFile = new File(getRoot(), uid + ".vcf");
         if (!cardFile.exists()) {
             return Optional.empty();
         }
@@ -97,8 +97,8 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
     @Override
     public List<VCard> removeAll(String... uid) throws FailedOperationException {
         List<VCard> removed = new ArrayList<>();
-        for (String u : uid) {
-            File cardFile = new File(getRoot(), u + ".vcf");
+        for (var u : uid) {
+            var cardFile = new File(getRoot(), u + ".vcf");
             if (cardFile.exists()) {
                 Optional<VCard> card = get(u);
                 if (card.isPresent()) {

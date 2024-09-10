@@ -6,7 +6,6 @@ import net.fortuna.ical4j.vcard.VCardBuilder;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.MultiStatus;
 import org.ical4j.connector.dav.property.CardDavPropertyName;
 
 import java.io.IOException;
@@ -20,7 +19,7 @@ public class GetVCardData extends AbstractResponseHandler<List<VCard>> {
     @Override
     public List<VCard> handleResponse(HttpResponse response) {
         try {
-            MultiStatus multiStatus = getMultiStatus(response);
+            var multiStatus = getMultiStatus(response);
             return Arrays.stream(multiStatus.getResponses())
                     .filter(msr -> msr.getProperties(HttpStatus.SC_OK).get(CardDavPropertyName.ADDRESS_DATA) != null)
                     .map(msr -> {

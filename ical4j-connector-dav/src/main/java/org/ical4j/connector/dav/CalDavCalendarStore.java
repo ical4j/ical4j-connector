@@ -40,7 +40,6 @@ import net.fortuna.ical4j.model.property.immutable.ImmutableCalScale;
 import net.fortuna.ical4j.model.property.immutable.ImmutableMethod;
 import net.fortuna.ical4j.model.property.immutable.ImmutableVersion;
 import net.fortuna.ical4j.util.FixedUidGenerator;
-import net.fortuna.ical4j.util.UidGenerator;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
@@ -101,7 +100,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
      */
     @Override
     public CalDavCalendarCollection addCollection(String id) throws ObjectStoreException {
-        CalDavCalendarCollection collection = new CalDavCalendarCollection(this, id);
+        var collection = new CalDavCalendarCollection(this, id);
         try {
             collection.create();
         } catch (IOException e) {
@@ -122,7 +121,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     public CalDavCalendarCollection addCollection(String id, String displayName, String description,
             String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
 
-        CalDavCalendarCollection collection = new CalDavCalendarCollection(this, id, displayName, description);
+        var collection = new CalDavCalendarCollection(this, id, displayName, description);
         try {
             collection.create();
         } catch (IOException e) {
@@ -140,7 +139,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
      * {@inheritDoc}
      */
     public CalDavCalendarCollection addCollection(String id, DavPropertySet properties) throws ObjectStoreException {
-        CalDavCalendarCollection collection = new CalDavCalendarCollection(this, id, properties);
+        var collection = new CalDavCalendarCollection(this, id, properties);
         try {
             collection.create();
         } catch (IOException e) {
@@ -155,12 +154,12 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     @Override
     public CalDavCalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
-            String resourcePath = pathResolver.getCalendarPath(id, "test");
+            var resourcePath = pathResolver.getCalendarPath(id, "test");
             Map<String, DavPropertySet> res = getClient().propFind(resourcePath,
                     PropertyNameSets.PROPFIND_CALENDAR,
                     new GetCollections(CALENDAR, CALENDAR_PROXY_READ, CALENDAR_PROXY_WRITE));
             if (!res.isEmpty()) {
-                DavPropertySet props = res.entrySet().iterator().next().getValue();
+                var props = res.entrySet().iterator().next().getValue();
                 return new CalDavCalendarCollection(this, id, props);
 //            .entrySet().stream()
 //                    .map(e -> new CalDavCalendarCollection(this, e.getKey(), e.getValue()))
@@ -186,7 +185,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     }
 
     public String findCalendarHomeSet() throws ParserConfigurationException, IOException, DavException {
-        String propfindPath = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
+        var propfindPath = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
         return findCalendarHomeSet(propfindPath);
     }
 
@@ -216,7 +215,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     @Override
     public List<CalDavCalendarCollection> getCollections() throws ObjectStoreException, ObjectNotFoundException {
         try {
-            String calHomeSetPath = findCalendarHomeSet();
+            var calHomeSetPath = findCalendarHomeSet();
             if (calHomeSetPath == null) {
                 throw new ObjectNotFoundException("No calendar-home-set attribute found for the user");
             }
@@ -255,14 +254,14 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     
     protected List<CalDavCalendarCollection> getDelegatedCollections(ExpandPropertyQuery.Type type) throws Exception {
 
-        String methodUri = this.pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
+        var methodUri = this.pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
 
-        ExpandPropertyQuery expandPropertyReport = new ExpandPropertyQuery(type)
+        var expandPropertyReport = new ExpandPropertyQuery(type)
                 .withPropertyName(DavPropertyName.DISPLAYNAME)
                 .withPropertyName(SecurityConstants.PRINCIPAL_URL)
                 .withPropertyName(CalDavPropertyName.USER_ADDRESS_SET);
 
-        ReportInfo rinfo = new ReportInfo(BaseDavPropertyName.EXPAND_PROPERTY, 0);
+        var rinfo = new ReportInfo(BaseDavPropertyName.EXPAND_PROPERTY, 0);
         rinfo.setContentElement(expandPropertyReport.build());
 
         return getClient().report(methodUri, rinfo, new GetCalDavCollections());
@@ -282,7 +281,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
      * {@inheritDoc}
      */
     public CalDavCalendarCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
-        CalDavCalendarCollection collection = getCollection(id);
+        var collection = getCollection(id);
         collection.delete();
         return collection;
     }
@@ -313,15 +312,15 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     }
 
     public String findScheduleOutbox() throws ParserConfigurationException, IOException, DavException {
-        String propfindUri = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
-        DavPropertyNameSet nameSet = new DavPropertyNameSet();
+        var propfindUri = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
+        var nameSet = new DavPropertyNameSet();
         nameSet.add(CalDavPropertyName.SCHEDULE_OUTBOX_URL);
         return getClient().propFind(propfindUri, nameSet, new GetPropertyValue<>());
     }
 
     public String findScheduleInbox() throws ParserConfigurationException, IOException, DavException {
-        String propfindUri = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
-        DavPropertyNameSet nameSet = new DavPropertyNameSet();
+        var propfindUri = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
+        var nameSet = new DavPropertyNameSet();
         nameSet.add(CalDavPropertyName.SCHEDULE_INBOX_URL);
         return getClient().propFind(propfindUri, nameSet, new GetPropertyValue<>());
     }
@@ -335,33 +334,33 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     public List<ScheduleResponse> findFreeBusyInfoForAttendees(Organizer organizer, ArrayList<Attendee> attendees,
             DtStart startTime, DtEnd endTime) throws ParserConfigurationException, IOException, DavException,
             ParseException, ParserException, SAXException {
-        Random ramdomizer = new Random();
+        var ramdomizer = new Random();
         ArrayList<ScheduleResponse> responses = new ArrayList<ScheduleResponse>();
 
-        Calendar calendar = new Calendar();
+        var calendar = new Calendar();
         calendar.add(new ProdId(getProdId()));
         calendar.add(ImmutableVersion.VERSION_2_0);
         calendar.add(ImmutableCalScale.GREGORIAN);
         calendar.add(ImmutableMethod.REQUEST);
 
-        VFreeBusy fbComponent = new VFreeBusy();
+        var fbComponent = new VFreeBusy();
 
         fbComponent.add(organizer);
 
         fbComponent.add(startTime);
         fbComponent.add(endTime);
 
-        String strAttendee = "";
+        var strAttendee = "";
         if (attendees != null) {
             for (Iterator<Attendee> itrAttendee = attendees.iterator(); itrAttendee.hasNext();) {
-                Attendee attendee = itrAttendee.next();
+                var attendee = itrAttendee.next();
                 fbComponent.add(attendee);
                 strAttendee += attendee.getValue() + ",";
             }
             strAttendee = strAttendee.substring(0, strAttendee.length() - 1);
         }
 
-        UidGenerator ug = new FixedUidGenerator(ramdomizer.nextInt() + "");
+        var ug = new FixedUidGenerator(ramdomizer.nextInt() + "");
         fbComponent.add(ug.generateUid());
         calendar.getComponents().add(fbComponent);
 
@@ -409,9 +408,9 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
         return executePrincipalPropSearch(new org.ical4j.connector.dav.request.PrincipalPropertySearch(type, nameToSearch).build());
     }
     
-    protected List<Attendee> executePrincipalPropSearch(Element principalPropSearch) throws DavException, IOException, URISyntaxException {        
-        PrincipalPropertySearchInfo rinfo = new PrincipalPropertySearchInfo(principalPropSearch, 0);
-        String methodUri = this.pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
+    protected List<Attendee> executePrincipalPropSearch(Element principalPropSearch) throws DavException, IOException, URISyntaxException {
+        var rinfo = new PrincipalPropertySearchInfo(principalPropSearch, 0);
+        var methodUri = this.pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
         return getClient().findPrincipals(methodUri, rinfo);
     }
 }

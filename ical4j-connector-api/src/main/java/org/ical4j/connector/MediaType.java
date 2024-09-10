@@ -62,7 +62,7 @@ public enum MediaType {
     private static Set<String> index = new HashSet<>();
 
     static {
-        for (MediaType mediaType : MediaType.values()) {
+        for (var mediaType : MediaType.values()) {
             index.add(mediaType.getContentType());
         }
     }
@@ -91,7 +91,7 @@ public enum MediaType {
     }
 
     public static MediaType findByContentTypeAndVersion(String contentType, String version) {
-        for (MediaType feature : values()) {
+        for (var feature : values()) {
             if ((feature.getContentType().equals(contentType)) && (feature.getVersion().equals(version))) {
                 return feature;
             }

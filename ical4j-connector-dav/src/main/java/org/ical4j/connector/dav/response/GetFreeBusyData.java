@@ -6,9 +6,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.xml.DomUtil;
 import org.ical4j.connector.dav.ScheduleResponse;
 import org.ical4j.connector.dav.property.CalDavPropertyName;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -22,8 +20,8 @@ public class GetFreeBusyData extends AbstractResponseHandler<List<ScheduleRespon
     public List<ScheduleResponse> handleResponse(HttpResponse response) throws IOException {
         List<ScheduleResponse> responses = new ArrayList<>();
         try {
-            Document xmlDoc = DomUtil.parseDocument(response.getEntity().getContent());
-            NodeList nodes = xmlDoc.getElementsByTagNameNS(CalDavPropertyName.NAMESPACE.getURI(),
+            var xmlDoc = DomUtil.parseDocument(response.getEntity().getContent());
+            var nodes = xmlDoc.getElementsByTagNameNS(CalDavPropertyName.NAMESPACE.getURI(),
                     DavPropertyName.XML_RESPONSE);
             for (int nodeItr = 0; nodeItr < nodes.getLength(); nodeItr++) {
                 responses.add(new ScheduleResponse((Element) nodes.item(nodeItr)));

@@ -3,7 +3,6 @@ package org.ical4j.connector.dav.response;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.jackrabbit.webdav.DavException;
-import org.apache.jackrabbit.webdav.MultiStatus;
 import org.apache.jackrabbit.webdav.MultiStatusResponse;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
@@ -29,7 +28,7 @@ public class GetCollections extends AbstractResponseHandler<Map<String, DavPrope
     @Override
     public Map<String, DavPropertySet> handleResponse(HttpResponse response) {
         try {
-            MultiStatus multiStatus = getMultiStatus(response);
+            var multiStatus = getMultiStatus(response);
             return Arrays.stream(multiStatus.getResponses())
                     .filter(msr -> resourceTypes.containsAll(
                             (List<Element>) msr.getProperties(HttpStatus.SC_OK).get(DavPropertyName.RESOURCETYPE).getValue()))

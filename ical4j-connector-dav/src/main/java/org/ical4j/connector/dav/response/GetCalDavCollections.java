@@ -2,9 +2,10 @@ package org.ical4j.connector.dav.response;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.jackrabbit.webdav.*;
+import org.apache.jackrabbit.webdav.DavConstants;
+import org.apache.jackrabbit.webdav.DavException;
+import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.property.DavProperty;
-import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.ical4j.connector.dav.CalDavCalendarCollection;
@@ -23,21 +24,21 @@ public class GetCalDavCollections extends AbstractResponseHandler<List<CalDavCal
     public List<CalDavCalendarCollection> handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
         List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
         try {
-            MultiStatus multiStatus = getMultiStatus(response);
-            MultiStatusResponse[] responses = multiStatus.getResponses();
-            for (MultiStatusResponse msr : responses) {
-                DavPropertySet properties = msr.getProperties(DavServletResponse.SC_OK);
+            var multiStatus = getMultiStatus(response);
+            var responses = multiStatus.getResponses();
+            for (var msr : responses) {
+                var properties = msr.getProperties(DavServletResponse.SC_OK);
                 DavProperty<?> writeForProperty = properties.get(CSDavPropertyName.PROPERTY_PROXY_WRITE_FOR,
                         CSDavPropertyName.NAMESPACE);
                 List<CalDavCalendarCollection> writeCollections = getDelegateCollections(writeForProperty);
-                for (CalDavCalendarCollection writeCollection : writeCollections) {
+                for (var writeCollection : writeCollections) {
                     writeCollection.setReadOnly(false);
                     collections.add(writeCollection);
                 }
                 DavProperty<?> readForProperty = properties.get(CSDavPropertyName.PROPERTY_PROXY_READ_FOR,
                         CSDavPropertyName.NAMESPACE);
                 List<CalDavCalendarCollection> readCollections = getDelegateCollections(readForProperty);
-                for (CalDavCalendarCollection readCollection : readCollections) {
+                for (var readCollection : readCollections) {
                     readCollection.setReadOnly(true);
                     collections.add(readCollection);
                 }
@@ -59,27 +60,27 @@ public class GetCalDavCollections extends AbstractResponseHandler<List<CalDavCal
          * Apple iCal CalDAV client is not enabled
          */
         if (proxyDavProperty != null) {
-            Object propertyValue = proxyDavProperty.getValue();
+            var propertyValue = proxyDavProperty.getValue();
             List<Node> response;
 
             if (propertyValue instanceof List) {
                 response = (List<Node>) proxyDavProperty.getValue();
                 if (response != null) {
-                    for (Node objectInArray: response) {
+                    for (var objectInArray: response) {
                         if (objectInArray instanceof Element) {
                             DavProperty<?> newProperty = DefaultDavProperty
                                     .createFromXml((Element) objectInArray);
                             if ((newProperty.getName().getName().equals((DavConstants.XML_RESPONSE)))
                                     && (newProperty.getName().getNamespace().equals(DavConstants.NAMESPACE))) {
                                 List<Node> responseChilds = (List<Node>) newProperty.getValue();
-                                for (Node responseChild : responseChilds) {
+                                for (var responseChild : responseChilds) {
                                     if (responseChild instanceof Element) {
                                         DavProperty<?> responseChildElement = DefaultDavProperty
                                                 .createFromXml((Element) responseChild);
                                         if (responseChildElement.getName().getName().equals(DavConstants.XML_PROPSTAT)) {
                                             List<Node> propStatChilds = (List<Node>) responseChildElement
                                                     .getValue();
-                                            for (Node propStatChild : propStatChilds) {
+                                            for (var propStatChild : propStatChilds) {
                                                 if (propStatChild instanceof Element) {
                                                     DavProperty<?> propStatChildElement = DefaultDavProperty
                                                             .createFromXml((Element) propStatChild);
@@ -87,7 +88,7 @@ public class GetCalDavCollections extends AbstractResponseHandler<List<CalDavCal
                                                             .equals(DavConstants.XML_PROP)) {
                                                         List<Node> propChilds = (List<Node>) propStatChildElement
                                                                 .getValue();
-                                                        for (Node propChild : propChilds) {
+                                                        for (var propChild : propChilds) {
                                                             if (propChild instanceof Element) {
                                                                 DavProperty<?> propChildElement = DefaultDavProperty
                                                                         .createFromXml((Element) propChild);
@@ -95,13 +96,13 @@ public class GetCalDavCollections extends AbstractResponseHandler<List<CalDavCal
                                                                         SecurityConstants.PRINCIPAL_URL)) {
                                                                     List<Node> principalUrlChilds = (List<Node>) propChildElement
                                                                             .getValue();
-                                                                    for (Node principalUrlChild : principalUrlChilds) {
+                                                                    for (var principalUrlChild : principalUrlChilds) {
                                                                         if (principalUrlChild instanceof Element) {
                                                                             DavProperty<?> principalUrlElement = DefaultDavProperty
                                                                                     .createFromXml((Element) principalUrlChild);
                                                                             if (principalUrlElement.getName().getName()
                                                                                     .equals(DavConstants.XML_HREF)) {
-                                                                                String principalsUri = (String) principalUrlElement
+                                                                                var principalsUri = (String) principalUrlElement
                                                                                         .getValue();
                                                                                 //XXX: Need to reimplement..
 //                                                                                String urlForcalendarHomeSet = findCalendarHomeSet(getHostURL()

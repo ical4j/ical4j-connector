@@ -42,7 +42,7 @@ public class DavClientFactory {
      * @return a new client instance
      */
     public DefaultDavClient newInstance(URL url) {
-        DefaultDavClient client = new DefaultDavClient(url, clientConfiguration);
+        var client = new DefaultDavClient(url, clientConfiguration);
         if (credentialsProvider != null) {
             client.begin(credentialsProvider);
         } else {
@@ -58,7 +58,7 @@ public class DavClientFactory {
      * @return a new client instance
      */
     public DefaultDavClient newInstance(String url) throws MalformedURLException {
-        DefaultDavClient client = new DefaultDavClient(url, clientConfiguration);
+        var client = new DefaultDavClient(url, clientConfiguration);
         if (credentialsProvider != null) {
             client.begin(credentialsProvider);
         } else {

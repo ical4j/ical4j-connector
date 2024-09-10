@@ -55,7 +55,7 @@ public enum ResourceType {
     private static Set<String> index = new HashSet<String>();
 
     static {
-        for (ResourceType supportedFeature : ResourceType.values()) {
+        for (var supportedFeature : ResourceType.values()) {
             index.add(supportedFeature.description());
         }
     }
@@ -73,7 +73,7 @@ public enum ResourceType {
     }
 
     public static ResourceType findByDescription(String value) {
-        for (ResourceType feature : values()) {
+        for (var feature : values()) {
             if (feature.description().equals(value)) {
                 return feature;
             }

@@ -67,7 +67,7 @@ public class PutCalendar extends AbstractPutMethod {
      * @throws ValidationException where the specified calendar is not valid
      */
     public void setCalendar(Calendar calendar) throws IOException, ValidationException {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        var bytes = new ByteArrayOutputStream();
         calendarOutputter.output(calendar, bytes);
         setEntity(new ByteArrayEntity(bytes.toByteArray(),
                 ContentType.create(MediaType.ICALENDAR_2_0.getContentType())));

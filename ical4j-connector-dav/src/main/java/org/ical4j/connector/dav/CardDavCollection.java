@@ -132,7 +132,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      */
     public long getMaxResourceSize() {
         try {
-            Long size = getProperty(CalDavPropertyName.MAX_RESOURCE_SIZE, Long.class);
+            var size = getProperty(CalDavPropertyName.MAX_RESOURCE_SIZE, Long.class);
             if (size != null) {
                 return size;
             }
@@ -168,7 +168,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      */
     public Iterable<VCard> getAll() throws ObjectStoreException {
         try {
-            ReportInfo info = new ReportInfo(CardDavPropertyName.ADDRESSBOOK_QUERY, 1,
+            var info = new ReportInfo(CardDavPropertyName.ADDRESSBOOK_QUERY, 1,
                     PropertyNameSets.REPORT_CARD);
 
             return getStore().getClient().report(getPath(), info, new GetVCardData());
@@ -181,14 +181,14 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      * @see org.ical4j.connector.CardCollection#addCard(net.fortuna.ical4j.vcard.VCard)
      */
     public String add(VCard card) throws ObjectStoreException, ConstraintViolationException {
-        Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
+        var uid = card.getRequiredProperty(PropertyName.UID.toString());
         save(card);
         return uid.getValue();
     }
 
     @Override
     public Uid[] merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
-        Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
+        var uid = card.getRequiredProperty(PropertyName.UID.toString());
         VCard existing = null;
         try {
             existing = getCard(uid.getValue());
@@ -202,9 +202,9 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     }
 
     private void save(VCard card) throws ObjectStoreException {
-        Uid uid = card.getRequiredProperty(PropertyName.UID.toString());
+        var uid = card.getRequiredProperty(PropertyName.UID.toString());
 
-        String path = getPath();
+        var path = getPath();
         if (!path.endsWith("/")) {
             path = path.concat("/");
         }

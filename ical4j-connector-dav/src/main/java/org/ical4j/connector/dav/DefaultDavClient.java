@@ -41,7 +41,6 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
@@ -54,7 +53,10 @@ import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.protocol.RequestDefaultHeaders;
 import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.*;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.message.BasicHeader;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
@@ -138,9 +140,9 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	}
 
 	public List<SupportedFeature> begin(String username, char[] password) throws IOException, FailedOperationException {
-		Credentials credentials = new UsernamePasswordCredentials(username, new String(password));
+		var credentials = new UsernamePasswordCredentials(username, new String(password));
 
-		CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+		var credentialsProvider = new BasicCredentialsProvider();
 		credentialsProvider.setCredentials(new AuthScope(hostConfiguration), credentials);
 		begin(credentialsProvider);
 
@@ -149,7 +151,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 
 	void begin(CredentialsProvider credentialsProvider) {
 
-		HttpClientBuilder builder = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider);
+		var builder = HttpClients.custom().setDefaultCredentialsProvider(credentialsProvider);
 
 		Collection<Header> defaultHeaders = clientConfiguration.getDefaultHeaders().entrySet().stream()
 				.map(e -> new BasicHeader(e.getKey(), e.getValue())).collect(Collectors.toList());
@@ -181,10 +183,10 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	}
 
 	public List<SupportedFeature> getSupportedFeatures() throws IOException {
-		HttpPropfind aGet = new HttpPropfind(repositoryPath, DavConstants.PROPFIND_BY_PROPERTY,
+		var aGet = new HttpPropfind(repositoryPath, DavConstants.PROPFIND_BY_PROPERTY,
 				PropertyNameSets.PROPFIND_SUPPORTED_FEATURES, 0);
 
-		RequestConfig.Builder builder = aGet.getConfig() == null ? RequestConfig.custom() : RequestConfig.copy(aGet.getConfig());
+		var builder = aGet.getConfig() == null ? RequestConfig.custom() : RequestConfig.copy(aGet.getConfig());
 		builder.setAuthenticationEnabled(true);
 		// Added to support iCal Server, who don't support Basic auth at all,
 		// only Kerberos and Digest
@@ -193,16 +195,16 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 		authPrefs.add(AuthSchemes.BASIC);
 		builder.setTargetPreferredAuthSchemes(authPrefs);
 
-		RequestConfig config = builder.build();
+		var config = builder.build();
 		aGet.setConfig(config);
 		return execute(aGet, new GetSupportedFeatures());
 	}
 
 	@Override
 	public void mkCalendar(String path, DavPropertySet properties) throws IOException, ObjectStoreException, DavException {
-		MkCalendar mkCalendarMethod = new MkCalendar(resolvePath(path));
+		var mkCalendarMethod = new MkCalendar(resolvePath(path));
 		mkCalendarMethod.setEntity(XmlEntity.create(new MkCalendarEntity().withProperties(properties)));
-		HttpResponse httpResponse = execute(mkCalendarMethod);
+		var httpResponse = execute(mkCalendarMethod);
 		if (!mkCalendarMethod.succeeded(httpResponse)) {
 			throw new ObjectStoreException(httpResponse.getStatusLine().getStatusCode() + ": "
 					+ httpResponse.getStatusLine().getReasonPhrase());
@@ -211,9 +213,9 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 
 	@Override
 	public void mkCol(String path, DavPropertySet properties) throws ObjectStoreException, DavException, IOException {
-		HttpMkcol mkcolMethod = new HttpMkcol(resolvePath(path));
+		var mkcolMethod = new HttpMkcol(resolvePath(path));
 		mkcolMethod.setEntity(XmlEntity.create(new MkColEntity().withProperties(properties)));
-		HttpResponse httpResponse = execute(mkcolMethod);
+		var httpResponse = execute(mkcolMethod);
 		if (!mkcolMethod.succeeded(httpResponse)) {
 			throw new ObjectStoreException(httpResponse.getStatusLine().getStatusCode() + ": "
 					+ httpResponse.getStatusLine().getReasonPhrase());
@@ -228,7 +230,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	@Override
 	public <T> T propFind(String path, DavPropertyNameSet propertyNames, ResponseHandler<T> handler)
 			throws IOException {
-		HttpPropfind aGet = new HttpPropfind(resolvePath(path), propertyNames, 0);
+		var aGet = new HttpPropfind(resolvePath(path), propertyNames, 0);
 		return execute(aGet, handler);
 	}
 
@@ -249,7 +251,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 
 	@Override
 	public List<ResourceProps> propFindType(String path, int type) throws IOException {
-		HttpPropfind aGet = new HttpPropfind(resolvePath(path), type, 1);
+		var aGet = new HttpPropfind(resolvePath(path), type, 1);
 
 //		RequestConfig config = RequestConfig.custom().setAuthenticationEnabled(true).build();
 //		aGet.setConfig(config);
@@ -260,7 +262,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	public List<ResourceProps> report(String path, CalendarQuery query, DavPropertyNameSet propertyNames)
 			throws IOException, ParserConfigurationException {
 
-		ReportInfo info = new ReportInfo(CalDavPropertyName.CALENDAR_QUERY, 1, propertyNames);
+		var info = new ReportInfo(CalDavPropertyName.CALENDAR_QUERY, 1, propertyNames);
 		info.setContentElement(query.build());
 		
 		return report(path, info, new GetResourceProperties());
@@ -270,32 +272,32 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	public <T> T report(String path, ReportInfo info, ResponseHandler<T> handler) throws IOException,
 			ParserConfigurationException {
 
-		HttpReport method = new HttpReport(resolvePath(path), info);
+		var method = new HttpReport(resolvePath(path), info);
 		return execute(method, handler);
 	}
 
 	@Override
 	public <T> T get(String path, ResponseHandler<T> handler) throws IOException {
-		HttpGet httpGet = new HttpGet(resolvePath(path));
+		var httpGet = new HttpGet(resolvePath(path));
 		return execute(httpGet, handler);
 	}
 
 	@Override
 	public <T> T head(String path, ResponseHandler<T> handler) throws IOException {
-		HttpHead httpHead = new HttpHead(resolvePath(path));
+		var httpHead = new HttpHead(resolvePath(path));
 		return execute(httpHead, handler);
 	}
 
 	@Override
 	public void put(String path, Calendar calendar, String etag) throws IOException, FailedOperationException {
-		PutCalendar httpPut = new PutCalendar(resolvePath(path));
+		var httpPut = new PutCalendar(resolvePath(path));
 		if (etag != null) {
 			httpPut.setEtag(etag);
 		}
 		httpPut.setCalendar(calendar);
-		HttpResponse httpResponse = execute(httpPut);
+		var httpResponse = execute(httpPut);
 		if (!httpPut.succeeded(httpResponse)) {
-			StringWriter w = new StringWriter();
+			var w = new StringWriter();
 			httpResponse.getEntity().writeTo(WriterOutputStream.builder().setWriter(w).get());
 			throw new FailedOperationException(
 					"Error creating calendar on server: " + httpResponse.getStatusLine() + "-" + w);
@@ -304,10 +306,10 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 
 	@Override
 	public void put(String path, VCard card, String etag) throws IOException, FailedOperationException {
-		PutVCard httpPut = new PutVCard(resolvePath(path));
+		var httpPut = new PutVCard(resolvePath(path));
 		httpPut.setEtag(etag);
 		httpPut.setVCard(card);
-		HttpResponse httpResponse = execute(httpPut);
+		var httpResponse = execute(httpPut);
 		if (!httpPut.succeeded(httpResponse)) {
 			throw new FailedOperationException(
 					"Error creating card on server: " + httpResponse.getStatusLine());
@@ -316,7 +318,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 
 	@Override
 	public void copy(String src, String dest) throws IOException {
-		HttpCopy method = new HttpCopy(resolvePath(src), resolvePath(dest), true, false);
+		var method = new HttpCopy(resolvePath(src), resolvePath(dest), true, false);
 		execute(method, response -> {
 			try {
 				method.checkSuccess(response);
@@ -329,7 +331,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 
 	@Override
 	public void move(String src, String dest) throws IOException {
-		HttpMove method = new HttpMove(resolvePath(src), resolvePath(dest), true);
+		var method = new HttpMove(resolvePath(src), resolvePath(dest), true);
 		execute(method, response -> {
 			try {
 				method.checkSuccess(response);
@@ -342,7 +344,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 
 	@Override
 	public void delete(String path) throws IOException, DavException {
-		HttpDelete method = new HttpDelete(resolvePath(path));
+		var method = new HttpDelete(resolvePath(path));
 		execute(method, response -> {
 			try {
 				method.checkSuccess(response);
@@ -354,14 +356,14 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	}
 
 	public List<ScheduleResponse> freeBusy(String path, Calendar query, Organizer organizer) throws IOException {
-		FreeBusy freeBusy = new FreeBusy(resolvePath(path), organizer);
+		var freeBusy = new FreeBusy(resolvePath(path), organizer);
 		freeBusy.setQuery(query);
 		return execute(freeBusy, new GetFreeBusyData());
 	}
 
 	@Override
 	public MultiStatusResponse propPatch(String path, List<? extends PropEntry> changeList) throws IOException {
-		HttpProppatch method = new HttpProppatch(resolvePath(path), changeList);
+		var method = new HttpProppatch(resolvePath(path), changeList);
 		return execute(method, response -> {
 			try {
 				method.checkSuccess(response);
@@ -389,7 +391,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	}
 
 	public List<Attendee> findPrincipals(String path, PrincipalPropertySearchInfo info) throws IOException {
-		PrincipalPropertySearch principalPropertySearch = new PrincipalPropertySearch(resolvePath(path), info);
+		var principalPropertySearch = new PrincipalPropertySearch(resolvePath(path), info);
 		return execute(principalPropertySearch, new GetPrincipals());
 	}
 
@@ -404,7 +406,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	}
 
 	private HttpResponse execute(BaseDavRequest method) throws IOException, DavException {
-		HttpResponse response = httpClient.execute(hostConfiguration, method, httpClientContext);
+		var response = httpClient.execute(hostConfiguration, method, httpClientContext);
 		method.checkSuccess(response);
 		return response;
 	}

@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Date;
 import java.util.Properties;
@@ -40,7 +39,7 @@ public class LocalCollectionConfiguration {
         }
         this.root = root;
         this.properties = new Properties();
-        try (InputStream in = Files.newInputStream(new File(root, PROPERTIES_FILE_NAME).toPath())) {
+        try (var in = Files.newInputStream(new File(root, PROPERTIES_FILE_NAME).toPath())) {
             properties.load(in);
         } catch (IOException | NullPointerException e) {
             LOG.info("ical4j config not found.");
@@ -97,7 +96,7 @@ public class LocalCollectionConfiguration {
 //        if (!root.exists() && !root.mkdirs()) {
 //            throw new IOException("Unable to create config directory");
 //        }
-        try (FileWriter fw = new FileWriter(new File(root, PROPERTIES_FILE_NAME))) {
+        try (var fw = new FileWriter(new File(root, PROPERTIES_FILE_NAME))) {
             properties.store(fw, String.format("%s", new Date()));
         }
     }

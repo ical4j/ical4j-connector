@@ -59,7 +59,7 @@ public enum SupportedFeature {
     private static Set<String> index = new HashSet<String>();
 
     static {
-        for (SupportedFeature supportedFeature : SupportedFeature.values()) {
+        for (var supportedFeature : SupportedFeature.values()) {
             index.add(supportedFeature.description());
         }
     }
@@ -77,7 +77,7 @@ public enum SupportedFeature {
     }
 
     public static SupportedFeature findByDescription(String value) {
-        for (SupportedFeature feature : values()) {
+        for (var feature : values()) {
             if (feature.description().equals(value)) {
                 return feature;
             }

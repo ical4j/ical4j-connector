@@ -108,7 +108,7 @@ public abstract class PropertyNameSets {
 
         PROPFIND_SUPPORTED_FEATURES.add(DavPropertyName.RESOURCETYPE);
         PROPFIND_SUPPORTED_FEATURES.add(CSDavPropertyName.CTAG);
-        DavPropertyName owner = DavPropertyName.create(DavPropertyName.XML_OWNER, DavConstants.NAMESPACE);
+        var owner = DavPropertyName.create(DavPropertyName.XML_OWNER, DavConstants.NAMESPACE);
         PROPFIND_SUPPORTED_FEATURES.add(owner);
 
     }

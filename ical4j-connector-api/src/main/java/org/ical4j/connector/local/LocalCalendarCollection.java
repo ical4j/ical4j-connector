@@ -71,14 +71,14 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
 
     @Override
     public String add(Calendar object) throws ObjectStoreException {
-        Uid uid = object.getUid();
+        var uid = object.getUid();
         Optional<Calendar> existing = get(uid.getValue());
         if (existing.isPresent()) {
             // TODO: potentially merge/replace existing..
             throw new ObjectStoreException("Calendar already exists");
         }
 
-        try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".ics"))) {
+        try (var writer = new FileWriter(new File(getRoot(), uid.getValue() + ".ics"))) {
             new CalendarOutputter(false).output(object, writer);
         } catch (IOException e) {
             throw new ObjectStoreException("Error writing calendar file", e);
@@ -92,7 +92,7 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
 
     @Override
     public Optional<Calendar> get(String uid) {
-        File calendarFile = new File(getRoot(), uid + ".ics");
+        var calendarFile = new File(getRoot(), uid + ".ics");
         if (!calendarFile.exists()) {
             return Optional.empty();
         }
@@ -107,8 +107,8 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
     @Override
     public List<Calendar> removeAll(String... uid) throws FailedOperationException {
         List<Calendar> removed = new ArrayList<>();
-        for (String u : uid) {
-            File calendarFile = new File(getRoot(), u + ".ics");
+        for (var u : uid) {
+            var calendarFile = new File(getRoot(), u + ".ics");
             if (calendarFile.exists()) {
                 Optional<Calendar> cal = get(u);
                 if (cal.isPresent()) {
@@ -125,9 +125,9 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
 
     @Override
     public Uid[] merge(Calendar calendar) throws ObjectStoreException {
-        Calendar[] uidCalendars = calendar.split();
-        for (Calendar c : uidCalendars) {
-            Uid uid = c.getUid();
+        var uidCalendars = calendar.split();
+        for (var c : uidCalendars) {
+            var uid = c.getUid();
             Optional<Calendar> existing = get(uid.getValue());
 
             if (existing.isPresent()) {
@@ -135,7 +135,7 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
                 throw new ObjectStoreException("Calendar already exists");
             }
 
-            try (FileWriter writer = new FileWriter(new File(getRoot(), uid.getValue() + ".ics"))) {
+            try (var writer = new FileWriter(new File(getRoot(), uid.getValue() + ".ics"))) {
                 new CalendarOutputter(false).output(c, writer);
             } catch (IOException e) {
                 throw new ObjectStoreException("Error writing calendar file", e);
@@ -150,8 +150,8 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
 
     @Override
     public Calendar export() {
-        Calendar export = new Calendar();
-        for (File object : getObjectFiles()) {
+        var export = new Calendar();
+        for (var object : getObjectFiles()) {
             try {
                 export = export.merge(Calendars.load(object.getAbsolutePath()));
             } catch (IOException | ParserException e) {

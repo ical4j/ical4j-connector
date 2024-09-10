@@ -10,7 +10,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -27,7 +26,7 @@ import java.util.stream.Collectors;
 public abstract class AbstractResponseHandler<T> implements ResponseHandler<T> {
 
     protected InputStream getContent(HttpResponse response, MediaType mediaType) throws IOException {
-        HttpEntity httpEntity = response.getEntity();
+        var httpEntity = response.getEntity();
         if (httpEntity != null && httpEntity.getContentType().getValue().startsWith(mediaType.getContentType())) {
             return httpEntity.getContent();
         }
@@ -49,7 +48,7 @@ public abstract class AbstractResponseHandler<T> implements ResponseHandler<T> {
             return null;
         } else {
             // read response and try to build a xml document
-            try (InputStream in = entity.getContent()) {
+            try (var in = entity.getContent()) {
                 return DomUtil.parseDocument(in);
             } catch (ParserConfigurationException ex) {
                 throw new IOException("XML parser configuration error", ex);
@@ -61,7 +60,7 @@ public abstract class AbstractResponseHandler<T> implements ResponseHandler<T> {
 
     private MultiStatus getResponseBodyAsMultiStatus(HttpResponse response) throws DavException {
         try {
-            Document doc = getResponseBodyAsDocument(response.getEntity());
+            var doc = getResponseBodyAsDocument(response.getEntity());
             if (doc == null) {
                 throw new DavException(response.getStatusLine().getStatusCode(), "no response body");
             }
@@ -79,11 +78,11 @@ public abstract class AbstractResponseHandler<T> implements ResponseHandler<T> {
     }
 
     protected String toString(Document document) throws TransformerException, IOException {
-        DOMSource domSource = new DOMSource(document);
-        StringWriter writer = new StringWriter();
-        StreamResult result = new StreamResult(writer);
-        TransformerFactory tf = TransformerFactory.newInstance();
-        Transformer transformer = tf.newTransformer();
+        var domSource = new DOMSource(document);
+        var writer = new StringWriter();
+        var result = new StreamResult(writer);
+        var tf = TransformerFactory.newInstance();
+        var transformer = tf.newTransformer();
         transformer.transform(domSource, result);
         return writer.toString();
     }

@@ -55,7 +55,7 @@ public class PrincipalPropertySearch extends BaseDavRequest {
     
     public PrincipalPropertySearch(String uri, PrincipalPropertySearchInfo reportInfo) throws IOException {
         super(URI.create(uri));
-        DepthHeader dh = new DepthHeader(reportInfo.getDepth());
+        var dh = new DepthHeader(reportInfo.getDepth());
         isDeep = reportInfo.getDepth() > 0;
 
         setHeader(dh.getHeaderName(), dh.getHeaderValue());

@@ -56,7 +56,7 @@ public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObject
 
     @Override
     public C addCollection(String id, String workspace) throws ObjectStoreException {
-        File collectionDir = new File(getWorkspaceDir(workspace), id);
+        var collectionDir = new File(getWorkspaceDir(workspace), id);
         if ((collectionDir.exists() && !collectionDir.isDirectory()) ||
                 (!collectionDir.exists() && !collectionDir.mkdirs())) {
             throw new ObjectStoreException("Unable to initialise collection");
@@ -122,7 +122,7 @@ public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObject
 
     @Override
     public C getCollection(String id, String workspace) throws ObjectStoreException, ObjectNotFoundException {
-        File collectionDir = new File(getWorkspaceDir(workspace), id);
+        var collectionDir = new File(getWorkspaceDir(workspace), id);
         if (!collectionDir.exists() || !collectionDir.isDirectory()) {
             throw new ObjectNotFoundException("Unable to retrieve collection");
         }
@@ -150,7 +150,7 @@ public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObject
     }
 
     protected File getWorkspaceDir(String workspace) {
-        File workspaceDir = new File(root, workspace);
+        var workspaceDir = new File(root, workspace);
         if (!workspaceDir.exists() && !workspaceDir.mkdir()) {
             throw new IllegalArgumentException("Invalid workspace");
         }

@@ -91,7 +91,7 @@ public abstract class AbstractDavResource<T extends WebDavSupport> implements Da
 
     @Override
     public DavPropertySet getProperties() {
-        DavPropertySet copy = new DavPropertySet();
+        var copy = new DavPropertySet();
         copy.addAll(properties);
         return copy;
     }
@@ -115,7 +115,7 @@ public abstract class AbstractDavResource<T extends WebDavSupport> implements Da
         DavProperty<?> property = properties.get(name);
         if (property == null) {
             try {
-                DavPropertySet result = client.propFind(getResourcePath(), name).get(0).getProperties();
+                var result = client.propFind(getResourcePath(), name).get(0).getProperties();
                 this.properties.addAll(result);
                 property = properties.get(name);
             } catch (IOException e) {
@@ -126,7 +126,7 @@ public abstract class AbstractDavResource<T extends WebDavSupport> implements Da
     }
 
     private <P> P getPropertyValue(DavPropertyName name) {
-        DavPropertyNameSet nameSet = new DavPropertyNameSet();
+        var nameSet = new DavPropertyNameSet();
         nameSet.add(name);
         try {
             return client.propFind(getResourcePath(), nameSet, new GetPropertyValue<>());

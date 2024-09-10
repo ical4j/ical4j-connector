@@ -18,7 +18,7 @@ public class CalendarQuery implements XmlSupport, XmlSerializable {
     }
 
     public Element build() throws ParserConfigurationException {
-        Document document = newXmlDocument();
+        var document = newXmlDocument();
 //        DomUtil.setNamespaceAttribute(document.getDocumentElement(), "xmlns:d", "DAV:");
 //        DomUtil.setNamespaceAttribute(document.getDocumentElement(), "xmlns:c",
 //                "urn:ietf:params:xml:ns:caldav");

@@ -19,7 +19,7 @@ public abstract class AbstractLocalObjectCollection<T> extends AbstractObjectCol
 //        if (!root.isDirectory()) {
 //            throw new IllegalArgumentException("Root must be a directory");
 //        }
-        File configRoot = new File(root, LocalCollectionConfiguration.DEFAULT_CONFIG_DIR);
+        var configRoot = new File(root, LocalCollectionConfiguration.DEFAULT_CONFIG_DIR);
         if ((configRoot.exists() && !configRoot.isDirectory()) ||
                 (!configRoot.exists() && !configRoot.mkdirs())) {
             throw new IOException("Unable to initialise collection config");

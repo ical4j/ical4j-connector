@@ -4,7 +4,9 @@ import net.fortuna.ical4j.model.parameter.Cn;
 import net.fortuna.ical4j.model.parameter.CuType;
 import net.fortuna.ical4j.model.property.Attendee;
 import org.apache.http.HttpResponse;
-import org.apache.jackrabbit.webdav.*;
+import org.apache.jackrabbit.webdav.DavConstants;
+import org.apache.jackrabbit.webdav.DavException;
+import org.apache.jackrabbit.webdav.DavServletResponse;
 import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.ical4j.connector.dav.property.CSDavPropertyName;
@@ -22,12 +24,12 @@ public class GetPrincipals extends AbstractResponseHandler<List<Attendee>> {
         List<Attendee> resources = new ArrayList<>();
 
         try {
-            MultiStatus multiStatus = getMultiStatus(response);
-            MultiStatusResponse[] responses = multiStatus.getResponses();
-            for (MultiStatusResponse msr : responses) {
+            var multiStatus = getMultiStatus(response);
+            var responses = multiStatus.getResponses();
+            for (var msr : responses) {
 
-                Attendee resource = new Attendee();
-                DavPropertySet propertiesInResponse = msr.getProperties(DavServletResponse.SC_OK);
+                var resource = new Attendee();
+                var propertiesInResponse = msr.getProperties(DavServletResponse.SC_OK);
 
                 DavProperty<?> displayNameFromResponse = propertiesInResponse.get("displayname",
                         DavConstants.NAMESPACE);
@@ -35,7 +37,7 @@ public class GetPrincipals extends AbstractResponseHandler<List<Attendee>> {
                     resource.add(new Cn((String) displayNameFromResponse.getValue()));
                 }
 
-                URI calAddressUri = getCalAddress(propertiesInResponse);
+                var calAddressUri = getCalAddress(propertiesInResponse);
                 if (calAddressUri != null) {
                     resource.setCalAddress(calAddressUri);
                 }
@@ -58,11 +60,11 @@ public class GetPrincipals extends AbstractResponseHandler<List<Attendee>> {
                 CSDavPropertyName.NAMESPACE);
 
         if (emailSet != null && emailSet.getValue() != null) {
-            Object emailSetValue = emailSet.getValue();
+            var emailSetValue = emailSet.getValue();
             if (emailSetValue instanceof List) {
-                for (Object email: (List<?>)emailSetValue) {
+                for (var email: (List<?>)emailSetValue) {
                     if (email instanceof org.w3c.dom.Node) {
-                        String emailAddress = ((org.w3c.dom.Node)email).getTextContent();
+                        var emailAddress = ((org.w3c.dom.Node)email).getTextContent();
                         if (emailAddress != null && emailAddress.trim().length() > 0) {
                             if (!emailAddress.startsWith("mailto:")) {
                                 emailAddress = "mailto:".concat(emailAddress);
@@ -76,11 +78,11 @@ public class GetPrincipals extends AbstractResponseHandler<List<Attendee>> {
             DavProperty<?> calendarUserAddressSet = propertiesInResponse.get(CalDavPropertyName.PROPERTY_USER_ADDRESS_SET,
                     CalDavPropertyName.NAMESPACE);
             if (calendarUserAddressSet != null && calendarUserAddressSet.getValue() != null) {
-                Object value = calendarUserAddressSet.getValue();
+                var value = calendarUserAddressSet.getValue();
                 if (value instanceof List) {
-                    for (Object addressSet: (List<?>)value) {
+                    for (var addressSet: (List<?>)value) {
                         if (addressSet instanceof org.w3c.dom.Node) {
-                            String url = ((org.w3c.dom.Node)addressSet).getTextContent();
+                            var url = ((org.w3c.dom.Node)addressSet).getTextContent();
                             if (url.startsWith("urn:uuid")) {
                                 return URI.create(url);
                             }

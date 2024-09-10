@@ -62,7 +62,7 @@ public class PutVCard extends AbstractPutMethod {
     }
 
     public void setVCard(VCard card) throws IOException, ValidationException {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        var bytes = new ByteArrayOutputStream();
         vCardOutputter.output(card, bytes);
         setEntity(new ByteArrayEntity(bytes.toByteArray(), ContentType.create(MediaType.VCARD_4_0.getContentType())));
     }

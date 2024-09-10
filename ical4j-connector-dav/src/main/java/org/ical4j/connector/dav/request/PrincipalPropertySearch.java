@@ -27,14 +27,14 @@ public class PrincipalPropertySearch implements XmlSupport, XmlSerializable {
     }
 
     protected Element propertiesForPropSearch(Document document) {
-        Element firstNameProperty = newCsElement(document, "first-name");
-        Element recordTypeProperty = newCsElement(document, "record-type");
-        Element calUserAddressSetProperty = newElement(document, CalDavPropertyName.USER_ADDRESS_SET);
-        Element lastNameProperty = newCsElement(document, "last-name");
-        Element principalUrlProperty = newElement(document, SecurityConstants.PRINCIPAL_URL);
-        Element calUserTypeProperty = newElement(document, CalDavPropertyName.USER_TYPE);
-        Element displayNameForProperty = newElement(document, DavPropertyName.DISPLAYNAME);
-        Element emailAddressSetProperty = newCsElement(document, "email-address-set");
+        var firstNameProperty = newCsElement(document, "first-name");
+        var recordTypeProperty = newCsElement(document, "record-type");
+        var calUserAddressSetProperty = newElement(document, CalDavPropertyName.USER_ADDRESS_SET);
+        var lastNameProperty = newCsElement(document, "last-name");
+        var principalUrlProperty = newElement(document, SecurityConstants.PRINCIPAL_URL);
+        var calUserTypeProperty = newElement(document, CalDavPropertyName.USER_TYPE);
+        var displayNameForProperty = newElement(document, DavPropertyName.DISPLAYNAME);
+        var emailAddressSetProperty = newCsElement(document, "email-address-set");
 
         return newElement(document, BaseDavPropertyName.PROP, firstNameProperty, recordTypeProperty,
                 calUserAddressSetProperty, lastNameProperty, principalUrlProperty, calUserTypeProperty,
@@ -42,7 +42,7 @@ public class PrincipalPropertySearch implements XmlSupport, XmlSerializable {
     }
 
     public Element build() throws ParserConfigurationException {
-        Document document = newXmlDocument();
+        var document = newXmlDocument();
         return toXml(document);
     }
 
@@ -54,9 +54,9 @@ public class PrincipalPropertySearch implements XmlSupport, XmlSerializable {
         } else {
             displayName = newCalDavElement(document, "calendar-user-type");
         }
-        Element displayNameProperty = newElement(document, BaseDavPropertyName.PROP, displayName);
+        var displayNameProperty = newElement(document, BaseDavPropertyName.PROP, displayName);
 
-        Element containsMatch = newDavElement(document, "match");
+        var containsMatch = newDavElement(document, "match");
         if (nameToSearch != null) {
             containsMatch.setAttribute("match-type", "contains");
             containsMatch.setTextContent(nameToSearch);
@@ -65,28 +65,28 @@ public class PrincipalPropertySearch implements XmlSupport, XmlSerializable {
             containsMatch.setTextContent(type.getValue());
         }
 
-        Element propertySearchDisplayName = newDavElement(document, "property-search",
+        var propertySearchDisplayName = newDavElement(document, "property-search",
                 displayNameProperty, containsMatch);
 
-        Element properties = propertiesForPropSearch(document);
+        var properties = propertiesForPropSearch(document);
 
-        Element principalPropSearch = newDavElement(document, "principal-property-search");
+        var principalPropSearch = newDavElement(document, "principal-property-search");
         principalPropSearch.setAttribute("type", type.getValue());
         principalPropSearch.setAttribute("test", "anyof");
         principalPropSearch.appendChild(propertySearchDisplayName);
         if (nameToSearch != null) {
 
-            Element emailAddressSet = newCsElement(document, "email-address-set");
+            var emailAddressSet = newCsElement(document, "email-address-set");
 
-            Element emailSetProperty = newElement(document, BaseDavPropertyName.PROP, emailAddressSet);
+            var emailSetProperty = newElement(document, BaseDavPropertyName.PROP, emailAddressSet);
 
-            Element startsWith = newDavElement(document, "match");
+            var startsWith = newDavElement(document, "match");
             startsWith.setAttribute("match-type", "starts-with");
             if (startsWith != null) {
                 startsWith.setTextContent(nameToSearch);
             }
 
-            Element propertySearchEmail = newDavElement(document, "property-search");
+            var propertySearchEmail = newDavElement(document, "property-search");
             propertySearchEmail.setTextContent(nameToSearch);
             propertySearchEmail.appendChild(emailSetProperty);
             propertySearchEmail.appendChild(startsWith);

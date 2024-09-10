@@ -42,13 +42,13 @@ public class ExpandPropertyQuery implements XmlSupport, XmlSerializable {
     }
 
     public Element build() throws ParserConfigurationException {
-        Document document = newXmlDocument();
+        var document = newXmlDocument();
         return toXml(document);
     }
 
     @Override
     public Element toXml(Document document) {
-        Element propertyElement = type.getPropertyName().toXml(document);
+        var propertyElement = type.getPropertyName().toXml(document);
         propertyNames.stream().map(p -> p.toXml(document)).forEach(propertyElement::appendChild);
         return propertyElement;
     }

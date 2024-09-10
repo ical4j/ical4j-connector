@@ -157,7 +157,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      */
     public Iterable<Calendar> getComponentsByType(String componentType) {
         try {
-            ReportInfo info = new ReportInfo(CalDavPropertyName.CALENDAR_QUERY, 1,
+            var info = new ReportInfo(CalDavPropertyName.CALENDAR_QUERY, 1,
                     PropertyNameSets.REPORT_CALENDAR);
             info.setContentElement(new CalendarQuery(componentType).build());
 
@@ -233,7 +233,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      */
     public long getMaxResourceSize() {
         try {
-            Long size = getProperty(CalDavPropertyName.MAX_RESOURCE_SIZE, Long.class);
+            var size = getProperty(CalDavPropertyName.MAX_RESOURCE_SIZE, Long.class);
             if (size != null) {
                 return size;
             }
@@ -266,9 +266,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         try {
             supportedCalCompSetProp = getProperty(CalDavPropertyName.SUPPORTED_CALENDAR_COMPONENT_SET, ArrayList.class);
             if (supportedCalCompSetProp != null) {
-                for (Node child : supportedCalCompSetProp) {
+                for (var child : supportedCalCompSetProp) {
                     if (child instanceof Element) {
-                        Node nameNode = child.getAttributes().getNamedItem("name");
+                        var nameNode = child.getAttributes().getNamedItem("name");
                         if (nameNode != null) {
                             supportedComponents.add(nameNode.getTextContent());
                         }
@@ -291,7 +291,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
             String calTimezoneProp = getProperty(CalDavPropertyName.CALENDAR_TIMEZONE, String.class);
 
             if (calTimezoneProp != null) {
-                CalendarBuilder builder = new CalendarBuilder();
+                var builder = new CalendarBuilder();
                 return builder.build(new StringReader(calTimezoneProp));
             }
             return new Calendar();
@@ -355,12 +355,12 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     }
 
     public void writeCalendarOnServer(Calendar calendar, boolean isNew) throws ObjectStoreException, ConstraintViolationException {
-        Uid uid = Calendars.getUid(calendar);
+        var uid = Calendars.getUid(calendar);
         writeCalendarOnServer(defaultUriFromUid(uid.getValue()), calendar, isNew);
     }
 
     public void writeCalendarOnServer(String uri, Calendar calendar, boolean isNew) throws ObjectStoreException {
-        String path = getPath();
+        var path = getPath();
         if (!path.endsWith("/")) {
             path = path.concat("/");
         }
@@ -391,7 +391,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * @return a calendar object or null if no calendar exists under the specified URI
      */
     public Calendar getCalendarFromUri(String uri) throws ObjectNotFoundException {
-        String path = getPath();
+        var path = getPath();
         if (!path.endsWith("/")) {
             path = path.concat("/");
         }
@@ -407,7 +407,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      */
     public List<Calendar> removeAll(String... uid) {
         List<Calendar> result = new ArrayList<>();
-        for (String u : uid) {
+        for (var u : uid) {
             try {
                 result.add(removeCalendarFromUri(defaultUriFromUid(u)));
             } catch (FailedOperationException | ObjectStoreException | ObjectNotFoundException e) {
@@ -423,7 +423,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * @throws ObjectStoreException where an unexpected error occurs
      */
     public Calendar removeCalendarFromUri(String uri) throws FailedOperationException, ObjectStoreException, ObjectNotFoundException {
-        Calendar calendar = getCalendarFromUri(uri);
+        var calendar = getCalendarFromUri(uri);
         try {
             getStore().getClient().delete(getPath() + "/" + uri);
         } catch (IOException | DavException e) {
@@ -438,7 +438,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     public final Uid[] merge(Calendar calendar) throws FailedOperationException, ObjectStoreException {
         List<Uid> uids = new ArrayList<>();
         try {
-            Calendar[] uidCalendars = Calendars.split(calendar);
+            var uidCalendars = Calendars.split(calendar);
             for (int i = 0; i < uidCalendars.length; i++) {
                 add(uidCalendars[i]);
                 uids.add(uidCalendars[i].getRequiredProperty(Property.UID));

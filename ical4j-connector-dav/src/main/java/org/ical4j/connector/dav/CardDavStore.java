@@ -96,7 +96,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
      */
     @Override
     public CardDavCollection addCollection(String id) throws ObjectStoreException {
-        CardDavCollection collection = new CardDavCollection(this, id);
+        var collection = new CardDavCollection(this, id);
         try {
             collection.create();
         } catch (IOException e) {
@@ -114,7 +114,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
      * {@inheritDoc}
      */
     public CardDavCollection addCollection(String id, DavPropertySet properties) throws ObjectStoreException {
-        CardDavCollection collection = new CardDavCollection(this, id, properties);
+        var collection = new CardDavCollection(this, id, properties);
         try {
             collection.create();
         } catch (IOException e) {
@@ -150,7 +150,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
     }
 
     protected String findAddressBookHomeSet() throws ParserConfigurationException, IOException, DavException {
-        String propfindPath = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
+        var propfindPath = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
         return findAddressBookHomeSet(propfindPath);
     }
 
@@ -179,7 +179,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
      */
     public List<CardDavCollection> getCollections() throws ObjectStoreException, ObjectNotFoundException {
         try {
-            String calHomeSetPath = findAddressBookHomeSet();
+            var calHomeSetPath = findAddressBookHomeSet();
             if (calHomeSetPath == null) {
                 throw new ObjectNotFoundException("No " + CardDavPropertyName.ADDRESSBOOK_HOME_SET + " attribute found for the user");
             }
@@ -212,19 +212,19 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
     public List<CardDavCollection> getDelegatedCollections() throws Exception {
 
 
-        String methodUri = this.pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
+        var methodUri = this.pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
 
-        ExpandPropertyQuery expandPropertyWrite = new ExpandPropertyQuery(ExpandPropertyQuery.Type.PROXY_WRITE_FOR)
+        var expandPropertyWrite = new ExpandPropertyQuery(ExpandPropertyQuery.Type.PROXY_WRITE_FOR)
                 .withPropertyName(DavPropertyName.DISPLAYNAME)
                 .withPropertyName(SecurityConstants.PRINCIPAL_URL)
                 .withPropertyName(CalDavPropertyName.USER_ADDRESS_SET);
 
-        ExpandPropertyQuery expandPropertyRead = new ExpandPropertyQuery(ExpandPropertyQuery.Type.PROXY_READ_FOR)
+        var expandPropertyRead = new ExpandPropertyQuery(ExpandPropertyQuery.Type.PROXY_READ_FOR)
                 .withPropertyName(DavPropertyName.DISPLAYNAME)
                 .withPropertyName(SecurityConstants.PRINCIPAL_URL)
                 .withPropertyName(CalDavPropertyName.USER_ADDRESS_SET);
 
-        ReportInfo rinfo = new ReportInfo(BaseDavPropertyName.EXPAND_PROPERTY, 0);
+        var rinfo = new ReportInfo(BaseDavPropertyName.EXPAND_PROPERTY, 0);
         rinfo.setContentElement(expandPropertyWrite.build());
         rinfo.setContentElement(expandPropertyRead.build());
 
@@ -236,7 +236,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
      */
     @Override
     public CardDavCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
-        CardDavCollection collection = getCollection(id);
+        var collection = getCollection(id);
         collection.delete();
         return collection;
     }

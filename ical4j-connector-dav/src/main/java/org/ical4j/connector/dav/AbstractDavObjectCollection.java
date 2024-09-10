@@ -120,11 +120,11 @@ public abstract class AbstractDavObjectCollection<T> extends AbstractObjectColle
             ArrayList<Node> resourceTypeProp;
             resourceTypeProp = getProperty(DavPropertyName.RESOURCETYPE, ArrayList.class);
             if (resourceTypeProp != null) {
-                for (Node child : resourceTypeProp) {
+                for (var child : resourceTypeProp) {
                     if (child instanceof Element) {
-                        String nameNode = child.getNodeName();
+                        var nameNode = child.getNodeName();
                         if (nameNode != null) {
-                            ResourceType type = ResourceType.findByDescription(nameNode);
+                            var type = ResourceType.findByDescription(nameNode);
                             if (type != null) {
                                 resourceTypes.add(type);
                             }
@@ -151,13 +151,13 @@ public abstract class AbstractDavObjectCollection<T> extends AbstractObjectColle
             ArrayList<Node> mediaTypeProp;
             mediaTypeProp = getProperty(CalDavPropertyName.SUPPORTED_CALENDAR_DATA, ArrayList.class);
             if (mediaTypeProp != null) {
-                for (Node child : mediaTypeProp) {
+                for (var child : mediaTypeProp) {
                     if (child instanceof Element) {
-                        String nameNode = child.getNodeName();
+                        var nameNode = child.getNodeName();
                         if ((nameNode != null) && ("calendar-data".equals(nameNode))) {
-                            String contentType = ((Element) child).getAttribute("content-type");
-                            String version = ((Element) child).getAttribute("version");
-                            MediaType type = MediaType.findByContentTypeAndVersion(contentType, version);
+                            var contentType = ((Element) child).getAttribute("content-type");
+                            var version = ((Element) child).getAttribute("version");
+                            var type = MediaType.findByContentTypeAndVersion(contentType, version);
                             if (type != null) {
                                 mediaTypes.add(type);
                             }
@@ -176,7 +176,7 @@ public abstract class AbstractDavObjectCollection<T> extends AbstractObjectColle
      */
     public Long getQuotaAvailableBytes() {
         try {
-            Long calTimezoneProp = getProperty(BaseDavPropertyName.QUOTA_AVAILABLE_BYTES, Long.class);
+            var calTimezoneProp = getProperty(BaseDavPropertyName.QUOTA_AVAILABLE_BYTES, Long.class);
             if (calTimezoneProp != null) {
                 return calTimezoneProp;
             }
@@ -191,7 +191,7 @@ public abstract class AbstractDavObjectCollection<T> extends AbstractObjectColle
      */
     public Long getQuotaUsedBytes() {
         try {
-            Long calTimezoneProp = getProperty(BaseDavPropertyName.QUOTA_USED_BYTES, Long.class);
+            var calTimezoneProp = getProperty(BaseDavPropertyName.QUOTA_USED_BYTES, Long.class);
             if (calTimezoneProp != null) {
                 return calTimezoneProp;
             }
@@ -210,9 +210,9 @@ public abstract class AbstractDavObjectCollection<T> extends AbstractObjectColle
             List<Node> ownerProp;
             ownerProp = getProperty(SecurityConstants.OWNER, ArrayList.class);
             if (ownerProp != null) {
-                for (Node child : ownerProp) {
+                for (var child : ownerProp) {
                     if (child instanceof Element) {
-                        String nameNode = child.getNodeName();
+                        var nameNode = child.getNodeName();
                         if ((nameNode != null) && ("href".equals(nameNode))) {
                             ownerHref = child.getTextContent();
                         }
@@ -230,7 +230,7 @@ public abstract class AbstractDavObjectCollection<T> extends AbstractObjectColle
      */
     public String getOwnerName() {
         if ((_ownerName == null) && (getOwnerHref() != null)) {
-            DavPropertyNameSet nameSet = new DavPropertyNameSet();
+            var nameSet = new DavPropertyNameSet();
             nameSet.add(DavPropertyName.DISPLAYNAME);
             try {
                 _ownerName = getStore().getClient().propFind(getOwnerHref(),
@@ -262,10 +262,10 @@ public abstract class AbstractDavObjectCollection<T> extends AbstractObjectColle
     @SuppressWarnings({ "unchecked", "rawtypes" })
 	public final <P> P getProperty(DavPropertyName propertyName, Class<P> type)
         throws IOException, ObjectStoreException, DavException {
-        
-        DavPropertySet props = properties;
+
+        var props = properties;
         if (props.get(propertyName) != null) {
-            Object value = props.get(propertyName).getValue();
+            var value = props.get(propertyName).getValue();
             try {
                 if (Collection.class.isAssignableFrom(type)) {
                     P result = type.newInstance();

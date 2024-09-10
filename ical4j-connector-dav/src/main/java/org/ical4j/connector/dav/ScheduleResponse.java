@@ -39,7 +39,6 @@ import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.ical4j.connector.dav.property.CalDavPropertyName;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
@@ -79,34 +78,34 @@ public class ScheduleResponse {
      * ]]></calendar-data> <responsedescription xmlns='DAV:'>OK</responsedescription> </response> </schedule-response>
      */
     public ScheduleResponse(Element responseNode) throws IOException, ParserException {
-        NodeList recipients = responseNode.getElementsByTagNameNS(CalDavPropertyName.NAMESPACE.getURI(),
+        var recipients = responseNode.getElementsByTagNameNS(CalDavPropertyName.NAMESPACE.getURI(),
                 CalDavPropertyName.RECIPIENT.getName());
-        NodeList status = responseNode.getElementsByTagNameNS(CalDavPropertyName.NAMESPACE.getURI(),
+        var status = responseNode.getElementsByTagNameNS(CalDavPropertyName.NAMESPACE.getURI(),
                 CalDavPropertyName.REQUEST_STATUS.getName());
-        NodeList calendars = responseNode.getElementsByTagNameNS(CalDavPropertyName.NAMESPACE.getURI(),
+        var calendars = responseNode.getElementsByTagNameNS(CalDavPropertyName.NAMESPACE.getURI(),
                 CalDavPropertyName.CALENDAR_DATA.getName());
 
         for (int nodesIndex = 0; nodesIndex < calendars.getLength(); nodesIndex++) {
-            Element node = (Element) calendars.item(nodesIndex);
+            var node = (Element) calendars.item(nodesIndex);
             if (node.getFirstChild() != null) {
-                CalendarBuilder builder = new CalendarBuilder();
+                var builder = new CalendarBuilder();
                 if (node.getFirstChild() instanceof CDATASection) {
-                    CDATASection calData = (CDATASection) node.getFirstChild();
-                    StringReader sin = new StringReader(calData.getData());
+                    var calData = (CDATASection) node.getFirstChild();
+                    var sin = new StringReader(calData.getData());
                     this.calendarData = builder.build(sin);
                 }
                 // KMS don't return CDATA, go figure
                 if (node.getFirstChild() instanceof Text) {
-                    StringReader sin = new StringReader(((Text) node.getFirstChild()).getTextContent());
+                    var sin = new StringReader(((Text) node.getFirstChild()).getTextContent());
                     this.calendarData = builder.build(sin);
                 }
             }
         }
 
         for (int nodesIndex = 0; nodesIndex < status.getLength(); nodesIndex++) {
-            Element node = (Element) status.item(nodesIndex);
-            String fullStatus = ((Text) node.getFirstChild()).getTextContent();
-            String[] split = fullStatus.split(";");
+            var node = (Element) status.item(nodesIndex);
+            var fullStatus = ((Text) node.getFirstChild()).getTextContent();
+            var split = fullStatus.split(";");
             if (split.length == 2) {
                 this.requestStatusCode = new Float(split[0]).floatValue();
                 this.requestStatusMessage = split[1];
@@ -114,8 +113,8 @@ public class ScheduleResponse {
         }
 
         for (int nodesIndex = 0; nodesIndex < recipients.getLength(); nodesIndex++) {
-            Element node = (Element) recipients.item(nodesIndex);
-            NodeList childs = node.getElementsByTagNameNS(DavConstants.NAMESPACE.getURI(), DavPropertyName.XML_HREF);
+            var node = (Element) recipients.item(nodesIndex);
+            var childs = node.getElementsByTagNameNS(DavConstants.NAMESPACE.getURI(), DavPropertyName.XML_HREF);
             if ((childs != null) && (childs.item(0) != null) && (childs.item(0).getFirstChild() != null)) {
                 this.recipient = childs.item(0).getFirstChild().getTextContent();
             }

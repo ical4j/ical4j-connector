@@ -32,11 +32,9 @@
 package org.ical4j.connector.dav.method;
 
 import org.apache.jackrabbit.webdav.xml.DomUtil;
-import org.apache.jackrabbit.webdav.xml.Namespace;
 import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class PrincipalPropertySearchInfo implements XmlSerializable {
 
@@ -49,14 +47,14 @@ public class PrincipalPropertySearchInfo implements XmlSerializable {
     }
     
     public Element toXml(Document document) {
-        String typeLocalName = originalElement.getLocalName();
-        Namespace typeNamespace = DomUtil.getNamespace(originalElement);
-        Element reportElement = DomUtil.createElement(document, typeLocalName, typeNamespace);
+        var typeLocalName = originalElement.getLocalName();
+        var typeNamespace = DomUtil.getNamespace(originalElement);
+        var reportElement = DomUtil.createElement(document, typeLocalName, typeNamespace);
         reportElement.setAttribute("type", originalElement.getAttribute("type"));
         reportElement.setAttribute("test", originalElement.getAttribute("test"));
         for (int nodeNumber = 0; nodeNumber < originalElement.getChildNodes().getLength(); nodeNumber++) {
-          Node node = document.importNode(originalElement.getChildNodes().item(nodeNumber), true);
-          reportElement.appendChild(node);
+            var node = document.importNode(originalElement.getChildNodes().item(nodeNumber), true);
+            reportElement.appendChild(node);
         }
         return reportElement;
     }
