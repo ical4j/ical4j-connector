@@ -17,6 +17,10 @@ abstract class AbstractIntegrationTest extends Specification {
         container
     })
 
+    def setupSpec() {
+        container.start()
+    }
+
     abstract String getContainerImageName();
 
     abstract int getContainerPort();
