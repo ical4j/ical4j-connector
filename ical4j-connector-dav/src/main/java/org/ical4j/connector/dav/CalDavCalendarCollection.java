@@ -103,7 +103,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
 
     @Override
     String getPath() {
-        return getStore().pathResolver.getCalendarPath(getId(), "test");
+        return getStore().pathResolver.getCalendarPath(getId(), getStore().getSessionConfiguration().getWorkspace());
     }
 
     /**
@@ -435,6 +435,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     /**
      * {@inheritDoc}
      */
+    @Override
     public final Uid[] merge(Calendar calendar) throws FailedOperationException, ObjectStoreException {
         List<Uid> uids = new ArrayList<>();
         try {

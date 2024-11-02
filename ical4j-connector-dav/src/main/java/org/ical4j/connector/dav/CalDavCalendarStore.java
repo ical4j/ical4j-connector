@@ -47,8 +47,8 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.ical4j.connector.CalendarCollection;
-import org.ical4j.connector.CalendarStore;
 import org.ical4j.connector.ObjectNotFoundException;
+import org.ical4j.connector.ObjectStore;
 import org.ical4j.connector.ObjectStoreException;
 import org.ical4j.connector.dav.method.PrincipalPropertySearchInfo;
 import org.ical4j.connector.dav.property.BaseDavPropertyName;
@@ -80,7 +80,7 @@ import static org.ical4j.connector.dav.ResourceType.*;
  * 
  */
 public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, CalDavCalendarCollection> implements
-        CalendarStore<CalDavCalendarCollection> {
+        ObjectStore<Calendar, CalDavCalendarCollection> {
 
     private final String prodId;
     private String displayName;
@@ -131,7 +131,9 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     }
 
     @Override
-    public CalDavCalendarCollection addCollection(String id, String displayName, String description, String[] supportedComponents, Calendar timezone, String workspace) throws ObjectStoreException {
+    public CalDavCalendarCollection addCollection(String id, String displayName, String description,
+                                                  String[] supportedComponents, Calendar timezone,
+                                                  String workspace) throws ObjectStoreException {
         throw new UnsupportedOperationException("Workspaces not yet implemented");
     }
 
@@ -153,8 +155,13 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
      */
     @Override
     public CalDavCalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
+        return getCollection(id, DEFAULT_WORKSPACE);
+    }
+
+    @Override
+    public CalDavCalendarCollection getCollection(String id, String workspace) throws ObjectStoreException, ObjectNotFoundException {
         try {
-            var resourcePath = pathResolver.getCalendarPath(id, "test");
+            var resourcePath = pathResolver.getCalendarPath(id, workspace);
             Map<String, DavPropertySet> res = getClient().propFind(resourcePath,
                     PropertyNameSets.PROPFIND_CALENDAR,
                     new GetCollections(CALENDAR, CALENDAR_PROXY_READ, CALENDAR_PROXY_WRITE));
@@ -170,11 +177,6 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
         } catch (IOException e) {
             throw new ObjectStoreException(String.format("unable to get collection '%s'", id), e);
         }
-    }
-
-    @Override
-    public CalDavCalendarCollection getCollection(String id, String workspace) throws ObjectStoreException, ObjectNotFoundException {
-        throw new UnsupportedOperationException("Workspaces not yet implemented");
     }
 
     /**
@@ -287,7 +289,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     }
 
     @Override
-    public List<String> listWorkspaces() {
+    public List<String> listWorkspaceIds() {
         throw new UnsupportedOperationException("Workspaces not yet implemented");
     }
 
