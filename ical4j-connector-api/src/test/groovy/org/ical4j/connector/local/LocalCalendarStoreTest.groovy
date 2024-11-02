@@ -33,11 +33,11 @@ class LocalCalendarStoreTest extends AbstractLocalTest {
         LocalCalendarStore calendarStore = [storeLocation]
 
         and: 'a timezone calendar'
-        Calendar timezone = Calendars.wrap(new DefaultTimeZoneRegistryFactory().createRegistry()
+        def timezone = Calendars.wrap(new DefaultTimeZoneRegistryFactory().createRegistry()
                 .getTimeZone('Australia/Melbourne').getVTimeZone())
 
         when: 'a new collection is added'
-        LocalCalendarCollection collection = calendarStore.addCollection('public_holidays', 'Public Holidays',
+        def collection = calendarStore.addCollection('public_holidays', 'Public Holidays',
                 'Victorian public holidays', [Component.VEVENT] as String[], timezone)
 
         then: 'a local collection directory is added'
@@ -56,7 +56,7 @@ class LocalCalendarStoreTest extends AbstractLocalTest {
         LocalCalendarStore calendarStore = [storeLocation]
 
         and: 'a timezone calendar'
-        Calendar timezone = Calendars.wrap(new DefaultTimeZoneRegistryFactory().createRegistry()
+        def timezone = Calendars.wrap(new DefaultTimeZoneRegistryFactory().createRegistry()
                 .getTimeZone('Australia/Melbourne').getVTimeZone())
 
         and: 'a new collection is added'
@@ -64,7 +64,7 @@ class LocalCalendarStoreTest extends AbstractLocalTest {
                 'Victorian public holidays', [Component.VEVENT] as String[], timezone)
 
         when: 'collection is retrieved'
-        LocalCalendarCollection collection = calendarStore.getCollection('public_holidays')
+        def collection = calendarStore.getCollection('public_holidays')
 
         then: 'the collection properties are saved'
         collection.displayName == 'Public Holidays'
@@ -79,7 +79,7 @@ class LocalCalendarStoreTest extends AbstractLocalTest {
         LocalCalendarStore calendarStore = [storeLocation]
 
         when: 'a new collection is added'
-        LocalCalendarCollection c = calendarStore.addCollection('public_holidays')
+        def c = calendarStore.addCollection('public_holidays')
 
         and: 'the collection is removed'
         c.delete()

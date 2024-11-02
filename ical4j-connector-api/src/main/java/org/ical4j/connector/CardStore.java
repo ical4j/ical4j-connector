@@ -44,6 +44,7 @@ import net.fortuna.ical4j.vcard.VCard;
  * @author Ben
  *
  */
+@Deprecated
 public interface CardStore<C extends CardCollection> extends ObjectStore<VCard, C> {
 
 }

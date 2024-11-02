@@ -5,7 +5,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 
 import java.net.MalformedURLException;
 
-public class CalDavResourceFactory implements DavResourceFactory {
+class CalDavResourceFactory implements DavResourceFactory {
 
     private DavClientFactory clientFactory;
 

@@ -27,6 +27,8 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
         SUPPORTED_MEDIA_TYPES[0] = MediaType.ICALENDAR_2_0;
     }
 
+    private static final String FILE_EXTENSION = ".ics";
+
     public LocalCalendarCollection(File root) throws IOException {
         super(root);
 //        setDisplayName(root.getName());
@@ -65,7 +67,7 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
 
     @Override
     public List<String> listObjectUIDs() {
-        return Arrays.stream(getObjectFiles()).map(file -> file.getName().split(".ics")[0])
+        return Arrays.stream(getObjectFiles()).map(file -> file.getName().split(FILE_EXTENSION)[0])
                 .collect(Collectors.toList());
     }
 
@@ -73,13 +75,13 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
     public String add(Calendar object) throws ObjectStoreException {
         var uid = object.getUid();
         Optional<Calendar> existing = get(uid.getValue());
-        if (existing.isPresent()) {
-            // TODO: potentially merge/replace existing..
-            throw new ObjectStoreException("Calendar already exists");
-        }
 
-        try (var writer = new FileWriter(new File(getRoot(), uid.getValue() + ".ics"))) {
-            new CalendarOutputter(false).output(object, writer);
+        try (var writer = new FileWriter(new File(getRoot(), uid.getValue() + FILE_EXTENSION))) {
+            if (existing.isPresent()) {
+                new CalendarOutputter(false).output(existing.get().merge(object), writer);
+            } else {
+                new CalendarOutputter(false).output(object, writer);
+            }
         } catch (IOException e) {
             throw new ObjectStoreException("Error writing calendar file", e);
         }
@@ -92,7 +94,7 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
 
     @Override
     public Optional<Calendar> get(String uid) {
-        var calendarFile = new File(getRoot(), uid + ".ics");
+        var calendarFile = new File(getRoot(), uid + FILE_EXTENSION);
         if (!calendarFile.exists()) {
             return Optional.empty();
         }
@@ -108,7 +110,7 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
     public List<Calendar> removeAll(String... uid) throws FailedOperationException {
         List<Calendar> removed = new ArrayList<>();
         for (var u : uid) {
-            var calendarFile = new File(getRoot(), u + ".ics");
+            var calendarFile = new File(getRoot(), u + FILE_EXTENSION);
             if (calendarFile.exists()) {
                 Optional<Calendar> cal = get(u);
                 if (cal.isPresent()) {
@@ -135,7 +137,7 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
                 throw new ObjectStoreException("Calendar already exists");
             }
 
-            try (var writer = new FileWriter(new File(getRoot(), uid.getValue() + ".ics"))) {
+            try (var writer = new FileWriter(new File(getRoot(), uid.getValue() + FILE_EXTENSION))) {
                 new CalendarOutputter(false).output(c, writer);
             } catch (IOException e) {
                 throw new ObjectStoreException("Error writing calendar file", e);
@@ -180,6 +182,6 @@ public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calen
 
     private File[] getObjectFiles() {
         return getRoot().listFiles(pathname ->
-                !pathname.isDirectory() && pathname.getName().endsWith(".ics"));
+                !pathname.isDirectory() && pathname.getName().endsWith(FILE_EXTENSION));
     }
 }

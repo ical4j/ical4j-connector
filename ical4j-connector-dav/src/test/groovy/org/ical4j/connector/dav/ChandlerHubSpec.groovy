@@ -31,7 +31,7 @@
  */
 package org.ical4j.connector.dav
 
-import org.ical4j.connector.CalendarStore
+
 import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
@@ -41,7 +41,7 @@ class ChandlerHubSpec extends Specification {
 	String username = ''
 	String password = ''
 	
-	@Shared CalendarStore calendarStore
+	@Shared def calendarStore
 	
 	def setupSpec() {
 		def prodId = '-//Ben Fortuna//iCal4j Connector 1.0//EN'

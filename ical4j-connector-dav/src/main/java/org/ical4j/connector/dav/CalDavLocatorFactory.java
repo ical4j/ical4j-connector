@@ -2,7 +2,7 @@ package org.ical4j.connector.dav;
 
 import org.apache.jackrabbit.webdav.AbstractLocatorFactory;
 
-public class CalDavLocatorFactory extends AbstractLocatorFactory {
+class CalDavLocatorFactory extends AbstractLocatorFactory {
 
     private final PathResolver pathResolver;
 

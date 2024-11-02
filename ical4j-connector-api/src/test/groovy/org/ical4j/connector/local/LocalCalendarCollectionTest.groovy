@@ -15,17 +15,15 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
     Calendar calendar
 
     def setupSpec() {
-        calendar = new ContentBuilder().with {
-            calendar {
-                prodid '-//Ben Fortuna//iCal4j 1.0//EN'
-                version '2.0'
-                vevent {
-                    uid new RandomUidGenerator().generateUid()
-                    dtstamp()
-                    dtstart('20090810', parameters: parameters { value 'DATE' })
-                    action 'DISPLAY'
-                    attach('http://example.com/attachment', parameters: parameters() { value 'URI' })
-                }
+        calendar = new ContentBuilder().calendar {
+            prodid '-//Ben Fortuna//iCal4j 1.0//EN'
+            version '2.0'
+            vevent {
+                uid new RandomUidGenerator().generateUid()
+                dtstamp()
+                dtstart('20090810', parameters: parameters { value 'DATE' })
+                action 'DISPLAY'
+                attach('http://example.com/attachment', parameters: parameters() { value 'URI' })
             }
         }
     }
@@ -33,7 +31,7 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
     def 'test add calendar to collection'() {
         given: 'a local calendar collection'
         LocalCalendarStore calendarStore = [storeLocation]
-        LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
+        def collection = calendarStore.addCollection('public_holidays')
 
         and: 'a collection listener'
         ObjectCollectionEvent<Calendar> event
@@ -54,7 +52,7 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
     def 'test remove calendar from collection'() {
         given: 'a local calendar collection'
         LocalCalendarStore calendarStore = [storeLocation]
-        LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
+        def collection = calendarStore.addCollection('public_holidays')
 
         and: 'a calendar object that is added to the collection'
         collection.add(calendar)
@@ -73,7 +71,7 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
     def 'test get calendar from collection'() {
         given: 'a local calendar collection'
         LocalCalendarStore calendarStore = [storeLocation]
-        LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
+        def collection = calendarStore.addCollection('public_holidays')
 
         and: 'a calendar object that is added to the collection'
         collection.add(calendar)
@@ -88,7 +86,7 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
     def 'test list object uids in collection'() {
         given: 'a local calendar collection'
         LocalCalendarStore calendarStore = [storeLocation]
-        LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
+        def collection = calendarStore.addCollection('public_holidays')
 
         and: 'a calendar object that is added to the collection'
         collection.add(calendar)
@@ -103,7 +101,7 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
     def 'test export collection'() {
         given: 'a local calendar collection'
         LocalCalendarStore calendarStore = [storeLocation]
-        LocalCalendarCollection collection = calendarStore.addCollection('public_holidays')
+        def collection = calendarStore.addCollection('public_holidays')
 
         and: 'a calendar object that is added to the collection'
         collection.add(calendar)

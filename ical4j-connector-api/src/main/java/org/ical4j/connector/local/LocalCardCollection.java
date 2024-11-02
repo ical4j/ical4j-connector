@@ -2,7 +2,6 @@ package org.ical4j.connector.local;
 
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.ConstraintViolationException;
-import net.fortuna.ical4j.vcard.PropertyName;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.VCardBuilder;
 import net.fortuna.ical4j.vcard.VCardOutputter;
@@ -16,7 +15,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> implements CardCollection {
@@ -26,28 +28,29 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
         SUPPORTED_MEDIA_TYPES[0] = MediaType.VCARD_4_0;
     }
 
+    private static final String FILE_EXTENSION = ".vcf";
+
     public LocalCardCollection(File root) throws IOException {
         super(root);
     }
 
     @Override
     public List<String> listObjectUIDs() {
-        return Arrays.stream(getObjectFiles()).map(file -> file.getName().split(".vcf")[0])
+        return Arrays.stream(getObjectFiles()).map(file -> file.getName().split(FILE_EXTENSION)[0])
                 .collect(Collectors.toList());
     }
 
     @Override
     public String add(VCard card) throws ObjectStoreException, ConstraintViolationException {
-        var uid = card.getRequiredProperty(PropertyName.UID);
-
+        var uid = card.getUid();
         Optional<VCard> existing = get(uid.getValue());
-        if (existing.isPresent()) {
-            // TODO: potentially merge/replace existing..
-            throw new ObjectStoreException("Card already exists");
-        }
 
-        try (var writer = new FileWriter(new File(getRoot(), uid.getValue() + ".vcf"))) {
-            new VCardOutputter(false).output(card, writer);
+        try (var writer = new FileWriter(new File(getRoot(), uid.getValue() + FILE_EXTENSION))) {
+            if (existing.isPresent()) {
+                new VCardOutputter(false).output(existing.get().merge(card), writer);
+            } else {
+                new VCardOutputter(false).output(card, writer);
+            }
         } catch (IOException e) {
             throw new ObjectStoreException("Error writing card file", e);
         }
@@ -59,30 +62,8 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
     }
 
     @Override
-    public Uid[] merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
-        var uid = card.getRequiredProperty(PropertyName.UID.toString());
-        Optional<VCard> existing = get(uid.getValue());
-        existing.ifPresent(vCard -> vCard.with(VCard.MERGE, card.getProperties()));
-        save(card);
-
-        // notify listeners..
-        fireOnMergeEvent(this, card);
-
-        return Collections.singletonList(uid).toArray(new Uid[0]);
-    }
-
-    private void save(VCard card) throws ObjectStoreException {
-        var uid = card.getRequiredProperty(PropertyName.UID.toString());
-
-        try (var writer = new FileWriter(new File(getRoot(), uid.getValue() + ".vcf"))) {
-            new VCardOutputter(false).output(card, writer);
-        } catch (IOException e) {
-            throw new ObjectStoreException("Error writing card file", e);
-        }
-    }
-
     public Optional<VCard> get(String uid) {
-        var cardFile = new File(getRoot(), uid + ".vcf");
+        var cardFile = new File(getRoot(), uid + FILE_EXTENSION);
         if (!cardFile.exists()) {
             return Optional.empty();
         }
@@ -98,7 +79,7 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
     public List<VCard> removeAll(String... uid) throws FailedOperationException {
         List<VCard> removed = new ArrayList<>();
         for (var u : uid) {
-            var cardFile = new File(getRoot(), u + ".vcf");
+            var cardFile = new File(getRoot(), u + FILE_EXTENSION);
             if (cardFile.exists()) {
                 Optional<VCard> card = get(u);
                 if (card.isPresent()) {
@@ -111,6 +92,54 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
             }
         }
         return removed;
+    }
+
+    @Override
+    public Uid[] merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
+        var uidCards = card.split();
+        for (var c : uidCards) {
+            var uid = c.getUid();
+            Optional<VCard> existing = get(uid.getValue());
+
+            if (existing.isPresent()) {
+                // TODO: potentially merge/replace existing..
+                throw new ObjectStoreException("Card already exists");
+            }
+
+            try (var writer = new FileWriter(new File(getRoot(), uid.getValue() + FILE_EXTENSION))) {
+                new VCardOutputter(false).output(c, writer);
+            } catch (IOException e) {
+                throw new ObjectStoreException("Error writing card file", e);
+            }
+        }
+
+        // notify listeners..
+        fireOnMergeEvent(this, card);
+
+        return Arrays.stream(uidCards).map(VCard::getUid).toArray(Uid[]::new);
+    }
+
+    private void save(VCard card) throws ObjectStoreException {
+        var uid = card.getUid();
+
+        try (var writer = new FileWriter(new File(getRoot(), uid.getValue() + FILE_EXTENSION))) {
+            new VCardOutputter(false).output(card, writer);
+        } catch (IOException e) {
+            throw new ObjectStoreException("Error writing card file", e);
+        }
+    }
+
+    @Override
+    public VCard export() {
+        var export = new VCard();
+        for (var object : getObjectFiles()) {
+            try {
+                export = export.merge(new VCardBuilder(Files.newInputStream(object.toPath())).build());
+            } catch (IOException | ParserException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return export;
     }
 
 //    @Override
@@ -131,14 +160,8 @@ public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> im
 //        return cards;
 //    }
 
-    @Override
-    public VCard[] export() {
-        List<VCard> export = new ArrayList<>(getAll());
-        return export.toArray(new VCard[0]);
-    }
-
     private File[] getObjectFiles() {
         return getRoot().listFiles(pathname ->
-                !pathname.isDirectory() && pathname.getName().endsWith(".vcf"));
+                !pathname.isDirectory() && pathname.getName().endsWith(FILE_EXTENSION));
     }
 }

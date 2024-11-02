@@ -1,6 +1,6 @@
 package org.ical4j.connector.local
 
-import net.fortuna.ical4j.model.Calendar
+
 import net.fortuna.ical4j.model.DefaultTimeZoneRegistryFactory
 import net.fortuna.ical4j.util.Calendars
 import net.fortuna.ical4j.vcard.VCard
@@ -19,7 +19,7 @@ class LocalCardStoreTest extends AbstractLocalTest {
         cardStore.addObjectStoreListener(listener)
 
         when: 'a new collection is added'
-        LocalCardCollection collection = cardStore.addCollection('contacts')
+        def collection = cardStore.addCollection('contacts')
 
         then: 'a local collection directory is added'
         new File(workspaceLocation, 'contacts').exists()
@@ -33,11 +33,11 @@ class LocalCardStoreTest extends AbstractLocalTest {
         LocalCardStore cardStore = [storeLocation]
 
         and: 'a timezone card'
-        Calendar timezone = Calendars.wrap(new DefaultTimeZoneRegistryFactory().createRegistry()
+        def timezone = Calendars.wrap(new DefaultTimeZoneRegistryFactory().createRegistry()
                 .getTimeZone('Australia/Melbourne').getVTimeZone())
 
         when: 'a new collection is added'
-        LocalCardCollection collection = cardStore.addCollection('contacts', 'Contacts',
+        def collection = cardStore.addCollection('contacts', 'Contacts',
                 'Personal Contacts', ['VCARD'] as String[], timezone)
 
         then: 'a local collection directory is added'

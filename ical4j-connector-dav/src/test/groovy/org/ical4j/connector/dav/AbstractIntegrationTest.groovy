@@ -11,7 +11,7 @@ import spock.lang.Specification
 abstract class AbstractIntegrationTest extends Specification {
 
     @Shared
-    GenericContainer container = new GenericContainer(getContainerImageName())
+    def container = new GenericContainer(getContainerImageName())
             .withExposedPorts(getContainerPort()).with(container -> {
         getBindMounts().forEach { container.withFileSystemBind(it.v1, it.v2, it.v3)}
         container

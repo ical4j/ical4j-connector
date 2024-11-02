@@ -33,13 +33,11 @@ package org.ical4j.connector;
 
 import net.fortuna.ical4j.filter.FilterExpression;
 import net.fortuna.ical4j.model.ConstraintViolationException;
+import net.fortuna.ical4j.vcard.Entity;
 import net.fortuna.ical4j.vcard.VCard;
-import net.fortuna.ical4j.vcard.VCardList;
-import net.fortuna.ical4j.vcard.filter.VCardFilter;
+import net.fortuna.ical4j.vcard.filter.EntityFilter;
 import net.fortuna.ical4j.vcard.property.Uid;
-import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -69,12 +67,17 @@ public interface CardCollection extends ObjectCollection<VCard> {
 
     /**
      *
-     * @param card
-     * @return a list of UIDs extracted from the vCard data
-     * @throws ObjectStoreException
-     * @throws ConstraintViolationException
+     * @param uid
+     * @return
+     * @throws ObjectNotFoundException
+     * @throws FailedOperationException
+     * @deprecated use {@link ObjectCollection#getAll(String...)}
      */
-    Uid[] merge(VCard card) throws ObjectStoreException, ConstraintViolationException;
+    @Deprecated
+    default VCard getCard(String uid) throws ObjectNotFoundException, FailedOperationException {
+        Optional<VCard> card = get(uid);
+        return card.orElse(null);
+    }
 
     /**
      * Remove an existing card from the collection.
@@ -94,47 +97,22 @@ public interface CardCollection extends ObjectCollection<VCard> {
 
     /**
      *
-     * @param uid
-     * @return
-     * @throws ObjectNotFoundException
-     * @throws FailedOperationException
-     * @deprecated use {@link ObjectCollection#getAll(String...)}
+     * @param card
+     * @return a list of UIDs extracted from the vCard data
+     * @throws ObjectStoreException
+     * @throws ConstraintViolationException
      */
-    @Deprecated
-    default VCard getCard(String uid) throws ObjectNotFoundException, FailedOperationException {
-        Optional<VCard> card = get(uid);
-        return card.orElse(null);
-    }
-
-    /**
-     *
-     * @param uids
-     * @return
-     * @throws FailedOperationException
-     * @deprecated use {@link ObjectCollection#getAll(String...)}
-     */
-    @Deprecated
-    default VCardList getCards(String... uids) throws FailedOperationException {
-        List<VCard> cards = new ArrayList<>();
-        for (String uid : uids) {
-            try {
-                cards.add(getCard(uid));
-            } catch (ObjectNotFoundException e) {
-                LoggerFactory.getLogger(CardCollection.class).warn("Calendar not found: " + uid);
-            }
-        }
-        return new VCardList(cards);
-    }
+    Uid[] merge(VCard card) throws ObjectStoreException, ConstraintViolationException, FailedOperationException;
 
     @Override
     default List<VCard> query(FilterExpression filterExpression) {
-        Predicate<VCard> filter = new VCardFilter().predicate(filterExpression);
-        return getAll().stream().filter(filter).collect(Collectors.toList());
+        Predicate<Entity> filter = new EntityFilter().predicate(filterExpression);
+        return getAll().stream().filter(c -> c.getEntities().stream().anyMatch(filter)).collect(Collectors.toList());
     }
 
     /**
      * Exports the entire collection as an array of objects.
      * @return a vCard object array that contains all cards in the collection
      */
-    VCard[] export();
+    VCard export();
 }

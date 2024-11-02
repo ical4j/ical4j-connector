@@ -33,7 +33,6 @@ package org.ical4j.connector.dav;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.util.Calendars;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.NotFileFilter;
@@ -46,7 +45,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 
 /**
  * $Id$
@@ -90,24 +88,25 @@ public class CalendarCollectionTest<C extends CalendarCollection> extends Object
             }
         }
 
-        Set<String> uidList = new HashSet<String>();
+        var uidList = new HashSet<String>();
 
-        File[] samples = new File("etc/samples/calendars/").listFiles((FilenameFilter) new NotFileFilter(
+        var samples = new File("etc/samples/calendars/").listFiles((FilenameFilter) new NotFileFilter(
                 DirectoryFileFilter.INSTANCE));
-        for (File sample : samples) {
-            Calendar testCal = Calendars.load(sample.getAbsolutePath());
+        assert samples != null;
+        for (var sample : samples) {
+            var testCal = Calendars.load(sample.getAbsolutePath());
             getCollection().merge(testCal);
 
-            Calendar[] uidCals = Calendars.split(testCal);
-            for (int i = 0; i < uidCals.length; i++) {
-                Uid uid = Calendars.getUid(uidCals[i]);
+            var uidCals = Calendars.split(testCal);
+            for (var uidCal : uidCals) {
+                var uid = Calendars.getUid(uidCal);
                 if (uid != null) {
                     uidList.add(uid.getValue());
                 }
             }
         }
 
-        calendarUids = (String[]) uidList.toArray(new String[uidList.size()]);
+        calendarUids = uidList.toArray(new String[0]);
 
         // reconnect..
         reconnect();
@@ -185,9 +184,9 @@ public class CalendarCollectionTest<C extends CalendarCollection> extends Object
      * @throws ObjectStoreException
      */
     public void testGetCalendar() throws ObjectStoreException, ObjectNotFoundException {
-        for (int i = 0; i < calendarUids.length; i++) {
-            Calendar cal = getCollection().getCalendar(calendarUids[i]);
-            assertNotNull("Calendar for uid: [" + calendarUids[i] + "] not found", cal);
+        for (var calendarUid : calendarUids) {
+            var cal = getCollection().getCalendar(calendarUid);
+            assertNotNull("Calendar for uid: [" + calendarUid + "] not found", cal);
         }
     }
 
@@ -195,7 +194,7 @@ public class CalendarCollectionTest<C extends CalendarCollection> extends Object
      * @throws ObjectStoreException
      */
     public void testGetCalendars() throws ObjectStoreException {
-        Iterable<Calendar> calendars = getCollection().getAll();
+        var calendars = getCollection().getAll();
         assertNotNull(calendars);
     }
 }

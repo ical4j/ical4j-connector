@@ -10,7 +10,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 
 import java.io.IOException;
 
-public class CalDavResource extends AbstractDavResource<CalDavSupport> {
+class CalDavResource extends AbstractDavResource<CalDavSupport> {
 
     public CalDavResource(DavResourceFactory factory, DavResourceLocator locator, DavPropertySet properties,
                           CalDavSupport client, CalDavResource parent) {

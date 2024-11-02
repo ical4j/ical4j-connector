@@ -14,7 +14,7 @@ import java.util.List;
 import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME;
 import static org.apache.jackrabbit.webdav.property.DavPropertyName.GETLASTMODIFIED;
 
-public abstract class AbstractDavResource<T extends WebDavSupport> implements DavResource {
+abstract class AbstractDavResource<T extends WebDavSupport> implements DavResource {
 
     private final DavResourceFactory factory;
 

@@ -64,7 +64,7 @@ import java.util.List;
  *
  * @author fortuna
  */
-public abstract class AbstractDavObjectCollection<T> extends AbstractObjectCollection<T> {
+abstract class AbstractDavObjectCollection<T> extends AbstractObjectCollection<T> {
 
     private final AbstractDavObjectStore<T, ? extends ObjectCollection<T>> store;
 

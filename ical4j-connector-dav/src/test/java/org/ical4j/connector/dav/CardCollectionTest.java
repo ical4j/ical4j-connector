@@ -74,10 +74,11 @@ public class CardCollectionTest extends ObjectCollectionTest<VCard, CardCollecti
     protected void setUp() throws Exception {
         super.setUp();
         
-        File[] samples = new File("etc/samples/cards/").listFiles((FilenameFilter) VCardFileFilter.INSTANCE);
-        for (File sample : samples) {
-            VCardBuilder builder = new VCardBuilder(new FileInputStream(sample));
-            getCollection().addCard(builder.build());
+        var samples = new File("etc/samples/cards/").listFiles((FilenameFilter) VCardFileFilter.INSTANCE);
+        assert samples != null;
+        for (var sample : samples) {
+            var builder = new VCardBuilder(new FileInputStream(sample));
+            getCollection().add(builder.build());
         }
     }
 }

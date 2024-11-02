@@ -46,6 +46,7 @@ import net.fortuna.ical4j.model.Calendar;
  * @author Ben
  *
  */
+@Deprecated
 public interface CalendarStore<C extends CalendarCollection> extends ObjectStore<Calendar, C> {
     
     /**

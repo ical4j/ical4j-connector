@@ -1,6 +1,6 @@
 package org.ical4j.connector.dav
 
-import org.apache.jackrabbit.webdav.DavResourceLocator
+
 import spock.lang.Ignore
 import spock.lang.Specification
 
@@ -12,7 +12,7 @@ class CalDavLocatorFactoryTest extends Specification {
         CalDavLocatorFactory locatorFactory = [prefix, pathResolver]
 
         when: 'a locator is created'
-        DavResourceLocator locator = locatorFactory.createResourceLocator(prefix, href)
+        def locator = locatorFactory.createResourceLocator(prefix, href)
 
         then: 'it behaves as expected'
         locator.factory == locatorFactory
@@ -49,7 +49,7 @@ class CalDavLocatorFactoryTest extends Specification {
         CalDavLocatorFactory locatorFactory = [prefix, pathResolver]
 
         when: 'a locator is created'
-        DavResourceLocator locator = locatorFactory.createResourceLocator(prefix, workspacePath, path, path == resourcePath)
+        def locator = locatorFactory.createResourceLocator(prefix, workspacePath, path, path == resourcePath)
 
         then: 'it behaves as expected'
         locator.factory == locatorFactory

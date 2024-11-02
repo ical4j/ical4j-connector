@@ -111,7 +111,7 @@ public class ObjectStoreTest<T, C extends ObjectCollection<T>> extends TestCase 
      * Test method for {@link org.ical4j.connector.jcr.RepositoryCalendarStore#addCollection(java.lang.String)}.
      */
     public void testAddCollection() throws ObjectStoreException {
-        C collection = store.addCollection(collectionName);
+        var collection = store.addCollection(collectionName);
         assertNotNull(collection);
     }
 
@@ -142,7 +142,7 @@ public class ObjectStoreTest<T, C extends ObjectCollection<T>> extends TestCase 
      */
     public void testRemoveCollection() throws ObjectStoreException, ObjectNotFoundException {
         store.addCollection(collectionName);
-        C collection = store.getCollection(collectionName);
+        var collection = store.getCollection(collectionName);
         assertNotNull(collection);
         collection.delete();
 
@@ -153,5 +153,4 @@ public class ObjectStoreTest<T, C extends ObjectCollection<T>> extends TestCase 
             LOG.debug("Caught exception: " + onfe.getMessage());
         }
     }
-
 }

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObjectCollection<T>> extends AbstractObjectStore<T, C> {
+abstract class AbstractLocalObjectStore<T, C extends AbstractLocalObjectCollection<T>> extends AbstractObjectStore<T, C> {
 
     private final File root;
 
@@ -51,7 +51,7 @@ public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObject
 
     @Override
     public C addCollection(String id) throws ObjectStoreException {
-        return addCollection(id, "default");
+        return addCollection(id, DEFAULT_WORKSPACE);
     }
 
     @Override
@@ -82,7 +82,7 @@ public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObject
 
     @Override
     public C addCollection(String id, String displayName, String description, String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
-        return addCollection(id, displayName, description, supportedComponents, timezone, "default");
+        return addCollection(id, displayName, description, supportedComponents, timezone, DEFAULT_WORKSPACE);
     }
 
     @Override
@@ -117,7 +117,7 @@ public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObject
 
     @Override
     public C getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
-        return getCollection(id, "default");
+        return getCollection(id, DEFAULT_WORKSPACE);
     }
 
     @Override
@@ -135,7 +135,7 @@ public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObject
 
     @Override
     public List<C> getCollections() {
-        return getCollections("default");
+        return getCollections(DEFAULT_WORKSPACE);
     }
 
     @Override
@@ -158,7 +158,7 @@ public abstract  class AbstractLocalObjectStore<T, C extends AbstractLocalObject
     }
 
     @Override
-    public List<String> listWorkspaces() {
+    public List<String> listWorkspaceIds() {
         return Arrays.asList(Objects.requireNonNull(root.list()));
     }
 }

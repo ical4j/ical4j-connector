@@ -32,7 +32,6 @@
 package org.ical4j.connector.dav;
 
 import net.fortuna.ical4j.model.Calendar;
-import org.ical4j.connector.CalendarStore;
 import org.ical4j.connector.ObjectStore;
 
 import java.net.URL;
@@ -53,7 +52,7 @@ public class CalDavCalendarStoreLifecycle implements ObjectStoreLifecycle<Calend
 
     private PathResolver pathResolver;
     
-    private CalendarStore<CalDavCalendarCollection> store;
+    private ObjectStore<Calendar, CalDavCalendarCollection> store;
     
     public CalDavCalendarStoreLifecycle(URL url, PathResolver pathResolver) {
         this.url = url;

@@ -15,7 +15,7 @@ import java.nio.file.Files;
 import java.util.Date;
 import java.util.Properties;
 
-public class LocalCollectionConfiguration {
+class LocalCollectionConfiguration {
 
     public static final String DEFAULT_CONFIG_DIR = ".ical4j";
 

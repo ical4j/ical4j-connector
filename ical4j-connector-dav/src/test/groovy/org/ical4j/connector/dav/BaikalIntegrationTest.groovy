@@ -4,7 +4,7 @@ class BaikalIntegrationTest extends AbstractIntegrationTest implements BaikalTes
 
     def 'test client authentication'() {
         given: 'a dav client instance'
-        URL href = URI.create(getContainerUrl()).toURL()
+        def href = URI.create(getContainerUrl()).toURL()
         def client = new DavClientFactory().withPreemptiveAuth(true)
                 .withFollowRedirects(true).newInstance(href)
 

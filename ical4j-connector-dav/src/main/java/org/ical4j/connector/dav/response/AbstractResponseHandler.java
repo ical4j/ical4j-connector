@@ -23,7 +23,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class AbstractResponseHandler<T> implements ResponseHandler<T> {
+abstract class AbstractResponseHandler<T> implements ResponseHandler<T> {
 
     protected InputStream getContent(HttpResponse response, MediaType mediaType) throws IOException {
         var httpEntity = response.getEntity();

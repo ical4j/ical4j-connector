@@ -50,11 +50,11 @@ import java.net.URL;
 public class CalDavCalendarStoreIntegrationTest extends TestSuite {
     
     public static Test suite() throws MalformedURLException {
-        TestSuite suite = new TestSuite(CalDavCalendarStoreIntegrationTest.class.getSimpleName());
+        var suite = new TestSuite(CalDavCalendarStoreIntegrationTest.class.getSimpleName());
         
-        final URL url = new URL("http://localhost:8088");
-        String username = "admin";
-        char[] password = "admin".toCharArray();
+        final var url = new URL("http://localhost:8088");
+        var username = "admin";
+        var password = "admin".toCharArray();
         
         suite.addTest(new ObjectStoreTest<>("testAddCollection",
                 new CalDavCalendarStoreLifecycle(url, PathResolver.Defaults.CHANDLER), username, password));

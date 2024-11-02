@@ -6,7 +6,7 @@ import org.apache.http.client.methods.HttpPut;
 
 import java.net.URI;
 
-public class AbstractPutMethod extends HttpPut {
+class AbstractPutMethod extends HttpPut {
 
     public AbstractPutMethod(URI uri) {
         super(uri);

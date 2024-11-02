@@ -32,7 +32,6 @@
 package org.ical4j.connector.dav;
 
 import net.fortuna.ical4j.model.ConstraintViolationException;
-import net.fortuna.ical4j.vcard.PropertyName;
 import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.property.Uid;
 import org.apache.jackrabbit.webdav.DavException;
@@ -40,7 +39,6 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.ical4j.connector.CardCollection;
 import org.ical4j.connector.FailedOperationException;
-import org.ical4j.connector.ObjectNotFoundException;
 import org.ical4j.connector.ObjectStoreException;
 import org.ical4j.connector.dav.property.CalDavPropertyName;
 import org.ical4j.connector.dav.property.CardDavPropertyName;
@@ -50,7 +48,7 @@ import org.ical4j.connector.dav.response.GetVCardData;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -142,13 +140,6 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
         return 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public VCard[] export() {
-        throw new UnsupportedOperationException("not implemented");
-    }
-
     /* (non-Javadoc)
      * @see org.ical4j.connector.ObjectCollection#getDescription()
      */
@@ -181,28 +172,42 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      * @see org.ical4j.connector.CardCollection#addCard(net.fortuna.ical4j.vcard.VCard)
      */
     public String add(VCard card) throws ObjectStoreException, ConstraintViolationException {
-        var uid = card.getRequiredProperty(PropertyName.UID.toString());
+        var uid = card.getUid();
         save(card);
         return uid.getValue();
     }
 
     @Override
-    public Uid[] merge(VCard card) throws ObjectStoreException, ConstraintViolationException {
-        var uid = card.getRequiredProperty(PropertyName.UID.toString());
-        VCard existing = null;
+    public Optional<VCard> get(String uid) {
         try {
-            existing = getCard(uid.getValue());
-        } catch (ObjectNotFoundException | FailedOperationException e) {
-            throw new ObjectStoreException(e);
+            return Optional.of(getStore().getClient().getVCard(uid));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        existing.addAll(card.getProperties());
-        save(card);
+    }
 
-        return Collections.singletonList(uid).toArray(new Uid[0]);
+    @Override
+    public List<VCard> removeAll(String... uid) {
+        return null;
+    }
+
+    @Override
+    public Uid[] merge(VCard card) throws ObjectStoreException, ConstraintViolationException, FailedOperationException {
+        List<Uid> uids = new ArrayList<>();
+        try {
+            var uidCalendars = card.split();
+            for (int i = 0; i < uidCalendars.length; i++) {
+                add(uidCalendars[i]);
+                uids.add(uidCalendars[i].getUid());
+            }
+        } catch (ConstraintViolationException cve) {
+            throw new FailedOperationException("Invalid card format", cve);
+        }
+        return uids.toArray(new Uid[0]);
     }
 
     private void save(VCard card) throws ObjectStoreException {
-        var uid = card.getRequiredProperty(PropertyName.UID.toString());
+        var uid = card.getUid();
 
         var path = getPath();
         if (!path.endsWith("/")) {
@@ -215,17 +220,10 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
         }
     }
 
-    @Override
-    public List<VCard> removeAll(String... uid) {
-        return null;
-    }
-
-    @Override
-    public Optional<VCard> get(String uid) {
-        try {
-            return Optional.of(getStore().getClient().getVCard(uid));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    /**
+     * {@inheritDoc}
+     */
+    public VCard export() {
+        throw new UnsupportedOperationException("not implemented");
     }
 }

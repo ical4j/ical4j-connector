@@ -39,8 +39,8 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.ical4j.connector.CalendarCollection;
-import org.ical4j.connector.CardStore;
 import org.ical4j.connector.ObjectNotFoundException;
+import org.ical4j.connector.ObjectStore;
 import org.ical4j.connector.ObjectStoreException;
 import org.ical4j.connector.dav.property.BaseDavPropertyName;
 import org.ical4j.connector.dav.property.CalDavPropertyName;
@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
  * 
  */
 public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCollection> implements
-        CardStore<CardDavCollection> {
+        ObjectStore<VCard, CardDavCollection> {
 
     private final String prodId;
     private String displayName;
@@ -248,7 +248,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
 
 
     @Override
-    public List<String> listWorkspaces() {
+    public List<String> listWorkspaceIds() {
         throw new UnsupportedOperationException("Workspaces not yet implemented");
     }
 
@@ -276,7 +276,9 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
     }
 
     @Override
-    public CardDavCollection addCollection(String id, String displayName, String description, String[] supportedComponents, Calendar timezone, String workspace) throws ObjectStoreException {
+    public CardDavCollection addCollection(String id, String displayName, String description,
+                                           String[] supportedComponents, Calendar timezone,
+                                           String workspace) throws ObjectStoreException {
         throw new UnsupportedOperationException("Workspaces not yet implemented");
     }
 }

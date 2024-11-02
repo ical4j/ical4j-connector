@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
-public abstract class AbstractLocalObjectCollection<T> extends AbstractObjectCollection<T> {
+abstract class AbstractLocalObjectCollection<T> extends AbstractObjectCollection<T> {
 
     private final File root;
 

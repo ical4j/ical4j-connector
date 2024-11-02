@@ -49,7 +49,7 @@ import java.util.List;
  * 
  * @author fortuna
  */
-public abstract class AbstractDavObjectStore<T, C extends ObjectCollection<T>> extends AbstractObjectStore<T, C> {
+abstract class AbstractDavObjectStore<T, C extends ObjectCollection<T>> extends AbstractObjectStore<T, C> {
 
     /**
      * Factory used to create new client instances on connect..

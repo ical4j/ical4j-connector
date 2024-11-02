@@ -27,20 +27,20 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
     CalDavSupport client
 
     def setupSpec() {
-        DavClientFactory clientFactory = new DavClientFactory().withPreemptiveAuth(true)
-        URL href = URI.create(getContainerUrl()).toURL()
-        DefaultDavClient client = clientFactory.newInstance(href);
+        def clientFactory = new DavClientFactory().withPreemptiveAuth(true)
+        def href = URI.create(getContainerUrl()).toURL()
+        def client = clientFactory.newInstance(href);
         client.begin(getCredentialsProvider())
         this.client = client;
     }
 
     def 'assert preemptive auth configuration'() {
         given: 'a dav client factory configured for preemptive auth'
-        DavClientFactory clientFactory = new DavClientFactory().withPreemptiveAuth(true)
+        def clientFactory = new DavClientFactory().withPreemptiveAuth(true)
 
         when: 'a new client instance is created'
-        URL href = URI.create(getContainerUrl()).toURL()
-        DefaultDavClient client = clientFactory.newInstance(href);
+        def href = URI.create(getContainerUrl()).toURL()
+        def client = clientFactory.newInstance(href);
 
         and: 'a session is initiated'
         client.begin(getCredentialsProvider())
@@ -51,7 +51,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
 
     def 'test client authentication'() {
         given: 'a dav client instance'
-        URL href = URI.create(getContainerUrl()).toURL()
+        def href = URI.create(getContainerUrl()).toURL()
         def client = new DavClientFactory().withPreemptiveAuth(true)
                 .withFollowRedirects(true).withCredentialsProvider(getCredentialsProvider())
                 .newInstance(href)
@@ -66,7 +66,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
 
     def 'test create collection'() {
         given: 'a dav client instance'
-        URL href = URI.create(getContainerUrl()).toURL()
+        def href = URI.create(getContainerUrl()).toURL()
         def client = new DavClientFactory().withPreemptiveAuth(true)
                 .newInstance(href)
 
@@ -91,7 +91,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
 
     def 'test create invalid collection'() {
         given: 'a dav client instance'
-        URL href = URI.create(getContainerUrl()).toURL()
+        def href = URI.create(getContainerUrl()).toURL()
         def client = new DavClientFactory().withPreemptiveAuth(true)
                 .newInstance(href)
 
@@ -114,7 +114,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
     @Ignore('not working for radicale')
     def 'test get collection'() {
         given: 'a dav client instance'
-        URL href = URI.create(getContainerUrl()).toURL()
+        def href = URI.create(getContainerUrl()).toURL()
         def client = new DavClientFactory().withPreemptiveAuth(true)
                 .newInstance(href)
 
@@ -154,7 +154,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
     @Ignore('ignore for now until logic can be improved')
     def 'test propfind all'() {
         given: 'a dav client instance'
-        URL href = URI.create(getContainerUrl()).toURL()
+        def href = URI.create(getContainerUrl()).toURL()
         def client = new DavClientFactory().withPreemptiveAuth(true)
                 .newInstance(href)
 
@@ -193,7 +193,7 @@ abstract class AbstractDavClientIntegrationTest extends AbstractIntegrationTest 
     @Ignore
     def 'test propfind principal collection set'() {
         given: 'a dav client instance'
-        URL href = URI.create(getContainerUrl()).toURL()
+        def href = URI.create(getContainerUrl()).toURL()
         def client = new DavClientFactory().newInstance(href)
 
         and: 'a resource path'
