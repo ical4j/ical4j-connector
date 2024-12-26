@@ -1,6 +1,14 @@
+plugins {
+    id 'org.gradlex.extra-java-module-info' version '1.9'
+}
+
+extraJavaModuleInfo {
+    deriveAutomaticModuleNamesFromFileNames.set(true)
+}
+
 dependencies {
     api project(':ical4j-connector-api'),
-            "org.jetbrains:annotations:$jetbrainsVersion", "org.jooq:jool-java-8:$joolVersion"
+            "org.jetbrains:annotations:$jetbrainsVersion"
 
     api("org.apache.httpcomponents:httpclient:$httpclientVersion") {
         exclude(group: 'commons-logging', module: 'commons-logging')

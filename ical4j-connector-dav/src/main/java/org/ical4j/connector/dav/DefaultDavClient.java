@@ -76,7 +76,6 @@ import org.ical4j.connector.dav.request.MkCalendarEntity;
 import org.ical4j.connector.dav.request.MkColEntity;
 import org.ical4j.connector.dav.response.*;
 import org.jetbrains.annotations.NotNull;
-import org.jooq.lambda.Unchecked;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -323,7 +322,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 			try {
 				method.checkSuccess(response);
 			} catch (DavException e) {
-				Unchecked.throwChecked(e);
+				throw new RuntimeException(e);
 			}
 			return true;
 		});
@@ -336,7 +335,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 			try {
 				method.checkSuccess(response);
 			} catch (DavException e) {
-				Unchecked.throwChecked(e);
+				throw new RuntimeException(e);
 			}
 			return true;
 		});
@@ -349,7 +348,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 			try {
 				method.checkSuccess(response);
 			} catch (DavException e) {
-				Unchecked.throwChecked(e);
+				throw new RuntimeException(e);
 			}
 			return true;
 		});
@@ -369,9 +368,8 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 				method.checkSuccess(response);
 				return method.getResponseBodyAsMultiStatus(response).getResponses()[0];
 			} catch (DavException e) {
-				Unchecked.throwChecked(e);
+				throw new RuntimeException(e);
 			}
-			return null;
 		});
 	}
 

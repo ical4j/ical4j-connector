@@ -2,7 +2,6 @@ plugins {
     id 'signing'
     id 'pl.allegro.tech.build.axion-release' version '1.13.6'
     id 'biz.aQute.bnd.builder' version "$bndVersion" apply false
-    id 'org.javamodularity.moduleplugin' version '1.8.13' apply false
 }
 
 scmVersion {
@@ -21,12 +20,10 @@ scmVersion {
 }
 
 configure(subprojects) {
-    apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
     apply plugin: 'groovy'
     apply plugin: 'biz.aQute.bnd.builder'
-    apply plugin: 'org.javamodularity.moduleplugin'
 
     sourceCompatibility = 11
     targetCompatibility = 11
@@ -87,17 +84,7 @@ A Java library for accessing iCalendar data stores
         }
     }
 
-    compileTestJava {
-        moduleOptions {
-            compileOnClasspath = true
-        }
-    }
-
     test {
-        moduleOptions {
-            runOnClasspath = true
-        }
-
         useJUnitPlatform()
     }
 
@@ -106,7 +93,11 @@ A Java library for accessing iCalendar data stores
             options.addStringOption('Xdoclint:none', '-quiet')
         }
         options {
-            links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
+            links 'https://docs.oracle.com/en/java/javase/11/docs/api/',
+                'https://javadoc.io/doc/org.mnode.ical4j/ical4j/latest',
+                'https://javadoc.io/doc/org.mnode.ical4j/ical4j-vcard/latest',
+                'https://javadoc.io/doc/org.apache.httpcomponents/httpclient/latest',
+                'https://javadoc.io/doc/org.apache.jackrabbit/jackrabbit-webdav/latest'
         }
     }
 

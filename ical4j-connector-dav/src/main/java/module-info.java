@@ -2,14 +2,14 @@ module ical4j.connector.dav {
     requires java.base;
     requires java.xml;
 
-    requires ical4j.connector.api;
+    requires transitive ical4j.connector.api;
 
     requires org.apache.httpcomponents.httpcore;
     requires org.apache.httpcomponents.httpclient;
     requires jackrabbit.webdav;
 
-    requires org.slf4j;
-    requires static org.jetbrains.annotations;
+    requires transitive org.slf4j;
+    requires static transitive org.jetbrains.annotations;
     requires static org.hamcrest;
     requires org.apache.commons.io;
 
