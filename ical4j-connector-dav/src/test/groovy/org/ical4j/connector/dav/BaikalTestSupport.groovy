@@ -16,8 +16,8 @@ interface BaikalTestSupport {
 
     default List<Tuple3<String, String, BindMode>> getBindMounts() {
         [
-            Tuple.tuple('src/test/resources/baikal/config', '/var/www/baikal/config', BindMode.READ_WRITE),
-            Tuple.tuple('src/test/resources/baikal/Specific', '/var/www/baikal/Specific', BindMode.READ_WRITE)
+            Tuple.tuple('./src/test/resources/baikal/config', '/var/www/baikal/config', BindMode.READ_WRITE),
+            Tuple.tuple('./src/test/resources/baikal/Specific', '/var/www/baikal/Specific', BindMode.READ_WRITE)
         ]
     }
 
