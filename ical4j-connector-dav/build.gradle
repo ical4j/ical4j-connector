@@ -1,0 +1,21 @@
+plugins {
+    id 'org.gradlex.extra-java-module-info' version '1.9'
+}
+
+extraJavaModuleInfo {
+    deriveAutomaticModuleNamesFromFileNames.set(true)
+}
+
+dependencies {
+    api project(':ical4j-connector-api'),
+            "org.jetbrains:annotations:$jetbrainsVersion"
+
+    api("org.apache.httpcomponents:httpclient:$httpclientVersion") {
+        exclude(group: 'commons-logging', module: 'commons-logging')
+    }
+
+    api("org.apache.jackrabbit:jackrabbit-webdav:$jackrabbitWebdavVersion") {
+        exclude(group: 'org.apache.httpcomponents', module: 'httpclient')
+    }
+    implementation 'javax.servlet:servlet-api:2.5', 'org.hamcrest:hamcrest:2.2'
+}

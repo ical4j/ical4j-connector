@@ -1,82 +1,7 @@
 plugins {
-    id 'java'
-    id 'groovy'
-    id "biz.aQute.bnd.builder" version "5.1.2"
-    id 'java-library'
-    id 'maven-publish'
     id 'signing'
-    id 'pl.allegro.tech.build.axion-release' version '1.13.3'
-    id "nebula.optional-base" version "3.0.3"
-}
-
-repositories {
-    mavenCentral()
-    // sonatype snapshots
-    maven {
-        url 'https://oss.sonatype.org/content/repositories/snapshots/'
-    }
-}
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-dependencies {
-    api "org.mnode.ical4j:ical4j:$ical4jVersion",
-            'org.mnode.ical4j:ical4j-extensions:1.0.4',
-            "org.mnode.ical4j:ical4j-vcard:$ical4jVCardVersion",
-            'commons-io:commons-io:2.7',
-            "org.apache.jackrabbit:jackrabbit-webdav:$jackrabbitWebdavVersion",
-            'javax.jcr:jcr:2.0',
-            'org.jcrom:jcrom:2.2.0',
-            "io.opentracing:opentracing-util:$openTracingVersion"
-
-    implementation "org.codehaus.groovy:groovy:$groovyVersion", optional
-
-    compileOnly 'javax.servlet:servlet-api:2.5'
-
-    testCompile 'org.apache.jackrabbit:jackrabbit-core:2.20.0',
-            "io.opentracing:opentracing-mock:$openTracingVersion"
-
-
-    // junit
-    testImplementation 'org.junit.vintage:junit-vintage-engine:5.7.1'
-
-    // groovy-test
-    testImplementation "org.codehaus.groovy:groovy-test:$groovyVersion"
-
-    // spock
-    testImplementation platform("org.spockframework:spock-bom:2.0-M4-groovy-3.0"),
-            "org.spockframework:spock-core",
-            "org.slf4j:slf4j-log4j12:$slf4jVersion"
-}
-
-test {
-    useJUnitPlatform()
-}
-
-javadoc {
-    if (JavaVersion.current().isJava8Compatible()) {
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
-    options {
-        links 'https://docs.oracle.com/en/java/javase/11/docs/api/',
-                'http://ical4j.github.io/docs/ical4j/api/3.1.2/'
-    }
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    archiveClassifier.set('javadoc')
-    from 'build/docs/javadoc'
-}
-
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allSource
-    archiveClassifier.set('sources')
-}
-
-artifacts {
-    archives javadocJar
-    archives sourcesJar
+    id 'pl.allegro.tech.build.axion-release' version '1.13.6'
+    id 'biz.aQute.bnd.builder' version "$bndVersion" apply false
 }
 
 scmVersion {
@@ -84,62 +9,139 @@ scmVersion {
         prefix = 'ical4j-connector-'
     }
     versionCreator 'versionWithBranch'
-    branchVersionCreator = ['master': 'simple']
+    branchVersionCreator = [
+            'master': 'simple',
+            'develop': 'simple',
+    ]
     nextVersion {
         suffix = 'pre'
         separator = '-'
     }
 }
 
-group = 'org.mnode.ical4j'
-description = 'A Java library for accessing iCalendar data stores'
-version = scmVersion.version
+configure(subprojects) {
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+    apply plugin: 'groovy'
+    apply plugin: 'biz.aQute.bnd.builder'
 
-ext {
-    isReleaseVersion = !version.endsWith("SNAPSHOT")
-}
-
-publishing {
-    publications {
-        ical4j_connector(MavenPublication) {
-            from components.java
-            artifact javadocJar
-            artifact sourcesJar
-            pom.withXml {
-                asNode().appendNode('name', project.name)
-                asNode().appendNode('description', project.description)
-                asNode().appendNode('url', 'http://ical4j.github.io')
-
-                def scmNode = asNode().appendNode('scm')
-                scmNode.appendNode('url', 'https://github.com/ical4j/ical4j-connector')
-                scmNode.appendNode('connection', 'scm:git@github.com:ical4j/ical4j-connector.git')
-                scmNode.appendNode('developerConnection', 'scm:git@github.com:ical4j/ical4j-connector.git')
-
-                def licenseNode = asNode().appendNode('licenses').appendNode('license')
-                licenseNode.appendNode('name', 'iCal4j - License')
-                licenseNode.appendNode('url', 'https://raw.githubusercontent.com/ical4j/ical4j-connector/master/LICENSE.txt')
-                licenseNode.appendNode('distribution', 'repo')
-
-                def developerNode = asNode().appendNode('developers').appendNode('developer')
-                developerNode.appendNode('id', 'fortuna')
-                developerNode.appendNode('name', 'Ben Fortuna')
-            }
-        }
-    }
+    sourceCompatibility = 11
+    targetCompatibility = 11
 
     repositories {
+        mavenCentral()
+        mavenLocal()
         maven {
-            name = "OSSRH"
-            url = !isReleaseVersion ? "https://oss.sonatype.org/content/repositories/snapshots/" : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            credentials {
-                username = System.getenv("MAVEN_USERNAME")
-                password = System.getenv("MAVEN_PASSWORD")
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
+        }
+    }
+
+    group = 'org.ical4j'
+    description = '''\
+A Java library for accessing iCalendar data stores
+'''
+    version = rootProject.scmVersion.version
+
+    ext {
+        isReleaseVersion = !version.endsWith("SNAPSHOT")
+    }
+
+    java {
+        withJavadocJar()
+        withSourcesJar()
+    }
+
+    dependencies {
+
+        annotationProcessor 'org.osgi:osgi.core:8.0.0',
+                'org.osgi:org.osgi.service.component.annotations:1.5.0',
+                'org.osgi:org.osgi.service.metatype.annotations:1.4.1',
+                'org.osgi:org.osgi.annotation:6.0.0'
+
+        // spock
+        testImplementation platform("org.spockframework:spock-bom:$spockVersion"),
+                'commons-io:commons-io:2.11.0',
+                "org.spockframework:spock-core"
+
+        // junit
+//        testImplementation "org.junit.vintage:junit-vintage-engine:$junitVintageVersion"
+
+        // testcontainers
+        testImplementation "org.testcontainers:testcontainers:$testcontainersVersion",
+                "org.testcontainers:spock:$testcontainersVersion"
+
+        testImplementation "org.apache.logging.log4j:log4j-core:$log4jVersion",
+                "org.apache.logging.log4j:log4j-slf4j2-impl:$log4jVersion"
+    }
+
+    jar {
+        manifest {
+            attributes (
+                    'Implementation-Title': 'iCal4j Connector',
+                    'Implementation-Version': archiveVersion,
+                    'Implementation-Vendor': 'Ben Fortuna'
+            )
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    javadoc {
+        if (JavaVersion.current().isJava8Compatible()) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+        options {
+            links 'https://docs.oracle.com/en/java/javase/11/docs/api/',
+                'https://javadoc.io/doc/org.mnode.ical4j/ical4j/latest',
+                'https://javadoc.io/doc/org.mnode.ical4j/ical4j-vcard/latest',
+                'https://javadoc.io/doc/org.apache.httpcomponents/httpclient/latest',
+                'https://javadoc.io/doc/org.apache.jackrabbit/jackrabbit-webdav/latest'
+        }
+    }
+
+    publishing {
+        publications {
+            "$name"(MavenPublication) {
+                from components.java
+                pom.withXml {
+                    asNode().appendNode('name', name)
+                    asNode().appendNode('description', description)
+                    asNode().appendNode('url', 'http://ical4j.github.io')
+
+                    def scmNode = asNode().appendNode('scm')
+                    scmNode.appendNode('url', 'https://github.com/ical4j/ical4j-connector')
+                    scmNode.appendNode('connection', 'scm:git@github.com:ical4j/ical4j-connector.git')
+                    scmNode.appendNode('developerConnection', 'scm:git@github.com:ical4j/ical4j-connector.git')
+
+                    def licenseNode = asNode().appendNode('licenses').appendNode('license')
+                    licenseNode.appendNode('name', 'iCal4j - License')
+                    licenseNode.appendNode('url', 'https://raw.githubusercontent.com/ical4j/ical4j/master/LICENSE')
+                    licenseNode.appendNode('distribution', 'repo')
+
+                    def developerNode = asNode().appendNode('developers').appendNode('developer')
+                    developerNode.appendNode('id', 'fortuna')
+                    developerNode.appendNode('name', 'Ben Fortuna')
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                name = "OSSRH"
+                url = version.endsWith('SNAPSHOT') ? "https://s01.oss.sonatype.org/content/repositories/snapshots/" \
+                        : "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                credentials {
+                    username = System.getenv("MAVEN_USERNAME")
+                    password = System.getenv("MAVEN_PASSWORD")
+                }
             }
         }
     }
-}
 
-signing {
-    required { isReleaseVersion }
-    sign publishing.publications.ical4j_connector
+    signing {
+        required { isReleaseVersion }
+        sign publishing.publications[name]
+    }
 }

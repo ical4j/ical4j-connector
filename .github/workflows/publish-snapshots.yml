@@ -1,20 +1,40 @@
 name: Publish snapshots
 
-on: [push]
+on:
+  push:
+    branches:
+      - 'develop'
+      - 'feature/refactor'
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
 
 jobs:
-  gradle:
+  test:
+    uses: ical4j/ical4j/.github/workflows/test.yml@develop
+
+  publish:
+    name: Publish Artifact
+    needs: test
+    if: ${{ needs.test.result == 'success' }}
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-java@v1
-      with:
-        java-version: 11
-    - uses: eskatos/gradle-command-action@v1
-      with:
-        arguments: build -x test publish
-      env:
-        GPR_USERNAME: benfortuna
-        GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-        MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Execute Gradle build
+        run: ./gradlew build -x test publish
+        env:
+          GPR_USERNAME: benfortuna
+          GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAVEN_USERNAME: ${{ secrets.OSS_SONATYPE_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSS_SONATYPE_PASSWORD }}

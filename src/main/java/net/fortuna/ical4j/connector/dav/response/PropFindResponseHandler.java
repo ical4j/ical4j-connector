@@ -97,9 +97,11 @@ public class PropFindResponseHandler implements ResponseHandler {
                         DavProperty<?> property = iNames.nextProperty();
                         if (property != null) {
                             _properties.add(property);
-                            ResourceType resourceType = getResourceType(property);
-                            if (resourceType != null && types.contains(resourceType)) {
-                                isCollection = true;
+                            List<ResourceType> resourceTypes = getResourceTypes(property);
+                            for (ResourceType resourceType : resourceTypes) {
+                                if (types.contains(resourceType)) {
+                                    isCollection = true;
+                                }
                             }
                         }
                     }
@@ -113,7 +115,8 @@ public class PropFindResponseHandler implements ResponseHandler {
         return collections;
     }
 
-    private ResourceType getResourceType(DavProperty property) {
+    private List<ResourceType> getResourceTypes(DavProperty property) {
+        List<ResourceType> resourceTypes = new ArrayList<>();
         if ((DavConstants.PROPERTY_RESOURCETYPE.equals(property.getName().getName())) && (DavConstants.NAMESPACE.equals(property.getName().getNamespace()))) {
             Object value = property.getValue();
             if (value instanceof ArrayList) {
@@ -121,13 +124,13 @@ public class PropFindResponseHandler implements ResponseHandler {
                     if (child instanceof Element) {
                         String nameNode = child.getLocalName();
                         if (nameNode != null) {
-                            return ResourceType.findByDescription(nameNode);
+                            resourceTypes.add(ResourceType.findByDescription(nameNode));
                         }
                     }
                 }
             }
         }
-        return null;
+        return resourceTypes;
     }
 
     public String getDavPropertyUri(DavPropertyName type) throws DavException {
