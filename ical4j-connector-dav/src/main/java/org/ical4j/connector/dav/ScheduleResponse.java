@@ -107,7 +107,7 @@ public class ScheduleResponse {
             var fullStatus = ((Text) node.getFirstChild()).getTextContent();
             var split = fullStatus.split(";");
             if (split.length == 2) {
-                this.requestStatusCode = new Float(split[0]).floatValue();
+                this.requestStatusCode = Float.parseFloat(split[0]);
                 this.requestStatusMessage = split[1];
             }
         }
