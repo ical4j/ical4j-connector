@@ -260,7 +260,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * Get the list of calendar components (VEVENT, VTODO, etc.) that this collection supports.
      */
     public String[] getSupportedComponentTypes() {
-        List<String> supportedComponents = new ArrayList<String>();
+        List<String> supportedComponents = new ArrayList<>();
 
         ArrayList<Node> supportedCalCompSetProp;
         try {
@@ -279,7 +279,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
             throw new RuntimeException(e);
         }
 
-        return supportedComponents.toArray(new String[supportedComponents.size()]);
+        return supportedComponents.toArray(new String[0]);
     }
 
     /**
@@ -440,9 +440,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         List<Uid> uids = new ArrayList<>();
         try {
             var uidCalendars = Calendars.split(calendar);
-            for (int i = 0; i < uidCalendars.length; i++) {
-                add(uidCalendars[i]);
-                uids.add(uidCalendars[i].getRequiredProperty(Property.UID));
+            for (Calendar uidCalendar : uidCalendars) {
+                add(uidCalendar);
+                uids.add(uidCalendar.getRequiredProperty(Property.UID));
             }
         } catch (ConstraintViolationException cve) {
             throw new FailedOperationException("Invalid calendar format", cve);

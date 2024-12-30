@@ -1,7 +1,6 @@
 package org.ical4j.connector.dav.response;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
@@ -21,7 +20,7 @@ import java.util.List;
 public class GetCardDavCollections extends AbstractResponseHandler<List<CardDavCollection>> {
 
     @Override
-    public List<CardDavCollection> handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+    public List<CardDavCollection> handleResponse(HttpResponse response) throws IOException {
         List<CardDavCollection> collections = new ArrayList<CardDavCollection>();
 
         try {

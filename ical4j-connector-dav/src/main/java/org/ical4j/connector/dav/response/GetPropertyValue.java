@@ -2,7 +2,6 @@ package org.ical4j.connector.dav.response;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.jackrabbit.webdav.DavException;
 import org.w3c.dom.Element;
 
@@ -11,7 +10,7 @@ import java.io.IOException;
 public class GetPropertyValue<T> extends AbstractResponseHandler<T> {
 
     @Override
-    public T handleResponse(HttpResponse httpResponse) throws ClientProtocolException, IOException {
+    public T handleResponse(HttpResponse httpResponse) throws IOException {
         try {
             var multiStatus = getMultiStatus(httpResponse);
             for (var msr : multiStatus.getResponses()) {

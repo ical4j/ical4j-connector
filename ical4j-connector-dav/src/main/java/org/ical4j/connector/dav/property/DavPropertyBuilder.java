@@ -6,12 +6,12 @@ import org.apache.jackrabbit.webdav.property.DefaultDavProperty;
 import org.apache.jackrabbit.webdav.property.HrefProperty;
 import org.apache.jackrabbit.webdav.security.SecurityConstants;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class DavPropertyBuilder<T> {
 
-    private static final List<DavPropertyName> hrefProps = Arrays.asList(SecurityConstants.PRINCIPAL_COLLECTION_SET);
+    private static final List<DavPropertyName> hrefProps = Collections.singletonList(SecurityConstants.PRINCIPAL_COLLECTION_SET);
 
     private DavPropertyName name;
 

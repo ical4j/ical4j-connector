@@ -54,9 +54,9 @@ public enum SupportedFeature {
   EXTENDED_MKCOL("extended-mkcol"),
   CALENDARSERVER_PRINCIPAL_PROPERTY_SEARCH("calendarserver-principal-property-search");
 
-    private String description;
+    private final String description;
 
-    private static Set<String> index = new HashSet<String>();
+    private static final Set<String> index = new HashSet<String>();
 
     static {
         for (var supportedFeature : SupportedFeature.values()) {
@@ -64,7 +64,7 @@ public enum SupportedFeature {
         }
     }
 
-    private SupportedFeature(String description) {
+    SupportedFeature(String description) {
         this.description = description;
     }
 

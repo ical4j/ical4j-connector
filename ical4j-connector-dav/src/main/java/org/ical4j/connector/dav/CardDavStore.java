@@ -149,7 +149,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
         throw new UnsupportedOperationException("not implemented");
     }
 
-    protected String findAddressBookHomeSet() throws ParserConfigurationException, IOException, DavException {
+    private String findAddressBookHomeSet() throws ParserConfigurationException, IOException, DavException {
         var propfindPath = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
         return findAddressBookHomeSet(propfindPath);
     }
@@ -164,7 +164,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
      * @throws IOException
      * @throws DavException
      */
-    protected String findAddressBookHomeSet(String propfindUri) throws IOException {
+    private String findAddressBookHomeSet(String propfindUri) throws IOException {
         return getClient().propFind(propfindUri, PropertyNameSets.PROPFIND_CARD_HOME, new GetPropertyValue<>());
     }
 
@@ -194,8 +194,8 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
         throw new UnsupportedOperationException("Workspaces not yet implemented");
     }
 
-    protected List<CardDavCollection> getCollectionsForHomeSet(CardDavStore store,
-                                                               String urlForcalendarHomeSet) throws IOException, DavException {
+    private List<CardDavCollection> getCollectionsForHomeSet(CardDavStore store,
+                                                             String urlForcalendarHomeSet) throws IOException, DavException {
 
         return getClient().propFind(urlForcalendarHomeSet, PropertyNameSets.PROPFIND_CARD,
                         new GetCollections(ResourceType.ADRESSBOOK)).entrySet().stream()
@@ -255,7 +255,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
     /**
      * @return the prodId
      */
-    final String getProdId() {
+    String getProdId() {
         return prodId;
     }
 

@@ -9,7 +9,7 @@ public class DavClientConfiguration {
 
     private boolean followRedirects;
 
-    private Map<String, String> defaultHeaders = new HashMap<>();
+    private final Map<String, String> defaultHeaders = new HashMap<>();
 
     public DavClientConfiguration withPreemptiveAuth(boolean preemptiveAuth) {
         this.preemptiveAuth = preemptiveAuth;

@@ -50,9 +50,9 @@ public enum ResourceType {
   COLLECTION("collection"),
   SCHEDULE_INBOX("schedule-inbox");
   
-    private String description;
+    private final String description;
 
-    private static Set<String> index = new HashSet<String>();
+    private static final Set<String> index = new HashSet<String>();
 
     static {
         for (var supportedFeature : ResourceType.values()) {
@@ -60,7 +60,7 @@ public enum ResourceType {
         }
     }
 
-    private ResourceType(String description) {
+    ResourceType(String description) {
         this.description = description;
     }
 

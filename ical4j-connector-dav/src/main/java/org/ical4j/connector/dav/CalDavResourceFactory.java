@@ -7,7 +7,7 @@ import java.net.MalformedURLException;
 
 class CalDavResourceFactory implements DavResourceFactory {
 
-    private DavClientFactory clientFactory;
+    private final DavClientFactory clientFactory;
 
     public CalDavResourceFactory() {
         this(new DavClientFactory().withPreemptiveAuth(true).withFollowRedirects(true));

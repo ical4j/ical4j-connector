@@ -1,7 +1,6 @@
 package org.ical4j.connector.dav.response;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
@@ -21,7 +20,7 @@ import java.util.List;
 public class GetCalDavCollections extends AbstractResponseHandler<List<CalDavCalendarCollection>> {
 
     @Override
-    public List<CalDavCalendarCollection> handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+    public List<CalDavCalendarCollection> handleResponse(HttpResponse response) throws IOException {
         List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
         try {
             var multiStatus = getMultiStatus(response);

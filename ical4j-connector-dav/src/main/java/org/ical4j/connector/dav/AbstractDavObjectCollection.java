@@ -56,6 +56,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @param <T> the supported collection object type
@@ -122,12 +123,9 @@ abstract class AbstractDavObjectCollection<T> extends AbstractObjectCollection<T
             if (resourceTypeProp != null) {
                 for (var child : resourceTypeProp) {
                     if (child instanceof Element) {
-                        var nameNode = child.getNodeName();
-                        if (nameNode != null) {
-                            var type = ResourceType.findByDescription(nameNode);
-                            if (type != null) {
-                                resourceTypes.add(type);
-                            }
+                        var type = ResourceType.findByDescription(child.getNodeName());
+                        if (type != null) {
+                            resourceTypes.add(type);
                         }
                     }
                 }
@@ -136,7 +134,7 @@ abstract class AbstractDavObjectCollection<T> extends AbstractObjectCollection<T
             throw new RuntimeException(e);
         }
 
-        return resourceTypes.toArray(new ResourceType[resourceTypes.size()]);
+        return resourceTypes.toArray(new ResourceType[0]);
     }
     
     /**
@@ -153,8 +151,7 @@ abstract class AbstractDavObjectCollection<T> extends AbstractObjectCollection<T
             if (mediaTypeProp != null) {
                 for (var child : mediaTypeProp) {
                     if (child instanceof Element) {
-                        var nameNode = child.getNodeName();
-                        if ((nameNode != null) && ("calendar-data".equals(nameNode))) {
+                        if ("calendar-data".equals(child.getNodeName())) {
                             var contentType = ((Element) child).getAttribute("content-type");
                             var version = ((Element) child).getAttribute("version");
                             var type = MediaType.findByContentTypeAndVersion(contentType, version);
@@ -177,10 +174,7 @@ abstract class AbstractDavObjectCollection<T> extends AbstractObjectCollection<T
     public Long getQuotaAvailableBytes() {
         try {
             var calTimezoneProp = getProperty(BaseDavPropertyName.QUOTA_AVAILABLE_BYTES, Long.class);
-            if (calTimezoneProp != null) {
-                return calTimezoneProp;
-            }
-            return 0L;
+            return Objects.requireNonNullElse(calTimezoneProp, 0L);
         } catch (ObjectStoreException | IOException | DavException e) {
             throw new RuntimeException(e);
         }
@@ -192,10 +186,7 @@ abstract class AbstractDavObjectCollection<T> extends AbstractObjectCollection<T
     public Long getQuotaUsedBytes() {
         try {
             var calTimezoneProp = getProperty(BaseDavPropertyName.QUOTA_USED_BYTES, Long.class);
-            if (calTimezoneProp != null) {
-                return calTimezoneProp;
-            }
-            return 0L;
+            return Objects.requireNonNullElse(calTimezoneProp, 0L);
         } catch (ObjectStoreException | IOException | DavException e) {
             throw new RuntimeException(e);
         }
@@ -212,8 +203,7 @@ abstract class AbstractDavObjectCollection<T> extends AbstractObjectCollection<T
             if (ownerProp != null) {
                 for (var child : ownerProp) {
                     if (child instanceof Element) {
-                        var nameNode = child.getNodeName();
-                        if ((nameNode != null) && ("href".equals(nameNode))) {
+                        if ("href".equals(child.getNodeName())) {
                             ownerHref = child.getTextContent();
                         }
                     }
@@ -268,7 +258,7 @@ abstract class AbstractDavObjectCollection<T> extends AbstractObjectCollection<T
             var value = props.get(propertyName).getValue();
             try {
                 if (Collection.class.isAssignableFrom(type)) {
-                    P result = type.newInstance();
+                    P result = type.getDeclaredConstructor().newInstance();
                     if (value instanceof Collection<?>) {
                         ((Collection<?>) result).addAll((Collection) value);
                     }

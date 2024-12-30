@@ -201,7 +201,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
      * @throws IOException
      * @throws DavException
      */
-    protected String findCalendarHomeSet(String propfindUri) throws IOException {
+    private String findCalendarHomeSet(String propfindUri) throws IOException {
         return getClient().propFind(propfindUri, PropertyNameSets.PROPFIND_CALENDAR_HOME, new GetPropertyValue<>());
     }
 
@@ -232,8 +232,8 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
         throw new UnsupportedOperationException("Workspaces not yet implemented");
     }
 
-    protected List<CalDavCalendarCollection> getCollectionsForHomeSet(CalDavCalendarStore store,
-                                                                      String urlForcalendarHomeSet) throws IOException, DavException {
+    private List<CalDavCalendarCollection> getCollectionsForHomeSet(CalDavCalendarStore store,
+                                                                    String urlForcalendarHomeSet) throws IOException, DavException {
 
         return getClient().propFind(urlForcalendarHomeSet, PropertyNameSets.PROPFIND_CALENDAR,
                         new GetCollections(COLLECTION)).entrySet().stream()
@@ -254,7 +254,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
         return collections;
     }
     
-    protected List<CalDavCalendarCollection> getDelegatedCollections(ExpandPropertyQuery.Type type) throws Exception {
+    private List<CalDavCalendarCollection> getDelegatedCollections(ExpandPropertyQuery.Type type) throws Exception {
 
         var methodUri = this.pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
 
@@ -301,7 +301,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
     /**
      * @return the prodId
      */
-    final String getProdId() {
+    String getProdId() {
         return prodId;
     }
 
@@ -406,11 +406,11 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, 
      * @throws DavException
      * @throws URISyntaxException 
      */
-    protected List<Attendee> getUserTypes(CuType type, String nameToSearch) throws ParserConfigurationException, IOException, DavException, URISyntaxException {
+    private List<Attendee> getUserTypes(CuType type, String nameToSearch) throws ParserConfigurationException, IOException, DavException, URISyntaxException {
         return executePrincipalPropSearch(new org.ical4j.connector.dav.request.PrincipalPropertySearch(type, nameToSearch).build());
     }
     
-    protected List<Attendee> executePrincipalPropSearch(Element principalPropSearch) throws DavException, IOException, URISyntaxException {
+    private List<Attendee> executePrincipalPropSearch(Element principalPropSearch) throws DavException, IOException, URISyntaxException {
         var rinfo = new PrincipalPropertySearchInfo(principalPropSearch, 0);
         var methodUri = this.pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
         return getClient().findPrincipals(methodUri, rinfo);
