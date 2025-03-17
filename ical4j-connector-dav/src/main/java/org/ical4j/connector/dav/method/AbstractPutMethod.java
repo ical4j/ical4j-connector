@@ -19,6 +19,9 @@ class AbstractPutMethod extends HttpPut {
     }
 
     public void setEtag(String etag) {
+        removeHeaders("If-None-Match");
+        removeHeaders("If-Match");
+
         if (etag != null) {
             addHeader("If-Match", etag);
         } else {
