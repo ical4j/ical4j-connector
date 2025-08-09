@@ -5,6 +5,11 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 
 import java.net.MalformedURLException;
 
+/**
+ * CalDavResourceFactory is responsible for creating instances of CalDavResource.
+ * It implements the DavResourceFactory interface to provide custom resource creation
+ * for calendar collections in a CalDAV server.
+ */
 class CalDavResourceFactory implements DavResourceFactory {
 
     private final DavClientFactory clientFactory;

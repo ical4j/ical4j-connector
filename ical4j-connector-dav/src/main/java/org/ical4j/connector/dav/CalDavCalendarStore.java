@@ -72,6 +72,11 @@ import java.util.stream.Collectors;
 import static org.ical4j.connector.dav.ResourceType.*;
 
 /**
+ * A CalDAV calendar store implementation.
+ * <p>
+ * This class provides methods to manage calendar collections on a CalDAV server, including adding, retrieving, and removing collections,
+ * as well as handling calendar properties and free-busy information.
+ * <p>
  * $Id$
  * 
  * Created on 24/02/2008

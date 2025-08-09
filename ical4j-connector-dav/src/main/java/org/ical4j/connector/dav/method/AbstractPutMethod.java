@@ -6,6 +6,10 @@ import org.apache.http.client.methods.HttpPut;
 
 import java.net.URI;
 
+/**
+ * AbstractPutMethod is a base class for HTTP PUT methods that handle ETag headers.
+ * It provides functionality to set ETag headers and check if the response indicates success.
+ */
 class AbstractPutMethod extends HttpPut {
 
     public AbstractPutMethod(URI uri) {

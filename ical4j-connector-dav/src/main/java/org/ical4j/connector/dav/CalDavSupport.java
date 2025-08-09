@@ -18,6 +18,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * CalDavSupport provides methods for interacting with a CalDAV server.
+ * It extends WebDavSupport to include calendar-specific operations such as creating calendars,
+ * reporting on calendar data, and retrieving calendar resources.
+ */
 public interface CalDavSupport extends WebDavSupport {
 
     /**

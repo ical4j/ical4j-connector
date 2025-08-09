@@ -90,6 +90,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Default implementation of a DAV client.
+ * <p>
+ * This class provides methods to interact with a DAV server, including creating calendars, collections,
+ * retrieving properties, and executing various HTTP methods.
+ * </p>
+ * <p>
+ * It supports both CalDAV and CardDAV protocols.
+ * </p>
+ *
+ * @see CalDavSupport
+ * @see CardDavSupport
+ */
 public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 
 	/**

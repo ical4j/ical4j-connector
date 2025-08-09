@@ -12,6 +12,13 @@ import org.ical4j.connector.dav.property.CalDavPropertyName;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * Represents a CalDAV event query that can be serialized to XML.
+ * This class is used to build a query request for events within a specified time range.
+ * It extends the ReportInfo class to provide additional functionality for CalDAV reports.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc4791">RFC 4791 - Calendaring Extensions to WebDAV (CalDAV)</a>
+ */
 public class EventQuery extends ReportInfo implements XmlSupport {
 
     private DateTime startTime;

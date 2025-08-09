@@ -37,6 +37,10 @@ import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
 /**
+ * Collection of properties related to the CalDAV namespace.
+ * This interface defines constants for various CalDAV properties and provides
+ * methods to create instances of these properties.
+ *
  * $Id$
  * 
  * Created on 19/11/2008

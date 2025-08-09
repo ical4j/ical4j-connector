@@ -7,6 +7,14 @@ import org.apache.jackrabbit.webdav.security.SecurityConstants;
 
 import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME;
 
+/**
+ * This class defines sets of property names used in various WebDAV reports and PROPFIND requests
+ * for calendar and carddav resources.
+ * It provides a convenient way to group and manage these property names.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc4791">RFC 4791 - Calendaring Extensions to WebDAV (CalDAV)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc6352">RFC 6352 - vCard Extensions to WebDAV (CardDAV)</a>
+ */
 public abstract class PropertyNameSets {
     
     public static final DavPropertyNameSet REPORT_CALENDAR = new DavPropertyNameSet();

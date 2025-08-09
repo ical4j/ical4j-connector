@@ -35,6 +35,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Enum representing various supported features in a CalDAV server.
+ * Each feature has a description and can be used to identify the capabilities
+ * of the server.
+ */
 public enum SupportedFeature {
 
   ACCESS_CONTROL("access-control"),

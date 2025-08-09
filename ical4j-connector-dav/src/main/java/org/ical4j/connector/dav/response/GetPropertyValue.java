@@ -7,6 +7,13 @@ import org.w3c.dom.Element;
 
 import java.io.IOException;
 
+/**
+ * Handles the response for retrieving a specific property value from a CalDAV server.
+ * This class processes the HTTP response to extract the value of a property
+ * and returns it as an object of type T.
+ *
+ * @param <T> the type of the property value to be returned
+ */
 public class GetPropertyValue<T> extends AbstractResponseHandler<T> {
 
     @Override
