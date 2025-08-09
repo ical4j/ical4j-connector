@@ -1,0 +1,37 @@
+[versions]
+ical4j = "4.0.8"
+ical4j-vcard = "2.0.1"
+httpclient = "4.5.14"
+jackrabbit-webdav = "2.23.1-beta"
+commons-io = "2.16.1"
+groovy = "3.0.22"
+log4j = "2.23.1"
+spock = "2.4-M4-groovy-3.0"
+junitVintage = "5.10.2"
+testcontainers = "1.20.4"
+
+
+[libraries]
+ical4j = { module = "org.mnode.ical4j:ical4j", version.ref = "ical4j" }
+ical4j-vcard = { module = "org.mnode.ical4j:ical4j-vcard", version.ref = "ical4j-vcard" }
+
+httpclient = { module = "org.apache.httpcomponents:httpclient", version.ref = "httpclient" }
+jackrabbit-webdav = { module = "org.apache.jackrabbit:jackrabbit-webdav", version.ref = "jackrabbit-webdav" }
+
+commons-io = { module = "commons-io:commons-io", version.ref = "commons-io"}
+
+groovy = { module = "org.codehaus.groovy:groovy", version.ref = "groovy"}
+groovy-test = { module = "org.codehaus.groovy:groovy-test", version.ref = "groovy"}
+
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j"}
+log4j-slf4j2 = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j"}
+
+jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version = "24.1.0"}
+
+spock-bom = { module = "org.spockframework:spock-bom", version.ref = "spock"}
+spock-core = { module = "org.spockframework:spock-core", version.ref = "spock"}
+
+junit-jupiter = { group = "org.junit.jupiter", name="junit-jupiter", version.ref = "junitVintage"}
+
+testcontainers = { group = "org.testcontainers", name = "testcontainers", version.ref = "testcontainers"}
+testcontainers-spock = { group = "org.testcontainers", name = "spock", version.ref = "testcontainers"}
