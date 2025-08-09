@@ -20,6 +20,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * LocalCalendarCollection is a concrete implementation of CalendarCollection that manages
+ * calendar objects stored in a local file system.
+ * It provides methods to add, retrieve, and remove calendar objects, as well as to export the entire collection.
+ */
 public class LocalCalendarCollection extends AbstractLocalObjectCollection<Calendar> implements CalendarCollection {
 
     private static final MediaType[] SUPPORTED_MEDIA_TYPES = new MediaType[1];

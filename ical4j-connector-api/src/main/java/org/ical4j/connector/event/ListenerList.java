@@ -4,6 +4,11 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+/**
+ * A thread-safe list of listeners that can be used to manage event listeners.
+ *
+ * @param <T> the type of listeners
+ */
 public class ListenerList<T> {
 
     private final List<T> listeners;

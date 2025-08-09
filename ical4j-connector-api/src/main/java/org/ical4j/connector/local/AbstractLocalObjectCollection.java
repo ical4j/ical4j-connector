@@ -8,6 +8,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * Abstract base class for local object collections.
+ * Provides common functionality for managing local collections, including configuration handling.
+ *
+ * @param <T> the type of objects in the collection
+ */
 abstract class AbstractLocalObjectCollection<T> extends AbstractObjectCollection<T> {
 
     private final File root;

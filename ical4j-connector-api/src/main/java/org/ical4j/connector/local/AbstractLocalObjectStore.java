@@ -12,6 +12,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Abstract base class for local object stores.
+ * Provides common functionality for managing local collections, including configuration handling.
+ *
+ * @param <T> the type of objects in the store
+ * @param <C> the type of collections in the store
+ */
 abstract class AbstractLocalObjectStore<T, C extends AbstractLocalObjectCollection<T>> extends AbstractObjectStore<T, C> {
 
     private final File root;

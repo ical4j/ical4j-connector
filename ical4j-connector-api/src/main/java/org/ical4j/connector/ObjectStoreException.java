@@ -32,6 +32,10 @@
 package org.ical4j.connector;
 
 /**
+ * Exception thrown when an error occurs while accessing an object store.
+ * This could be due to issues such as connection problems, data integrity issues,
+ * or other unexpected conditions that prevent successful operations on the object store.
+ *
  * $Id$
  *
  * Created on 20/02/2008
