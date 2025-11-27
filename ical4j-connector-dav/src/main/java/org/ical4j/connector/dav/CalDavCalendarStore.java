@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012, Ben Fortuna
  * All rights reserved.
  *
@@ -84,8 +84,8 @@ import static org.ical4j.connector.dav.ResourceType.*;
  * @author Ben
  * 
  */
-public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, CalDavCalendarCollection> implements
-        ObjectStore<Calendar, CalDavCalendarCollection> {
+public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCollection> implements
+        ObjectStore<CalDavCalendarCollection> {
 
     private final String prodId;
     private String displayName;

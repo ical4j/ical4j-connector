@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012, Ben Fortuna
  * All rights reserved.
  *
@@ -56,7 +56,7 @@ public class ObjectStoreTest<T, C extends ObjectCollection<T>> extends TestCase 
 
     private final ObjectStoreLifecycle<T, C> lifecycle;
 
-    private ObjectStore<T, C> store;
+    private ObjectStore<C> store;
 
     private final String username;
 

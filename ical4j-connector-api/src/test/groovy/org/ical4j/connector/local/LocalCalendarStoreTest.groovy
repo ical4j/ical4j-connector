@@ -1,9 +1,10 @@
 package org.ical4j.connector.local
 
-import net.fortuna.ical4j.model.Calendar
+
 import net.fortuna.ical4j.model.Component
 import net.fortuna.ical4j.model.DefaultTimeZoneRegistryFactory
 import net.fortuna.ical4j.util.Calendars
+import org.ical4j.connector.CalendarCollection
 import org.ical4j.connector.event.ObjectStoreEvent
 import org.ical4j.connector.event.ObjectStoreListener
 
@@ -14,8 +15,8 @@ class LocalCalendarStoreTest extends AbstractLocalTest {
         LocalCalendarStore calendarStore = [storeLocation]
 
         and: 'a store listener'
-        ObjectStoreEvent<Calendar> event
-        ObjectStoreListener<Calendar> listener = { event = it } as ObjectStoreListener
+        ObjectStoreEvent<CalendarCollection> event
+        ObjectStoreListener<LocalCalendarCollection> listener = { event = it } as ObjectStoreListener
         calendarStore.addObjectStoreListener(listener)
 
         when: 'a new collection is added'

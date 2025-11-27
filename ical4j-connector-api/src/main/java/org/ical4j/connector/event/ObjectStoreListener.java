@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012, Ben Fortuna
  * All rights reserved.
  *
@@ -31,10 +31,12 @@
  */
 package org.ical4j.connector.event;
 
+import org.ical4j.connector.ObjectCollection;
+
 import java.util.EventListener;
 
 /**
- * @param <T> the object type supported by the event source
+ * @param <C> the object type supported by the event source
  *
  * @author fortuna
  *
@@ -42,15 +44,15 @@ import java.util.EventListener;
  *
  * $Id$
  */
-public interface ObjectStoreListener<T> extends EventListener {
+public interface ObjectStoreListener<C extends ObjectCollection<?>> extends EventListener {
 
     /**
      * @param event an event instance
      */
-    void collectionAdded(ObjectStoreEvent<T> event);
+    void collectionAdded(ObjectStoreEvent<C> event);
     
     /**
      * @param event an event instance
      */
-    void collectionRemoved(ObjectStoreEvent<T> event);
+    void collectionRemoved(ObjectStoreEvent<C> event);
 }

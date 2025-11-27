@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012, Ben Fortuna
  * All rights reserved.
  *
@@ -67,7 +67,7 @@ import java.util.Objects;
  */
 abstract class AbstractDavObjectCollection<T> extends AbstractObjectCollection<T> {
 
-    private final AbstractDavObjectStore<T, ? extends ObjectCollection<T>> store;
+    private final AbstractDavObjectStore<? extends ObjectCollection<T>> store;
 
     private final String id;
     
@@ -83,7 +83,7 @@ abstract class AbstractDavObjectCollection<T> extends AbstractObjectCollection<T
      * @param store the container store for the collection
      * @param id collection identifier
      */
-    public AbstractDavObjectCollection(AbstractDavObjectStore<T, ? extends ObjectCollection<T>> store, String id) {
+    public AbstractDavObjectCollection(AbstractDavObjectStore<? extends ObjectCollection<T>> store, String id) {
         this.store = store;
         this.id = id;
         this.properties = new DavPropertySet();
@@ -93,7 +93,7 @@ abstract class AbstractDavObjectCollection<T> extends AbstractObjectCollection<T
     /**
      * @return the store
      */
-    public final AbstractDavObjectStore<T, ? extends ObjectCollection<T>> getStore() {
+    public final AbstractDavObjectStore<? extends ObjectCollection<T>> getStore() {
         return store;
     }
 

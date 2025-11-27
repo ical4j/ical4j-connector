@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012, Ben Fortuna
  * All rights reserved.
  *
@@ -69,8 +69,8 @@ import java.util.stream.Collectors;
  * @author Ben
  * 
  */
-public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCollection> implements
-        ObjectStore<VCard, CardDavCollection> {
+public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection> implements
+        ObjectStore<CardDavCollection> {
 
     private final String prodId;
     private String displayName;

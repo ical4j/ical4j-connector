@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012, Ben Fortuna
  * All rights reserved.
  *
@@ -52,7 +52,7 @@ public class CalDavCalendarStoreLifecycle implements ObjectStoreLifecycle<Calend
 
     private PathResolver pathResolver;
     
-    private ObjectStore<Calendar, CalDavCalendarCollection> store;
+    private ObjectStore<CalDavCalendarCollection> store;
     
     public CalDavCalendarStoreLifecycle(URL url, PathResolver pathResolver) {
         this.url = url;
@@ -60,7 +60,7 @@ public class CalDavCalendarStoreLifecycle implements ObjectStoreLifecycle<Calend
 //        storePath = BASE_STORE_PATH + id + "/";
     }
     
-    public ObjectStore<Calendar, CalDavCalendarCollection> getObjectStore() {
+    public ObjectStore<CalDavCalendarCollection> getObjectStore() {
         return store;
     }
 

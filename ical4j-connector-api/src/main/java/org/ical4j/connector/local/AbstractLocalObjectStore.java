@@ -16,10 +16,9 @@ import java.util.stream.Collectors;
  * Abstract base class for local object stores.
  * Provides common functionality for managing local collections, including configuration handling.
  *
- * @param <T> the type of objects in the store
  * @param <C> the type of collections in the store
  */
-abstract class AbstractLocalObjectStore<T, C extends AbstractLocalObjectCollection<T>> extends AbstractObjectStore<T, C> {
+abstract class AbstractLocalObjectStore<C extends AbstractLocalObjectCollection<?>> extends AbstractObjectStore<C> {
 
     private final File root;
 
@@ -68,7 +67,7 @@ abstract class AbstractLocalObjectStore<T, C extends AbstractLocalObjectCollecti
                 (!collectionDir.exists() && !collectionDir.mkdirs())) {
             throw new ObjectStoreException("Unable to initialise collection");
         }
-        C collection = null;
+        C collection;
         try {
             collection = getCollection(id);
         } catch (ObjectNotFoundException e) {
