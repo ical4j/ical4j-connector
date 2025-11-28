@@ -9,6 +9,13 @@ import org.apache.jackrabbit.webdav.security.SecurityConstants;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Builder for creating DavProperty instances with a specified name and value.
+ * This builder supports special handling for properties that are expected to be
+ * href properties, such as those defined in the SecurityConstants.
+ *
+ * @param <T> the type of the value of the property
+ */
 public class DavPropertyBuilder<T> {
 
     private static final List<DavPropertyName> hrefProps = Collections.singletonList(SecurityConstants.PRINCIPAL_COLLECTION_SET);

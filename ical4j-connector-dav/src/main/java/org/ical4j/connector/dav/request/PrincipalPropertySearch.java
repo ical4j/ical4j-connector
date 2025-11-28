@@ -11,6 +11,15 @@ import org.w3c.dom.Element;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+/**
+ * Represents a CalDAV principal property search request entity that can be serialized to XML.
+ * This class is used to search for principal properties based on the specified type and optional name.
+ * It constructs an XML element that can be sent in a CalDAV request to find matching principals.
+ *
+ * Created on 19/11/2008
+ *
+ * @author Ben
+ */
 public class PrincipalPropertySearch implements XmlSupport, XmlSerializable {
 
     private final CuType type;

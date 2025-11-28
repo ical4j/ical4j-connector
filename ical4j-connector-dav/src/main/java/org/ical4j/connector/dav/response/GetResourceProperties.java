@@ -8,6 +8,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Handles the response for retrieving resource properties from a CalDAV server.
+ * This class processes the HTTP response to extract properties of resources
+ * and returns them as a list of ResourceProps objects.
+ */
 public class GetResourceProperties extends AbstractResponseHandler<List<ResourceProps>> {
 
     @Override

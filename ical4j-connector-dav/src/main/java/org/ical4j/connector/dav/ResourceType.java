@@ -35,6 +35,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Enum representing various resource types in a calendar system.
+ * Each resource type has a description and can be used to identify
+ * the type of resource being handled.
+ */
 public enum ResourceType {
 
   CALENDAR("calendar"),

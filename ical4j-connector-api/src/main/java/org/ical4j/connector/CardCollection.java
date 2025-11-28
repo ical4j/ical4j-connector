@@ -44,6 +44,21 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
+ * A collection of vCard objects, which may include
+ * contact information such as names, email addresses, phone numbers,
+ * and other personal details.
+ * <p>
+ * A card collection may be used to store vCard objects in a
+ * card store, or to retrieve vCard objects from a card store.
+ * <p>
+ * The card collection may also be used to query for vCard objects
+ * based on specific criteria, such as name, email address, or other
+ * properties defined in the vCard specification.
+ * <p>
+ * This interface extends {@link ObjectCollection} to provide methods
+ * for adding, retrieving, and removing vCard objects, as well as
+ * merging vCard data and exporting the entire collection.
+ * <p>
  * $Id$
  *
  * Created on 27/09/2008

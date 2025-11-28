@@ -23,6 +23,10 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Abstract base class for handling HTTP responses in the context of CalDAV operations.
+ * Provides utility methods for extracting content, headers, and parsing XML documents.
+ */
 abstract class AbstractResponseHandler<T> implements ResponseHandler<T> {
 
     protected InputStream getContent(HttpResponse response, MediaType mediaType) throws IOException {

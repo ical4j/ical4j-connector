@@ -32,6 +32,8 @@
 package org.ical4j.connector;
 
 /**
+ * Exception thrown when an object is not found in a collection.
+ *
  * $Id$
  *
  * Created on: 22/11/2008

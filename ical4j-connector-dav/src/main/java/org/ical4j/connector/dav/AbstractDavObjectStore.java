@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012, Ben Fortuna
  * All rights reserved.
  *
@@ -49,7 +49,7 @@ import java.util.List;
  * 
  * @author fortuna
  */
-abstract class AbstractDavObjectStore<T, C extends ObjectCollection<T>> extends AbstractObjectStore<T, C> {
+abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> extends AbstractObjectStore<C> {
 
     /**
      * Factory used to create new client instances on connect..

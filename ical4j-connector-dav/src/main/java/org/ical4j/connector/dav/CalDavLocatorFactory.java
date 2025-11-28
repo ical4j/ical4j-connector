@@ -2,6 +2,11 @@ package org.ical4j.connector.dav;
 
 import org.apache.jackrabbit.webdav.AbstractLocatorFactory;
 
+/**
+ * CalDavLocatorFactory is responsible for creating repository paths and resource paths
+ * for calendar collections in a CalDAV server. It extends AbstractLocatorFactory to
+ * provide custom path resolution based on the provided PathResolver.
+ */
 class CalDavLocatorFactory extends AbstractLocatorFactory {
 
     private final PathResolver pathResolver;

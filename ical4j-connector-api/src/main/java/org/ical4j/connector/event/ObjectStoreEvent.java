@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012, Ben Fortuna
  * All rights reserved.
  *
@@ -37,7 +37,7 @@ import org.ical4j.connector.ObjectStore;
 import java.util.EventObject;
 
 /**
- * @param <T> the object collection type supported by the event source
+ * @param <C> the object collection type supported by the event source
  *
  * @author fortuna
  *
@@ -45,20 +45,20 @@ import java.util.EventObject;
  *
  * $Id$
  */
-public class ObjectStoreEvent<T> extends EventObject {
+public class ObjectStoreEvent<C extends ObjectCollection<?>> extends EventObject {
 
     /**
      * 
      */
     private static final long serialVersionUID = 2827740666506079428L;
 
-    private final ObjectCollection<T> collection;
+    private final C collection;
     
     /**
      * @param source the event source
      * @param collection the affected collection
      */
-    public ObjectStoreEvent(ObjectStore<T, ? extends ObjectCollection<T>> source, ObjectCollection<T> collection) {
+    public ObjectStoreEvent(ObjectStore<C> source, C collection) {
         super(source);
         this.collection = collection;
     }
@@ -66,14 +66,14 @@ public class ObjectStoreEvent<T> extends EventObject {
     /**
      * @return the serialVersionUID
      */
-    public static final long getSerialVersionUID() {
+    public static long getSerialVersionUID() {
         return serialVersionUID;
     }
 
     /**
      * @return the collection
      */
-    public final ObjectCollection<T> getCollection() {
+    public final C getCollection() {
         return collection;
     }
 }

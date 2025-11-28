@@ -14,6 +14,12 @@ import java.util.List;
 import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME;
 import static org.apache.jackrabbit.webdav.property.DavPropertyName.GETLASTMODIFIED;
 
+/**
+ * AbstractDavResource is a base class for WebDAV resources that provides common functionality
+ * such as property management, existence checking, and resource manipulation.
+ *
+ * @param <T> the type of WebDAV client that supports this resource
+ */
 abstract class AbstractDavResource<T extends WebDavSupport> implements DavResource {
 
     private final DavResourceFactory factory;

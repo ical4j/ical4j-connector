@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012, Ben Fortuna
  * All rights reserved.
  *
@@ -72,6 +72,11 @@ import java.util.stream.Collectors;
 import static org.ical4j.connector.dav.ResourceType.*;
 
 /**
+ * A CalDAV calendar store implementation.
+ * <p>
+ * This class provides methods to manage calendar collections on a CalDAV server, including adding, retrieving, and removing collections,
+ * as well as handling calendar properties and free-busy information.
+ * <p>
  * $Id$
  * 
  * Created on 24/02/2008
@@ -79,8 +84,8 @@ import static org.ical4j.connector.dav.ResourceType.*;
  * @author Ben
  * 
  */
-public final class CalDavCalendarStore extends AbstractDavObjectStore<Calendar, CalDavCalendarCollection> implements
-        ObjectStore<Calendar, CalDavCalendarCollection> {
+public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCalendarCollection> implements
+        ObjectStore<CalDavCalendarCollection> {
 
     private final String prodId;
     private String displayName;

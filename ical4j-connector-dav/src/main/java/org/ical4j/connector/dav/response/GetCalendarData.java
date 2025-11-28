@@ -14,6 +14,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Handles the response for retrieving calendar data from a CalDAV server.
+ * This class processes the HTTP response to extract calendar data and returns it as a list of Calendar objects.
+ * It filters the responses to include only those with the calendar data property.
+ */
 public class GetCalendarData extends AbstractResponseHandler<List<Calendar>> {
 
     @Override

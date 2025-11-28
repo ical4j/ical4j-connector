@@ -6,6 +6,12 @@ import org.ical4j.connector.dav.response.GetVCardResource;
 
 import java.io.IOException;
 
+/**
+ * CardDavSupport provides methods for managing VCard objects in a CardDAV collection.
+ * It extends WebDavSupport to include operations specific to CardDAV, such as saving and retrieving VCard data.
+ *
+ * @see WebDavSupport
+ */
 public interface CardDavSupport extends WebDavSupport {
 
     /**

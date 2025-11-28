@@ -32,7 +32,7 @@ configure(subprojects) {
         mavenCentral()
         mavenLocal()
         maven {
-            url 'https://oss.sonatype.org/content/repositories/snapshots'
+            url 'https://central.sonatype.com/repository/maven-snapshots/'
         }
     }
 
@@ -59,19 +59,15 @@ A Java library for accessing iCalendar data stores
                 'org.osgi:org.osgi.annotation:6.0.0'
 
         // spock
-        testImplementation platform("org.spockframework:spock-bom:$spockVersion"),
-                'commons-io:commons-io:2.11.0',
-                "org.spockframework:spock-core"
+        testImplementation platform(libs.spock.bom), libs.commons.io, libs.spock.core
 
         // junit
 //        testImplementation "org.junit.vintage:junit-vintage-engine:$junitVintageVersion"
 
         // testcontainers
-        testImplementation "org.testcontainers:testcontainers:$testcontainersVersion",
-                "org.testcontainers:spock:$testcontainersVersion"
+        testImplementation libs.testcontainers, libs.testcontainers.spock
 
-        testImplementation "org.apache.logging.log4j:log4j-core:$log4jVersion",
-                "org.apache.logging.log4j:log4j-slf4j2-impl:$log4jVersion"
+        testImplementation libs.log4j.core, libs.log4j.slf4j2
     }
 
     jar {
@@ -97,7 +93,7 @@ A Java library for accessing iCalendar data stores
                 'https://javadoc.io/doc/org.mnode.ical4j/ical4j/latest',
                 'https://javadoc.io/doc/org.mnode.ical4j/ical4j-vcard/latest',
                 'https://javadoc.io/doc/org.apache.httpcomponents/httpclient/latest',
-                'https://javadoc.io/doc/org.apache.jackrabbit/jackrabbit-webdav/latest'
+                'https://javadoc.io/doc/org.apache.jackrabbit/jackrabbit-webdav/2.22.2'
         }
     }
 
@@ -129,9 +125,8 @@ A Java library for accessing iCalendar data stores
 
         repositories {
             maven {
-                name = "OSSRH"
-                url = version.endsWith('SNAPSHOT') ? "https://s01.oss.sonatype.org/content/repositories/snapshots/" \
-                        : "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                name = "MavenCentral"
+                url = !isReleaseVersion ? "https://central.sonatype.com/repository/maven-snapshots/" : "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
                 credentials {
                     username = System.getenv("MAVEN_USERNAME")
                     password = System.getenv("MAVEN_PASSWORD")

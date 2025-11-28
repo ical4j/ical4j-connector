@@ -42,6 +42,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
+ * PutCalendar is a class that represents an HTTP PUT request to create or update a calendar resource on a CalDAV server.
+ * It extends AbstractPutMethod to provide functionality for sending a calendar object as the request body.
+ * The calendar is serialized to a byte array using CalendarOutputter and set as the entity of the request.
+ * This class is used to manage calendar resources in a CalDAV server, allowing clients to create or update calendar data.
+ *
  * $Id$
  *
  * Created on 19/11/2008

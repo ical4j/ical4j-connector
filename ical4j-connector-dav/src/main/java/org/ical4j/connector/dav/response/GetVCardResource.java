@@ -8,6 +8,11 @@ import org.ical4j.connector.MediaType;
 
 import java.io.IOException;
 
+/**
+ * Handles the response for retrieving a single vCard from a CardDAV server.
+ * This class processes the HTTP response to extract vCard information
+ * and returns it as a VCard object.
+ */
 public class GetVCardResource extends AbstractResponseHandler<VCard> {
 
     @Override

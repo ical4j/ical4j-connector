@@ -39,6 +39,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
+ * Represents a CalDAV MKCALENDAR request entity that can be serialized to XML.
+ * This class is used to create a new calendar collection on a CalDAV server.
+ * It contains properties that can be set for the calendar, such as calendar description, timezone,
+ * and other metadata.
+ *
  * $Id$
  *
  * Created on 19/11/2008

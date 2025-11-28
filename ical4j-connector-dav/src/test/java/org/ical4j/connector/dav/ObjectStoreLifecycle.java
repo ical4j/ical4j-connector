@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012, Ben Fortuna
  * All rights reserved.
  *
@@ -57,5 +57,5 @@ public interface ObjectStoreLifecycle<T, C extends ObjectCollection<T>> {
     /**
      * @return
      */
-    ObjectStore<T, C> getObjectStore();
+    ObjectStore<C> getObjectStore();
 }

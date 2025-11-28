@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012, Ben Fortuna
  * All rights reserved.
  *
@@ -51,7 +51,7 @@ public class ObjectCollectionTest<T, C extends ObjectCollection<T>> extends Test
 
     private final ObjectStoreLifecycle<T, C> lifecycle;
 
-    private ObjectStore<T, C> store;
+    private ObjectStore<C> store;
 
     private final String username;
 
@@ -130,7 +130,7 @@ public class ObjectCollectionTest<T, C extends ObjectCollection<T>> extends Test
     /**
      * @return the store
      */
-    protected final ObjectStore<T, C> getStore() {
+    protected final ObjectStore<C> getStore() {
         return store;
     }
 

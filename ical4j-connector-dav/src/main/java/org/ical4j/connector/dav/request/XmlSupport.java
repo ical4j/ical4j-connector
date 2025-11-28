@@ -20,6 +20,16 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 import java.util.Arrays;
 
+/**
+ * Provides utility methods for creating XML elements and documents used in CalDAV requests.
+ * This interface defines methods to create XML elements with specific namespaces and properties,
+ * as well as methods for creating common CalDAV elements like component filters and time ranges.
+ * It also includes a method to convert an XML element to a string representation.
+ *
+ * Created on 19/11/2008
+ *
+ * @author Ben
+ */
 public interface XmlSupport {
 
     /**

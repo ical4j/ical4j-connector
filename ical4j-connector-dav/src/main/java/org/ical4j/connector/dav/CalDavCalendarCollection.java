@@ -62,6 +62,12 @@ import java.util.Optional;
 import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME;
 
 /**
+ * Represents a calendar collection in a CalDAV store.
+ * This class provides methods to manage calendar objects within the collection,
+ * including adding, updating, retrieving, and removing calendar objects.
+ * It also provides access to various properties of the calendar collection,
+ * such as display name, description, supported component types, and time zone.
+ *
  * $Id$
  * 
  * Created on 24/02/2008

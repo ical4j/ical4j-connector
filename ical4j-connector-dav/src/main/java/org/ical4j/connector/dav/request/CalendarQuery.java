@@ -9,6 +9,13 @@ import org.w3c.dom.Element;
 import javax.xml.parsers.ParserConfigurationException;
 import java.util.Arrays;
 
+/**
+ * Represents a CalDAV calendar query that can be serialized to XML.
+ * This class is used to build a calendar query request for a CalDAV server.
+ * It allows specifying the component types to filter in the calendar query.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc4791">RFC 4791 - Calendaring Extensions to WebDAV (CalDAV)</a>
+ */
 public class CalendarQuery implements XmlSupport, XmlSerializable {
 
     private final String[] componentType;

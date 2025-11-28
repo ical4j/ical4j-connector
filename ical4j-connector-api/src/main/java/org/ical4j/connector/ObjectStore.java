@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012, Ben Fortuna
  * All rights reserved.
  *
@@ -48,7 +48,7 @@ import java.util.List;
  * @author Ben
  *
  */
-public interface ObjectStore<T, C extends ObjectCollection<T>> extends ObjectStoreListenerSupport<T> {
+public interface ObjectStore<C extends ObjectCollection<?>> extends ObjectStoreListenerSupport<C> {
 
     String DEFAULT_WORKSPACE = "default";
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012, Ben Fortuna
  * All rights reserved.
  *
@@ -58,6 +58,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * CardDavStore is a concrete implementation of an ObjectStore for managing VCard objects
+ * in a CardDAV server. It provides methods to add, retrieve, and manage collections of
+ * VCard objects, as well as to handle CardDAV-specific properties and reports.
+ *
  * $Id$
  * 
  * Created on 24/02/2008
@@ -65,8 +69,8 @@ import java.util.stream.Collectors;
  * @author Ben
  * 
  */
-public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCollection> implements
-        ObjectStore<VCard, CardDavCollection> {
+public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection> implements
+        ObjectStore<CardDavCollection> {
 
     private final String prodId;
     private String displayName;

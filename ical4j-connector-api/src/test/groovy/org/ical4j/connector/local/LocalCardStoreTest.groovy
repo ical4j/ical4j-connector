@@ -1,9 +1,8 @@
 package org.ical4j.connector.local
 
-
 import net.fortuna.ical4j.model.DefaultTimeZoneRegistryFactory
 import net.fortuna.ical4j.util.Calendars
-import net.fortuna.ical4j.vcard.VCard
+import org.ical4j.connector.CardCollection
 import org.ical4j.connector.event.ObjectStoreEvent
 import org.ical4j.connector.event.ObjectStoreListener
 
@@ -14,8 +13,8 @@ class LocalCardStoreTest extends AbstractLocalTest {
         LocalCardStore cardStore = [storeLocation]
 
         and: 'a store listener'
-        ObjectStoreEvent<VCard> event
-        ObjectStoreListener<VCard> listener = { event = it } as ObjectStoreListener
+        ObjectStoreEvent<CardCollection> event
+        ObjectStoreListener<LocalCardCollection> listener = { event = it } as ObjectStoreListener
         cardStore.addObjectStoreListener(listener)
 
         when: 'a new collection is added'

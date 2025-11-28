@@ -45,7 +45,9 @@ import java.io.IOException;
 import java.io.StringReader;
 
 /**
- * 
+ * Represents a response to a scheduling request in a CalDAV server.
+ * This class parses the XML response to extract recipient information,
+ * request status code and message, and calendar data.
  * 
  * @author probert
  * 

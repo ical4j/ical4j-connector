@@ -36,6 +36,13 @@ import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * PrincipalPropertySearchInfo is a class that encapsulates the information needed for a principal property search in a CalDAV server.
+ * It implements XmlSerializable to allow conversion of the search information into an XML element.
+ * The class holds the original XML element representing the search criteria and the depth of the search.
+ * It provides a method to convert this information into an XML element suitable for sending in a CalDAV request.
+ * This class is used in conjunction with the PrincipalPropertySearch method to perform searches for principal properties.
+ */
 public class PrincipalPropertySearchInfo implements XmlSerializable {
 
     protected Element originalElement;

@@ -17,6 +17,11 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles the response for retrieving principals from a CalDAV server.
+ * This class processes the HTTP response to extract attendee information
+ * and returns it as a list of Attendee objects.
+ */
 public class GetPrincipals extends AbstractResponseHandler<List<Attendee>> {
 
     @Override

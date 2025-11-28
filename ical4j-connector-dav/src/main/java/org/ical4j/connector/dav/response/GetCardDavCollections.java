@@ -17,6 +17,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles the response for retrieving CardDAV collections.
+ * This class processes the HTTP response to extract CardDAV collections,
+ * including both read and write access collections, and returns them as a list.
+ * It also handles delegation properties to identify collections that can be accessed by other users.
+ */
 public class GetCardDavCollections extends AbstractResponseHandler<List<CardDavCollection>> {
 
     @Override

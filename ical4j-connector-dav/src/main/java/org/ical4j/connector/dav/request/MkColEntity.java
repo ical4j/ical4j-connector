@@ -6,6 +6,15 @@ import org.apache.jackrabbit.webdav.xml.XmlSerializable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * Represents a CalDAV MKCOL request entity that can be serialized to XML.
+ * This class is used to create a new collection on a CalDAV server.
+ * It contains properties that can be set for the collection, such as metadata.
+ *
+ * Created on 19/11/2008
+ *
+ * @author Ben
+ */
 public class MkColEntity implements XmlSerializable, XmlSupport {
 
     private DavPropertySet properties;

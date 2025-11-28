@@ -15,6 +15,11 @@ import java.nio.file.Files;
 import java.util.Date;
 import java.util.Properties;
 
+/**
+ * LocalCollectionConfiguration manages the configuration for a local collection of iCalendar objects.
+ * It provides methods to read and write configuration properties, including display name, description,
+ * supported component types, and timezone.
+ */
 class LocalCollectionConfiguration {
 
     public static final String DEFAULT_CONFIG_DIR = ".ical4j";

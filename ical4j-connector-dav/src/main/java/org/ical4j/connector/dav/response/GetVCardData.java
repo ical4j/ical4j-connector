@@ -14,6 +14,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Handles the response for retrieving vCard data from a CardDAV server.
+ * This class processes the HTTP response to extract vCard information
+ * and returns it as a list of VCard objects.
+ */
 public class GetVCardData extends AbstractResponseHandler<List<VCard>> {
 
     @Override
