@@ -93,7 +93,7 @@ A Java library for accessing iCalendar data stores
                 'https://javadoc.io/doc/org.mnode.ical4j/ical4j/latest',
                 'https://javadoc.io/doc/org.mnode.ical4j/ical4j-vcard/latest',
                 'https://javadoc.io/doc/org.apache.httpcomponents/httpclient/latest',
-                'https://javadoc.io/doc/org.apache.jackrabbit/jackrabbit-webdav/latest'
+                'https://javadoc.io/doc/org.apache.jackrabbit/jackrabbit-webdav/2.22.2'
         }
     }
 
@@ -126,7 +126,7 @@ A Java library for accessing iCalendar data stores
         repositories {
             maven {
                 name = "MavenCentral"
-                url = !isReleaseVersion ? "https://central.sonatype.com/repository/maven-snapshots/" : "https://central.sonatype.com"
+                url = !isReleaseVersion ? "https://central.sonatype.com/repository/maven-snapshots/" : "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
                 credentials {
                     username = System.getenv("MAVEN_USERNAME")
                     password = System.getenv("MAVEN_PASSWORD")
