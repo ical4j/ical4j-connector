@@ -2,6 +2,16 @@ package org.ical4j.connector.dav;
 
 import org.apache.http.client.CredentialsProvider;
 
+/**
+ * DavSessionConfiguration is used to configure the session for a DAV client.
+ * It allows setting user credentials, bearer authentication, and workspace information.
+ *
+ * This class is mutable and provides methods to chain configuration settings.
+ *
+ * Created on 24/02/2008
+ *
+ * @author Ben
+ */
 public class DavSessionConfiguration {
 
     private String user;

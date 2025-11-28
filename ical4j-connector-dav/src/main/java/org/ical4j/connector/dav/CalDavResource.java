@@ -10,6 +10,10 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 
 import java.io.IOException;
 
+/**
+ * CalDavResource represents a calendar resource in a CalDAV server.
+ * It extends AbstractDavResource to provide specific functionality for calendar collections.
+ */
 class CalDavResource extends AbstractDavResource<CalDavSupport> {
 
     public CalDavResource(DavResourceFactory factory, DavResourceLocator locator, DavPropertySet properties,

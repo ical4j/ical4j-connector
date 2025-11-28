@@ -55,6 +55,10 @@ import java.util.Optional;
 import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME;
 
 /**
+ * Represents a CardDAV collection, which is a collection of VCard objects.
+ * This class provides methods to create, retrieve, and manage VCard objects within the collection.
+ * It extends {@link AbstractDavObjectCollection} to provide the necessary functionality for CardDAV operations.
+ *
  * $Id$
  * 
  * Created on 24/02/2008

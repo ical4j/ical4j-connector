@@ -1,7 +1,6 @@
 package org.ical4j.connector.dav.response;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.DavServletResponse;
@@ -18,10 +17,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles the response for retrieving CalDAV calendar collections.
+ * This class processes the HTTP response to extract calendar collections,
+ * including both read and write access collections, and returns them as a list.
+ * It also handles delegation properties to identify collections that can be accessed by other users.
+ */
 public class GetCalDavCollections extends AbstractResponseHandler<List<CalDavCalendarCollection>> {
 
     @Override
-    public List<CalDavCalendarCollection> handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+    public List<CalDavCalendarCollection> handleResponse(HttpResponse response) throws IOException {
         List<CalDavCalendarCollection> collections = new ArrayList<CalDavCalendarCollection>();
         try {
             var multiStatus = getMultiStatus(response);

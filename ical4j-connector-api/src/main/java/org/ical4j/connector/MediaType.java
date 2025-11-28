@@ -55,11 +55,11 @@ public enum MediaType {
      */
     VCARD_4_0("text/vcard", "4.0");
     
-    private String contentType;
+    private final String contentType;
     
-    private String version;
+    private final String version;
 
-    private static Set<String> index = new HashSet<>();
+    private static final Set<String> index = new HashSet<>();
 
     static {
         for (var mediaType : MediaType.values()) {
@@ -71,7 +71,7 @@ public enum MediaType {
      * @param contentType
      * @param version
      */
-    private MediaType(String contentType, String version) {
+    MediaType(String contentType, String version) {
         this.contentType = contentType;
         this.version = version;
     }

@@ -35,6 +35,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Enum representing various supported features in a CalDAV server.
+ * Each feature has a description and can be used to identify the capabilities
+ * of the server.
+ */
 public enum SupportedFeature {
 
   ACCESS_CONTROL("access-control"),
@@ -54,9 +59,9 @@ public enum SupportedFeature {
   EXTENDED_MKCOL("extended-mkcol"),
   CALENDARSERVER_PRINCIPAL_PROPERTY_SEARCH("calendarserver-principal-property-search");
 
-    private String description;
+    private final String description;
 
-    private static Set<String> index = new HashSet<String>();
+    private static final Set<String> index = new HashSet<String>();
 
     static {
         for (var supportedFeature : SupportedFeature.values()) {
@@ -64,7 +69,7 @@ public enum SupportedFeature {
         }
     }
 
-    private SupportedFeature(String description) {
+    SupportedFeature(String description) {
         this.description = description;
     }
 

@@ -45,7 +45,9 @@ import java.io.IOException;
 import java.io.StringReader;
 
 /**
- * 
+ * Represents a response to a scheduling request in a CalDAV server.
+ * This class parses the XML response to extract recipient information,
+ * request status code and message, and calendar data.
  * 
  * @author probert
  * 
@@ -96,7 +98,7 @@ public class ScheduleResponse {
                 }
                 // KMS don't return CDATA, go figure
                 if (node.getFirstChild() instanceof Text) {
-                    var sin = new StringReader(((Text) node.getFirstChild()).getTextContent());
+                    var sin = new StringReader(node.getFirstChild().getTextContent());
                     this.calendarData = builder.build(sin);
                 }
             }
@@ -104,7 +106,7 @@ public class ScheduleResponse {
 
         for (int nodesIndex = 0; nodesIndex < status.getLength(); nodesIndex++) {
             var node = (Element) status.item(nodesIndex);
-            var fullStatus = ((Text) node.getFirstChild()).getTextContent();
+            var fullStatus = node.getFirstChild().getTextContent();
             var split = fullStatus.split(";");
             if (split.length == 2) {
                 this.requestStatusCode = Float.parseFloat(split[0]);
@@ -182,10 +184,7 @@ public class ScheduleResponse {
     }
 
     public boolean isSuccess() {
-        if (requestStatusCode < 3.0) {
-            return true;
-        }
-        return false;
+        return requestStatusCode < 3.0;
     }
 
 }

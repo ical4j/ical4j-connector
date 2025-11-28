@@ -21,6 +21,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * LocalCardCollection is a concrete implementation of CardCollection for managing vCard objects
+ * stored in a local file system. It extends AbstractLocalObjectCollection to provide basic functionality
+ * for storing and retrieving vCard objects.
+ */
 public class LocalCardCollection extends AbstractLocalObjectCollection<VCard> implements CardCollection {
 
     private static final MediaType[] SUPPORTED_MEDIA_TYPES = new MediaType[1];

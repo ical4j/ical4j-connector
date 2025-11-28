@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2012, Ben Fortuna
  * All rights reserved.
  *
@@ -58,6 +58,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * CardDavStore is a concrete implementation of an ObjectStore for managing VCard objects
+ * in a CardDAV server. It provides methods to add, retrieve, and manage collections of
+ * VCard objects, as well as to handle CardDAV-specific properties and reports.
+ *
  * $Id$
  * 
  * Created on 24/02/2008
@@ -65,8 +69,8 @@ import java.util.stream.Collectors;
  * @author Ben
  * 
  */
-public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCollection> implements
-        ObjectStore<VCard, CardDavCollection> {
+public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection> implements
+        ObjectStore<CardDavCollection> {
 
     private final String prodId;
     private String displayName;
@@ -149,7 +153,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
         throw new UnsupportedOperationException("not implemented");
     }
 
-    protected String findAddressBookHomeSet() throws ParserConfigurationException, IOException, DavException {
+    private String findAddressBookHomeSet() throws ParserConfigurationException, IOException, DavException {
         var propfindPath = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
         return findAddressBookHomeSet(propfindPath);
     }
@@ -164,7 +168,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
      * @throws IOException
      * @throws DavException
      */
-    protected String findAddressBookHomeSet(String propfindUri) throws IOException {
+    private String findAddressBookHomeSet(String propfindUri) throws IOException {
         return getClient().propFind(propfindUri, PropertyNameSets.PROPFIND_CARD_HOME, new GetPropertyValue<>());
     }
 
@@ -194,8 +198,8 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
         throw new UnsupportedOperationException("Workspaces not yet implemented");
     }
 
-    protected List<CardDavCollection> getCollectionsForHomeSet(CardDavStore store,
-                                                               String urlForcalendarHomeSet) throws IOException, DavException {
+    private List<CardDavCollection> getCollectionsForHomeSet(CardDavStore store,
+                                                             String urlForcalendarHomeSet) throws IOException, DavException {
 
         return getClient().propFind(urlForcalendarHomeSet, PropertyNameSets.PROPFIND_CARD,
                         new GetCollections(ResourceType.ADRESSBOOK)).entrySet().stream()
@@ -255,7 +259,7 @@ public final class CardDavStore extends AbstractDavObjectStore<VCard, CardDavCol
     /**
      * @return the prodId
      */
-    final String getProdId() {
+    String getProdId() {
         return prodId;
     }
 

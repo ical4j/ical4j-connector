@@ -32,7 +32,7 @@
 package org.ical4j.connector;
 
 /**
- * 
+ * An exception indicating that an operation has failed.
  *
  * @author fortuna
  *

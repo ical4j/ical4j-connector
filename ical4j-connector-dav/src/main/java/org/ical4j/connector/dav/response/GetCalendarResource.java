@@ -8,6 +8,11 @@ import org.ical4j.connector.MediaType;
 
 import java.io.IOException;
 
+/**
+ * Handles the response for retrieving a calendar resource from a CalDAV server.
+ * This class processes the HTTP response to extract the calendar data and returns it as a Calendar object.
+ * It uses the iCalendar 2.0 media type for parsing the content.
+ */
 public class GetCalendarResource extends AbstractResponseHandler<Calendar> {
 
     @Override

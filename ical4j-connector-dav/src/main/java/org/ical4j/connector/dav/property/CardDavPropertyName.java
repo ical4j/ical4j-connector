@@ -37,6 +37,8 @@ import org.apache.jackrabbit.webdav.version.report.ReportType;
 import org.apache.jackrabbit.webdav.xml.Namespace;
 
 /**
+ * Collection of properties related to the CardDAV namespace.
+ *
  * $Id$
  * 
  * Created on 19/11/2008

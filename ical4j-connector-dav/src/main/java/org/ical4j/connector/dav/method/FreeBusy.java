@@ -9,6 +9,11 @@ import org.apache.jackrabbit.webdav.DavConstants;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
+/**
+ * FreeBusy is an HTTP POST method for requesting free/busy information from a CalDAV server.
+ * It sets the appropriate headers and allows setting a query calendar.
+ * The Organizer property can be included in the request headers.
+ */
 public class FreeBusy extends HttpPost {
 
     public FreeBusy(URI uri, Organizer organizer) {

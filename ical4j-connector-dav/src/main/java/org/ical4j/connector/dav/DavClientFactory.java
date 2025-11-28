@@ -5,6 +5,15 @@ import org.apache.http.client.CredentialsProvider;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * DavClientFactory is a factory class for creating instances of DefaultDavClient.
+ * It allows configuration of the client through method chaining, including options
+ * for preemptive authentication, following redirects, and setting default headers.
+ *
+ * Created on 24/02/2008
+ *
+ * @author Ben
+ */
 public class DavClientFactory {
 
     private DavClientConfiguration clientConfiguration;

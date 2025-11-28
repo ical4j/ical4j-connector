@@ -79,6 +79,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -89,6 +90,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Default implementation of a DAV client.
+ * <p>
+ * This class provides methods to interact with a DAV server, including creating calendars, collections,
+ * retrieving properties, and executing various HTTP methods.
+ * </p>
+ * <p>
+ * It supports both CalDAV and CardDAV protocols.
+ * </p>
+ *
+ * @see CalDavSupport
+ * @see CardDavSupport
+ */
 public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 
 	/**
@@ -297,7 +311,9 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 		var httpResponse = execute(httpPut);
 		if (!httpPut.succeeded(httpResponse)) {
 			var w = new StringWriter();
-			httpResponse.getEntity().writeTo(WriterOutputStream.builder().setWriter(w).get());
+			try (OutputStream entityOutputStream = WriterOutputStream.builder().setWriter(w).get()) {
+				httpResponse.getEntity().writeTo(entityOutputStream);
+			}
 			throw new FailedOperationException(
 					"Error creating calendar on server: " + httpResponse.getStatusLine() + "-" + w);
 		}

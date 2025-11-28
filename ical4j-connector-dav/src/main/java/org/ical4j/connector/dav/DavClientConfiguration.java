@@ -3,13 +3,24 @@ package org.ical4j.connector.dav;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * DavClientConfiguration is used to configure the behavior of a DAV client.
+ * It allows setting options such as preemptive authentication, following redirects,
+ * and adding default headers for requests.
+ *
+ * This class is mutable and provides methods to chain configuration settings.
+ *
+ * Created on 24/02/2008
+ *
+ * @author Ben
+ */
 public class DavClientConfiguration {
 
     private boolean preemptiveAuth;
 
     private boolean followRedirects;
 
-    private Map<String, String> defaultHeaders = new HashMap<>();
+    private final Map<String, String> defaultHeaders = new HashMap<>();
 
     public DavClientConfiguration withPreemptiveAuth(boolean preemptiveAuth) {
         this.preemptiveAuth = preemptiveAuth;

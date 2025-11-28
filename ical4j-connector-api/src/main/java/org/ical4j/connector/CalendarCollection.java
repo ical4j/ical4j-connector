@@ -47,6 +47,34 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
+ * A collection of calendar objects, which may include
+ * calendar components such as events, to-dos, journal entries,
+ * availability, and free-busy information.
+ * <p>
+ * A calendar collection may also include a single VTIMEZONE component
+ * that defines the time zone used by the calendar objects in the collection.
+ * <p>
+ * The calendar collection may be used to store calendar objects in a
+ * calendar store, or to retrieve calendar objects from a calendar store.
+ * <p>
+ * The calendar collection may also be used to query for calendar objects
+ * that match a specific filter expression, or to export the entire collection
+ * as a single calendar object.
+ * <p>
+ * The calendar collection may also support various constraints such as
+ * maximum resource size, minimum and maximum date-time values, maximum
+ * recurrence instances, and maximum attendees per instance.
+ * <p>
+ * The calendar collection may also support merging calendar objects,
+ * adding calendar objects, retrieving calendar objects by UID, and removing
+ * calendar objects by UID.
+ * <p>
+ * The calendar collection may also support querying for free-busy information
+ * within a specified time range.
+ * <p>
+ * The calendar collection is an extension of the {@link ObjectCollection} interface,
+ * which provides methods for adding, retrieving, and removing objects from the collection.
+ * <p>
  * $Id$
  *
  * Created on 20/02/2008

@@ -42,6 +42,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
+ * PutVCard is a class that represents an HTTP PUT request to create or update a vCard resource on a CalDAV server.
+ * It extends AbstractPutMethod to provide functionality for sending a vCard object as the request body.
+ * The vCard is serialized to a byte array using VCardOutputter and set as the entity of the request.
+ * This class is used to manage vCard resources in a CalDAV server, allowing clients to create or update contact data.
+ *
  * $Id$
  *
  * Created on 19/11/2008

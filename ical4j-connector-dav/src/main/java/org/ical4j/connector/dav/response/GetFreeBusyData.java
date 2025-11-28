@@ -14,6 +14,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles the response for retrieving free/busy data from a CalDAV server.
+ * This class processes the HTTP response to extract free/busy schedule responses
+ * and returns them as a list of ScheduleResponse objects.
+ */
 public class GetFreeBusyData extends AbstractResponseHandler<List<ScheduleResponse>> {
 
     @Override

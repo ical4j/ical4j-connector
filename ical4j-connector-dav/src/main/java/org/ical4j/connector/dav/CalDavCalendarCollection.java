@@ -62,6 +62,12 @@ import java.util.Optional;
 import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME;
 
 /**
+ * Represents a calendar collection in a CalDAV store.
+ * This class provides methods to manage calendar objects within the collection,
+ * including adding, updating, retrieving, and removing calendar objects.
+ * It also provides access to various properties of the calendar collection,
+ * such as display name, description, supported component types, and time zone.
+ *
  * $Id$
  * 
  * Created on 24/02/2008
@@ -260,7 +266,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * Get the list of calendar components (VEVENT, VTODO, etc.) that this collection supports.
      */
     public String[] getSupportedComponentTypes() {
-        List<String> supportedComponents = new ArrayList<String>();
+        List<String> supportedComponents = new ArrayList<>();
 
         ArrayList<Node> supportedCalCompSetProp;
         try {
@@ -279,7 +285,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
             throw new RuntimeException(e);
         }
 
-        return supportedComponents.toArray(new String[supportedComponents.size()]);
+        return supportedComponents.toArray(new String[0]);
     }
 
     /**
@@ -440,9 +446,9 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
         List<Uid> uids = new ArrayList<>();
         try {
             var uidCalendars = Calendars.split(calendar);
-            for (int i = 0; i < uidCalendars.length; i++) {
-                add(uidCalendars[i]);
-                uids.add(uidCalendars[i].getRequiredProperty(Property.UID));
+            for (Calendar uidCalendar : uidCalendars) {
+                add(uidCalendar);
+                uids.add(uidCalendar.getRequiredProperty(Property.UID));
             }
         } catch (ConstraintViolationException cve) {
             throw new FailedOperationException("Invalid calendar format", cve);

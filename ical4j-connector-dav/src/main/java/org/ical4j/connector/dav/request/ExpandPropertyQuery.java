@@ -10,6 +10,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a CalDAV expand property query that can be serialized to XML.
+ * This class is used to build a query request for expanding properties related to proxy read/write.
+ * It allows specifying additional property names to include in the query.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc4791">RFC 4791 - Calendaring Extensions to WebDAV (CalDAV)</a>
+ */
 public class ExpandPropertyQuery implements XmlSupport, XmlSerializable {
 
     public enum Type {

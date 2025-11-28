@@ -12,6 +12,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * WebDavSupport provides methods for interacting with WebDAV resources.
+ * It includes methods for property retrieval, modification, collection management,
+ * and resource manipulation such as GET, HEAD, POST, DELETE, COPY, MOVE, LOCK, and UNLOCK.
+ */
 public interface WebDavSupport {
 
     /**

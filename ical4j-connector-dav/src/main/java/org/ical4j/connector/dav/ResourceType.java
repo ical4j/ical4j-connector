@@ -35,6 +35,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Enum representing various resource types in a calendar system.
+ * Each resource type has a description and can be used to identify
+ * the type of resource being handled.
+ */
 public enum ResourceType {
 
   CALENDAR("calendar"),
@@ -50,9 +55,9 @@ public enum ResourceType {
   COLLECTION("collection"),
   SCHEDULE_INBOX("schedule-inbox");
   
-    private String description;
+    private final String description;
 
-    private static Set<String> index = new HashSet<String>();
+    private static final Set<String> index = new HashSet<String>();
 
     static {
         for (var supportedFeature : ResourceType.values()) {
@@ -60,7 +65,7 @@ public enum ResourceType {
         }
     }
 
-    private ResourceType(String description) {
+    ResourceType(String description) {
         this.description = description;
     }
 

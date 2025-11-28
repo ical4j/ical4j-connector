@@ -38,6 +38,11 @@ import org.apache.jackrabbit.webdav.client.methods.BaseDavRequest;
 import java.net.URI;
 
 /**
+ * MkCalendar is a class that represents an HTTP MKCALENDAR request.
+ * It extends BaseDavRequest to provide functionality for creating a new calendar resource on a CalDAV server.
+ * The request is sent to the specified URI, and it checks for successful creation of the calendar resource
+ * based on the HTTP response status code.
+ *
  * $Id$
  *
  * Created on 19/11/2008
