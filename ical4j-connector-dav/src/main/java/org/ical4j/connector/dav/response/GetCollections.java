@@ -32,7 +32,7 @@ public class GetCollections extends AbstractResponseHandler<Map<String, DavPrope
             return Arrays.stream(multiStatus.getResponses())
                     .filter(msr -> {
                         List<Element> resourceType = (List<Element>) msr.getProperties(HttpStatus.SC_OK).get(DavPropertyName.RESOURCETYPE).getValue();
-                        return resourceType.stream().anyMatch(resourceType::contains);
+                        return resourceType.stream().map(Element::getLocalName).anyMatch(resourceTypes::contains);
                     })
                     .collect(Collectors.toMap(MultiStatusResponse::getHref,
                             msr -> msr.getProperties(HttpStatus.SC_OK)));
