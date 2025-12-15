@@ -1,6 +1,6 @@
 plugins {
     id 'signing'
-    id 'pl.allegro.tech.build.axion-release' version '1.13.6'
+    id 'pl.allegro.tech.build.axion-release' version '1.20.1'
     id 'biz.aQute.bnd.builder' version "$bndVersion" apply false
 }
 
@@ -25,9 +25,6 @@ configure(subprojects) {
     apply plugin: 'groovy'
     apply plugin: 'biz.aQute.bnd.builder'
 
-    sourceCompatibility = 11
-    targetCompatibility = 11
-
     repositories {
         mavenCentral()
         mavenLocal()
@@ -47,6 +44,9 @@ A Java library for accessing iCalendar data stores
     }
 
     java {
+        sourceCompatibility = 11
+        targetCompatibility = 11
+
         withJavadocJar()
         withSourcesJar()
     }
