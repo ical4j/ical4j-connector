@@ -1,8 +1,9 @@
 [versions]
-ical4j = "4.2.1"
-ical4j-vcard = "2.0.1"
+ical4j = "4.2.3"
+ical4j-vcard = "2.1.0"
 httpclient = "4.5.14"
 jackrabbit-webdav = "2.23.1-beta"
+msgraph = "6.59.0"
 commons-io = "2.21.0"
 groovy = "3.0.25"
 log4j = "2.25.2"
@@ -15,8 +16,12 @@ testcontainers = "1.20.4"
 ical4j = { module = "org.mnode.ical4j:ical4j", version.ref = "ical4j" }
 ical4j-vcard = { module = "org.mnode.ical4j:ical4j-vcard", version.ref = "ical4j-vcard" }
 
+slugify = { group = "com.github.slugify", name = "slugify", version = "3.0.7"}
+
 httpclient = { module = "org.apache.httpcomponents:httpclient", version.ref = "httpclient" }
 jackrabbit-webdav = { module = "org.apache.jackrabbit:jackrabbit-webdav", version.ref = "jackrabbit-webdav" }
+
+msgraph = { module = 'com.microsoft.graph:microsoft-graph', version.ref = 'msgraph' }
 
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io"}
 
