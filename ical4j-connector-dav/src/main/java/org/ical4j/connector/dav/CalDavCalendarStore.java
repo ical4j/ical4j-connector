@@ -115,18 +115,19 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     }
 
     @Override
-    public CalDavCalendarCollection addCollection(String id, String workspace) throws ObjectStoreException {
-        throw new UnsupportedOperationException("Workspaces not yet implemented");
+    public CalDavCalendarCollection addCollection(String name, String workspace) throws ObjectStoreException {
+        assertDefaultWorkspace(workspace);
+        return addCollection(name);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public CalDavCalendarCollection addCollection(String id, String displayName, String description,
-            String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
+    public CalDavCalendarCollection addCollection(String id, String name, String description,
+                                                  String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
 
-        var collection = new CalDavCalendarCollection(this, id, displayName, description);
+        var collection = new CalDavCalendarCollection(this, id, name, description);
         try {
             collection.create();
         } catch (IOException e) {
@@ -136,10 +137,11 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     }
 
     @Override
-    public CalDavCalendarCollection addCollection(String id, String displayName, String description,
+    public CalDavCalendarCollection addCollection(String id, String name, String description,
                                                   String[] supportedComponents, Calendar timezone,
                                                   String workspace) throws ObjectStoreException {
-        throw new UnsupportedOperationException("Workspaces not yet implemented");
+        assertDefaultWorkspace(workspace);
+        return addCollection(id, name, description, supportedComponents, timezone);
     }
 
     /**
@@ -234,7 +236,8 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
 
     @Override
     public List<CalDavCalendarCollection> getCollections(String workspace) throws ObjectStoreException, ObjectNotFoundException {
-        throw new UnsupportedOperationException("Workspaces not yet implemented");
+        assertDefaultWorkspace(workspace);
+        return getCollections();
     }
 
     private List<CalDavCalendarCollection> getCollectionsForHomeSet(CalDavCalendarStore store,
@@ -295,7 +298,14 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
 
     @Override
     public List<String> listWorkspaceIds() {
-        throw new UnsupportedOperationException("Workspaces not yet implemented");
+        return List.of(ObjectStore.DEFAULT_WORKSPACE);
+    }
+
+    private static void assertDefaultWorkspace(String workspace) throws ObjectStoreException {
+        if (workspace != null && !ObjectStore.DEFAULT_WORKSPACE.equals(workspace)) {
+            throw new ObjectStoreException(
+                    String.format("Workspace '%s' not supported; only DEFAULT_WORKSPACE is recognised", workspace));
+        }
     }
 
     // public CalendarCollection replace(String id, CalendarCollection calendar) {

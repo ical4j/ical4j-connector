@@ -36,6 +36,7 @@ import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.property.Uid;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
+import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.ical4j.connector.CardCollection;
 import org.ical4j.connector.FailedOperationException;
@@ -68,9 +69,12 @@ import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME;
  */
 public class CardDavCollection extends AbstractDavObjectCollection<VCard> implements CardCollection {
 
+    private static final int ADDRESSBOOK_RESOURCE_TYPE =
+            ResourceType.registerResourceType("addressbook", CardDavPropertyName.NAMESPACE);
+
     /**
      * Only {@link CardDavStore} should be calling this, so default modifier is applied.
-     * 
+     *
      * @param CardDavCalendarStore
      * @param id
      */
@@ -80,7 +84,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
 
     /**
      * Only {@link CardDavStore} should be calling this, so default modifier is applied.
-     * 
+     *
      * @param cardDavStore
      * @param id
      * @param displayName
@@ -89,6 +93,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     CardDavCollection(CardDavStore cardDavStore, String id, String displayName, String description) {
 
         super(cardDavStore, id);
+        properties.add(new ResourceType(new int[]{ResourceType.COLLECTION, ADDRESSBOOK_RESOURCE_TYPE}));
         properties.add(new DavPropertyBuilder<>().name(DISPLAYNAME).value(displayName).build());
         properties.add(new DavPropertyBuilder<>().name(CardDavPropertyName.ADDRESSBOOK_DESCRIPTION).value(description).build());
     }
@@ -148,14 +153,24 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      * @see org.ical4j.connector.ObjectCollection#getDescription()
      */
     public String getDescription() {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            return getProperty(CardDavPropertyName.ADDRESSBOOK_DESCRIPTION, String.class);
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public List<String> listObjectUIDs() {
-        //TODO: extract UIDs from vcards..
-        return null;
+        List<String> uids = new ArrayList<>();
+        try {
+            for (VCard card : getAll()) {
+                uids.add(card.getUid().getValue());
+            }
+        } catch (ObjectStoreException e) {
+            throw new RuntimeException(e);
+        }
+        return uids;
     }
 
     /* (non-Javadoc)
@@ -192,7 +207,33 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
 
     @Override
     public List<VCard> removeAll(String... uid) {
-        return null;
+        List<VCard> result = new ArrayList<>();
+        for (var u : uid) {
+            try {
+                result.add(removeCardFromUri(defaultUriFromUid(u)));
+            } catch (ObjectStoreException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return result;
+    }
+
+    private VCard removeCardFromUri(String uri) throws ObjectStoreException {
+        var path = getPath();
+        if (!path.endsWith("/")) {
+            path = path.concat("/");
+        }
+        try {
+            var card = getStore().getClient().getVCard(path + uri);
+            getStore().getClient().delete(path + uri);
+            return card;
+        } catch (IOException | DavException e) {
+            throw new ObjectStoreException(e);
+        }
+    }
+
+    private String defaultUriFromUid(String uid) {
+        return uid + ".vcf";
     }
 
     @Override

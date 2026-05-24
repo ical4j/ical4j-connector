@@ -55,6 +55,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -110,8 +111,9 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
     }
 
     @Override
-    public CardDavCollection addCollection(String id, String workspace) throws ObjectStoreException {
-        throw new UnsupportedOperationException("Workspaces not yet implemented");
+    public CardDavCollection addCollection(String name, String workspace) throws ObjectStoreException {
+        assertDefaultWorkspace(workspace);
+        return addCollection(name);
     }
 
     /**
@@ -132,10 +134,15 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
      */
     public CardDavCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
         try {
-            return getClient().propFind(id, PropertyNameSets.PROPFIND_CARD,
-                            new GetCollections(ResourceType.ADRESSBOOK)).entrySet().stream()
-                    .map(e -> new CardDavCollection(this, e.getKey(), e.getValue()))
-                    .collect(Collectors.toList()).get(0);
+            var resourcePath = pathResolver.getCardPath(id, getSessionConfiguration().getWorkspace());
+            Map<String, DavPropertySet> res = getClient().propFind(resourcePath, PropertyNameSets.PROPFIND_CARD,
+                    new GetCollections(ResourceType.ADRESSBOOK));
+            if (!res.isEmpty()) {
+                var props = res.entrySet().iterator().next().getValue();
+                return new CardDavCollection(this, id, props);
+            } else {
+                return null;
+            }
         } catch (IOException e) {
             throw new ObjectStoreException(String.format("unable to get collection '%s'", id), e);
         }
@@ -143,7 +150,8 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
 
     @Override
     public CardDavCollection getCollection(String id, String workspace) throws ObjectStoreException, ObjectNotFoundException {
-        throw new UnsupportedOperationException("Workspaces not yet implemented");
+        assertDefaultWorkspace(workspace);
+        return getCollection(id);
     }
 
     /**
@@ -195,7 +203,8 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
 
     @Override
     public List<CardDavCollection> getCollections(String workspace) throws ObjectStoreException, ObjectNotFoundException {
-        throw new UnsupportedOperationException("Workspaces not yet implemented");
+        assertDefaultWorkspace(workspace);
+        return getCollections();
     }
 
     private List<CardDavCollection> getCollectionsForHomeSet(CardDavStore store,
@@ -253,7 +262,14 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
 
     @Override
     public List<String> listWorkspaceIds() {
-        throw new UnsupportedOperationException("Workspaces not yet implemented");
+        return List.of(ObjectStore.DEFAULT_WORKSPACE);
+    }
+
+    private static void assertDefaultWorkspace(String workspace) throws ObjectStoreException {
+        if (workspace != null && !ObjectStore.DEFAULT_WORKSPACE.equals(workspace)) {
+            throw new ObjectStoreException(
+                    String.format("Workspace '%s' not supported; only DEFAULT_WORKSPACE is recognised", workspace));
+        }
     }
 
     /**
@@ -274,15 +290,22 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
     /* (non-Javadoc)
      * @see org.ical4j.connector.ObjectStore#addCollection(java.lang.String, java.lang.String, java.lang.String, java.lang.String[], net.fortuna.ical4j.model.Calendar)
      */
-    public CardDavCollection addCollection(String id, String displayName, String description,
-            String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
-        throw new UnsupportedOperationException("not implemented");
+    public CardDavCollection addCollection(String id, String name, String description,
+                                           String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
+        var collection = new CardDavCollection(this, id, name, description);
+        try {
+            collection.create();
+        } catch (IOException e) {
+            throw new ObjectStoreException(String.format("unable to add collection '%s'", id), e);
+        }
+        return collection;
     }
 
     @Override
-    public CardDavCollection addCollection(String id, String displayName, String description,
+    public CardDavCollection addCollection(String id, String name, String description,
                                            String[] supportedComponents, Calendar timezone,
                                            String workspace) throws ObjectStoreException {
-        throw new UnsupportedOperationException("Workspaces not yet implemented");
+        assertDefaultWorkspace(workspace);
+        return addCollection(id, name, description, supportedComponents, timezone);
     }
 }

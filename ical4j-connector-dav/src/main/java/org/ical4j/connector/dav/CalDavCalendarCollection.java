@@ -128,8 +128,15 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
 
     @Override
     public List<String> listObjectUIDs() {
-        //TODO: extract UIDs from calendar objects..
-        return null;
+        List<String> uids = new ArrayList<>();
+        for (Calendar calendar : getComponentsByType(Component.VEVENT)) {
+            try {
+                uids.add(Calendars.getUid(calendar).getValue());
+            } catch (ConstraintViolationException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return uids;
     }
 
     /**
@@ -328,7 +335,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     @Override
     public String add(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
         writeCalendarOnServer(calendar, true);
-        return calendar.getRequiredProperty(Property.UID).getValue();
+        return Calendars.getUid(calendar).getValue();
     }
 
     /**

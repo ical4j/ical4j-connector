@@ -83,7 +83,7 @@ public abstract class PropertyNameSets {
        */
 
         PROPFIND_CARD.add(DISPLAYNAME);
-
+        PROPFIND_CARD.add(CardDavPropertyName.ADDRESSBOOK_DESCRIPTION);
 
         PROPFIND_CARD.add(SecurityConstants.CURRENT_USER_PRIVILEGE_SET);
         PROPFIND_CARD.add(DavPropertyName.RESOURCETYPE);
