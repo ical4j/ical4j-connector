@@ -79,40 +79,51 @@ import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME;
  * 
  */
 public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calendar> implements CalendarCollection {
-    
+
+    private final String principalOverride;
+
     /**
      * Only {@link CalDavCalendarStore} should be calling this, so default modifier is applied.
-     * 
-     * @param calDavCalendarStore
-     * @param id
      */
     CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id) {
-        this(calDavCalendarStore, id, id, "");
+        this(calDavCalendarStore, id, id, "", null);
     }
 
     /**
      * Only {@link CalDavCalendarStore} should be calling this, so default modifier is applied.
-     * 
-     * @param calDavCalendarStore
-     * @param id
-     * @param displayName
-     * @param description
      */
     CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id, String displayName, String description) {
+        this(calDavCalendarStore, id, displayName, description, null);
+    }
 
+    /**
+     * Constructor with an explicit principal override — used when addressing a workspace
+     * different from the session user (workspace-as-principal). Pass {@code null} for the
+     * override to fall back to the session user's workspace.
+     */
+    CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id, String displayName, String description,
+                             String principalOverride) {
         super(calDavCalendarStore, id);
+        this.principalOverride = principalOverride;
         properties.add(new DavPropertyBuilder<>().name(DISPLAYNAME).value(displayName).build());
         properties.add(new DavPropertyBuilder<>().name(CalDavPropertyName.CALENDAR_DESCRIPTION).value(description).build());
     }
 
     CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id, DavPropertySet _properties) {
-        this(calDavCalendarStore, id, null, null);
+        this(calDavCalendarStore, id, _properties, null);
+    }
+
+    CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id, DavPropertySet _properties,
+                             String principalOverride) {
+        this(calDavCalendarStore, id, null, null, principalOverride);
         this.properties = _properties;
     }
 
     @Override
     String getPath() {
-        return getStore().pathResolver.getCalendarPath(getId(), getStore().getSessionConfiguration().getWorkspace());
+        var workspace = principalOverride != null ? principalOverride
+                : getStore().getSessionConfiguration().getWorkspace();
+        return getStore().pathResolver.getCalendarPath(getId(), workspace);
     }
 
     /**

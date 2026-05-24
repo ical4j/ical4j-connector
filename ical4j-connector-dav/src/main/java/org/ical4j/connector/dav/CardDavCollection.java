@@ -72,40 +72,50 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     private static final int ADDRESSBOOK_RESOURCE_TYPE =
             ResourceType.registerResourceType("addressbook", CardDavPropertyName.NAMESPACE);
 
+    private final String principalOverride;
+
     /**
      * Only {@link CardDavStore} should be calling this, so default modifier is applied.
-     *
-     * @param CardDavCalendarStore
-     * @param id
      */
-    CardDavCollection(CardDavStore CardDavCalendarStore, String id) {
-        this(CardDavCalendarStore, id, id, "");
+    CardDavCollection(CardDavStore cardDavStore, String id) {
+        this(cardDavStore, id, id, "", null);
     }
 
     /**
      * Only {@link CardDavStore} should be calling this, so default modifier is applied.
-     *
-     * @param cardDavStore
-     * @param id
-     * @param displayName
-     * @param description
      */
     CardDavCollection(CardDavStore cardDavStore, String id, String displayName, String description) {
+        this(cardDavStore, id, displayName, description, null);
+    }
 
+    /**
+     * Constructor with an explicit principal override — used when addressing a workspace
+     * different from the session user (workspace-as-principal). Pass {@code null} for the
+     * override to fall back to the session user's workspace.
+     */
+    CardDavCollection(CardDavStore cardDavStore, String id, String displayName, String description,
+                      String principalOverride) {
         super(cardDavStore, id);
+        this.principalOverride = principalOverride;
         properties.add(new ResourceType(new int[]{ResourceType.COLLECTION, ADDRESSBOOK_RESOURCE_TYPE}));
         properties.add(new DavPropertyBuilder<>().name(DISPLAYNAME).value(displayName).build());
         properties.add(new DavPropertyBuilder<>().name(CardDavPropertyName.ADDRESSBOOK_DESCRIPTION).value(description).build());
     }
 
     CardDavCollection(CardDavStore cardDavStore, String id, DavPropertySet _properties) {
-        this(cardDavStore, id, id, "");
+        this(cardDavStore, id, _properties, null);
+    }
+
+    CardDavCollection(CardDavStore cardDavStore, String id, DavPropertySet _properties, String principalOverride) {
+        this(cardDavStore, id, id, "", principalOverride);
         this.properties = _properties;
     }
 
     @Override
     String getPath() {
-        return getStore().pathResolver.getCardPath(getId(), getStore().getSessionConfiguration().getWorkspace());
+        var workspace = principalOverride != null ? principalOverride
+                : getStore().getSessionConfiguration().getWorkspace();
+        return getStore().pathResolver.getCardPath(getId(), workspace);
     }
 
     /**

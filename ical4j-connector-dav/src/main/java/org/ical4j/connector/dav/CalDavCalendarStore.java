@@ -116,8 +116,16 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
 
     @Override
     public CalDavCalendarCollection addCollection(String name, String workspace) throws ObjectStoreException {
-        assertDefaultWorkspace(workspace);
-        return addCollection(name);
+        if (workspace == null || ObjectStore.DEFAULT_WORKSPACE.equals(workspace)) {
+            return addCollection(name);
+        }
+        var collection = new CalDavCalendarCollection(this, name, name, "", workspace);
+        try {
+            collection.create();
+        } catch (IOException e) {
+            throw new ObjectStoreException(String.format("unable to add collection '%s' in workspace '%s'", name, workspace), e);
+        }
+        return collection;
     }
 
     /**
@@ -140,8 +148,16 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     public CalDavCalendarCollection addCollection(String id, String name, String description,
                                                   String[] supportedComponents, Calendar timezone,
                                                   String workspace) throws ObjectStoreException {
-        assertDefaultWorkspace(workspace);
-        return addCollection(id, name, description, supportedComponents, timezone);
+        if (workspace == null || ObjectStore.DEFAULT_WORKSPACE.equals(workspace)) {
+            return addCollection(id, name, description, supportedComponents, timezone);
+        }
+        var collection = new CalDavCalendarCollection(this, id, name, description, workspace);
+        try {
+            collection.create();
+        } catch (IOException e) {
+            throw new ObjectStoreException(String.format("unable to add collection '%s' in workspace '%s'", id, workspace), e);
+        }
+        return collection;
     }
 
     /**
@@ -162,22 +178,22 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      */
     @Override
     public CalDavCalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
-        return getCollection(id, DEFAULT_WORKSPACE);
+        return getCollection(id, null);
     }
 
     @Override
     public CalDavCalendarCollection getCollection(String id, String workspace) throws ObjectStoreException, ObjectNotFoundException {
+        boolean useSessionUser = workspace == null || ObjectStore.DEFAULT_WORKSPACE.equals(workspace);
+        var principal = useSessionUser ? getSessionConfiguration().getWorkspace() : workspace;
+        var override = useSessionUser ? null : workspace;
         try {
-            var resourcePath = pathResolver.getCalendarPath(id, workspace);
+            var resourcePath = pathResolver.getCalendarPath(id, principal);
             Map<String, DavPropertySet> res = getClient().propFind(resourcePath,
                     PropertyNameSets.PROPFIND_CALENDAR,
                     new GetCollections(CALENDAR, CALENDAR_PROXY_READ, CALENDAR_PROXY_WRITE));
             if (!res.isEmpty()) {
                 var props = res.entrySet().iterator().next().getValue();
-                return new CalDavCalendarCollection(this, id, props);
-//            .entrySet().stream()
-//                    .map(e -> new CalDavCalendarCollection(this, e.getKey(), e.getValue()))
-//                    .collect(Collectors.toList()).get(0);
+                return new CalDavCalendarCollection(this, id, props, override);
             } else {
                 return null;
             }
@@ -187,21 +203,19 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     }
 
     public String findCalendarHomeSet() throws ParserConfigurationException, IOException, DavException {
-        var propfindPath = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
-        return findCalendarHomeSet(propfindPath);
+        return findCalendarHomeSetForPrincipal(getSessionConfiguration().getUser());
     }
 
     /**
-     * This method try to find the calendar-home-set attribute in the user's DAV principals. The calendar-home-set
-     * attribute is the URI of the main collection of calendars for the user.
-     * 
-     * @return the URI for the main calendar collection
-     * @author Pascal Robert
-     * @throws ParserConfigurationException
-     * @throws IOException
-     * @throws DavException
+     * Propfind the given principal's path for the {@code calendar-home-set} property.
+     * Used both for the session user (canonical) and for cross-principal addressing via
+     * workspace-as-principal.
+     *
+     * @param principal the DAV principal (user) name
+     * @return the URI for that principal's main calendar collection
      */
-    private String findCalendarHomeSet(String propfindUri) throws IOException {
+    private String findCalendarHomeSetForPrincipal(String principal) throws IOException {
+        var propfindUri = pathResolver.getPrincipalPath(principal);
         return getClient().propFind(propfindUri, PropertyNameSets.PROPFIND_CALENDAR_HOME,
                 new GetPropertyValue<>(CalDavPropertyName.CALENDAR_HOME_SET));
     }
@@ -230,16 +244,34 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
 
     @Override
     public List<CalDavCalendarCollection> getCollections(String workspace) throws ObjectStoreException, ObjectNotFoundException {
-        assertDefaultWorkspace(workspace);
-        return getCollections();
+        if (workspace == null || ObjectStore.DEFAULT_WORKSPACE.equals(workspace)) {
+            return getCollections();
+        }
+        try {
+            var calHomeSetPath = findCalendarHomeSetForPrincipal(workspace);
+            if (calHomeSetPath == null) {
+                throw new ObjectNotFoundException(
+                        "No calendar-home-set attribute found for principal '" + workspace + "'");
+            }
+            return getCollectionsForHomeSet(this, calHomeSetPath, workspace);
+        } catch (DavException | IOException | RuntimeException e) {
+            throw new ObjectStoreException(
+                    String.format("unable to list collections for workspace '%s'", workspace), e);
+        }
     }
 
     private List<CalDavCalendarCollection> getCollectionsForHomeSet(CalDavCalendarStore store,
                                                                     String urlForcalendarHomeSet) throws IOException, DavException {
+        return getCollectionsForHomeSet(store, urlForcalendarHomeSet, null);
+    }
+
+    private List<CalDavCalendarCollection> getCollectionsForHomeSet(CalDavCalendarStore store,
+                                                                    String urlForcalendarHomeSet,
+                                                                    String principalOverride) throws IOException, DavException {
 
         return getClient().propFind(urlForcalendarHomeSet, PropertyNameSets.PROPFIND_CALENDAR,
                         new GetCollections(COLLECTION)).entrySet().stream()
-                .map(e -> new CalDavCalendarCollection(this, e.getKey(), e.getValue()))
+                .map(e -> new CalDavCalendarCollection(this, e.getKey(), e.getValue(), principalOverride))
                 .collect(Collectors.toList());
     }
 
@@ -293,13 +325,6 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
     @Override
     public List<String> listWorkspaceIds() {
         return List.of(ObjectStore.DEFAULT_WORKSPACE);
-    }
-
-    private static void assertDefaultWorkspace(String workspace) throws ObjectStoreException {
-        if (workspace != null && !ObjectStore.DEFAULT_WORKSPACE.equals(workspace)) {
-            throw new ObjectStoreException(
-                    String.format("Workspace '%s' not supported; only DEFAULT_WORKSPACE is recognised", workspace));
-        }
     }
 
     /**

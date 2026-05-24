@@ -112,8 +112,16 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
 
     @Override
     public CardDavCollection addCollection(String name, String workspace) throws ObjectStoreException {
-        assertDefaultWorkspace(workspace);
-        return addCollection(name);
+        if (workspace == null || ObjectStore.DEFAULT_WORKSPACE.equals(workspace)) {
+            return addCollection(name);
+        }
+        var collection = new CardDavCollection(this, name, name, "", workspace);
+        try {
+            collection.create();
+        } catch (IOException e) {
+            throw new ObjectStoreException(String.format("unable to add collection '%s' in workspace '%s'", name, workspace), e);
+        }
+        return collection;
     }
 
     /**
@@ -133,13 +141,21 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
      * {@inheritDoc}
      */
     public CardDavCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
+        return getCollection(id, null);
+    }
+
+    @Override
+    public CardDavCollection getCollection(String id, String workspace) throws ObjectStoreException, ObjectNotFoundException {
+        boolean useSessionUser = workspace == null || ObjectStore.DEFAULT_WORKSPACE.equals(workspace);
+        var principal = useSessionUser ? getSessionConfiguration().getWorkspace() : workspace;
+        var override = useSessionUser ? null : workspace;
         try {
-            var resourcePath = pathResolver.getCardPath(id, getSessionConfiguration().getWorkspace());
+            var resourcePath = pathResolver.getCardPath(id, principal);
             Map<String, DavPropertySet> res = getClient().propFind(resourcePath, PropertyNameSets.PROPFIND_CARD,
                     new GetCollections(ResourceType.ADRESSBOOK));
             if (!res.isEmpty()) {
                 var props = res.entrySet().iterator().next().getValue();
-                return new CardDavCollection(this, id, props);
+                return new CardDavCollection(this, id, props, override);
             } else {
                 return null;
             }
@@ -148,28 +164,20 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
         }
     }
 
-    @Override
-    public CardDavCollection getCollection(String id, String workspace) throws ObjectStoreException, ObjectNotFoundException {
-        assertDefaultWorkspace(workspace);
-        return getCollection(id);
-    }
-
     private String findAddressBookHomeSet() throws ParserConfigurationException, IOException, DavException {
-        var propfindPath = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
-        return findAddressBookHomeSet(propfindPath);
+        return findAddressBookHomeSetForPrincipal(getSessionConfiguration().getUser());
     }
 
     /**
-     * This method try to find the calendar-home-set attribute in the user's DAV principals. The calendar-home-set
-     * attribute is the URI of the main collection of calendars for the user.
-     * 
-     * @return the URI for the main calendar collection
-     * @author Pascal Robert
-     * @throws ParserConfigurationException
-     * @throws IOException
-     * @throws DavException
+     * Propfind the given principal's path for the {@code addressbook-home-set} property.
+     * Used both for the session user (canonical) and for cross-principal addressing via
+     * workspace-as-principal.
+     *
+     * @param principal the DAV principal (user) name
+     * @return the URI for that principal's main address book collection
      */
-    private String findAddressBookHomeSet(String propfindUri) throws IOException {
+    private String findAddressBookHomeSetForPrincipal(String principal) throws IOException {
+        var propfindUri = pathResolver.getPrincipalPath(principal);
         return getClient().propFind(propfindUri, PropertyNameSets.PROPFIND_CARD_HOME,
                 new GetPropertyValue<>(CardDavPropertyName.ADDRESSBOOK_HOME_SET));
     }
@@ -197,16 +205,34 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
 
     @Override
     public List<CardDavCollection> getCollections(String workspace) throws ObjectStoreException, ObjectNotFoundException {
-        assertDefaultWorkspace(workspace);
-        return getCollections();
+        if (workspace == null || ObjectStore.DEFAULT_WORKSPACE.equals(workspace)) {
+            return getCollections();
+        }
+        try {
+            var calHomeSetPath = findAddressBookHomeSetForPrincipal(workspace);
+            if (calHomeSetPath == null) {
+                throw new ObjectNotFoundException(
+                        "No " + CardDavPropertyName.ADDRESSBOOK_HOME_SET + " attribute found for principal '" + workspace + "'");
+            }
+            return getCollectionsForHomeSet(this, calHomeSetPath, workspace);
+        } catch (DavException | IOException | RuntimeException e) {
+            throw new ObjectStoreException(
+                    String.format("unable to list collections for workspace '%s'", workspace), e);
+        }
     }
 
     private List<CardDavCollection> getCollectionsForHomeSet(CardDavStore store,
                                                              String urlForcalendarHomeSet) throws IOException, DavException {
+        return getCollectionsForHomeSet(store, urlForcalendarHomeSet, null);
+    }
+
+    private List<CardDavCollection> getCollectionsForHomeSet(CardDavStore store,
+                                                             String urlForcalendarHomeSet,
+                                                             String principalOverride) throws IOException, DavException {
 
         return getClient().propFind(urlForcalendarHomeSet, PropertyNameSets.PROPFIND_CARD,
                         new GetCollections(ResourceType.ADRESSBOOK)).entrySet().stream()
-                .map(e -> new CardDavCollection(this, e.getKey(), e.getValue()))
+                .map(e -> new CardDavCollection(this, e.getKey(), e.getValue(), principalOverride))
                 .collect(Collectors.toList());
     }
 
@@ -253,13 +279,6 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
         return List.of(ObjectStore.DEFAULT_WORKSPACE);
     }
 
-    private static void assertDefaultWorkspace(String workspace) throws ObjectStoreException {
-        if (workspace != null && !ObjectStore.DEFAULT_WORKSPACE.equals(workspace)) {
-            throw new ObjectStoreException(
-                    String.format("Workspace '%s' not supported; only DEFAULT_WORKSPACE is recognised", workspace));
-        }
-    }
-
     /**
      * @return the prodId
      */
@@ -293,7 +312,15 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
     public CardDavCollection addCollection(String id, String name, String description,
                                            String[] supportedComponents, Calendar timezone,
                                            String workspace) throws ObjectStoreException {
-        assertDefaultWorkspace(workspace);
-        return addCollection(id, name, description, supportedComponents, timezone);
+        if (workspace == null || ObjectStore.DEFAULT_WORKSPACE.equals(workspace)) {
+            return addCollection(id, name, description, supportedComponents, timezone);
+        }
+        var collection = new CardDavCollection(this, id, name, description, workspace);
+        try {
+            collection.create();
+        } catch (IOException e) {
+            throw new ObjectStoreException(String.format("unable to add collection '%s' in workspace '%s'", id, workspace), e);
+        }
+        return collection;
     }
 }

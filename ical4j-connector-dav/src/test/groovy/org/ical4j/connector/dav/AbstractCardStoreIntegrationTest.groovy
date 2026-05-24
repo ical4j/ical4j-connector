@@ -118,14 +118,32 @@ abstract class AbstractCardStoreIntegrationTest extends AbstractIntegrationTest 
         store.getCollections(ObjectStore.DEFAULT_WORKSPACE) != null
     }
 
-    def 'test getCollections rejects non-default workspace'() {
+    def 'test getCollections accepts session-user workspace'() {
+        given: 'a connected store with a known addressbook'
+        def store = connectedStore()
+        def collection = store.addCollection('session-ws-card')
+
+        when: 'collections are listed via the session-user workspace value'
+        def viaSessionUser = store.getCollections(getUser())
+
+        and: 'and via DEFAULT_WORKSPACE'
+        def viaDefault = store.getCollections(ObjectStore.DEFAULT_WORKSPACE)
+
+        then: 'both return the same set of collection ids'
+        viaSessionUser.collect { it.id }.toSet() == viaDefault.collect { it.id }.toSet()
+
+        cleanup:
+        collection.delete()
+    }
+
+    def 'test getCollections rejects unknown foreign principal'() {
         given: 'a connected store'
         def store = connectedStore()
 
-        when:
-        store.getCollections('some-other-workspace')
+        when: 'listing collections for a principal the session user has no rights on'
+        store.getCollections('nonexistent-other-principal')
 
-        then:
+        then: 'the server-side authorization error propagates'
         thrown(ObjectStoreException)
     }
 

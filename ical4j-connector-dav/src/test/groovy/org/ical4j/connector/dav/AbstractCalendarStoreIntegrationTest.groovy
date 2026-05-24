@@ -115,14 +115,32 @@ abstract class AbstractCalendarStoreIntegrationTest extends AbstractIntegrationT
         store.getCollections(ObjectStore.DEFAULT_WORKSPACE) != null
     }
 
-    def 'test getCollections rejects non-default workspace'() {
+    def 'test getCollections accepts session-user workspace'() {
+        given: 'a connected store with a known collection'
+        def store = connectedStore()
+        def collection = store.addCollection('session-ws-cal')
+
+        when: 'collections are listed via the session-user workspace value'
+        def viaSessionUser = store.getCollections(getUser())
+
+        and: 'and via DEFAULT_WORKSPACE'
+        def viaDefault = store.getCollections(ObjectStore.DEFAULT_WORKSPACE)
+
+        then: 'both return the same set of collection ids'
+        viaSessionUser.collect { it.id }.toSet() == viaDefault.collect { it.id }.toSet()
+
+        cleanup:
+        collection.delete()
+    }
+
+    def 'test getCollections rejects unknown foreign principal'() {
         given: 'a connected store'
         def store = connectedStore()
 
-        when:
-        store.getCollections('some-other-workspace')
+        when: 'listing collections for a principal the session user has no rights on'
+        store.getCollections('nonexistent-other-principal')
 
-        then:
+        then: 'the server-side authorization error propagates'
         thrown(ObjectStoreException)
     }
 
@@ -247,6 +265,47 @@ abstract class AbstractCalendarStoreIntegrationTest extends AbstractIntegrationT
         VFreeBusy fb = result.getComponent(Component.VFREEBUSY).orElse(null)
         fb != null
         fb.getProperties('FREEBUSY').isEmpty()
+
+        cleanup:
+        collection.delete()
+    }
+
+    def 'test getEventsForTimePeriod returns added events'() {
+        given: 'a connected store with one timed event'
+        def store = connectedStore()
+        def collection = store.addCollection('events-timeperiod')
+        def uid = newCalendarUid()
+        def start = ZonedDateTime.parse('2030-06-01T10:00:00Z').toInstant()
+        def end = ZonedDateTime.parse('2030-06-01T11:00:00Z').toInstant()
+        collection.add(newTimedCalendar(uid, start, end))
+
+        when: 'events are queried over a covering window'
+        def queryStart = new net.fortuna.ical4j.model.DateTime('20300601T000000Z')
+        def queryEnd = new net.fortuna.ical4j.model.DateTime('20300602T000000Z')
+        def result = collection.getEventsForTimePeriod(queryStart, queryEnd)
+
+        then: 'the result is non-empty and includes the added event'
+        result != null
+        !result.isEmpty()
+        result.any { uidOf(it) == uid }
+
+        cleanup:
+        collection.delete()
+    }
+
+    def 'test getEventsForTimePeriod returns empty list for empty collection'() {
+        given: 'a connected store with an empty collection'
+        def store = connectedStore()
+        def collection = store.addCollection('events-timeperiod-empty')
+
+        when:
+        def queryStart = new net.fortuna.ical4j.model.DateTime('20300601T000000Z')
+        def queryEnd = new net.fortuna.ical4j.model.DateTime('20300602T000000Z')
+        def result = collection.getEventsForTimePeriod(queryStart, queryEnd)
+
+        then:
+        result != null
+        result.isEmpty()
 
         cleanup:
         collection.delete()
