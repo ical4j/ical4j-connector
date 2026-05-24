@@ -186,13 +186,6 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public CalendarCollection merge(String id, CalendarCollection calendar) {
-        throw new UnsupportedOperationException("not implemented");
-    }
-
     public String findCalendarHomeSet() throws ParserConfigurationException, IOException, DavException {
         var propfindPath = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
         return findCalendarHomeSet(propfindPath);
@@ -308,11 +301,6 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                     String.format("Workspace '%s' not supported; only DEFAULT_WORKSPACE is recognised", workspace));
         }
     }
-
-    // public CalendarCollection replace(String id, CalendarCollection calendar) {
-    // // TODO Auto-generated method stub
-    // return null;
-    // }
 
     /**
      * @return the prodId

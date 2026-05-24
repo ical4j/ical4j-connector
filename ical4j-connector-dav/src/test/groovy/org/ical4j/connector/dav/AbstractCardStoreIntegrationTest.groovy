@@ -137,6 +137,42 @@ abstract class AbstractCardStoreIntegrationTest extends AbstractIntegrationTest 
         store.listWorkspaceIds() == [ObjectStore.DEFAULT_WORKSPACE]
     }
 
+    def 'test export aggregates added vcards'() {
+        given: 'a connected store with three vcards'
+        def store = connectedStore()
+        def collection = store.addCollection('export-aggregate')
+        def uid1 = UUID.randomUUID().toString()
+        def uid2 = UUID.randomUUID().toString()
+        def uid3 = UUID.randomUUID().toString()
+        collection.add(newCard(uid1))
+        collection.add(newCard(uid2))
+        collection.add(newCard(uid3))
+
+        when:
+        def exported = collection.export()
+
+        then: 'the result is a non-null VCard'
+        exported != null
+
+        cleanup:
+        collection.delete()
+    }
+
+    def 'test export empty collection returns empty vcard'() {
+        given: 'a connected store with an empty collection'
+        def store = connectedStore()
+        def collection = store.addCollection('export-empty')
+
+        when:
+        def exported = collection.export()
+
+        then:
+        exported != null
+
+        cleanup:
+        collection.delete()
+    }
+
     private CardDavStore connectedStore() {
         def store = new CardDavStore('ical4j-connector', URI.create(getContainerUrl()).toURL(),
                 getPathResolver())

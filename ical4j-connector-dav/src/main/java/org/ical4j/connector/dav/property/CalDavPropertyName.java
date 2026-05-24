@@ -349,6 +349,9 @@ public interface CalDavPropertyName {
     ReportType CALENDAR_QUERY = ReportType.register("calendar-query", NAMESPACE,
             PrincipalMatchReport.class);
 
+    ReportType CALENDAR_MULTIGET = ReportType.register("calendar-multiget", NAMESPACE,
+            PrincipalMatchReport.class);
+
     /**
      * 
      */

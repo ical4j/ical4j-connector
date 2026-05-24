@@ -269,6 +269,14 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      * {@inheritDoc}
      */
     public VCard export() {
-        throw new UnsupportedOperationException("not implemented");
+        var aggregate = new VCard();
+        try {
+            for (VCard card : getAll()) {
+                aggregate = aggregate.merge(card);
+            }
+        } catch (ObjectStoreException e) {
+            throw new RuntimeException(e);
+        }
+        return aggregate;
     }
 }

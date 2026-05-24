@@ -154,13 +154,6 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
         return getCollection(id);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public CalendarCollection merge(String id, CalendarCollection calendar) {
-        throw new UnsupportedOperationException("not implemented");
-    }
-
     private String findAddressBookHomeSet() throws ParserConfigurationException, IOException, DavException {
         var propfindPath = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
         return findAddressBookHomeSet(propfindPath);
@@ -254,12 +247,6 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
         collection.delete();
         return collection;
     }
-
-    // public CalendarCollection replace(String id, CalendarCollection calendar) {
-    // // TODO Auto-generated method stub
-    // return null;
-    // }
-
 
     @Override
     public List<String> listWorkspaceIds() {
