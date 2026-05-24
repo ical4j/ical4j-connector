@@ -177,7 +177,8 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
      * @throws DavException
      */
     private String findAddressBookHomeSet(String propfindUri) throws IOException {
-        return getClient().propFind(propfindUri, PropertyNameSets.PROPFIND_CARD_HOME, new GetPropertyValue<>());
+        return getClient().propFind(propfindUri, PropertyNameSets.PROPFIND_CARD_HOME,
+                new GetPropertyValue<>(CardDavPropertyName.ADDRESSBOOK_HOME_SET));
     }
 
     /**

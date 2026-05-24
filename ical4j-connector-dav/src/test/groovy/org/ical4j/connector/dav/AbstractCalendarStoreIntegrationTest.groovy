@@ -6,7 +6,6 @@ import net.fortuna.ical4j.util.RandomUidGenerator
 import org.ical4j.connector.ObjectStore
 import org.ical4j.connector.ObjectStoreException
 import spock.lang.Ignore
-import spock.lang.IgnoreIf
 
 abstract class AbstractCalendarStoreIntegrationTest extends AbstractIntegrationTest {
 
@@ -96,10 +95,6 @@ abstract class AbstractCalendarStoreIntegrationTest extends AbstractIntegrationT
         collection.delete()
     }
 
-    @IgnoreIf({ instance.getClass().simpleName.contains('Baikal') })
-    // Baikal returns absolute calendar-home-set; DefaultDavClient.resolvePath
-    // double-prefixes the repository path resulting in 404. Pre-existing
-    // low-level client bug — deferred to Cut B.
     def 'test getCollections accepts DEFAULT_WORKSPACE'() {
         given: 'a connected store'
         def store = connectedStore()

@@ -412,6 +412,8 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	private String resolvePath(String path) {
 		if (path == null) {
 			return repositoryPath;
+		} else if (path.equals(repositoryPath) || path.startsWith(repositoryPath + "/")) {
+			return path.replaceAll("/+", "/");
 		} else if (path.startsWith("/")) {
 			return (repositoryPath + path).replaceAll("/+", "/");
 		} else {

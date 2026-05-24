@@ -5,16 +5,9 @@ import net.fortuna.ical4j.vcard.ContentBuilder
 import net.fortuna.ical4j.vcard.VCard
 import org.ical4j.connector.ObjectStore
 import org.ical4j.connector.ObjectStoreException
-import spock.lang.IgnoreIf
 
 abstract class AbstractCardStoreIntegrationTest extends AbstractIntegrationTest {
 
-    // Baikal rejects MKCOL with <D:create> root element (RFC 5689 expects <D:mkcol>).
-    // All Baikal CardDAV tests that create a collection are blocked on this pre-existing
-    // bug in MkColEntity — deferred to Cut B.
-    private static final String BAIKAL_MKCOL_BUG = 'Cut B: MkColEntity uses <D:create> instead of <D:mkcol> — Baikal rejects 400'
-
-    @IgnoreIf({ instance.getClass().simpleName.contains('Baikal') })
     def 'test addCollection creates addressbook with description'() {
         given: 'a connected store'
         def store = connectedStore()
@@ -35,7 +28,6 @@ abstract class AbstractCardStoreIntegrationTest extends AbstractIntegrationTest 
         collection?.delete()
     }
 
-    @IgnoreIf({ instance.getClass().simpleName.contains('Baikal') })
     def 'test listObjectUIDs returns added vcard UIDs'() {
         given: 'a connected store with a collection'
         def store = connectedStore()
@@ -60,7 +52,6 @@ abstract class AbstractCardStoreIntegrationTest extends AbstractIntegrationTest 
         collection.delete()
     }
 
-    @IgnoreIf({ instance.getClass().simpleName.contains('Baikal') })
     def 'test listObjectUIDs returns empty list on empty collection'() {
         given: 'a connected store with an empty collection'
         def store = connectedStore()
@@ -77,7 +68,6 @@ abstract class AbstractCardStoreIntegrationTest extends AbstractIntegrationTest 
         collection.delete()
     }
 
-    @IgnoreIf({ instance.getClass().simpleName.contains('Baikal') })
     def 'test removeAll deletes specified vcards'() {
         given: 'a connected store with three vcards'
         def store = connectedStore()
@@ -102,7 +92,6 @@ abstract class AbstractCardStoreIntegrationTest extends AbstractIntegrationTest 
         collection.delete()
     }
 
-    @IgnoreIf({ instance.getClass().simpleName.contains('Baikal') })
     def 'test removeAll throws on non-existent UID'() {
         given: 'a connected store with an empty collection'
         def store = connectedStore()
@@ -118,10 +107,6 @@ abstract class AbstractCardStoreIntegrationTest extends AbstractIntegrationTest 
         collection.delete()
     }
 
-    @IgnoreIf({ instance.getClass().simpleName.contains('Baikal') })
-    // Baikal returns addressbook-home-set as a string body; GetPropertyValue
-    // expects an Element and ClassCastExceptions. Pre-existing low-level
-    // client bug — deferred to Cut B.
     def 'test getCollections accepts DEFAULT_WORKSPACE'() {
         given: 'a connected store'
         def store = connectedStore()

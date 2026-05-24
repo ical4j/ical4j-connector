@@ -209,7 +209,8 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
      * @throws DavException
      */
     private String findCalendarHomeSet(String propfindUri) throws IOException {
-        return getClient().propFind(propfindUri, PropertyNameSets.PROPFIND_CALENDAR_HOME, new GetPropertyValue<>());
+        return getClient().propFind(propfindUri, PropertyNameSets.PROPFIND_CALENDAR_HOME,
+                new GetPropertyValue<>(CalDavPropertyName.CALENDAR_HOME_SET));
     }
 
     /**
@@ -332,14 +333,14 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         var propfindUri = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
         var nameSet = new DavPropertyNameSet();
         nameSet.add(CalDavPropertyName.SCHEDULE_OUTBOX_URL);
-        return getClient().propFind(propfindUri, nameSet, new GetPropertyValue<>());
+        return getClient().propFind(propfindUri, nameSet, new GetPropertyValue<>(CalDavPropertyName.SCHEDULE_OUTBOX_URL));
     }
 
     public String findScheduleInbox() throws ParserConfigurationException, IOException, DavException {
         var propfindUri = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
         var nameSet = new DavPropertyNameSet();
         nameSet.add(CalDavPropertyName.SCHEDULE_INBOX_URL);
-        return getClient().propFind(propfindUri, nameSet, new GetPropertyValue<>());
+        return getClient().propFind(propfindUri, nameSet, new GetPropertyValue<>(CalDavPropertyName.SCHEDULE_INBOX_URL));
     }
 
     /**
