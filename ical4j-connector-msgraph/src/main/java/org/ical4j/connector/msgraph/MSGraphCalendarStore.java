@@ -75,51 +75,64 @@ public class MSGraphCalendarStore extends AbstractMSGraphObjectStore implements 
 
     @Override
     public CalendarCollection addCollection(String name) throws ObjectStoreException {
-        return null;
+        com.microsoft.graph.models.Calendar calendar = new com.microsoft.graph.models.Calendar();
+        calendar.setName(name);
+        com.microsoft.graph.models.Calendar result = getClient().me().calendars().post(calendar);
+        return new MSGraphCalendarCollection(this, result.getId());
     }
 
     @Override
     public CalendarCollection addCollection(String name, String workspace) throws ObjectStoreException {
-        return null;
+        com.microsoft.graph.models.Calendar calendar = new com.microsoft.graph.models.Calendar();
+        calendar.setName(name);
+        com.microsoft.graph.models.Calendar result = getClient().me().calendarGroups().
+                byCalendarGroupId(workspace).calendars().post(calendar);
+        return new MSGraphCalendarCollection(this, result.getId(), workspace);
     }
 
     @Override
-    public CalendarCollection addCollection(String id, String name, String description, String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
-        return null;
+    public CalendarCollection addCollection(String id, String name, String description, String[] supportedComponents,
+                                            Calendar timezone) throws ObjectStoreException {
+        // A Graph Calendar resource only carries a name; id is server-generated and description,
+        // supportedComponents and timezone have no equivalent field, so they are dropped.
+        return addCollection(name);
     }
 
     @Override
-    public CalendarCollection addCollection(String id, String name, String description, String[] supportedComponents, Calendar timezone, String workspace) throws ObjectStoreException {
-        return null;
+    public CalendarCollection addCollection(String id, String name, String description, String[] supportedComponents,
+                                            Calendar timezone, String workspace) throws ObjectStoreException {
+        return addCollection(name, workspace);
     }
 
     @Override
     public CalendarCollection removeCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
+        getClient().me().calendars().byCalendarId(id).delete();
         return null;
     }
 
     @Override
     public CalendarCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
-        com.microsoft.graph.models.Calendar response = getClient().me().calendars().byCalendarId(id).get();
-        return new MSGraphCalendarCollection(response);
+        return new MSGraphCalendarCollection(this, id);
     }
 
     @Override
     public CalendarCollection getCollection(String id, String workspace) throws ObjectStoreException, ObjectNotFoundException {
-        com.microsoft.graph.models.Calendar response = getClient().me().calendarGroups().byCalendarGroupId(workspace).calendars().byCalendarId(id).get();
-        return new MSGraphCalendarCollection(response);
+        return new MSGraphCalendarCollection(this, id, workspace);
     }
 
     @Override
     public List<CalendarCollection> getCollections() throws ObjectStoreException, ObjectNotFoundException {
         CalendarCollectionResponse response = getClient().me().calendars().get();
-        return Objects.requireNonNull(response.getValue()).stream().map(MSGraphCalendarCollection::new).collect(Collectors.toList());
+        return Objects.requireNonNull(response.getValue()).stream().map(c ->
+                new MSGraphCalendarCollection(this, c.getId())).collect(Collectors.toList());
     }
 
     @Override
     public List<CalendarCollection> getCollections(String workspace) throws ObjectStoreException, ObjectNotFoundException {
-        CalendarCollectionResponse response = getClient().me().calendarGroups().byCalendarGroupId(workspace).calendars().get();
-        return Objects.requireNonNull(response.getValue()).stream().map(MSGraphCalendarCollection::new).collect(Collectors.toList());
+        CalendarCollectionResponse response = getClient().me().calendarGroups()
+                .byCalendarGroupId(workspace).calendars().get();
+        return Objects.requireNonNull(response.getValue()).stream().map(c ->
+                new MSGraphCalendarCollection(this, c.getId(), workspace)).collect(Collectors.toList());
     }
 
     @Override

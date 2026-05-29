@@ -1,3 +1,7 @@
 dependencies {
     api project(':ical4j-connector-api'),  libs.msgraph
+
+    testImplementation 'net.bytebuddy:byte-buddy:1.14.19'
+    testImplementation 'org.objenesis:objenesis:3.4'
+    testImplementation 'org.mockito:mockito-core:5.11.0'
 }
