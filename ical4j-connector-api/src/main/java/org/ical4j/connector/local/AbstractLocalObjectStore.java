@@ -146,9 +146,9 @@ abstract class AbstractLocalObjectStore<C extends AbstractLocalObjectCollection<
 
     @Override
     public List<C> getCollections(String workspace) {
-        return Arrays.stream(Objects.requireNonNull(getWorkspaceDir(workspace).list())).map(name -> {
+        return Arrays.stream(Objects.requireNonNull(getWorkspaceDir(workspace).listFiles(File::isDirectory))).map(dir -> {
             try {
-                return newCollection(name, workspace);
+                return newCollection(dir.getName(), workspace);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

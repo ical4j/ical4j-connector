@@ -55,6 +55,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -110,8 +111,17 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
     }
 
     @Override
-    public CardDavCollection addCollection(String id, String workspace) throws ObjectStoreException {
-        throw new UnsupportedOperationException("Workspaces not yet implemented");
+    public CardDavCollection addCollection(String name, String workspace) throws ObjectStoreException {
+        if (workspace == null || ObjectStore.DEFAULT_WORKSPACE.equals(workspace)) {
+            return addCollection(name);
+        }
+        var collection = new CardDavCollection(this, name, name, "", workspace);
+        try {
+            collection.create();
+        } catch (IOException e) {
+            throw new ObjectStoreException(String.format("unable to add collection '%s' in workspace '%s'", name, workspace), e);
+        }
+        return collection;
     }
 
     /**
@@ -131,45 +141,45 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
      * {@inheritDoc}
      */
     public CardDavCollection getCollection(String id) throws ObjectStoreException, ObjectNotFoundException {
+        return getCollection(id, null);
+    }
+
+    @Override
+    public CardDavCollection getCollection(String id, String workspace) throws ObjectStoreException, ObjectNotFoundException {
+        boolean useSessionUser = workspace == null || ObjectStore.DEFAULT_WORKSPACE.equals(workspace);
+        var principal = useSessionUser ? getSessionConfiguration().getWorkspace() : workspace;
+        var override = useSessionUser ? null : workspace;
         try {
-            return getClient().propFind(id, PropertyNameSets.PROPFIND_CARD,
-                            new GetCollections(ResourceType.ADRESSBOOK)).entrySet().stream()
-                    .map(e -> new CardDavCollection(this, e.getKey(), e.getValue()))
-                    .collect(Collectors.toList()).get(0);
+            var resourcePath = pathResolver.getCardPath(id, principal);
+            Map<String, DavPropertySet> res = getClient().propFind(resourcePath, PropertyNameSets.PROPFIND_CARD,
+                    new GetCollections(ResourceType.ADRESSBOOK));
+            if (!res.isEmpty()) {
+                var props = res.entrySet().iterator().next().getValue();
+                return new CardDavCollection(this, id, props, override);
+            } else {
+                return null;
+            }
         } catch (IOException e) {
             throw new ObjectStoreException(String.format("unable to get collection '%s'", id), e);
         }
     }
 
-    @Override
-    public CardDavCollection getCollection(String id, String workspace) throws ObjectStoreException, ObjectNotFoundException {
-        throw new UnsupportedOperationException("Workspaces not yet implemented");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public CalendarCollection merge(String id, CalendarCollection calendar) {
-        throw new UnsupportedOperationException("not implemented");
-    }
-
     private String findAddressBookHomeSet() throws ParserConfigurationException, IOException, DavException {
-        var propfindPath = pathResolver.getPrincipalPath(getSessionConfiguration().getUser());
-        return findAddressBookHomeSet(propfindPath);
+        return findAddressBookHomeSetForPrincipal(getSessionConfiguration().getUser());
     }
 
     /**
-     * This method try to find the calendar-home-set attribute in the user's DAV principals. The calendar-home-set
-     * attribute is the URI of the main collection of calendars for the user.
-     * 
-     * @return the URI for the main calendar collection
-     * @author Pascal Robert
-     * @throws ParserConfigurationException
-     * @throws IOException
-     * @throws DavException
+     * Propfind the given principal's path for the {@code addressbook-home-set} property.
+     * Used both for the session user (canonical) and for cross-principal addressing via
+     * workspace-as-principal.
+     *
+     * @param principal the DAV principal (user) name
+     * @return the URI for that principal's main address book collection
      */
-    private String findAddressBookHomeSet(String propfindUri) throws IOException {
-        return getClient().propFind(propfindUri, PropertyNameSets.PROPFIND_CARD_HOME, new GetPropertyValue<>());
+    private String findAddressBookHomeSetForPrincipal(String principal) throws IOException {
+        var propfindUri = pathResolver.getPrincipalPath(principal);
+        return getClient().propFind(propfindUri, PropertyNameSets.PROPFIND_CARD_HOME,
+                new GetPropertyValue<>(CardDavPropertyName.ADDRESSBOOK_HOME_SET));
     }
 
     /**
@@ -195,15 +205,34 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
 
     @Override
     public List<CardDavCollection> getCollections(String workspace) throws ObjectStoreException, ObjectNotFoundException {
-        throw new UnsupportedOperationException("Workspaces not yet implemented");
+        if (workspace == null || ObjectStore.DEFAULT_WORKSPACE.equals(workspace)) {
+            return getCollections();
+        }
+        try {
+            var calHomeSetPath = findAddressBookHomeSetForPrincipal(workspace);
+            if (calHomeSetPath == null) {
+                throw new ObjectNotFoundException(
+                        "No " + CardDavPropertyName.ADDRESSBOOK_HOME_SET + " attribute found for principal '" + workspace + "'");
+            }
+            return getCollectionsForHomeSet(this, calHomeSetPath, workspace);
+        } catch (DavException | IOException | RuntimeException e) {
+            throw new ObjectStoreException(
+                    String.format("unable to list collections for workspace '%s'", workspace), e);
+        }
     }
 
     private List<CardDavCollection> getCollectionsForHomeSet(CardDavStore store,
                                                              String urlForcalendarHomeSet) throws IOException, DavException {
+        return getCollectionsForHomeSet(store, urlForcalendarHomeSet, null);
+    }
+
+    private List<CardDavCollection> getCollectionsForHomeSet(CardDavStore store,
+                                                             String urlForcalendarHomeSet,
+                                                             String principalOverride) throws IOException, DavException {
 
         return getClient().propFind(urlForcalendarHomeSet, PropertyNameSets.PROPFIND_CARD,
                         new GetCollections(ResourceType.ADRESSBOOK)).entrySet().stream()
-                .map(e -> new CardDavCollection(this, e.getKey(), e.getValue()))
+                .map(e -> new CardDavCollection(this, e.getKey(), e.getValue(), principalOverride))
                 .collect(Collectors.toList());
     }
 
@@ -245,15 +274,9 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
         return collection;
     }
 
-    // public CalendarCollection replace(String id, CalendarCollection calendar) {
-    // // TODO Auto-generated method stub
-    // return null;
-    // }
-
-
     @Override
     public List<String> listWorkspaceIds() {
-        throw new UnsupportedOperationException("Workspaces not yet implemented");
+        return List.of(ObjectStore.DEFAULT_WORKSPACE);
     }
 
     /**
@@ -274,15 +297,30 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
     /* (non-Javadoc)
      * @see org.ical4j.connector.ObjectStore#addCollection(java.lang.String, java.lang.String, java.lang.String, java.lang.String[], net.fortuna.ical4j.model.Calendar)
      */
-    public CardDavCollection addCollection(String id, String displayName, String description,
-            String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
-        throw new UnsupportedOperationException("not implemented");
+    public CardDavCollection addCollection(String id, String name, String description,
+                                           String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
+        var collection = new CardDavCollection(this, id, name, description);
+        try {
+            collection.create();
+        } catch (IOException e) {
+            throw new ObjectStoreException(String.format("unable to add collection '%s'", id), e);
+        }
+        return collection;
     }
 
     @Override
-    public CardDavCollection addCollection(String id, String displayName, String description,
+    public CardDavCollection addCollection(String id, String name, String description,
                                            String[] supportedComponents, Calendar timezone,
                                            String workspace) throws ObjectStoreException {
-        throw new UnsupportedOperationException("Workspaces not yet implemented");
+        if (workspace == null || ObjectStore.DEFAULT_WORKSPACE.equals(workspace)) {
+            return addCollection(id, name, description, supportedComponents, timezone);
+        }
+        var collection = new CardDavCollection(this, id, name, description, workspace);
+        try {
+            collection.create();
+        } catch (IOException e) {
+            throw new ObjectStoreException(String.format("unable to add collection '%s' in workspace '%s'", id, workspace), e);
+        }
+        return collection;
     }
 }

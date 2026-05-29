@@ -31,13 +31,27 @@ public class GetCollections extends AbstractResponseHandler<Map<String, DavPrope
             var multiStatus = getMultiStatus(response);
             return Arrays.stream(multiStatus.getResponses())
                     .filter(msr -> {
-                        List<Element> resourceType = (List<Element>) msr.getProperties(HttpStatus.SC_OK).get(DavPropertyName.RESOURCETYPE).getValue();
-                        return resourceType.stream().map(Element::getLocalName).anyMatch(resourceTypes::contains);
+                        var prop = msr.getProperties(HttpStatus.SC_OK).get(DavPropertyName.RESOURCETYPE);
+                        if (prop == null) {
+                            return false;
+                        }
+                        return resourceTypeNames(prop.getValue()).anyMatch(resourceTypes::contains);
                     })
                     .collect(Collectors.toMap(MultiStatusResponse::getHref,
                             msr -> msr.getProperties(HttpStatus.SC_OK)));
         } catch (DavException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static java.util.stream.Stream<String> resourceTypeNames(Object value) {
+        if (value instanceof List) {
+            return ((List<Element>) value).stream().map(Element::getLocalName);
+        } else if (value instanceof Element) {
+            return java.util.stream.Stream.of(((Element) value).getLocalName());
+        } else {
+            return java.util.stream.Stream.empty();
         }
     }
 }

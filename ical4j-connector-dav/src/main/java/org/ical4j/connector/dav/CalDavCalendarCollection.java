@@ -44,9 +44,12 @@ import org.ical4j.connector.dav.property.CalDavPropertyName;
 import org.ical4j.connector.dav.property.DavPropertyBuilder;
 import org.ical4j.connector.dav.property.ICalPropertyName;
 import org.ical4j.connector.dav.property.PropertyNameSets;
+import org.ical4j.connector.dav.request.CalendarMultiget;
 import org.ical4j.connector.dav.request.CalendarQuery;
 import org.ical4j.connector.dav.request.EventQuery;
+import org.ical4j.connector.dav.request.FreeBusyQuery;
 import org.ical4j.connector.dav.response.GetCalendarData;
+import org.ical4j.connector.dav.response.GetFreeBusyCalendar;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -76,40 +79,51 @@ import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME;
  * 
  */
 public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calendar> implements CalendarCollection {
-    
+
+    private final String principalOverride;
+
     /**
      * Only {@link CalDavCalendarStore} should be calling this, so default modifier is applied.
-     * 
-     * @param calDavCalendarStore
-     * @param id
      */
     CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id) {
-        this(calDavCalendarStore, id, id, "");
+        this(calDavCalendarStore, id, id, "", null);
     }
 
     /**
      * Only {@link CalDavCalendarStore} should be calling this, so default modifier is applied.
-     * 
-     * @param calDavCalendarStore
-     * @param id
-     * @param displayName
-     * @param description
      */
     CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id, String displayName, String description) {
+        this(calDavCalendarStore, id, displayName, description, null);
+    }
 
+    /**
+     * Constructor with an explicit principal override — used when addressing a workspace
+     * different from the session user (workspace-as-principal). Pass {@code null} for the
+     * override to fall back to the session user's workspace.
+     */
+    CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id, String displayName, String description,
+                             String principalOverride) {
         super(calDavCalendarStore, id);
+        this.principalOverride = principalOverride;
         properties.add(new DavPropertyBuilder<>().name(DISPLAYNAME).value(displayName).build());
         properties.add(new DavPropertyBuilder<>().name(CalDavPropertyName.CALENDAR_DESCRIPTION).value(description).build());
     }
 
     CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id, DavPropertySet _properties) {
-        this(calDavCalendarStore, id, null, null);
+        this(calDavCalendarStore, id, _properties, null);
+    }
+
+    CalDavCalendarCollection(CalDavCalendarStore calDavCalendarStore, String id, DavPropertySet _properties,
+                             String principalOverride) {
+        this(calDavCalendarStore, id, null, null, principalOverride);
         this.properties = _properties;
     }
 
     @Override
     String getPath() {
-        return getStore().pathResolver.getCalendarPath(getId(), getStore().getSessionConfiguration().getWorkspace());
+        var workspace = principalOverride != null ? principalOverride
+                : getStore().getSessionConfiguration().getWorkspace();
+        return getStore().pathResolver.getCalendarPath(getId(), workspace);
     }
 
     /**
@@ -128,8 +142,15 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
 
     @Override
     public List<String> listObjectUIDs() {
-        //TODO: extract UIDs from calendar objects..
-        return null;
+        List<String> uids = new ArrayList<>();
+        for (Calendar calendar : getComponentsByType(Component.VEVENT)) {
+            try {
+                uids.add(Calendars.getUid(calendar).getValue());
+            } catch (ConstraintViolationException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return uids;
     }
 
     /**
@@ -328,7 +349,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     @Override
     public String add(Calendar calendar) throws ObjectStoreException, ConstraintViolationException {
         writeCalendarOnServer(calendar, true);
-        return calendar.getRequiredProperty(Property.UID).getValue();
+        return Calendars.getUid(calendar).getValue();
     }
 
     /**
@@ -460,7 +481,11 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
      * {@inheritDoc}
      */
     public Calendar export() {
-        throw new UnsupportedOperationException("not implemented");
+        var aggregate = new Calendar();
+        for (Calendar calendar : getComponentsByType(Component.VEVENT)) {
+            aggregate = aggregate.merge(calendar);
+        }
+        return aggregate;
     }
 
     /**
@@ -489,26 +514,33 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     }
 
     /**
-     * TODO: implement calendar-multiget to fetch objects based on href
-     * @param hrefs
-     * @param calData
-     * @return
-     * @throws IOException
-     * @throws DavException
-     * @throws ParserConfigurationException
-     * @throws ParserException
+     * Fetch a specific set of calendar objects identified by href using the CalDAV
+     * calendar-multiget REPORT (RFC 4791 §7.9). Hrefs the server returns with a non-OK
+     * per-href status are silently omitted from the result.
+     *
+     * @param hrefs absolute hrefs of calendar objects to fetch
+     * @return the fetched calendar objects (empty list if {@code hrefs} is empty)
      */
-    public Calendar[] getObjectsByMultiget(ArrayList<URI> hrefs, Element calData)
-            throws IOException, DavException, ParserConfigurationException, ParserException {
-        return new Calendar[0];
+    public List<Calendar> getObjectsByMultiget(List<String> hrefs)
+            throws IOException, ParserConfigurationException {
+        if (hrefs.isEmpty()) {
+            return List.of();
+        }
+        return getStore().getClient().report(getPath(), new CalendarMultiget(hrefs), new GetCalendarData());
     }
-    
+
     /**
-     * TODO: implement free-busy-query
-     * @return
+     * Query free/busy information over a time range using the CalDAV free-busy-query
+     * REPORT (RFC 4791 §7.10). The returned {@link Calendar} contains a single
+     * {@code VFREEBUSY} component synthesized by the server.
+     *
+     * @param start inclusive lower bound of the query window (UTC)
+     * @param end exclusive upper bound of the query window (UTC)
      */
-    public Calendar[] doFreeBusyQuery() {
-        return new Calendar[0];
+    public Calendar doFreeBusyQuery(Instant start, Instant end)
+            throws IOException, ParserConfigurationException {
+        return getStore().getClient().report(getPath(), new FreeBusyQuery(start, end),
+                new GetFreeBusyCalendar());
     }
 
     @Override
