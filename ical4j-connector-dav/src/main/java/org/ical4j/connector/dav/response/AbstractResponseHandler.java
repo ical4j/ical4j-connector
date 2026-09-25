@@ -76,7 +76,7 @@ abstract class AbstractResponseHandler<T> implements ResponseHandler<T> {
 
     protected MultiStatus getMultiStatus(HttpResponse response) throws DavException {
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_MULTI_STATUS) {
-            throw new RuntimeException("Unexpected status code: " + response.getStatusLine().getStatusCode());
+            throw new UnexpectedStatusException(response.getStatusLine().getStatusCode());
         }
         return getResponseBodyAsMultiStatus(response);
     }
