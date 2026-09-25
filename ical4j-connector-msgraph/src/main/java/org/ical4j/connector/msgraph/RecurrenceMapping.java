@@ -13,11 +13,18 @@ import net.fortuna.ical4j.transform.recurrence.Frequency;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /*
  * Copyright (c) 2026, Ben Fortuna
@@ -63,6 +70,10 @@ final class RecurrenceMapping {
 
     private static final DateTimeFormatter RRULE_DATE = DateTimeFormatter.BASIC_ISO_DATE; // yyyyMMdd
 
+    private static final DateTimeFormatter RRULE_LOCAL_DATE_TIME = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
+
+    private static final DateTimeFormatter RRULE_UTC_DATE_TIME = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'");
+
     private RecurrenceMapping() {
     }
 
@@ -71,9 +82,10 @@ final class RecurrenceMapping {
      *
      * @param recur     the iCal recurrence rule
      * @param startDate the series start date (from {@code DTSTART}) used for the recurrence range
-     * @return the mapped recurrence, or {@code null} when the rule uses a frequency Graph cannot express
+     * @param zone      the series time zone, used to express {@code UNTIL} as a local end date
+     * @return the mapped recurrence, or {@code null} when the rule can't be expressed as a Graph pattern
      */
-    static PatternedRecurrence toPatternedRecurrence(Recur<?> recur, LocalDate startDate) {
+    static PatternedRecurrence toPatternedRecurrence(Recur<?> recur, LocalDate startDate, ZoneId zone) {
         Frequency frequency = recur.getFrequency();
         if (frequency == null) {
             return null;
@@ -82,7 +94,7 @@ final class RecurrenceMapping {
         pattern.setInterval(recur.getInterval() > 0 ? recur.getInterval() : 1);
 
         List<WeekDay> days = recur.getDayList();
-        boolean relative = !days.isEmpty() && days.get(0).getOffset() != 0;
+        List<Integer> monthDays = recur.getMonthDayList();
 
         switch (frequency) {
             case DAILY:
@@ -90,31 +102,34 @@ final class RecurrenceMapping {
                 break;
             case WEEKLY:
                 pattern.setType(RecurrencePatternType.Weekly);
-                if (!days.isEmpty()) {
-                    pattern.setDaysOfWeek(toGraphDays(days));
-                }
+                // Graph requires daysOfWeek for a weekly pattern; an RRULE without BYDAY repeats on DTSTART's weekday..
+                pattern.setDaysOfWeek(days.isEmpty() ? List.of(toGraphDay(startDate.getDayOfWeek())) : toGraphDays(days));
                 break;
             case MONTHLY:
-                if (relative) {
-                    pattern.setType(RecurrencePatternType.RelativeMonthly);
-                    pattern.setIndex(toWeekIndex(days.get(0).getOffset()));
-                    pattern.setDaysOfWeek(toGraphDays(days));
-                } else {
-                    pattern.setType(RecurrencePatternType.AbsoluteMonthly);
-                    pattern.setDayOfMonth(recur.getMonthDayList().isEmpty()
-                            ? startDate.getDayOfMonth() : recur.getMonthDayList().get(0));
-                }
-                break;
             case YEARLY:
-                pattern.setMonth(startDate.getMonthValue());
-                if (relative) {
-                    pattern.setType(RecurrencePatternType.RelativeYearly);
-                    pattern.setIndex(toWeekIndex(days.get(0).getOffset()));
+                boolean yearly = frequency == Frequency.YEARLY;
+                if (yearly) {
+                    if (recur.getMonthList().size() > 1) {
+                        return null;
+                    }
+                    pattern.setMonth(recur.getMonthList().isEmpty()
+                            ? startDate.getMonthValue() : recur.getMonthList().get(0).getMonthOfYear());
+                }
+                if (!days.isEmpty()) {
+                    // Graph relative patterns carry one week index for all days, from BYDAY offsets or BYSETPOS..
+                    WeekIndex index = toWeekIndex(days, recur.getSetPosList());
+                    if (index == null) {
+                        return null;
+                    }
+                    pattern.setType(yearly ? RecurrencePatternType.RelativeYearly : RecurrencePatternType.RelativeMonthly);
+                    pattern.setIndex(index);
                     pattern.setDaysOfWeek(toGraphDays(days));
                 } else {
-                    pattern.setType(RecurrencePatternType.AbsoluteYearly);
-                    pattern.setDayOfMonth(recur.getMonthDayList().isEmpty()
-                            ? startDate.getDayOfMonth() : recur.getMonthDayList().get(0));
+                    if (monthDays.size() > 1 || (!monthDays.isEmpty() && monthDays.get(0) < 1)) {
+                        return null;
+                    }
+                    pattern.setType(yearly ? RecurrencePatternType.AbsoluteYearly : RecurrencePatternType.AbsoluteMonthly);
+                    pattern.setDayOfMonth(monthDays.isEmpty() ? startDate.getDayOfMonth() : monthDays.get(0));
                 }
                 break;
             default:
@@ -129,7 +144,7 @@ final class RecurrenceMapping {
             range.setNumberOfOccurrences(recur.getCount());
         } else if (recur.getUntil() != null) {
             range.setType(RecurrenceRangeType.EndDate);
-            range.setEndDate(toLocalDate(recur.getUntil()));
+            range.setEndDate(toLocalDate(recur.getUntil(), zone));
         } else {
             range.setType(RecurrenceRangeType.NoEnd);
         }
@@ -144,10 +159,12 @@ final class RecurrenceMapping {
      * Convert a Graph {@link PatternedRecurrence} to an iCalendar {@code RRULE} property value.
      *
      * @param recurrence the Graph recurrence
+     * @param zone       the series time zone ({@code DTSTART} zone), or {@code null} for a floating series
+     * @param allDay     whether the series is all-day ({@code DTSTART} is a DATE)
      * @return an {@code RRULE} value string (e.g. {@code "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO"}), or
      * {@code null} when the recurrence has no usable pattern
      */
-    static String toRruleValue(PatternedRecurrence recurrence) {
+    static String toRruleValue(PatternedRecurrence recurrence, ZoneId zone, boolean allDay) {
         if (recurrence == null || recurrence.getPattern() == null
                 || recurrence.getPattern().getType() == null) {
             return null;
@@ -194,7 +211,7 @@ final class RecurrenceMapping {
             if (range.getType() == RecurrenceRangeType.Numbered && range.getNumberOfOccurrences() != null) {
                 sb.append(";COUNT=").append(range.getNumberOfOccurrences());
             } else if (range.getType() == RecurrenceRangeType.EndDate && range.getEndDate() != null) {
-                sb.append(";UNTIL=").append(range.getEndDate().format(RRULE_DATE));
+                sb.append(";UNTIL=").append(toUntil(range, zone, allDay));
             }
         }
         return sb.toString();
@@ -224,6 +241,10 @@ final class RecurrenceMapping {
         return result;
     }
 
+    private static DayOfWeek toGraphDay(java.time.DayOfWeek day) {
+        return toGraphDay(WeekDay.getWeekDay(day).getDay());
+    }
+
     private static DayOfWeek toGraphDay(WeekDay.Day day) {
         switch (day) {
             case SU: return DayOfWeek.Sunday;
@@ -250,13 +271,50 @@ final class RecurrenceMapping {
         }
     }
 
-    private static WeekIndex toWeekIndex(int offset) {
+    /**
+     * Graph's range end date is an inclusive local date. UNTIL must match DTSTART's value type
+     * (RFC 5545): a DATE for all-day series, otherwise the end of that day, in UTC for a zoned series
+     * or as local time for a floating one.
+     */
+    private static String toUntil(RecurrenceRange range, ZoneId zone, boolean allDay) {
+        LocalDate endDate = range.getEndDate();
+        if (allDay) {
+            return endDate.format(RRULE_DATE);
+        }
+        LocalDateTime endOfDay = endDate.atTime(LocalTime.of(23, 59, 59));
+        ZoneId rangeZone = TimeZoneMapping.find(range.getRecurrenceTimeZone()).orElse(zone);
+        if (rangeZone == null) {
+            return endOfDay.format(RRULE_LOCAL_DATE_TIME);
+        }
+        return endOfDay.atZone(rangeZone).withZoneSameInstant(ZoneOffset.UTC).format(RRULE_UTC_DATE_TIME);
+    }
+
+    /**
+     * @return the single Graph week index expressed by the BYDAY offsets (or BYSETPOS where the days have
+     * no offsets), or {@code null} when there isn't exactly one index Graph supports
+     */
+    private static WeekIndex toWeekIndex(List<WeekDay> days, List<Integer> setPos) {
+        Set<Integer> offsets = new HashSet<>();
+        for (WeekDay day : days) {
+            offsets.add(day.getOffset());
+        }
+        if (offsets.size() != 1) {
+            return null;
+        }
+        int offset = offsets.iterator().next();
+        if (offset == 0) {
+            if (setPos.size() != 1) {
+                return null;
+            }
+            offset = setPos.get(0);
+        }
         switch (offset) {
             case 1: return WeekIndex.First;
             case 2: return WeekIndex.Second;
             case 3: return WeekIndex.Third;
             case 4: return WeekIndex.Fourth;
-            default: return WeekIndex.Last;
+            case -1: return WeekIndex.Last;
+            default: return null;
         }
     }
 
@@ -286,12 +344,22 @@ final class RecurrenceMapping {
         }
     }
 
-    private static LocalDate toLocalDate(Temporal temporal) {
+    /**
+     * @return the date of {@code temporal} in the series zone; an {@code UNTIL} in UTC can fall on a
+     * different calendar date than the local occurrence it bounds
+     */
+    private static LocalDate toLocalDate(Temporal temporal, ZoneId zone) {
         if (temporal instanceof LocalDate) {
             return (LocalDate) temporal;
         }
         if (temporal instanceof Instant) {
-            return ((Instant) temporal).atZone(ZoneOffset.UTC).toLocalDate();
+            return ((Instant) temporal).atZone(zone).toLocalDate();
+        }
+        if (temporal instanceof ZonedDateTime) {
+            return ((ZonedDateTime) temporal).withZoneSameInstant(zone).toLocalDate();
+        }
+        if (temporal instanceof OffsetDateTime) {
+            return ((OffsetDateTime) temporal).atZoneSameInstant(zone).toLocalDate();
         }
         return LocalDate.from(temporal);
     }

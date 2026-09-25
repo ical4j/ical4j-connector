@@ -12,8 +12,9 @@ import org.ical4j.connector.ObjectStoreException;
 import org.ical4j.connector.event.ListenerList;
 import org.ical4j.connector.event.ObjectStoreListener;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /*
@@ -122,23 +123,45 @@ public class MSGraphCalendarStore extends AbstractMSGraphObjectStore implements 
 
     @Override
     public List<CalendarCollection> getCollections() throws ObjectStoreException, ObjectNotFoundException {
-        CalendarCollectionResponse response = getClient().me().calendars().get();
-        return Objects.requireNonNull(response.getValue()).stream().map(c ->
-                new MSGraphCalendarCollection(this, c.getId())).collect(Collectors.toList());
+        var calendars = getClient().me().calendars();
+        return collectPages(calendars.get(), CalendarCollectionResponse::getValue,
+                CalendarCollectionResponse::getOdataNextLink, next -> calendars.withUrl(next).get()).stream()
+                .map(c -> new MSGraphCalendarCollection(this, c.getId())).collect(Collectors.toList());
     }
 
     @Override
     public List<CalendarCollection> getCollections(String workspace) throws ObjectStoreException, ObjectNotFoundException {
-        CalendarCollectionResponse response = getClient().me().calendarGroups()
-                .byCalendarGroupId(workspace).calendars().get();
-        return Objects.requireNonNull(response.getValue()).stream().map(c ->
-                new MSGraphCalendarCollection(this, c.getId(), workspace)).collect(Collectors.toList());
+        var calendars = getClient().me().calendarGroups().byCalendarGroupId(workspace).calendars();
+        return collectPages(calendars.get(), CalendarCollectionResponse::getValue,
+                CalendarCollectionResponse::getOdataNextLink, next -> calendars.withUrl(next).get()).stream()
+                .map(c -> new MSGraphCalendarCollection(this, c.getId(), workspace)).collect(Collectors.toList());
     }
 
     @Override
     public List<String> listWorkspaceIds() {
-        CalendarGroupCollectionResponse response = getClient().me().calendarGroups().get();
-        return Objects.requireNonNull(response.getValue()).stream().map(Entity::getId).collect(Collectors.toList());
+        var groups = getClient().me().calendarGroups();
+        return collectPages(groups.get(), CalendarGroupCollectionResponse::getValue,
+                CalendarGroupCollectionResponse::getOdataNextLink, next -> groups.withUrl(next).get()).stream()
+                .map(Entity::getId).collect(Collectors.toList());
+    }
+
+    /**
+     * Collects the values of a paged Graph collection response, following {@code @odata.nextLink}.
+     */
+    private static <R, T> List<T> collectPages(R response, Function<R, List<T>> values, Function<R, String> nextLink,
+                                               Function<String, R> nextPage) {
+        List<T> result = new ArrayList<>();
+        while (response != null) {
+            if (values.apply(response) != null) {
+                result.addAll(values.apply(response));
+            }
+            String next = nextLink.apply(response);
+            if (next == null) {
+                break;
+            }
+            response = nextPage.apply(next);
+        }
+        return result;
     }
 
     @Override
