@@ -2,6 +2,7 @@ package org.ical4j.connector.msgraph;
 
 import com.microsoft.graph.models.Event;
 import com.microsoft.graph.models.EventCollectionResponse;
+import com.microsoft.kiota.ApiException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.component.CalendarComponent;
@@ -116,13 +117,8 @@ public class MSGraphCalendarCollection implements CalendarCollection {
     public Uid[] merge(Calendar calendar) throws FailedOperationException, ObjectStoreException {
         List<Uid> uids = new ArrayList<>();
         for (Calendar object : Calendars.split(calendar)) {
-            add(object);
-            object.getComponents().stream()
-                    .map(CalendarComponent::getUid)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .findFirst()
-                    .ifPresent(uids::add);
+            // Graph assigns iCalUId server-side, so return the identifier from add() rather than the submitted UID..
+            uids.add(new Uid(add(object)));
         }
         return uids.toArray(new Uid[0]);
     }
@@ -264,7 +260,8 @@ public class MSGraphCalendarCollection implements CalendarCollection {
      * back to a paged scan if the filter is rejected by the service.
      */
     private Optional<Event> findByUid(String uid) {
-        String filter = "iCalUId eq '" + uid + "'";
+        // escape single quotes per OData string literal rules so the UID can't alter the filter expression..
+        String filter = "iCalUId eq '" + uid.replace("'", "''") + "'";
         try {
             EventCollectionResponse response;
             if (calendarGroupId != null) {
@@ -275,11 +272,17 @@ public class MSGraphCalendarCollection implements CalendarCollection {
                 response = store.getClient().me().calendars().byCalendarId(calendarId).events()
                         .get(cfg -> cfg.queryParameters.filter = filter);
             }
-            if (response != null && response.getValue() != null && !response.getValue().isEmpty()) {
-                return Optional.of(response.getValue().get(0));
+            if (response != null && response.getValue() != null) {
+                return response.getValue().stream()
+                        .filter(event -> Objects.equals(event.getICalUId(), uid))
+                        .findFirst();
             }
             return Optional.empty();
-        } catch (RuntimeException e) {
+        } catch (ApiException e) {
+            if (e.getResponseStatusCode() != 400) {
+                throw e;
+            }
+            // filter rejected by the service, fall back to a paged scan..
             return listAllEvents().stream()
                     .filter(event -> Objects.equals(event.getICalUId(), uid))
                     .findFirst();

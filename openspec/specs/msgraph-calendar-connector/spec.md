@@ -125,7 +125,7 @@ Because Microsoft Graph assigns `iCalUId` server-side and ignores a client-suppl
 
 - **WHEN** `collection.merge(calendar)` is invoked with a `Calendar` containing multiple components across distinct UIDs
 - **THEN** each distinct UID is added to the collection
-- **AND** the returned `Uid[]` contains the UIDs that were merged
+- **AND** the returned `Uid[]` contains the `iCalUId` assigned by Graph for each added object (as returned by `add(Calendar)`), not the submitted UIDs
 
 #### Scenario: removeAll deletes matching events and returns them
 
