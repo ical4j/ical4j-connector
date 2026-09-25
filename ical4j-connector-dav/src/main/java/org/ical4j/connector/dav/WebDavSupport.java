@@ -123,6 +123,17 @@ public interface WebDavSupport {
 
     <T> T propFind(String path, DavPropertyNameSet propertyNames, ResponseHandler<T> handler) throws IOException;
 
+    /**
+     * @param path          a resource URI
+     * @param depth         the PROPFIND depth: 0 for the resource only, 1 to include its immediate members
+     * @param propertyNames the set of properties to return
+     * @param handler       the handler for the multistatus response
+     * @return the handler result
+     * @throws IOException where a communications error occurs
+     */
+    <T> T propFind(String path, int depth, DavPropertyNameSet propertyNames, ResponseHandler<T> handler)
+            throws IOException;
+
     default List<ResourceProps> propFindAll(String path) throws IOException {
         return propFindType(path, DavPropertyName.PROPFIND_ALL_PROP);
     }

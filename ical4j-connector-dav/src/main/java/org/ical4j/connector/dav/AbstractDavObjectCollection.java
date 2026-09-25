@@ -224,7 +224,7 @@ abstract class AbstractDavObjectCollection<T> extends AbstractObjectCollection<T
             nameSet.add(DavPropertyName.DISPLAYNAME);
             try {
                 _ownerName = getStore().getClient().propFind(getOwnerHref(),
-                        nameSet, new GetPropertyValue<>());
+                        nameSet, new GetPropertyValue<>(DavPropertyName.DISPLAYNAME));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

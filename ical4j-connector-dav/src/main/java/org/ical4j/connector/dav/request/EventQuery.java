@@ -4,8 +4,6 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.DateTime;
 import org.apache.jackrabbit.webdav.DavConstants;
-import org.apache.jackrabbit.webdav.property.DavPropertyName;
-import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.ical4j.connector.dav.property.BaseDavPropertyName;
 import org.ical4j.connector.dav.property.CalDavPropertyName;
@@ -41,28 +39,16 @@ public class EventQuery extends ReportInfo implements XmlSupport {
 
     @Override
     public Element toXml(Document document) {
+        var prop = newElement(document, BaseDavPropertyName.PROP,
+                newElement(document, DavConstants.PROPERTY_GETETAG, DavConstants.NAMESPACE),
+                newElement(document, CalDavPropertyName.CALENDAR_DATA));
+        setContentElement(prop);
 
-        var calData = newElement(document, CalDavPropertyName.CALENDAR_DATA);
-
-        var calFilter = newComponentFilter(document, Calendar.VCALENDAR,
-                newComponentFilter(document, Component.VEVENT,
-                        newTimeRange(document, startTime.toString(), endTime.toString())));
-
-        var property = newElement(document, BaseDavPropertyName.PROP,
-                newCalDavElement(document, DavConstants.PROPERTY_GETETAG),
-                document.importNode(calData, true));
-
-        document.appendChild(property);
-        setContentElement(property);
-
-        var parentFilter = newCalDavElement(document, CalDavPropertyName.PROPERTY_FILTER);
-        setContentElement(parentFilter);
-
-        var importedFilter = document.importNode(calFilter, true);
-        parentFilter.appendChild(importedFilter);
-        var propertyNames = new DavPropertyNameSet();
-        propertyNames.add(DavPropertyName.create(DavPropertyName.XML_PROP, CalDavPropertyName.NAMESPACE));
-        propertyNames.add(DavPropertyName.GETETAG);
+        var filter = newCalDavElement(document, CalDavPropertyName.PROPERTY_FILTER,
+                newComponentFilter(document, Calendar.VCALENDAR,
+                        newComponentFilter(document, Component.VEVENT,
+                                newTimeRange(document, startTime.toString(), endTime.toString()))));
+        setContentElement(filter);
 
         return super.toXml(document);
     }

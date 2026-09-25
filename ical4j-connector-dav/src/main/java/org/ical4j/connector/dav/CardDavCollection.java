@@ -36,6 +36,7 @@ import net.fortuna.ical4j.vcard.VCard;
 import net.fortuna.ical4j.vcard.property.Uid;
 import org.apache.jackrabbit.webdav.DavException;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
+import org.apache.jackrabbit.webdav.property.ResourceType;
 import org.apache.jackrabbit.webdav.version.report.ReportInfo;
 import org.ical4j.connector.CardCollection;
 import org.ical4j.connector.FailedOperationException;
@@ -68,39 +69,53 @@ import static org.apache.jackrabbit.webdav.property.DavPropertyName.DISPLAYNAME;
  */
 public class CardDavCollection extends AbstractDavObjectCollection<VCard> implements CardCollection {
 
+    private static final int ADDRESSBOOK_RESOURCE_TYPE =
+            ResourceType.registerResourceType("addressbook", CardDavPropertyName.NAMESPACE);
+
+    private final String principalOverride;
+
     /**
      * Only {@link CardDavStore} should be calling this, so default modifier is applied.
-     * 
-     * @param CardDavCalendarStore
-     * @param id
      */
-    CardDavCollection(CardDavStore CardDavCalendarStore, String id) {
-        this(CardDavCalendarStore, id, id, "");
+    CardDavCollection(CardDavStore cardDavStore, String id) {
+        this(cardDavStore, id, id, "", null);
     }
 
     /**
      * Only {@link CardDavStore} should be calling this, so default modifier is applied.
-     * 
-     * @param cardDavStore
-     * @param id
-     * @param displayName
-     * @param description
      */
     CardDavCollection(CardDavStore cardDavStore, String id, String displayName, String description) {
+        this(cardDavStore, id, displayName, description, null);
+    }
 
+    /**
+     * Constructor with an explicit principal override — used when addressing a workspace
+     * different from the session user (workspace-as-principal). Pass {@code null} for the
+     * override to fall back to the session user's workspace.
+     */
+    CardDavCollection(CardDavStore cardDavStore, String id, String displayName, String description,
+                      String principalOverride) {
         super(cardDavStore, id);
+        this.principalOverride = principalOverride;
+        properties.add(new ResourceType(new int[]{ResourceType.COLLECTION, ADDRESSBOOK_RESOURCE_TYPE}));
         properties.add(new DavPropertyBuilder<>().name(DISPLAYNAME).value(displayName).build());
         properties.add(new DavPropertyBuilder<>().name(CardDavPropertyName.ADDRESSBOOK_DESCRIPTION).value(description).build());
     }
 
     CardDavCollection(CardDavStore cardDavStore, String id, DavPropertySet _properties) {
-        this(cardDavStore, id, id, "");
+        this(cardDavStore, id, _properties, null);
+    }
+
+    CardDavCollection(CardDavStore cardDavStore, String id, DavPropertySet _properties, String principalOverride) {
+        this(cardDavStore, id, id, "", principalOverride);
         this.properties = _properties;
     }
 
     @Override
     String getPath() {
-        return getStore().pathResolver.getCardPath(getId(), getStore().getSessionConfiguration().getWorkspace());
+        var workspace = principalOverride != null ? principalOverride
+                : getStore().getSessionConfiguration().getWorkspace();
+        return getStore().pathResolver.getCardPath(getId(), workspace);
     }
 
     /**
@@ -148,14 +163,24 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      * @see org.ical4j.connector.ObjectCollection#getDescription()
      */
     public String getDescription() {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            return getProperty(CardDavPropertyName.ADDRESSBOOK_DESCRIPTION, String.class);
+        } catch (ObjectStoreException | IOException | DavException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public List<String> listObjectUIDs() {
-        //TODO: extract UIDs from vcards..
-        return null;
+        List<String> uids = new ArrayList<>();
+        try {
+            for (VCard card : getAll()) {
+                uids.add(card.getUid().getValue());
+            }
+        } catch (ObjectStoreException e) {
+            throw new RuntimeException(e);
+        }
+        return uids;
     }
 
     /* (non-Javadoc)
@@ -192,7 +217,33 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
 
     @Override
     public List<VCard> removeAll(String... uid) {
-        return null;
+        List<VCard> result = new ArrayList<>();
+        for (var u : uid) {
+            try {
+                result.add(removeCardFromUri(defaultUriFromUid(u)));
+            } catch (ObjectStoreException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return result;
+    }
+
+    private VCard removeCardFromUri(String uri) throws ObjectStoreException {
+        var path = getPath();
+        if (!path.endsWith("/")) {
+            path = path.concat("/");
+        }
+        try {
+            var card = getStore().getClient().getVCard(path + uri);
+            getStore().getClient().delete(path + uri);
+            return card;
+        } catch (IOException | DavException e) {
+            throw new ObjectStoreException(e);
+        }
+    }
+
+    private String defaultUriFromUid(String uid) {
+        return uid + ".vcf";
     }
 
     @Override
@@ -228,6 +279,14 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
      * {@inheritDoc}
      */
     public VCard export() {
-        throw new UnsupportedOperationException("not implemented");
+        var aggregate = new VCard();
+        try {
+            for (VCard card : getAll()) {
+                aggregate = aggregate.merge(card);
+            }
+        } catch (ObjectStoreException e) {
+            throw new RuntimeException(e);
+        }
+        return aggregate;
     }
 }

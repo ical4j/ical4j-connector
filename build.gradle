@@ -1,7 +1,23 @@
+buildscript {
+    // The axion-release plugin (at its latest, 1.21.2) pulls Bouncy Castle 1.81/1.82 onto the
+    // plugin classpath, below the 1.84 that fixes GHSA-p93r-85wp-75v3, -cj8j-37rh-8475,
+    // -c3fc-8qff-9hwx and -wg6q-6289-32hp. Force the patched version until axion-release ships it.
+    // Build-time only; not part of the published artifact.
+    configurations.classpath {
+        resolutionStrategy {
+            force 'org.bouncycastle:bcprov-jdk18on:1.84',
+                    'org.bouncycastle:bcpg-jdk18on:1.84',
+                    'org.bouncycastle:bcpkix-jdk18on:1.84',
+                    'org.bouncycastle:bcutil-jdk18on:1.84'
+        }
+    }
+}
+
 plugins {
-    id 'signing'
-    id 'pl.allegro.tech.build.axion-release' version '1.13.6'
+    id 'pl.allegro.tech.build.axion-release' version '1.20.1'
+    id "com.palantir.revapi" version "1.7.0" apply false
     id 'biz.aQute.bnd.builder' version "$bndVersion" apply false
+    id 'com.vanniktech.maven.publish' version '0.34.0' apply false
 }
 
 scmVersion {
@@ -19,14 +35,22 @@ scmVersion {
     }
 }
 
+// Modules with no release at revApiOldVersion have no baseline for revapi to compare against.
+// Remove a module from this list once a release that includes it has been published.
+def revApiExcludedProjects = ['ical4j-connector-google', 'ical4j-connector-msgraph']
+
 configure(subprojects) {
     apply plugin: 'java-library'
-    apply plugin: 'maven-publish'
     apply plugin: 'groovy'
-    apply plugin: 'biz.aQute.bnd.builder'
+    if (!(name in revApiExcludedProjects)) {
+        apply plugin: 'com.palantir.revapi'
 
-    sourceCompatibility = 11
-    targetCompatibility = 11
+        revapi {
+            oldVersion = revApiOldVersion
+        }
+    }
+    apply plugin: 'biz.aQute.bnd.builder'
+    apply plugin: 'com.vanniktech.maven.publish'
 
     repositories {
         mavenCentral()
@@ -42,13 +66,9 @@ A Java library for accessing iCalendar data stores
 '''
     version = rootProject.scmVersion.version
 
-    ext {
-        isReleaseVersion = !version.endsWith("SNAPSHOT")
-    }
-
     java {
-        withJavadocJar()
-        withSourcesJar()
+        sourceCompatibility = 11
+        targetCompatibility = 11
     }
 
     dependencies {
@@ -97,46 +117,38 @@ A Java library for accessing iCalendar data stores
         }
     }
 
-    publishing {
-        publications {
-            "$name"(MavenPublication) {
-                from components.java
-                pom.withXml {
-                    asNode().appendNode('name', name)
-                    asNode().appendNode('description', description)
-                    asNode().appendNode('url', 'http://ical4j.github.io')
+    // Publishing to the Sonatype Central Portal is configured via the vanniktech plugin.
+    // Host, auto-release and signing toggles live in gradle.properties
+    // (SONATYPE_HOST, SONATYPE_AUTOMATIC_RELEASE, RELEASE_SIGNING_ENABLED).
+    // Credentials and the signing key are supplied via ORG_GRADLE_PROJECT_* env vars in CI.
+    mavenPublishing {
+        coordinates(group.toString(), project.name, version.toString())
 
-                    def scmNode = asNode().appendNode('scm')
-                    scmNode.appendNode('url', 'https://github.com/ical4j/ical4j-connector')
-                    scmNode.appendNode('connection', 'scm:git@github.com:ical4j/ical4j-connector.git')
-                    scmNode.appendNode('developerConnection', 'scm:git@github.com:ical4j/ical4j-connector.git')
+        pom {
+            name = project.name
+            description = project.description
+            url = 'http://ical4j.github.io'
 
-                    def licenseNode = asNode().appendNode('licenses').appendNode('license')
-                    licenseNode.appendNode('name', 'iCal4j - License')
-                    licenseNode.appendNode('url', 'https://raw.githubusercontent.com/ical4j/ical4j/master/LICENSE')
-                    licenseNode.appendNode('distribution', 'repo')
-
-                    def developerNode = asNode().appendNode('developers').appendNode('developer')
-                    developerNode.appendNode('id', 'fortuna')
-                    developerNode.appendNode('name', 'Ben Fortuna')
+            licenses {
+                license {
+                    name = 'iCal4j - License'
+                    url = 'https://raw.githubusercontent.com/ical4j/ical4j/master/LICENSE'
+                    distribution = 'repo'
                 }
             }
-        }
 
-        repositories {
-            maven {
-                name = "MavenCentral"
-                url = !isReleaseVersion ? "https://central.sonatype.com/repository/maven-snapshots/" : "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
-                credentials {
-                    username = System.getenv("MAVEN_USERNAME")
-                    password = System.getenv("MAVEN_PASSWORD")
+            developers {
+                developer {
+                    id = 'fortuna'
+                    name = 'Ben Fortuna'
                 }
             }
-        }
-    }
 
-    signing {
-        required { isReleaseVersion }
-        sign publishing.publications[name]
+            scm {
+                url = 'https://github.com/ical4j/ical4j-connector'
+                connection = 'scm:git@github.com:ical4j/ical4j-connector.git'
+                developerConnection = 'scm:git@github.com:ical4j/ical4j-connector.git'
+            }
+        }
     }
 }

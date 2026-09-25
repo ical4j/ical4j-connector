@@ -135,7 +135,7 @@ abstract class AbstractDavResource<T extends WebDavSupport> implements DavResour
         var nameSet = new DavPropertyNameSet();
         nameSet.add(name);
         try {
-            return client.propFind(getResourcePath(), nameSet, new GetPropertyValue<>());
+            return client.propFind(getResourcePath(), nameSet, new GetPropertyValue<>(name));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -175,11 +175,11 @@ acceptedBreaks:
         \ throws java.net.MalformedURLException"
       justification: "major_refactor"
     - code: "java.method.exception.checkedRemoved"
-      old: "method C org.ical4j.connector.local.AbstractLocalObjectStore<C\
-        \ extends org.ical4j.connector.local.AbstractLocalObjectCollection<?>>::removeCollection(java.lang.String)\
+      old: "method C org.ical4j.connector.local.AbstractLocalObjectStore<C extends\
+        \ org.ical4j.connector.local.AbstractLocalObjectCollection<?>>::removeCollection(java.lang.String)\
         \ throws org.ical4j.connector.ObjectStoreException, org.ical4j.connector.ObjectNotFoundException"
-      new: "method C org.ical4j.connector.local.AbstractLocalObjectStore<C\
-        \ extends org.ical4j.connector.local.AbstractLocalObjectCollection<?>>::removeCollection(java.lang.String)"
+      new: "method C org.ical4j.connector.local.AbstractLocalObjectStore<C extends\
+        \ org.ical4j.connector.local.AbstractLocalObjectCollection<?>>::removeCollection(java.lang.String)"
       justification: "major_refactor"
     - code: "java.method.exception.checkedRemoved"
       old: "method java.lang.String org.ical4j.connector.dav.CalDavCalendarStore::findCalendarHomeSet(java.lang.String)\
@@ -207,11 +207,11 @@ acceptedBreaks:
       new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.local.LocalCalendarCollection::export()"
       justification: "major_refactor"
     - code: "java.method.exception.checkedRemoved"
-      old: "method void org.ical4j.connector.local.AbstractLocalObjectStore<C\
-        \ extends org.ical4j.connector.local.AbstractLocalObjectCollection<?>>::disconnect()\
+      old: "method void org.ical4j.connector.local.AbstractLocalObjectStore<C extends\
+        \ org.ical4j.connector.local.AbstractLocalObjectCollection<?>>::disconnect()\
         \ throws org.ical4j.connector.ObjectStoreException"
-      new: "method void org.ical4j.connector.local.AbstractLocalObjectStore<C\
-        \ extends org.ical4j.connector.local.AbstractLocalObjectCollection<?>>::disconnect()"
+      new: "method void org.ical4j.connector.local.AbstractLocalObjectStore<C extends\
+        \ org.ical4j.connector.local.AbstractLocalObjectCollection<?>>::disconnect()"
       justification: "major_refactor"
     - code: "java.method.exception.checkedRemoved"
       old: "method void org.ical4j.connector.local.LocalCalendarCollection::merge(net.fortuna.ical4j.model.Calendar)\
@@ -367,21 +367,20 @@ acceptedBreaks:
         \ org.apache.jackrabbit.webdav.DavException"
       justification: "major_refactor"
     - code: "java.method.removed"
-      old: "method java.util.List<org.ical4j.connector.dav.CardDavCollection>\
-        \ org.ical4j.connector.dav.CardDavStore::getDelegateCollections(org.apache.jackrabbit.webdav.property.DavProperty<?>)\
+      old: "method java.util.List<org.ical4j.connector.dav.CardDavCollection> org.ical4j.connector.dav.CardDavStore::getDelegateCollections(org.apache.jackrabbit.webdav.property.DavProperty<?>)\
         \ throws javax.xml.parsers.ParserConfigurationException, java.io.IOException,\
         \ org.apache.jackrabbit.webdav.DavException"
+      justification: "major_refactor"
+    - code: "java.method.removed"
+      old: "method net.fortuna.ical4j.model.Calendar[] org.ical4j.connector.dav.CalDavCalendarCollection::getObjectsByFilter(org.w3c.dom.Element,\
+        \ org.w3c.dom.Element) throws java.io.IOException, org.apache.jackrabbit.webdav.DavException,\
+        \ javax.xml.parsers.ParserConfigurationException, net.fortuna.ical4j.data.ParserException"
       justification: "major_refactor"
     - code: "java.method.removed"
       old: "method org.ical4j.connector.dav.PathResolver org.ical4j.connector.dav.PathResolver::valueOf(java.lang.String)"
       justification: "major_refactor"
     - code: "java.method.removed"
       old: "method org.ical4j.connector.dav.PathResolver[] org.ical4j.connector.dav.PathResolver::values()"
-      justification: "major_refactor"
-    - code: "java.method.removed"
-      old: "method net.fortuna.ical4j.model.Calendar[] org.ical4j.connector.dav.CalDavCalendarCollection::getObjectsByFilter(org.w3c.dom.Element,\
-        \ org.w3c.dom.Element) throws java.io.IOException, org.apache.jackrabbit.webdav.DavException,\
-        \ javax.xml.parsers.ParserConfigurationException, net.fortuna.ical4j.data.ParserException"
       justification: "major_refactor"
     - code: "java.method.removed"
       old: "method org.w3c.dom.Element org.ical4j.connector.dav.CalDavCalendarStore::propertiesForPropSearch(org.w3c.dom.Document)"
@@ -540,12 +539,19 @@ acceptedBreaks:
         \ net.fortuna.ical4j.model.property.DtEnd) throws javax.xml.parsers.ParserConfigurationException,\
         \ java.io.IOException, org.apache.jackrabbit.webdav.DavException, java.text.ParseException,\
         \ net.fortuna.ical4j.data.ParserException, org.xml.sax.SAXException"
-      new: "method java.util.List<org.ical4j.connector.dav.ScheduleResponse>\
-        \ org.ical4j.connector.dav.CalDavCalendarStore::findFreeBusyInfoForAttendees(net.fortuna.ical4j.model.property.Organizer,\
+      new: "method java.util.List<org.ical4j.connector.dav.ScheduleResponse> org.ical4j.connector.dav.CalDavCalendarStore::findFreeBusyInfoForAttendees(net.fortuna.ical4j.model.property.Organizer,\
         \ java.util.ArrayList<net.fortuna.ical4j.model.property.Attendee>, net.fortuna.ical4j.model.property.DtStart,\
         \ net.fortuna.ical4j.model.property.DtEnd) throws javax.xml.parsers.ParserConfigurationException,\
         \ java.io.IOException, org.apache.jackrabbit.webdav.DavException, java.text.ParseException,\
         \ net.fortuna.ical4j.data.ParserException, org.xml.sax.SAXException"
+      justification: "major_refactor"
+    - code: "java.method.returnTypeChanged"
+      old: "method net.fortuna.ical4j.model.Calendar[] org.ical4j.connector.dav.CalDavCalendarCollection::getEventsForTimePeriod(net.fortuna.ical4j.model.DateTime,\
+        \ net.fortuna.ical4j.model.DateTime) throws java.io.IOException, org.apache.jackrabbit.webdav.DavException,\
+        \ javax.xml.parsers.ParserConfigurationException, net.fortuna.ical4j.data.ParserException"
+      new: "method java.util.List<net.fortuna.ical4j.model.Calendar> org.ical4j.connector.dav.CalDavCalendarCollection::getEventsForTimePeriod(net.fortuna.ical4j.model.DateTime,\
+        \ net.fortuna.ical4j.model.DateTime) throws java.io.IOException, org.apache.jackrabbit.webdav.DavException,\
+        \ javax.xml.parsers.ParserConfigurationException, net.fortuna.ical4j.data.ParserException"
       justification: "major_refactor"
     - code: "java.method.returnTypeChanged"
       old: "method org.ical4j.connector.dav.DavClient org.ical4j.connector.dav.AbstractDavObjectStore<C\
@@ -579,17 +585,886 @@ acceptedBreaks:
       old: "method org.ical4j.connector.dav.enums.ResourceType[] org.ical4j.connector.dav.AbstractDavObjectCollection<T>::getResourceTypes()"
       new: "method org.ical4j.connector.dav.ResourceType[] org.ical4j.connector.dav.AbstractDavObjectCollection<T>::getResourceTypes()"
       justification: "major_refactor"
-    - code: "java.method.returnTypeChanged"
-      old: "method net.fortuna.ical4j.model.Calendar[] org.ical4j.connector.dav.CalDavCalendarCollection::getEventsForTimePeriod(net.fortuna.ical4j.model.DateTime,\
-        \ net.fortuna.ical4j.model.DateTime) throws java.io.IOException, org.apache.jackrabbit.webdav.DavException,\
-        \ javax.xml.parsers.ParserConfigurationException, net.fortuna.ical4j.data.ParserException"
-      new: "method java.util.List<net.fortuna.ical4j.model.Calendar> org.ical4j.connector.dav.CalDavCalendarCollection::getEventsForTimePeriod(net.fortuna.ical4j.model.DateTime,\
-        \ net.fortuna.ical4j.model.DateTime) throws java.io.IOException, org.apache.jackrabbit.webdav.DavException,\
-        \ javax.xml.parsers.ParserConfigurationException, net.fortuna.ical4j.data.ParserException"
-      justification: "major_refactor"
     - code: "java.method.returnTypeTypeParametersChanged"
       old: "method java.util.List<org.ical4j.connector.dav.enums.SupportedFeature>\
         \ org.ical4j.connector.dav.AbstractDavObjectStore<C extends org.ical4j.connector.ObjectCollection<?>>::supportedFeatures()"
-      new: "method java.util.List<org.ical4j.connector.dav.SupportedFeature>\
-        \ org.ical4j.connector.dav.AbstractDavObjectStore<C extends org.ical4j.connector.ObjectCollection<?>>::supportedFeatures()"
+      new: "method java.util.List<org.ical4j.connector.dav.SupportedFeature> org.ical4j.connector.dav.AbstractDavObjectStore<C\
+        \ extends org.ical4j.connector.ObjectCollection<?>>::supportedFeatures()"
       justification: "major_refactor"
+  "2.0.0-alpha2":
+    org.ical4j:ical4j-connector-api:
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.AbstractCreateCollectionCommand<T extends\
+        \ org.ical4j.connector.ObjectCollection<?>>"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.AbstractDeleteCollectionCommand<T extends\
+        \ org.ical4j.connector.ObjectCollection<?>>"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.AbstractGetCollectionCommand<T extends\
+        \ org.ical4j.connector.ObjectCollection<?>>"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.CreateCalendarCollectionCommand"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.CreateCalendarCommand"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.CreateVCardCollectionCommand"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.CreateVCardCommand"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.DeleteCalendarCollectionCommand"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.DeleteCalendarCommand"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.DeleteVCardCollectionCommand"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.DeleteVCardCommand"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.GetCalendarCollectionCommand"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.GetCalendarCommand"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.GetVCardCollectionCommand"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.GetVCardCommand"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.UpdateCalendarCommand"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "class org.ical4j.connector.command.UpdateVCardCommand"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "interface org.ical4j.connector.CalendarStore<C extends org.ical4j.connector.CalendarCollection>"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.removed"
+      old: "interface org.ical4j.connector.CardStore<C extends org.ical4j.connector.CardCollection>"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.visibilityReduced"
+      old: "class org.ical4j.connector.local.AbstractLocalObjectCollection<T extends\
+        \ java.lang.Object>"
+      new: "class org.ical4j.connector.local.AbstractLocalObjectCollection<T extends\
+        \ java.lang.Object>"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.visibilityReduced"
+      old: "class org.ical4j.connector.local.AbstractLocalObjectStore<C extends org.ical4j.connector.local.AbstractLocalObjectCollection<?>>"
+      new: "class org.ical4j.connector.local.AbstractLocalObjectStore<C extends org.ical4j.connector.local.AbstractLocalObjectCollection<?>>"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.element.nowDeprecated"
+      old: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException, org.ical4j.connector.ObjectStoreException,\
+        \ org.ical4j.connector.ObjectNotFoundException"
+      new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.element.nowDeprecated"
+      old: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.local.LocalCalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException, org.ical4j.connector.ObjectNotFoundException"
+      new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException @ org.ical4j.connector.local.LocalCalendarCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.element.nowDeprecated"
+      old: "method net.fortuna.ical4j.vcard.VCard org.ical4j.connector.local.LocalCardCollection::getCard(java.lang.String)\
+        \ throws org.ical4j.connector.ObjectNotFoundException"
+      new: "method net.fortuna.ical4j.vcard.VCard org.ical4j.connector.CardCollection::getCard(java.lang.String)\
+        \ throws org.ical4j.connector.ObjectNotFoundException, org.ical4j.connector.FailedOperationException\
+        \ @ org.ical4j.connector.local.LocalCardCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.element.nowDeprecated"
+      old: "method void org.ical4j.connector.CalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.model.property.Uid org.ical4j.connector.CalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.element.nowDeprecated"
+      old: "method void org.ical4j.connector.CardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.vcard.property.Uid org.ical4j.connector.CardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.element.nowDeprecated"
+      old: "method void org.ical4j.connector.local.LocalCalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.model.property.Uid org.ical4j.connector.CalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException\
+        \ @ org.ical4j.connector.local.LocalCalendarCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.element.nowDeprecated"
+      old: "method void org.ical4j.connector.local.LocalCardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.vcard.property.Uid org.ical4j.connector.CardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException\
+        \ @ org.ical4j.connector.local.LocalCardCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.generics.formalTypeParameterChanged"
+      old: "class org.ical4j.connector.event.ObjectStoreEvent<T extends java.lang.Object>"
+      new: "class org.ical4j.connector.event.ObjectStoreEvent<C extends org.ical4j.connector.ObjectCollection<?>>"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.generics.formalTypeParameterChanged"
+      old: "interface org.ical4j.connector.event.ObjectStoreListener<T extends java.lang.Object>"
+      new: "interface org.ical4j.connector.event.ObjectStoreListener<C extends org.ical4j.connector.ObjectCollection<?>>"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method C org.ical4j.connector.ObjectStore<C extends org.ical4j.connector.ObjectCollection<?>>::addCollection(java.lang.String,\
+        \ java.lang.String) throws org.ical4j.connector.ObjectStoreException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method C org.ical4j.connector.ObjectStore<C extends org.ical4j.connector.ObjectCollection<?>>::addCollection(java.lang.String,\
+        \ java.lang.String, java.lang.String, java.lang.String[], net.fortuna.ical4j.model.Calendar,\
+        \ java.lang.String) throws org.ical4j.connector.ObjectStoreException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method C org.ical4j.connector.ObjectStore<C extends org.ical4j.connector.ObjectCollection<?>>::getCollection(java.lang.String,\
+        \ java.lang.String) throws org.ical4j.connector.ObjectStoreException, org.ical4j.connector.ObjectNotFoundException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method java.lang.String org.ical4j.connector.ObjectCollection<T>::add(T)\
+        \ throws org.ical4j.connector.ObjectStoreException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method java.lang.String org.ical4j.connector.ObjectCollection<T>::add(T)\
+        \ throws org.ical4j.connector.ObjectStoreException @ org.ical4j.connector.CalendarCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method java.lang.String org.ical4j.connector.ObjectCollection<T>::add(T)\
+        \ throws org.ical4j.connector.ObjectStoreException @ org.ical4j.connector.CardCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method java.util.List<C> org.ical4j.connector.ObjectStore<C extends org.ical4j.connector.ObjectCollection<?>>::getCollections(java.lang.String)\
+        \ throws org.ical4j.connector.ObjectStoreException, org.ical4j.connector.ObjectNotFoundException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method java.util.List<T> org.ical4j.connector.ObjectCollection<T>::removeAll(java.lang.String[])\
+        \ throws org.ical4j.connector.FailedOperationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method java.util.List<java.lang.String> org.ical4j.connector.ObjectCollection<T>::listObjectUIDs()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method java.util.List<java.lang.String> org.ical4j.connector.ObjectStore<C\
+        \ extends org.ical4j.connector.ObjectCollection<?>>::listWorkspaceIds()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method java.util.Optional<T> org.ical4j.connector.ObjectCollection<T>::get(java.lang.String)"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method net.fortuna.ical4j.vcard.VCard org.ical4j.connector.CardCollection::export()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method void org.ical4j.connector.ObjectCollection<T>::delete() throws\
+        \ org.ical4j.connector.ObjectStoreException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedAdded"
+      old: "method C org.ical4j.connector.local.AbstractLocalObjectStore<C extends\
+        \ org.ical4j.connector.local.AbstractLocalObjectCollection<?>>::removeCollection(java.lang.String)\
+        \ @ org.ical4j.connector.local.LocalCalendarStore"
+      new: "method C org.ical4j.connector.local.AbstractLocalObjectStore<C extends\
+        \ org.ical4j.connector.local.AbstractLocalObjectCollection<?>>::removeCollection(java.lang.String)\
+        \ throws org.ical4j.connector.ObjectNotFoundException, org.ical4j.connector.ObjectStoreException\
+        \ @ org.ical4j.connector.local.LocalCalendarStore"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedAdded"
+      old: "method C org.ical4j.connector.local.AbstractLocalObjectStore<C extends\
+        \ org.ical4j.connector.local.AbstractLocalObjectCollection<?>>::removeCollection(java.lang.String)\
+        \ @ org.ical4j.connector.local.LocalCardStore"
+      new: "method C org.ical4j.connector.local.AbstractLocalObjectStore<C extends\
+        \ org.ical4j.connector.local.AbstractLocalObjectCollection<?>>::removeCollection(java.lang.String)\
+        \ throws org.ical4j.connector.ObjectNotFoundException, org.ical4j.connector.ObjectStoreException\
+        \ @ org.ical4j.connector.local.LocalCardStore"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedAdded"
+      old: "method net.fortuna.ical4j.vcard.VCard org.ical4j.connector.local.LocalCardCollection::getCard(java.lang.String)\
+        \ throws org.ical4j.connector.ObjectNotFoundException"
+      new: "method net.fortuna.ical4j.vcard.VCard org.ical4j.connector.CardCollection::getCard(java.lang.String)\
+        \ throws org.ical4j.connector.ObjectNotFoundException, org.ical4j.connector.FailedOperationException\
+        \ @ org.ical4j.connector.local.LocalCardCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedAdded"
+      old: "method org.ical4j.connector.local.LocalCalendarCollection org.ical4j.connector.local.LocalCalendarStore::newCollection(java.lang.String)"
+      new: "method org.ical4j.connector.local.LocalCalendarCollection org.ical4j.connector.local.LocalCalendarStore::newCollection(java.lang.String,\
+        \ java.lang.String) throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedAdded"
+      old: "method org.ical4j.connector.local.LocalCardCollection org.ical4j.connector.local.LocalCardStore::newCollection(java.lang.String)"
+      new: "method org.ical4j.connector.local.LocalCardCollection org.ical4j.connector.local.LocalCardStore::newCollection(java.lang.String,\
+        \ java.lang.String) throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedAdded"
+      old: "method void org.ical4j.connector.CardCollection::merge(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.vcard.property.Uid[] org.ical4j.connector.CardCollection::merge(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException,\
+        \ org.ical4j.connector.FailedOperationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedAdded"
+      old: "method void org.ical4j.connector.local.LocalCalendarCollection::<init>(java.io.File)"
+      new: "method void org.ical4j.connector.local.LocalCalendarCollection::<init>(java.io.File)\
+        \ throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedAdded"
+      old: "method void org.ical4j.connector.local.LocalCalendarCollection::merge(net.fortuna.ical4j.model.Calendar)"
+      new: "method net.fortuna.ical4j.model.property.Uid[] org.ical4j.connector.local.LocalCalendarCollection::merge(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedAdded"
+      old: "method void org.ical4j.connector.local.LocalCardCollection::<init>(java.io.File)"
+      new: "method void org.ical4j.connector.local.LocalCardCollection::<init>(java.io.File)\
+        \ throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedRemoved"
+      old: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::export()\
+        \ throws org.ical4j.connector.ObjectStoreException"
+      new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::export()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedRemoved"
+      old: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException, org.ical4j.connector.ObjectStoreException,\
+        \ org.ical4j.connector.ObjectNotFoundException"
+      new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedRemoved"
+      old: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.local.LocalCalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException, org.ical4j.connector.ObjectNotFoundException"
+      new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException @ org.ical4j.connector.local.LocalCalendarCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.movedToSuperClass"
+      old: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.local.LocalCalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException, org.ical4j.connector.ObjectNotFoundException"
+      new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException @ org.ical4j.connector.local.LocalCalendarCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.movedToSuperClass"
+      old: "method net.fortuna.ical4j.vcard.VCard org.ical4j.connector.local.LocalCardCollection::getCard(java.lang.String)\
+        \ throws org.ical4j.connector.ObjectNotFoundException"
+      new: "method net.fortuna.ical4j.vcard.VCard org.ical4j.connector.CardCollection::getCard(java.lang.String)\
+        \ throws org.ical4j.connector.ObjectNotFoundException, org.ical4j.connector.FailedOperationException\
+        \ @ org.ical4j.connector.local.LocalCardCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.movedToSuperClass"
+      old: "method void org.ical4j.connector.local.LocalCalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.model.property.Uid org.ical4j.connector.CalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException\
+        \ @ org.ical4j.connector.local.LocalCalendarCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.movedToSuperClass"
+      old: "method void org.ical4j.connector.local.LocalCardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.vcard.property.Uid org.ical4j.connector.CardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException\
+        \ @ org.ical4j.connector.local.LocalCardCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.noLongerAbstract"
+      old: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException, org.ical4j.connector.ObjectStoreException,\
+        \ org.ical4j.connector.ObjectNotFoundException"
+      new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.noLongerAbstract"
+      old: "method void org.ical4j.connector.CalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.model.property.Uid org.ical4j.connector.CalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.noLongerAbstract"
+      old: "method void org.ical4j.connector.CardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.vcard.property.Uid org.ical4j.connector.CardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.nowDefault"
+      old: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException, org.ical4j.connector.ObjectStoreException,\
+        \ org.ical4j.connector.ObjectNotFoundException"
+      new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.nowDefault"
+      old: "method void org.ical4j.connector.CalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.model.property.Uid org.ical4j.connector.CalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.nowDefault"
+      old: "method void org.ical4j.connector.CardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.vcard.property.Uid org.ical4j.connector.CardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.numberOfParametersChanged"
+      old: "method org.ical4j.connector.local.LocalCalendarCollection org.ical4j.connector.local.LocalCalendarStore::newCollection(java.lang.String)"
+      new: "method org.ical4j.connector.local.LocalCalendarCollection org.ical4j.connector.local.LocalCalendarStore::newCollection(java.lang.String,\
+        \ java.lang.String) throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.numberOfParametersChanged"
+      old: "method org.ical4j.connector.local.LocalCardCollection org.ical4j.connector.local.LocalCardStore::newCollection(java.lang.String)"
+      new: "method org.ical4j.connector.local.LocalCardCollection org.ical4j.connector.local.LocalCardStore::newCollection(java.lang.String,\
+        \ java.lang.String) throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.removed"
+      old: "method java.lang.Iterable<T> org.ical4j.connector.ObjectCollection<T>::getComponents()\
+        \ throws org.ical4j.connector.ObjectStoreException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.removed"
+      old: "method java.lang.Iterable<net.fortuna.ical4j.model.Calendar> org.ical4j.connector.local.LocalCalendarCollection::getComponents()\
+        \ throws org.ical4j.connector.ObjectStoreException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.removed"
+      old: "method java.lang.Iterable<net.fortuna.ical4j.vcard.VCard> org.ical4j.connector.local.LocalCardCollection::getComponents()\
+        \ throws org.ical4j.connector.ObjectStoreException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method java.lang.String org.ical4j.connector.CalendarCollection::getMaxDateTime()"
+      new: "method java.time.Instant org.ical4j.connector.CalendarCollection::getMaxDateTime()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method java.lang.String org.ical4j.connector.CalendarCollection::getMinDateTime()"
+      new: "method java.time.Instant org.ical4j.connector.CalendarCollection::getMinDateTime()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method java.lang.String org.ical4j.connector.local.LocalCalendarCollection::getMaxDateTime()"
+      new: "method java.time.Instant org.ical4j.connector.local.LocalCalendarCollection::getMaxDateTime()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method java.lang.String org.ical4j.connector.local.LocalCalendarCollection::getMinDateTime()"
+      new: "method java.time.Instant org.ical4j.connector.local.LocalCalendarCollection::getMinDateTime()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method void org.ical4j.connector.CalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.model.property.Uid org.ical4j.connector.CalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method void org.ical4j.connector.CalendarCollection::merge(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.FailedOperationException, org.ical4j.connector.ObjectStoreException"
+      new: "method net.fortuna.ical4j.model.property.Uid[] org.ical4j.connector.CalendarCollection::merge(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.FailedOperationException, org.ical4j.connector.ObjectStoreException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method void org.ical4j.connector.CardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.vcard.property.Uid org.ical4j.connector.CardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method void org.ical4j.connector.CardCollection::merge(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.vcard.property.Uid[] org.ical4j.connector.CardCollection::merge(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException,\
+        \ org.ical4j.connector.FailedOperationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method void org.ical4j.connector.local.LocalCalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.model.property.Uid org.ical4j.connector.CalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException\
+        \ @ org.ical4j.connector.local.LocalCalendarCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method void org.ical4j.connector.local.LocalCalendarCollection::merge(net.fortuna.ical4j.model.Calendar)"
+      new: "method net.fortuna.ical4j.model.property.Uid[] org.ical4j.connector.local.LocalCalendarCollection::merge(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method void org.ical4j.connector.local.LocalCardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.vcard.property.Uid org.ical4j.connector.CardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException\
+        \ @ org.ical4j.connector.local.LocalCardCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method void org.ical4j.connector.local.LocalCardCollection::merge(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.vcard.property.Uid[] org.ical4j.connector.local.LocalCardCollection::merge(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeTypeParametersChanged"
+      old: "method org.ical4j.connector.ObjectCollection<T> org.ical4j.connector.event.ObjectStoreEvent<T>::getCollection()"
+      new: "method C org.ical4j.connector.event.ObjectStoreEvent<C extends org.ical4j.connector.ObjectCollection<?>>::getCollection()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    org.ical4j:ical4j-connector-dav:
+    - code: "java.class.noLongerImplementsInterface"
+      old: "class org.ical4j.connector.dav.response.GetResourceProperties"
+      new: "class org.ical4j.connector.dav.response.GetResourceProperties"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.superTypeTypeParametersChanged"
+      old: "class org.ical4j.connector.dav.response.GetResourceProperties"
+      new: "class org.ical4j.connector.dav.response.GetResourceProperties"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.visibilityReduced"
+      old: "class org.ical4j.connector.dav.AbstractDavObjectCollection<T extends java.lang.Object>"
+      new: "class org.ical4j.connector.dav.AbstractDavObjectCollection<T extends java.lang.Object>"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.visibilityReduced"
+      old: "class org.ical4j.connector.dav.AbstractDavObjectStore<C extends org.ical4j.connector.ObjectCollection<?>>"
+      new: "class org.ical4j.connector.dav.AbstractDavObjectStore<C extends org.ical4j.connector.ObjectCollection<?>>"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.visibilityReduced"
+      old: "class org.ical4j.connector.dav.AbstractDavResource<T extends org.ical4j.connector.dav.WebDavSupport>"
+      new: "class org.ical4j.connector.dav.AbstractDavResource<T extends org.ical4j.connector.dav.WebDavSupport>"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.visibilityReduced"
+      old: "class org.ical4j.connector.dav.CalDavLocatorFactory"
+      new: "class org.ical4j.connector.dav.CalDavLocatorFactory"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.visibilityReduced"
+      old: "class org.ical4j.connector.dav.CalDavResource"
+      new: "class org.ical4j.connector.dav.CalDavResource"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.visibilityReduced"
+      old: "class org.ical4j.connector.dav.CalDavResourceFactory"
+      new: "class org.ical4j.connector.dav.CalDavResourceFactory"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.visibilityReduced"
+      old: "class org.ical4j.connector.dav.method.AbstractPutMethod"
+      new: "class org.ical4j.connector.dav.method.AbstractPutMethod"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.class.visibilityReduced"
+      old: "class org.ical4j.connector.dav.response.AbstractResponseHandler<T extends\
+        \ java.lang.Object>"
+      new: "class org.ical4j.connector.dav.response.AbstractResponseHandler<T extends\
+        \ java.lang.Object>"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.element.nowDeprecated"
+      old: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.dav.CalDavCalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException, org.ical4j.connector.ObjectStoreException,\
+        \ org.ical4j.connector.ObjectNotFoundException"
+      new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException @ org.ical4j.connector.dav.CalDavCalendarCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.element.nowDeprecated"
+      old: "method void org.ical4j.connector.dav.CalDavCalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.model.property.Uid org.ical4j.connector.CalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException\
+        \ @ org.ical4j.connector.dav.CalDavCalendarCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.element.nowDeprecated"
+      old: "method void org.ical4j.connector.dav.CardDavCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.vcard.property.Uid org.ical4j.connector.CardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException\
+        \ @ org.ical4j.connector.dav.CardDavCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method <T> T org.ical4j.connector.dav.WebDavSupport::propFind(java.lang.String,\
+        \ int, org.apache.jackrabbit.webdav.property.DavPropertyNameSet, org.apache.http.client.ResponseHandler<T>)\
+        \ throws java.io.IOException"
+      justification: "Add depth-aware propFind to WebDavSupport for home-set collection\
+        \ listing"
+    - code: "java.method.addedToInterface"
+      new: "method <T> T org.ical4j.connector.dav.WebDavSupport::propFind(java.lang.String,\
+        \ org.apache.jackrabbit.webdav.property.DavPropertyNameSet, org.apache.http.client.ResponseHandler<T>)\
+        \ throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method java.lang.String org.ical4j.connector.dav.PathResolver::getCalendarPath(java.lang.String,\
+        \ java.lang.String)"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.addedToInterface"
+      new: "method java.lang.String org.ical4j.connector.dav.PathResolver::getCardPath(java.lang.String,\
+        \ java.lang.String)"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedAdded"
+      old: "method net.fortuna.ical4j.model.Calendar[] org.ical4j.connector.dav.CalDavCalendarCollection::doFreeBusyQuery()"
+      new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.dav.CalDavCalendarCollection::doFreeBusyQuery(java.time.Instant,\
+        \ java.time.Instant) throws java.io.IOException, javax.xml.parsers.ParserConfigurationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedAdded"
+      old: "method void org.ical4j.connector.dav.CardDavCollection::merge(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.vcard.property.Uid[] org.ical4j.connector.dav.CardDavCollection::merge(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException,\
+        \ org.ical4j.connector.FailedOperationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedRemoved"
+      old: "method java.util.List<org.ical4j.connector.dav.CalDavCalendarCollection>\
+        \ org.ical4j.connector.dav.response.GetCalDavCollections::handleResponse(org.apache.http.HttpResponse)\
+        \ throws org.apache.http.client.ClientProtocolException, java.io.IOException"
+      new: "method java.util.List<org.ical4j.connector.dav.CalDavCalendarCollection>\
+        \ org.ical4j.connector.dav.response.GetCalDavCollections::handleResponse(org.apache.http.HttpResponse)\
+        \ throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedRemoved"
+      old: "method java.util.List<org.ical4j.connector.dav.CardDavCollection> org.ical4j.connector.dav.response.GetCardDavCollections::handleResponse(org.apache.http.HttpResponse)\
+        \ throws org.apache.http.client.ClientProtocolException, java.io.IOException"
+      new: "method java.util.List<org.ical4j.connector.dav.CardDavCollection> org.ical4j.connector.dav.response.GetCardDavCollections::handleResponse(org.apache.http.HttpResponse)\
+        \ throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedRemoved"
+      old: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.dav.CalDavCalendarCollection::export()\
+        \ throws org.ical4j.connector.ObjectStoreException"
+      new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.dav.CalDavCalendarCollection::export()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedRemoved"
+      old: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.dav.CalDavCalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException, org.ical4j.connector.ObjectStoreException,\
+        \ org.ical4j.connector.ObjectNotFoundException"
+      new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException @ org.ical4j.connector.dav.CalDavCalendarCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedRemoved"
+      old: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.dav.CardDavCollection::export()\
+        \ throws org.ical4j.connector.ObjectStoreException"
+      new: "method net.fortuna.ical4j.vcard.VCard org.ical4j.connector.dav.CardDavCollection::export()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedRemoved"
+      old: "method net.fortuna.ical4j.model.Calendar[] org.ical4j.connector.dav.CalDavCalendarCollection::getObjectsByMultiget(java.util.ArrayList<java.net.URI>,\
+        \ org.w3c.dom.Element) throws java.io.IOException, org.apache.jackrabbit.webdav.DavException,\
+        \ javax.xml.parsers.ParserConfigurationException, net.fortuna.ical4j.data.ParserException"
+      new: "method java.util.List<net.fortuna.ical4j.model.Calendar> org.ical4j.connector.dav.CalDavCalendarCollection::getObjectsByMultiget(java.util.List<java.lang.String>)\
+        \ throws java.io.IOException, javax.xml.parsers.ParserConfigurationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedRemoved"
+      old: "method void org.ical4j.connector.dav.AbstractDavObjectCollection<T>::delete()\
+        \ throws org.apache.http.client.HttpResponseException, java.io.IOException,\
+        \ org.ical4j.connector.ObjectStoreException @ org.ical4j.connector.dav.CalDavCalendarCollection"
+      new: "method void org.ical4j.connector.dav.AbstractDavObjectCollection<T>::delete()\
+        \ throws org.ical4j.connector.ObjectStoreException @ org.ical4j.connector.dav.CalDavCalendarCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.exception.checkedRemoved"
+      old: "method void org.ical4j.connector.dav.AbstractDavObjectCollection<T>::delete()\
+        \ throws org.apache.http.client.HttpResponseException, java.io.IOException,\
+        \ org.ical4j.connector.ObjectStoreException @ org.ical4j.connector.dav.CardDavCollection"
+      new: "method void org.ical4j.connector.dav.AbstractDavObjectCollection<T>::delete()\
+        \ throws org.ical4j.connector.ObjectStoreException @ org.ical4j.connector.dav.CardDavCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.movedToSuperClass"
+      old: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.dav.CalDavCalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException, org.ical4j.connector.ObjectStoreException,\
+        \ org.ical4j.connector.ObjectNotFoundException"
+      new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.CalendarCollection::removeCalendar(java.lang.String)\
+        \ throws org.ical4j.connector.FailedOperationException @ org.ical4j.connector.dav.CalDavCalendarCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.movedToSuperClass"
+      old: "method void org.ical4j.connector.dav.CalDavCalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.model.property.Uid org.ical4j.connector.CalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException\
+        \ @ org.ical4j.connector.dav.CalDavCalendarCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.movedToSuperClass"
+      old: "method void org.ical4j.connector.dav.CardDavCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.vcard.property.Uid org.ical4j.connector.CardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException\
+        \ @ org.ical4j.connector.dav.CardDavCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.numberOfParametersChanged"
+      old: "method java.util.Map<java.lang.String, org.apache.jackrabbit.webdav.property.DavPropertySet>\
+        \ org.ical4j.connector.dav.CalDavSupport::report(java.lang.String, org.ical4j.connector.dav.request.CalendarQuery,\
+        \ org.apache.jackrabbit.webdav.version.report.ReportType, org.apache.jackrabbit.webdav.property.DavPropertyNameSet)\
+        \ throws java.io.IOException, javax.xml.parsers.ParserConfigurationException"
+      new: "method java.util.List<org.ical4j.connector.dav.response.ResourceProps>\
+        \ org.ical4j.connector.dav.CalDavSupport::report(java.lang.String, org.ical4j.connector.dav.request.CalendarQuery,\
+        \ org.apache.jackrabbit.webdav.property.DavPropertyNameSet) throws java.io.IOException,\
+        \ javax.xml.parsers.ParserConfigurationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.numberOfParametersChanged"
+      old: "method java.util.Map<java.lang.String, org.apache.jackrabbit.webdav.property.DavPropertySet>\
+        \ org.ical4j.connector.dav.CalDavSupport::report(java.lang.String, org.ical4j.connector.dav.request.CalendarQuery,\
+        \ org.apache.jackrabbit.webdav.version.report.ReportType, org.apache.jackrabbit.webdav.property.DavPropertyName[])\
+        \ throws java.io.IOException, javax.xml.parsers.ParserConfigurationException"
+      new: "method java.util.List<org.ical4j.connector.dav.response.ResourceProps>\
+        \ org.ical4j.connector.dav.CalDavSupport::report(java.lang.String, org.ical4j.connector.dav.request.CalendarQuery,\
+        \ org.apache.jackrabbit.webdav.property.DavPropertyName[]) throws java.io.IOException,\
+        \ javax.xml.parsers.ParserConfigurationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.numberOfParametersChanged"
+      old: "method java.util.Map<java.lang.String, org.apache.jackrabbit.webdav.property.DavPropertySet>\
+        \ org.ical4j.connector.dav.DefaultDavClient::report(java.lang.String, org.ical4j.connector.dav.request.CalendarQuery,\
+        \ org.apache.jackrabbit.webdav.version.report.ReportType, org.apache.jackrabbit.webdav.property.DavPropertyNameSet)\
+        \ throws java.io.IOException, javax.xml.parsers.ParserConfigurationException"
+      new: "method java.util.List<org.ical4j.connector.dav.response.ResourceProps>\
+        \ org.ical4j.connector.dav.DefaultDavClient::report(java.lang.String, org.ical4j.connector.dav.request.CalendarQuery,\
+        \ org.apache.jackrabbit.webdav.property.DavPropertyNameSet) throws java.io.IOException,\
+        \ javax.xml.parsers.ParserConfigurationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.numberOfParametersChanged"
+      old: "method net.fortuna.ical4j.model.Calendar[] org.ical4j.connector.dav.CalDavCalendarCollection::doFreeBusyQuery()"
+      new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.dav.CalDavCalendarCollection::doFreeBusyQuery(java.time.Instant,\
+        \ java.time.Instant) throws java.io.IOException, javax.xml.parsers.ParserConfigurationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.numberOfParametersChanged"
+      old: "method net.fortuna.ical4j.model.Calendar[] org.ical4j.connector.dav.CalDavCalendarCollection::getObjectsByMultiget(java.util.ArrayList<java.net.URI>,\
+        \ org.w3c.dom.Element) throws java.io.IOException, org.apache.jackrabbit.webdav.DavException,\
+        \ javax.xml.parsers.ParserConfigurationException, net.fortuna.ical4j.data.ParserException"
+      new: "method java.util.List<net.fortuna.ical4j.model.Calendar> org.ical4j.connector.dav.CalDavCalendarCollection::getObjectsByMultiget(java.util.List<java.lang.String>)\
+        \ throws java.io.IOException, javax.xml.parsers.ParserConfigurationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.numberOfParametersChanged"
+      old: "method void org.ical4j.connector.dav.request.CalendarMultiget::<init>()"
+      new: "method void org.ical4j.connector.dav.request.CalendarMultiget::<init>(java.util.List<java.lang.String>)"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.numberOfParametersChanged"
+      old: "method void org.ical4j.connector.dav.request.FreeBusyQuery::<init>()"
+      new: "method void org.ical4j.connector.dav.request.FreeBusyQuery::<init>(java.time.Instant,\
+        \ java.time.Instant)"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.parameterTypeChanged"
+      old: "parameter void org.ical4j.connector.dav.request.CalendarQuery::<init>(===java.lang.String===)"
+      new: "parameter void org.ical4j.connector.dav.request.CalendarQuery::<init>(===java.lang.String[]===)"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.removed"
+      old: "method java.lang.Iterable<net.fortuna.ical4j.model.Calendar> org.ical4j.connector.dav.CalDavCalendarCollection::getComponents()\
+        \ throws org.ical4j.connector.ObjectStoreException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.removed"
+      old: "method java.lang.Iterable<net.fortuna.ical4j.vcard.VCard> org.ical4j.connector.dav.CardDavCollection::getComponents()\
+        \ throws org.ical4j.connector.ObjectStoreException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.removed"
+      old: "method java.lang.String org.ical4j.connector.dav.CalDavCalendarStore::findCalendarHomeSet(java.lang.String)\
+        \ throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.removed"
+      old: "method java.lang.String org.ical4j.connector.dav.CalDavCalendarStore::findInboxOrOutbox(org.apache.jackrabbit.webdav.property.DavPropertyName)\
+        \ throws javax.xml.parsers.ParserConfigurationException, java.io.IOException,\
+        \ org.apache.jackrabbit.webdav.DavException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.removed"
+      old: "method java.lang.String org.ical4j.connector.dav.CardDavStore::findAddressBookHomeSet(java.lang.String)\
+        \ throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.removed"
+      old: "method java.lang.String org.ical4j.connector.dav.PathResolver.Defaults::getRepositoryPath(java.lang.String,\
+        \ java.lang.String)"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.removed"
+      old: "method java.lang.String org.ical4j.connector.dav.PathResolver::getRepositoryPath(java.lang.String,\
+        \ java.lang.String)"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.removed"
+      old: "method org.apache.jackrabbit.webdav.property.DavPropertyNameSet org.ical4j.connector.dav.CalDavCalendarCollection::propertiesForFetch()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.removed"
+      old: "method org.apache.jackrabbit.webdav.property.DavPropertyNameSet org.ical4j.connector.dav.CardDavCollection::propertiesForFetch()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.removed"
+      old: "method org.ical4j.connector.CalendarCollection org.ical4j.connector.dav.CalDavCalendarStore::merge(java.lang.String,\
+        \ org.ical4j.connector.CalendarCollection)"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.removed"
+      old: "method org.ical4j.connector.CalendarCollection org.ical4j.connector.dav.CardDavStore::merge(java.lang.String,\
+        \ org.ical4j.connector.CalendarCollection)"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method java.lang.String org.ical4j.connector.dav.CalDavCalendarCollection::getMaxDateTime()"
+      new: "method java.time.Instant org.ical4j.connector.dav.CalDavCalendarCollection::getMaxDateTime()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method java.lang.String org.ical4j.connector.dav.CalDavCalendarCollection::getMinDateTime()"
+      new: "method java.time.Instant org.ical4j.connector.dav.CalDavCalendarCollection::getMinDateTime()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method java.util.Map<java.lang.String, org.apache.jackrabbit.webdav.property.DavPropertySet>\
+        \ org.ical4j.connector.dav.CalDavSupport::report(java.lang.String, org.ical4j.connector.dav.request.CalendarQuery,\
+        \ org.apache.jackrabbit.webdav.version.report.ReportType, org.apache.jackrabbit.webdav.property.DavPropertyNameSet)\
+        \ throws java.io.IOException, javax.xml.parsers.ParserConfigurationException"
+      new: "method java.util.List<org.ical4j.connector.dav.response.ResourceProps>\
+        \ org.ical4j.connector.dav.CalDavSupport::report(java.lang.String, org.ical4j.connector.dav.request.CalendarQuery,\
+        \ org.apache.jackrabbit.webdav.property.DavPropertyNameSet) throws java.io.IOException,\
+        \ javax.xml.parsers.ParserConfigurationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method java.util.Map<java.lang.String, org.apache.jackrabbit.webdav.property.DavPropertySet>\
+        \ org.ical4j.connector.dav.CalDavSupport::report(java.lang.String, org.ical4j.connector.dav.request.CalendarQuery,\
+        \ org.apache.jackrabbit.webdav.version.report.ReportType, org.apache.jackrabbit.webdav.property.DavPropertyName[])\
+        \ throws java.io.IOException, javax.xml.parsers.ParserConfigurationException"
+      new: "method java.util.List<org.ical4j.connector.dav.response.ResourceProps>\
+        \ org.ical4j.connector.dav.CalDavSupport::report(java.lang.String, org.ical4j.connector.dav.request.CalendarQuery,\
+        \ org.apache.jackrabbit.webdav.property.DavPropertyName[]) throws java.io.IOException,\
+        \ javax.xml.parsers.ParserConfigurationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method java.util.Map<java.lang.String, org.apache.jackrabbit.webdav.property.DavPropertySet>\
+        \ org.ical4j.connector.dav.DefaultDavClient::report(java.lang.String, org.ical4j.connector.dav.request.CalendarQuery,\
+        \ org.apache.jackrabbit.webdav.version.report.ReportType, org.apache.jackrabbit.webdav.property.DavPropertyNameSet)\
+        \ throws java.io.IOException, javax.xml.parsers.ParserConfigurationException"
+      new: "method java.util.List<org.ical4j.connector.dav.response.ResourceProps>\
+        \ org.ical4j.connector.dav.DefaultDavClient::report(java.lang.String, org.ical4j.connector.dav.request.CalendarQuery,\
+        \ org.apache.jackrabbit.webdav.property.DavPropertyNameSet) throws java.io.IOException,\
+        \ javax.xml.parsers.ParserConfigurationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.dav.CardDavCollection::export()\
+        \ throws org.ical4j.connector.ObjectStoreException"
+      new: "method net.fortuna.ical4j.vcard.VCard org.ical4j.connector.dav.CardDavCollection::export()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method net.fortuna.ical4j.model.Calendar[] org.ical4j.connector.dav.CalDavCalendarCollection::doFreeBusyQuery()"
+      new: "method net.fortuna.ical4j.model.Calendar org.ical4j.connector.dav.CalDavCalendarCollection::doFreeBusyQuery(java.time.Instant,\
+        \ java.time.Instant) throws java.io.IOException, javax.xml.parsers.ParserConfigurationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method net.fortuna.ical4j.model.Calendar[] org.ical4j.connector.dav.CalDavCalendarCollection::getObjectsByMultiget(java.util.ArrayList<java.net.URI>,\
+        \ org.w3c.dom.Element) throws java.io.IOException, org.apache.jackrabbit.webdav.DavException,\
+        \ javax.xml.parsers.ParserConfigurationException, net.fortuna.ical4j.data.ParserException"
+      new: "method java.util.List<net.fortuna.ical4j.model.Calendar> org.ical4j.connector.dav.CalDavCalendarCollection::getObjectsByMultiget(java.util.List<java.lang.String>)\
+        \ throws java.io.IOException, javax.xml.parsers.ParserConfigurationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method org.apache.jackrabbit.webdav.property.DavPropertySet org.ical4j.connector.dav.DefaultDavClient::propFind(java.lang.String,\
+        \ org.apache.jackrabbit.webdav.property.DavPropertyNameSet) throws java.io.IOException"
+      new: "method java.util.List<org.ical4j.connector.dav.response.ResourceProps>\
+        \ org.ical4j.connector.dav.DefaultDavClient::propFind(java.lang.String, org.apache.jackrabbit.webdav.property.DavPropertyNameSet)\
+        \ throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method org.apache.jackrabbit.webdav.property.DavPropertySet org.ical4j.connector.dav.DefaultDavClient::propFindType(java.lang.String,\
+        \ int) throws java.io.IOException"
+      new: "method java.util.List<org.ical4j.connector.dav.response.ResourceProps>\
+        \ org.ical4j.connector.dav.DefaultDavClient::propFindType(java.lang.String,\
+        \ int) throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method org.apache.jackrabbit.webdav.property.DavPropertySet org.ical4j.connector.dav.WebDavSupport::propFind(java.lang.String,\
+        \ org.apache.jackrabbit.webdav.property.DavPropertyNameSet) throws java.io.IOException"
+      new: "method java.util.List<org.ical4j.connector.dav.response.ResourceProps>\
+        \ org.ical4j.connector.dav.WebDavSupport::propFind(java.lang.String, org.apache.jackrabbit.webdav.property.DavPropertyNameSet)\
+        \ throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method org.apache.jackrabbit.webdav.property.DavPropertySet org.ical4j.connector.dav.WebDavSupport::propFind(java.lang.String,\
+        \ org.apache.jackrabbit.webdav.property.DavPropertyName[]) throws java.io.IOException"
+      new: "method java.util.List<org.ical4j.connector.dav.response.ResourceProps>\
+        \ org.ical4j.connector.dav.WebDavSupport::propFind(java.lang.String, org.apache.jackrabbit.webdav.property.DavPropertyName[])\
+        \ throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method org.apache.jackrabbit.webdav.property.DavPropertySet org.ical4j.connector.dav.WebDavSupport::propFindAll(java.lang.String)\
+        \ throws java.io.IOException"
+      new: "method java.util.List<org.ical4j.connector.dav.response.ResourceProps>\
+        \ org.ical4j.connector.dav.WebDavSupport::propFindAll(java.lang.String) throws\
+        \ java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method org.apache.jackrabbit.webdav.property.DavPropertySet org.ical4j.connector.dav.WebDavSupport::propFindType(java.lang.String,\
+        \ int) throws java.io.IOException"
+      new: "method java.util.List<org.ical4j.connector.dav.response.ResourceProps>\
+        \ org.ical4j.connector.dav.WebDavSupport::propFindType(java.lang.String, int)\
+        \ throws java.io.IOException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method org.apache.jackrabbit.webdav.property.DavPropertySet org.ical4j.connector.dav.response.GetResourceProperties::handleResponse(org.apache.http.HttpResponse)"
+      new: "method java.util.List<org.ical4j.connector.dav.response.ResourceProps>\
+        \ org.ical4j.connector.dav.response.GetResourceProperties::handleResponse(org.apache.http.HttpResponse)"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method void org.ical4j.connector.dav.CalDavCalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.model.property.Uid org.ical4j.connector.CalendarCollection::addCalendar(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException\
+        \ @ org.ical4j.connector.dav.CalDavCalendarCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method void org.ical4j.connector.dav.CalDavCalendarCollection::merge(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.FailedOperationException, org.ical4j.connector.ObjectStoreException"
+      new: "method net.fortuna.ical4j.model.property.Uid[] org.ical4j.connector.dav.CalDavCalendarCollection::merge(net.fortuna.ical4j.model.Calendar)\
+        \ throws org.ical4j.connector.FailedOperationException, org.ical4j.connector.ObjectStoreException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method void org.ical4j.connector.dav.CardDavCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.vcard.property.Uid org.ical4j.connector.CardCollection::addCard(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException\
+        \ @ org.ical4j.connector.dav.CardDavCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeChanged"
+      old: "method void org.ical4j.connector.dav.CardDavCollection::merge(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException"
+      new: "method net.fortuna.ical4j.vcard.property.Uid[] org.ical4j.connector.dav.CardDavCollection::merge(net.fortuna.ical4j.vcard.VCard)\
+        \ throws org.ical4j.connector.ObjectStoreException, net.fortuna.ical4j.model.ConstraintViolationException,\
+        \ org.ical4j.connector.FailedOperationException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeTypeParametersChanged"
+      old: "method org.ical4j.connector.dav.AbstractDavObjectStore<?> org.ical4j.connector.dav.AbstractDavObjectCollection<T>::getStore()\
+        \ @ org.ical4j.connector.dav.CalDavCalendarCollection"
+      new: "method org.ical4j.connector.dav.AbstractDavObjectStore<? extends org.ical4j.connector.ObjectCollection<T>>\
+        \ org.ical4j.connector.dav.AbstractDavObjectCollection<T>::getStore() @ org.ical4j.connector.dav.CalDavCalendarCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.returnTypeTypeParametersChanged"
+      old: "method org.ical4j.connector.dav.AbstractDavObjectStore<?> org.ical4j.connector.dav.AbstractDavObjectCollection<T>::getStore()\
+        \ @ org.ical4j.connector.dav.CardDavCollection"
+      new: "method org.ical4j.connector.dav.AbstractDavObjectStore<? extends org.ical4j.connector.ObjectCollection<T>>\
+        \ org.ical4j.connector.dav.AbstractDavObjectCollection<T>::getStore() @ org.ical4j.connector.dav.CardDavCollection"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.visibilityReduced"
+      old: "method java.lang.String org.ical4j.connector.dav.AbstractDavObjectCollection<T>::getPath()"
+      new: "method java.lang.String org.ical4j.connector.dav.AbstractDavObjectCollection<T>::getPath()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.visibilityReduced"
+      old: "method java.lang.String org.ical4j.connector.dav.AbstractDavObjectCollection<T>::getPath()\
+        \ @ org.ical4j.connector.dav.CalDavCalendarCollection"
+      new: "method java.lang.String org.ical4j.connector.dav.CalDavCalendarCollection::getPath()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.visibilityReduced"
+      old: "method java.lang.String org.ical4j.connector.dav.AbstractDavObjectCollection<T>::getPath()\
+        \ @ org.ical4j.connector.dav.CardDavCollection"
+      new: "method java.lang.String org.ical4j.connector.dav.CardDavCollection::getPath()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.visibilityReduced"
+      old: "method java.lang.String org.ical4j.connector.dav.CardDavStore::findAddressBookHomeSet()\
+        \ throws javax.xml.parsers.ParserConfigurationException, java.io.IOException,\
+        \ org.apache.jackrabbit.webdav.DavException"
+      new: "method java.lang.String org.ical4j.connector.dav.CardDavStore::findAddressBookHomeSet()\
+        \ throws javax.xml.parsers.ParserConfigurationException, java.io.IOException,\
+        \ org.apache.jackrabbit.webdav.DavException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.visibilityReduced"
+      old: "method java.util.List<net.fortuna.ical4j.model.property.Attendee> org.ical4j.connector.dav.CalDavCalendarStore::executePrincipalPropSearch(org.w3c.dom.Element)\
+        \ throws org.apache.jackrabbit.webdav.DavException, java.io.IOException, java.net.URISyntaxException"
+      new: "method java.util.List<net.fortuna.ical4j.model.property.Attendee> org.ical4j.connector.dav.CalDavCalendarStore::executePrincipalPropSearch(org.w3c.dom.Element)\
+        \ throws org.apache.jackrabbit.webdav.DavException, java.io.IOException, java.net.URISyntaxException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.visibilityReduced"
+      old: "method java.util.List<net.fortuna.ical4j.model.property.Attendee> org.ical4j.connector.dav.CalDavCalendarStore::getUserTypes(net.fortuna.ical4j.model.parameter.CuType,\
+        \ java.lang.String) throws javax.xml.parsers.ParserConfigurationException,\
+        \ java.io.IOException, org.apache.jackrabbit.webdav.DavException, java.net.URISyntaxException"
+      new: "method java.util.List<net.fortuna.ical4j.model.property.Attendee> org.ical4j.connector.dav.CalDavCalendarStore::getUserTypes(net.fortuna.ical4j.model.parameter.CuType,\
+        \ java.lang.String) throws javax.xml.parsers.ParserConfigurationException,\
+        \ java.io.IOException, org.apache.jackrabbit.webdav.DavException, java.net.URISyntaxException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.visibilityReduced"
+      old: "method java.util.List<org.ical4j.connector.dav.CalDavCalendarCollection>\
+        \ org.ical4j.connector.dav.CalDavCalendarStore::getCollectionsForHomeSet(org.ical4j.connector.dav.CalDavCalendarStore,\
+        \ java.lang.String) throws java.io.IOException, org.apache.jackrabbit.webdav.DavException"
+      new: "method java.util.List<org.ical4j.connector.dav.CalDavCalendarCollection>\
+        \ org.ical4j.connector.dav.CalDavCalendarStore::getCollectionsForHomeSet(org.ical4j.connector.dav.CalDavCalendarStore,\
+        \ java.lang.String) throws java.io.IOException, org.apache.jackrabbit.webdav.DavException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.visibilityReduced"
+      old: "method java.util.List<org.ical4j.connector.dav.CalDavCalendarCollection>\
+        \ org.ical4j.connector.dav.CalDavCalendarStore::getDelegatedCollections(org.ical4j.connector.dav.request.ExpandPropertyQuery.Type)\
+        \ throws java.lang.Exception"
+      new: "method java.util.List<org.ical4j.connector.dav.CalDavCalendarCollection>\
+        \ org.ical4j.connector.dav.CalDavCalendarStore::getDelegatedCollections(org.ical4j.connector.dav.request.ExpandPropertyQuery.Type)\
+        \ throws java.lang.Exception"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.visibilityReduced"
+      old: "method java.util.List<org.ical4j.connector.dav.CardDavCollection> org.ical4j.connector.dav.CardDavStore::getCollectionsForHomeSet(org.ical4j.connector.dav.CardDavStore,\
+        \ java.lang.String) throws java.io.IOException, org.apache.jackrabbit.webdav.DavException"
+      new: "method java.util.List<org.ical4j.connector.dav.CardDavCollection> org.ical4j.connector.dav.CardDavStore::getCollectionsForHomeSet(org.ical4j.connector.dav.CardDavStore,\
+        \ java.lang.String) throws java.io.IOException, org.apache.jackrabbit.webdav.DavException"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
+    - code: "java.method.visibilityReduced"
+      old: "method void org.ical4j.connector.dav.response.AbstractResponseHandler<T>::<init>()"
+      new: "method void org.ical4j.connector.dav.response.AbstractResponseHandler<T>::<init>()"
+      justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"

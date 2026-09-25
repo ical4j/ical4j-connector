@@ -26,7 +26,7 @@ public class MkColEntity implements XmlSerializable, XmlSupport {
 
     @Override
     public Element toXml(Document document) {
-        return newElement(document, "create", DavPropertyName.NAMESPACE,
+        return newElement(document, "mkcol", DavPropertyName.NAMESPACE,
                 newElement(document, DavPropertyName.XML_SET, DavPropertyName.NAMESPACE, properties.toXml(document)));
     }
 }

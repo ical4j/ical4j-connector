@@ -7,6 +7,7 @@ import org.ical4j.connector.ObjectStoreException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Abstract base class for local object collections.
@@ -26,6 +27,11 @@ abstract class AbstractLocalObjectCollection<T> extends AbstractObjectCollection
 //            throw new IllegalArgumentException("Root must be a directory");
 //        }
         var configRoot = new File(root, LocalCollectionConfiguration.DEFAULT_CONFIG_DIR);
+        var legacyConfigRoot = new File(root, LocalCollectionConfiguration.LEGACY_CONFIG_DIR);
+        if (!configRoot.exists() && legacyConfigRoot.isDirectory() && !legacyConfigRoot.renameTo(configRoot)) {
+            // migration failed, continue using the legacy config..
+            configRoot = legacyConfigRoot;
+        }
         if ((configRoot.exists() && !configRoot.isDirectory()) ||
                 (!configRoot.exists() && !configRoot.mkdirs())) {
             throw new IOException("Unable to initialise collection config");
@@ -39,7 +45,7 @@ abstract class AbstractLocalObjectCollection<T> extends AbstractObjectCollection
 
     @Override
     public String getDisplayName() {
-        return configuration.getDisplayName();
+        return Optional.ofNullable(configuration.getDisplayName()).orElse(getRoot().getName());
     }
 
     @Override
@@ -74,10 +80,14 @@ abstract class AbstractLocalObjectCollection<T> extends AbstractObjectCollection
     @Override
     public void delete() throws ObjectStoreException {
         if (Objects.requireNonNull(
-                root.list((root, name) -> !name.equals(LocalCollectionConfiguration.DEFAULT_CONFIG_DIR))).length > 0) {
+                root.list((root, name) -> !name.equals(LocalCollectionConfiguration.DEFAULT_CONFIG_DIR)
+                        && !name.equals(LocalCollectionConfiguration.LEGACY_CONFIG_DIR))).length > 0) {
             throw new ObjectStoreException("Collection is not empty. Remove all contents before deleting.");
         }
-        if (!configuration.delete() || !root.delete()) {
+        var legacyConfigRoot = new File(root, LocalCollectionConfiguration.LEGACY_CONFIG_DIR);
+        if (!configuration.delete()
+                || (legacyConfigRoot.isDirectory() && !new LocalCollectionConfiguration(legacyConfigRoot).delete())
+                || !root.delete()) {
             throw new ObjectStoreException("Unable to delete collection");
         }
     }
