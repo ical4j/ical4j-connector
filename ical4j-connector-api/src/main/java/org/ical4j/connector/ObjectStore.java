@@ -76,29 +76,33 @@ public interface ObjectStore<C extends ObjectCollection<?>> extends ObjectStoreL
     boolean isConnected();
     
     /**
-     * Adds the specified collection to the store.
-     * @param id a collection identifier
+     * @param name the collection name
      * @return the new collection instance
-     * @throws ObjectStoreException if a calendar with the specified id already
-     * exists in the store
+     * @throws ObjectStoreException where an unexpected error occurs
      */
-    C addCollection(String id) throws ObjectStoreException;
+    C addCollection(String name) throws ObjectStoreException;
 
-    C addCollection(String id, String workspace) throws ObjectStoreException;
+    /**
+     * @param name the collection name
+     * @param workspace the workspace id
+     * @return the new collection instance
+     * @throws ObjectStoreException where an unexpected error occurs
+     */
+    C addCollection(String name, String workspace) throws ObjectStoreException;
 
     /**
      * @param id a collection identifier
-     * @param displayName the collection name
+     * @param name the collection name
      * @param description the collection description
      * @param supportedComponents supported collection objects
      * @param timezone collection timezone
      * @return the new collection instance
      * @throws ObjectStoreException where an unexpected error occurs
      */
-    C addCollection(String id, String displayName, String description,
+    C addCollection(String id, String name, String description,
             String[] supportedComponents, Calendar timezone) throws ObjectStoreException;
 
-    C addCollection(String id, String displayName, String description,
+    C addCollection(String id, String name, String description,
             String[] supportedComponents, Calendar timezone, String workspace) throws ObjectStoreException;
 
     /**

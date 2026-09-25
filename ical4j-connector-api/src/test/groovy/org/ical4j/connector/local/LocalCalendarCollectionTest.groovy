@@ -5,6 +5,7 @@ import net.fortuna.ical4j.model.Component
 import net.fortuna.ical4j.model.ContentBuilder
 import net.fortuna.ical4j.model.Property
 import net.fortuna.ical4j.util.RandomUidGenerator
+import org.ical4j.connector.ObjectStoreException
 import org.ical4j.connector.event.ObjectCollectionEvent
 import org.ical4j.connector.event.ObjectCollectionListener
 import spock.lang.Shared
@@ -111,5 +112,40 @@ class LocalCalendarCollectionTest extends AbstractLocalTest {
 
         then: 'the exported collection is identical to added'
         export == calendar
+    }
+
+    def 'test legacy config dir is migrated'() {
+        given: 'a collection directory with legacy config'
+        def collectionDir = new File(workspaceLocation, 'legacy')
+        def legacyConfigDir = new File(collectionDir, LocalCollectionConfiguration.LEGACY_CONFIG_DIR)
+        legacyConfigDir.mkdirs()
+        new LocalCollectionConfiguration(legacyConfigDir).displayName = 'Legacy Calendar'
+
+        when: 'the collection is opened'
+        def collection = new LocalCalendarCollection(collectionDir)
+
+        then: 'the legacy config is moved to the new location'
+        !legacyConfigDir.exists()
+        new File(collectionDir, LocalCollectionConfiguration.DEFAULT_CONFIG_DIR).isDirectory()
+
+        and: 'existing config is retained'
+        collection.displayName == 'Legacy Calendar'
+    }
+
+    def 'test delete collection with legacy config dir'() {
+        given: 'a collection directory with both new and legacy config'
+        def collectionDir = new File(workspaceLocation, 'legacy')
+        new File(collectionDir, LocalCollectionConfiguration.LEGACY_CONFIG_DIR).mkdirs()
+        new File(collectionDir, LocalCollectionConfiguration.DEFAULT_CONFIG_DIR).mkdirs()
+        def collection = new LocalCalendarCollection(collectionDir)
+
+        when: 'the collection is deleted'
+        collection.delete()
+
+        then: 'the legacy config is not treated as collection content'
+        notThrown(ObjectStoreException)
+
+        and: 'the collection directory is removed'
+        !collectionDir.exists()
     }
 }
