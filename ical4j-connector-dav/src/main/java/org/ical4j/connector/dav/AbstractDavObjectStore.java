@@ -38,6 +38,7 @@ import org.ical4j.connector.ObjectCollection;
 import org.ical4j.connector.ObjectStoreException;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
@@ -182,5 +183,20 @@ abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> extends Abs
     
     public boolean isSupportCalendarProxy() {
         return supportedFeatures.contains(SupportedFeature.CALENDAR_PROXY);
+    }
+
+    /**
+     * Derives a collection name (as accepted by {@code getCollection(String)}) from the href of a
+     * collection returned in a multistatus response, i.e. its last decoded path segment.
+     */
+    static String getCollectionName(String href) {
+        String path;
+        try {
+            path = URI.create(href).getPath();
+        } catch (IllegalArgumentException e) {
+            path = href;
+        }
+        path = path.replaceAll("/+$", "");
+        return path.substring(path.lastIndexOf('/') + 1);
     }
 }

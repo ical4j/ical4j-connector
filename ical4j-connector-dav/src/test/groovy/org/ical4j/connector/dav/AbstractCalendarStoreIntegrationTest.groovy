@@ -8,6 +8,7 @@ import net.fortuna.ical4j.model.component.VFreeBusy
 import net.fortuna.ical4j.model.property.DtEnd
 import net.fortuna.ical4j.model.property.DtStart
 import net.fortuna.ical4j.util.RandomUidGenerator
+import org.ical4j.connector.ObjectNotFoundException
 import org.ical4j.connector.ObjectStore
 import org.ical4j.connector.ObjectStoreException
 import spock.lang.Ignore
@@ -40,28 +41,49 @@ abstract class AbstractCalendarStoreIntegrationTest extends AbstractIntegrationT
         collection.delete()
     }
 
-    @Ignore('not working for radicale and baikal')
-    def 'test collection creation'() {
-        given: 'an object store'
-        def store = new CalDavCalendarStore('ical4j-connector', URI.create(getContainerUrl()).toURL(),
-            getPathResolver())
+    def 'test getCollections lists added calendars with ids that resolve via getCollection'() {
+        given: 'a connected store with two new collections'
+        def store = connectedStore()
+        def collection1 = store.addCollection('listed1')
+        def collection2 = store.addCollection('listed2')
 
-        and: 'a connection is established'
-        store.connect(new DavSessionConfiguration().withCredentialsProvider(getCredentialsProvider())
-                .withUser(getUser()).withWorkspace(getWorkspace()))
+        when: 'collections are listed'
+        def listed = store.getCollections()
 
-        when: 'a new collection is added'
-        def collection = store.addCollection('test1')
-        def collection2 = store.addCollection('test2')
+        then: 'both new collections are listed by name'
+        listed.collect { it.id }.containsAll(['listed1', 'listed2'])
 
-        then: 'the collection is created'
-        collection != null
+        and: 'the home-set itself is not listed as a collection'
+        listed.every { !it.id.isEmpty() }
 
-        and: 'collections size matches expected'
-        store.getCollections().size() == 1
+        and: 'each listed id resolves via getCollection'
+        listed.each { assert store.getCollection(it.id) != null }
 
         cleanup:
-        collection.delete()
+        collection1?.delete()
+        collection2?.delete()
+    }
+
+    def 'test getCollection throws ObjectNotFoundException for a missing collection'() {
+        given: 'a connected store'
+        def store = connectedStore()
+
+        when: 'a collection that does not exist is requested'
+        store.getCollection('does-not-exist')
+
+        then:
+        thrown(ObjectNotFoundException)
+    }
+
+    def 'test removeCollection throws ObjectNotFoundException for a missing collection'() {
+        given: 'a connected store'
+        def store = connectedStore()
+
+        when: 'a collection that does not exist is removed'
+        store.removeCollection('does-not-exist')
+
+        then:
+        thrown(ObjectNotFoundException)
     }
 
     def 'test listObjectUIDs returns added event UIDs'() {
