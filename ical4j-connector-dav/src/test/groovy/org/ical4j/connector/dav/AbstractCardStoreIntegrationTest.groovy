@@ -3,6 +3,7 @@ package org.ical4j.connector.dav
 
 import net.fortuna.ical4j.vcard.ContentBuilder
 import net.fortuna.ical4j.vcard.VCard
+import org.ical4j.connector.ObjectNotFoundException
 import org.ical4j.connector.ObjectStore
 import org.ical4j.connector.ObjectStoreException
 
@@ -105,6 +106,51 @@ abstract class AbstractCardStoreIntegrationTest extends AbstractIntegrationTest 
 
         cleanup:
         collection.delete()
+    }
+
+    def 'test getCollections lists added addressbooks with ids that resolve via getCollection'() {
+        given: 'a connected store with two new collections'
+        def store = connectedStore()
+        def collection1 = store.addCollection('listed1')
+        def collection2 = store.addCollection('listed2')
+
+        when: 'collections are listed'
+        def listed = store.getCollections()
+
+        then: 'both new collections are listed by name'
+        listed.collect { it.id }.containsAll(['listed1', 'listed2'])
+
+        and: 'the home-set itself is not listed as a collection'
+        listed.every { !it.id.isEmpty() }
+
+        and: 'each listed id resolves via getCollection'
+        listed.each { assert store.getCollection(it.id) != null }
+
+        cleanup:
+        collection1?.delete()
+        collection2?.delete()
+    }
+
+    def 'test getCollection throws ObjectNotFoundException for a missing collection'() {
+        given: 'a connected store'
+        def store = connectedStore()
+
+        when: 'a collection that does not exist is requested'
+        store.getCollection('does-not-exist')
+
+        then:
+        thrown(ObjectNotFoundException)
+    }
+
+    def 'test removeCollection throws ObjectNotFoundException for a missing collection'() {
+        given: 'a connected store'
+        def store = connectedStore()
+
+        when: 'a collection that does not exist is removed'
+        store.removeCollection('does-not-exist')
+
+        then:
+        thrown(ObjectNotFoundException)
     }
 
     def 'test getCollections accepts DEFAULT_WORKSPACE'() {

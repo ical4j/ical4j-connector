@@ -52,6 +52,9 @@ import org.ical4j.connector.dav.response.GetCollections;
 import org.ical4j.connector.dav.response.GetPropertyValue;
 
 import javax.xml.parsers.ParserConfigurationException;
+import org.apache.http.HttpStatus;
+import org.ical4j.connector.dav.response.UnexpectedStatusException;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -157,8 +160,13 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
                 var props = res.entrySet().iterator().next().getValue();
                 return new CardDavCollection(this, id, props, override);
             } else {
-                return null;
+                throw new ObjectNotFoundException(String.format("collection '%s' not found", id));
             }
+        } catch (UnexpectedStatusException e) {
+            if (e.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                throw new ObjectNotFoundException(String.format("collection '%s' not found", id), e);
+            }
+            throw new ObjectStoreException(String.format("unable to get collection '%s'", id), e);
         } catch (IOException e) {
             throw new ObjectStoreException(String.format("unable to get collection '%s'", id), e);
         }
@@ -230,9 +238,10 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
                                                              String urlForcalendarHomeSet,
                                                              String principalOverride) throws IOException, DavException {
 
-        return getClient().propFind(urlForcalendarHomeSet, PropertyNameSets.PROPFIND_CARD,
+        // Depth 1 lists the home-set's members; ids are collection names so they resolve via getCollection()/getPath()..
+        return getClient().propFind(urlForcalendarHomeSet, 1, PropertyNameSets.PROPFIND_CARD,
                         new GetCollections(ResourceType.ADRESSBOOK)).entrySet().stream()
-                .map(e -> new CardDavCollection(this, e.getKey(), e.getValue(), principalOverride))
+                .map(e -> new CardDavCollection(this, getCollectionName(e.getKey()), e.getValue(), principalOverride))
                 .collect(Collectors.toList());
     }
 

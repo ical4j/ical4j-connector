@@ -3,11 +3,16 @@ package org.ical4j.connector.msgraph
 import com.microsoft.graph.models.Event
 import com.microsoft.graph.models.EventCollectionResponse
 import com.microsoft.graph.serviceclient.GraphServiceClient
+import com.microsoft.graph.users.item.calendars.item.events.EventsRequestBuilder
+import com.microsoft.kiota.ApiException
+import com.microsoft.kiota.RequestAdapter
 import net.fortuna.ical4j.data.CalendarBuilder
 import net.fortuna.ical4j.model.Calendar
 import spock.lang.Specification
 
 import java.util.function.Consumer
+
+import org.mockito.ArgumentCaptor
 
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS
@@ -38,6 +43,24 @@ class MSGraphCalendarCollectionTest extends Specification {
         response.value = events
         response.odataNextLink = next
         response
+    }
+
+    private static ApiException apiError(int status) {
+        def error = new ApiException("HTTP ${status}")
+        error.setResponseStatusCode(status)
+        error
+    }
+
+    /**
+     * Applies the request configuration passed to the filtered events query and returns the resulting filter.
+     */
+    private String capturedFilter() {
+        def captor = ArgumentCaptor.forClass(Consumer)
+        verify(events()).get(captor.capture())
+        def config = new EventsRequestBuilder.GetRequestConfiguration(
+                new EventsRequestBuilder('https://graph.example', mock(RequestAdapter)))
+        captor.value.accept(config)
+        config.queryParameters.filter
     }
 
     private static Calendar calendar(String... uids) {
@@ -87,7 +110,7 @@ class MSGraphCalendarCollectionTest extends Specification {
 
     def 'removeAll deletes matching events, returns them, and skips unknown UIDs'() {
         given: 'the server-side filter is unsupported, exercising the paged-scan fallback'
-        when(events().get(any(Consumer))).thenThrow(new RuntimeException('filter not supported'))
+        when(events().get(any(Consumer))).thenThrow(apiError(400))
         when(events().get()).thenReturn(page([event('u1', 'eid1'), event('u2', 'eid2')], null))
 
         when:
@@ -107,16 +130,50 @@ class MSGraphCalendarCollectionTest extends Specification {
         collection.export().getComponents().size() == 2
     }
 
-    def 'merge adds one object per UID'() {
+    def 'merge adds one object per UID and returns the server-assigned UIDs'() {
         given:
-        when(events().post(any())).thenReturn(event('assigned@x'))
+        when(events().post(any())).thenReturn(event('assigned1@x'), event('assigned2@x'))
 
         when:
         def uids = collection.merge(calendar('u1', 'u2'))
         verify(events(), times(2)).post(any())
 
         then:
-        uids.collect { it.value } as Set == ['u1', 'u2'] as Set
+        uids.collect { it.value } as Set == ['assigned1@x', 'assigned2@x'] as Set
+    }
+
+    def 'get(uid) escapes single quotes in the iCalUId filter'() {
+        given:
+        when(events().get(any(Consumer))).thenReturn(page([], null))
+
+        when:
+        collection.get("x' or subject eq 'Board meeting")
+
+        then:
+        capturedFilter() == "iCalUId eq 'x'' or subject eq ''Board meeting'"
+    }
+
+    def 'get(uid) ignores filtered results that are not an exact UID match'() {
+        given:
+        when(events().get(any(Consumer))).thenReturn(page([event('other@x'), event('found@x')], null))
+
+        when:
+        def result = collection.get('found@x')
+
+        then:
+        result.get().getComponent('VEVENT').get().getProperty('UID').get().value == 'found@x'
+    }
+
+    def 'removeAll propagates service errors other than a rejected filter'() {
+        given:
+        when(events().get(any(Consumer))).thenThrow(apiError(401))
+
+        when:
+        collection.removeAll('u1')
+
+        then:
+        def e = thrown(ApiException)
+        e.responseStatusCode == 401
     }
 
     def 'listObjectUIDs works through the calendar-group path'() {
