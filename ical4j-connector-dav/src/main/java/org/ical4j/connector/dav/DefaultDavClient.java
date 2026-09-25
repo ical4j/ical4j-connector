@@ -243,7 +243,13 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 	@Override
 	public <T> T propFind(String path, DavPropertyNameSet propertyNames, ResponseHandler<T> handler)
 			throws IOException {
-		var aGet = new HttpPropfind(resolvePath(path), propertyNames, 0);
+		return propFind(path, 0, propertyNames, handler);
+	}
+
+	@Override
+	public <T> T propFind(String path, int depth, DavPropertyNameSet propertyNames, ResponseHandler<T> handler)
+			throws IOException {
+		var aGet = new HttpPropfind(resolvePath(path), propertyNames, depth);
 		return execute(aGet, handler);
 	}
 
