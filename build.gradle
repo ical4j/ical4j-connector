@@ -37,7 +37,7 @@ scmVersion {
 
 // Modules with no release at revApiOldVersion have no baseline for revapi to compare against.
 // Remove a module from this list once a release that includes it has been published.
-def revApiExcludedProjects = ['ical4j-connector-google', 'ical4j-connector-msgraph']
+def revApiExcludedProjects = []
 
 configure(subprojects) {
     apply plugin: 'java-library'
