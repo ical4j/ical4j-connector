@@ -22,7 +22,12 @@ import java.util.Properties;
  */
 class LocalCollectionConfiguration {
 
-    public static final String DEFAULT_CONFIG_DIR = ".ical4j";
+    public static final String DEFAULT_CONFIG_DIR = ".metadata";
+
+    /**
+     * Config directory name used by earlier versions, migrated to {@link #DEFAULT_CONFIG_DIR} where found.
+     */
+    public static final String LEGACY_CONFIG_DIR = ".ical4j";
 
     private static final String PROPERTIES_FILE_NAME = "config";
 

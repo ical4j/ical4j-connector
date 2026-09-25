@@ -1,6 +1,7 @@
 plugins {
     id 'signing'
     id 'pl.allegro.tech.build.axion-release' version '1.20.1'
+    id "com.palantir.revapi" version "1.7.0" apply false
     id 'biz.aQute.bnd.builder' version "$bndVersion" apply false
 }
 
@@ -23,6 +24,7 @@ configure(subprojects) {
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
     apply plugin: 'groovy'
+    apply plugin: 'com.palantir.revapi'
     apply plugin: 'biz.aQute.bnd.builder'
 
     repositories {
@@ -95,6 +97,10 @@ A Java library for accessing iCalendar data stores
                 'https://javadoc.io/doc/org.apache.httpcomponents/httpclient/latest',
                 'https://javadoc.io/doc/org.apache.jackrabbit/jackrabbit-webdav/2.22.2'
         }
+    }
+
+    revapi {
+        oldVersion = revApiOldVersion
     }
 
     publishing {

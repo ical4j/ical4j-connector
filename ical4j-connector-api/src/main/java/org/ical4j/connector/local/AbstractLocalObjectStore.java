@@ -87,16 +87,16 @@ abstract class AbstractLocalObjectStore<C extends AbstractLocalObjectCollection<
     protected abstract C newCollection(String id, String workspace) throws IOException;
 
     @Override
-    public C addCollection(String id, String displayName, String description, String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
-        return addCollection(id, displayName, description, supportedComponents, timezone, DEFAULT_WORKSPACE);
+    public C addCollection(String id, String name, String description, String[] supportedComponents, Calendar timezone) throws ObjectStoreException {
+        return addCollection(id, name, description, supportedComponents, timezone, DEFAULT_WORKSPACE);
     }
 
     @Override
-    public C addCollection(String id, String displayName, String description, String[] supportedComponents,
+    public C addCollection(String id, String name, String description, String[] supportedComponents,
                            Calendar timezone, String workspace) throws ObjectStoreException {
         C collection = addCollection(id, workspace);
         try {
-            collection.setDisplayName(displayName);
+            collection.setDisplayName(name);
             collection.setDescription(description);
             collection.setSupportedComponents(supportedComponents);
             collection.setTimeZone(timezone);
