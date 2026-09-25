@@ -38,7 +38,7 @@ listApiChanges:
 	./gradlew revapi
 
 approveApiChanges:
-	./gradlew :revapiAcceptAllBreaks --justification $(CHANGE_JUSTIFICATION)
+	./gradlew revapiAcceptAllBreaks --justification "$(CHANGE_JUSTIFICATION)"
 
 install:
 	./gradlew publishToMavenLocal
