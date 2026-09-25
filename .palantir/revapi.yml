@@ -1065,6 +1065,12 @@ acceptedBreaks:
       justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
     - code: "java.method.addedToInterface"
       new: "method <T> T org.ical4j.connector.dav.WebDavSupport::propFind(java.lang.String,\
+        \ int, org.apache.jackrabbit.webdav.property.DavPropertyNameSet, org.apache.http.client.ResponseHandler<T>)\
+        \ throws java.io.IOException"
+      justification: "Add depth-aware propFind to WebDavSupport for home-set collection\
+        \ listing"
+    - code: "java.method.addedToInterface"
+      new: "method <T> T org.ical4j.connector.dav.WebDavSupport::propFind(java.lang.String,\
         \ org.apache.jackrabbit.webdav.property.DavPropertyNameSet, org.apache.http.client.ResponseHandler<T>)\
         \ throws java.io.IOException"
       justification: "API changes between 2.0.0-alpha2 and 2.0.0-beta"
