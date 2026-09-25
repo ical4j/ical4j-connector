@@ -35,10 +35,20 @@ scmVersion {
     }
 }
 
+// Modules with no release at revApiOldVersion have no baseline for revapi to compare against.
+// Remove a module from this list once a release that includes it has been published.
+def revApiExcludedProjects = ['ical4j-connector-google', 'ical4j-connector-msgraph']
+
 configure(subprojects) {
     apply plugin: 'java-library'
     apply plugin: 'groovy'
-    apply plugin: 'com.palantir.revapi'
+    if (!(name in revApiExcludedProjects)) {
+        apply plugin: 'com.palantir.revapi'
+
+        revapi {
+            oldVersion = revApiOldVersion
+        }
+    }
     apply plugin: 'biz.aQute.bnd.builder'
     apply plugin: 'com.vanniktech.maven.publish'
 
@@ -105,10 +115,6 @@ A Java library for accessing iCalendar data stores
                 'https://javadoc.io/doc/org.apache.httpcomponents/httpclient/latest',
                 'https://javadoc.io/doc/org.apache.jackrabbit/jackrabbit-webdav/2.22.2'
         }
-    }
-
-    revapi {
-        oldVersion = revApiOldVersion
     }
 
     // Publishing to the Sonatype Central Portal is configured via the vanniktech plugin.
