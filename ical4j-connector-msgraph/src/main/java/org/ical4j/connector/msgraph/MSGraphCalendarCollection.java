@@ -5,6 +5,7 @@ import com.microsoft.graph.models.EventCollectionResponse;
 import com.microsoft.kiota.ApiException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.CalendarComponent;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.Uid;
@@ -15,6 +16,8 @@ import org.ical4j.connector.MediaType;
 import org.ical4j.connector.ObjectStoreException;
 import org.ical4j.connector.event.ListenerList;
 import org.ical4j.connector.event.ObjectCollectionListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -56,6 +59,8 @@ import java.util.stream.Collectors;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 public class MSGraphCalendarCollection implements CalendarCollection {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MSGraphCalendarCollection.class);
 
     private final MSGraphCalendarStore store;
 
@@ -117,6 +122,11 @@ public class MSGraphCalendarCollection implements CalendarCollection {
     public Uid[] merge(Calendar calendar) throws FailedOperationException, ObjectStoreException {
         List<Uid> uids = new ArrayList<>();
         for (Calendar object : Calendars.split(calendar)) {
+            if (object.getComponents(Component.VEVENT).isEmpty()) {
+                // skip non-event objects (e.g. VTODO) rather than failing after earlier objects are added..
+                LOG.warn("Skipping object with no VEVENT; Graph calendars only hold events");
+                continue;
+            }
             // Graph assigns iCalUId server-side, so return the identifier from add() rather than the submitted UID..
             uids.add(new Uid(add(object)));
         }
@@ -168,8 +178,20 @@ public class MSGraphCalendarCollection implements CalendarCollection {
 
     @Override
     public String add(Calendar object) throws ObjectStoreException {
-        VEvent icalEvent = (VEvent) object.getComponent(Component.VEVENT)
-                .orElseThrow(() -> new ObjectStoreException("Calendar contains no VEVENT component"));
+        List<VEvent> vevents = object.getComponents(Component.VEVENT);
+        if (vevents.isEmpty()) {
+            throw new ObjectStoreException("Calendar contains no VEVENT component");
+        }
+        // post the series master; RECURRENCE-ID overrides can appear before it and have no Graph equivalent on create..
+        VEvent icalEvent = vevents.stream()
+                .filter(e -> e.getProperty(Property.RECURRENCE_ID).isEmpty())
+                .findFirst()
+                .orElseThrow(() -> new ObjectStoreException(
+                        "Calendar contains only recurrence overrides (RECURRENCE-ID) and no series VEVENT"));
+        if (vevents.size() > 1) {
+            LOG.warn("Adding the series VEVENT only; {} other VEVENT(s) (e.g. recurrence overrides) are not applied",
+                    vevents.size() - 1);
+        }
         Event event = new MSGraphEventBuilder().vevent(icalEvent).build();
         Event result;
         if (calendarGroupId != null) {

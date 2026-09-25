@@ -6,13 +6,20 @@ import com.microsoft.graph.models.DateTimeTimeZone
 import com.microsoft.graph.models.EmailAddress
 import com.microsoft.graph.models.Event
 import com.microsoft.graph.models.ItemBody
+import com.microsoft.graph.models.PatternedRecurrence
 import com.microsoft.graph.models.Recipient
+import com.microsoft.graph.models.RecurrencePattern
+import com.microsoft.graph.models.RecurrencePatternType
+import com.microsoft.graph.models.RecurrenceRange
+import com.microsoft.graph.models.RecurrenceRangeType
 import com.microsoft.graph.models.ResponseStatus
 import com.microsoft.graph.models.ResponseType
 import net.fortuna.ical4j.model.Calendar
+import net.fortuna.ical4j.model.TimeZoneRegistryFactory
 import net.fortuna.ical4j.model.component.VEvent
 import spock.lang.Specification
 
+import java.time.LocalDate
 import java.time.OffsetDateTime
 
 /**
@@ -160,5 +167,72 @@ class ICalCalendarBuilderTest extends Specification {
         then:
         ve.getProperty('CREATED').get().value == '20260102T030405Z'
         ve.getProperty('LAST-MODIFIED').get().value == '20260103T040506Z'
+    }
+
+    private static PatternedRecurrence dailyUntil(String endDate) {
+        new PatternedRecurrence(
+                pattern: new RecurrencePattern(type: RecurrencePatternType.Daily, interval: 1),
+                range: new RecurrenceRange(type: RecurrenceRangeType.EndDate,
+                        startDate: LocalDate.parse('2026-06-01'), endDate: LocalDate.parse(endDate)))
+    }
+
+    def 'emits PRODID and VERSION so the calendar is valid'() {
+        when:
+        Calendar calendar = new ICalCalendarBuilder().build(new Event(ICalUId: 'a@x'))
+
+        then:
+        calendar.getProperty('PRODID').isPresent()
+        calendar.getProperty('VERSION').get().value == '2.0'
+    }
+
+    def 'builds a calendar with a custom time zone registry'() {
+        given:
+        def registry = TimeZoneRegistryFactory.getInstance().createRegistry()
+
+        expect:
+        new ICalCalendarBuilder(registry).build(new Event(ICalUId: 'a@x')) != null
+    }
+
+    def 'maps an unrecognised time zone to a floating time rather than UTC'() {
+        given:
+        def event = new Event(ICalUId: 'a@x', start: dtz('2026-06-01T09:30:00.0000000', 'Customized Time Zone'))
+
+        when:
+        def dtStart = convert(event).getProperty('DTSTART').get()
+
+        then:
+        dtStart.value == '20260601T093000'
+        dtStart.getParameter('TZID').isEmpty()
+    }
+
+    def 'maps a range end date to a UTC UNTIL at the end of that day in the series zone'() {
+        given:
+        def event = new Event(ICalUId: 'a@x', start: dtz('2026-06-01T09:00:00.0000000', 'AUS Eastern Standard Time'),
+                recurrence: dailyUntil('2026-06-02'))
+
+        expect:
+        convert(event).getProperty('RRULE').get().value.contains('UNTIL=20260602T135959Z')
+    }
+
+    def 'maps a range end date to a UTC UNTIL for a UTC series'() {
+        given:
+        def event = new Event(ICalUId: 'a@x', start: dtz('2026-06-01T09:00:00.0000000', 'UTC'),
+                recurrence: dailyUntil('2026-06-02'))
+
+        expect:
+        convert(event).getProperty('RRULE').get().value.contains('UNTIL=20260602T235959Z')
+    }
+
+    def 'maps a range end date to a DATE UNTIL for an all-day series'() {
+        given:
+        def event = new Event(ICalUId: 'a@x', isAllDay: true, start: dtz('2026-06-01T00:00:00.0000000', 'UTC'),
+                recurrence: dailyUntil('2026-06-02'))
+
+        when:
+        def rrule = convert(event).getProperty('RRULE').get().value
+
+        then:
+        rrule.contains('UNTIL=20260602')
+        !rrule.contains('UNTIL=20260602T')
     }
 }
