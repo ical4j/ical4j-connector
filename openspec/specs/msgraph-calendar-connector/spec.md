@@ -22,7 +22,7 @@ The `MSGraphCalendarStore` SHALL accept an authenticated `com.microsoft.graph.se
 
 ### Requirement: Calendar groups surface as workspaces
 
-The connector SHALL expose Microsoft Graph calendar groups as workspaces. `listWorkspaceIds()` SHALL return the ids of the user's calendar groups, and the workspace-parameterised store methods SHALL operate within the calendar group identified by the supplied workspace id.
+The connector SHALL expose Microsoft Graph calendar groups as workspaces. `listWorkspaceIds()` SHALL return the ids of the user's calendar groups, and the workspace-parameterised store methods SHALL operate within the calendar group identified by the supplied workspace id. `listWorkspaceIds()`, `getCollections()` and `getCollections(workspace)` SHALL follow `@odata.nextLink` so callers see every calendar group and calendar, not just the first page.
 
 #### Scenario: listWorkspaceIds returns calendar group ids
 
@@ -33,6 +33,11 @@ The connector SHALL expose Microsoft Graph calendar groups as workspaces. `listW
 
 - **WHEN** `getCollections(workspace)` is invoked with a calendar group id
 - **THEN** the returned collections are the calendars within that calendar group, each wrapping its group id
+
+#### Scenario: Store listings paginate
+
+- **WHEN** `listWorkspaceIds()` or `getCollections()` is invoked and Graph returns results across several pages
+- **THEN** the returned list contains the results of every page
 
 ### Requirement: Creating a collection creates a Graph calendar
 
@@ -94,13 +99,18 @@ The connector SHALL expose Microsoft Graph calendar groups as workspaces. `listW
 
 ### Requirement: Adding an event to a collection
 
-`MSGraphCalendarCollection.add(Calendar)` SHALL take an iCal4j `Calendar` containing a single `VEVENT`, convert it to a Graph `Event` via `MSGraphEventBuilder`, persist it via `events().post(...)`, and return the `iCalUId` assigned by Graph in the response.
+`MSGraphCalendarCollection.add(Calendar)` SHALL take an iCal4j `Calendar` containing a series `VEVENT` (one without `RECURRENCE-ID`), convert it to a Graph `Event` via `MSGraphEventBuilder`, persist it via `events().post(...)`, and return the `iCalUId` assigned by Graph in the response. Recurrence overrides (`VEVENT`s with `RECURRENCE-ID`) in the same calendar SHALL NOT be posted in place of the series; they are not applied, and a calendar containing only overrides SHALL be rejected with an `ObjectStoreException`. `merge(Calendar)` SHALL skip objects that contain no `VEVENT` rather than failing after earlier objects have been added.
 
 #### Scenario: Adding a simple event returns the server-assigned identifier
 
 - **WHEN** `collection.add(calendar)` is invoked with a `Calendar` containing one `VEVENT` (summary, dtstart, dtend)
 - **THEN** the Graph API receives a POST with the mapped fields
 - **AND** the returned string equals the `iCalUId` present on the Graph response (which Graph assigns; the connector does not rely on the submitted UID)
+
+#### Scenario: Adding a recurring event whose override comes first posts the series
+
+- **WHEN** `collection.add(calendar)` is invoked with a `Calendar` whose first `VEVENT` has a `RECURRENCE-ID` and whose second is the series `VEVENT`
+- **THEN** the Graph API receives a POST mapped from the series `VEVENT`
 
 ### Requirement: Server-assigned event identity
 
@@ -141,7 +151,7 @@ Because Microsoft Graph assigns `iCalUId` server-side and ignores a client-suppl
 
 ### Requirement: iCal4j ↔ Graph Event field mapping
 
-`MSGraphEventBuilder` (VEvent → Graph `Event`) and `ICalCalendarBuilder` (Graph `Event` → iCal4j `Calendar`) SHALL map the following fields in both directions. Fields not in the table SHALL be silently dropped during conversion.
+`MSGraphEventBuilder` (VEvent → Graph `Event`) and `ICalCalendarBuilder` (Graph `Event` → iCal4j `Calendar`) SHALL map the following fields in both directions. Fields not in the table SHALL be silently dropped during conversion. Calendars built by `ICalCalendarBuilder` SHALL include `PRODID` and `VERSION:2.0`.
 
 | iCal4j VEvent property         | Microsoft Graph Event field                              |
 | ------------------------------ | -------------------------------------------------------- |
@@ -205,6 +215,18 @@ PARTSTAT ↔ Graph `responseStatus.response`:
 - **WHEN** a VEVENT with `DTSTART:20260601T093000Z` (UTC, no TZID) is converted to a Graph `Event`
 - **THEN** the Graph `Event` has `start.timeZone` equal to `"UTC"`
 
+#### Scenario: Times are never relabelled as UTC on write
+
+- **WHEN** a VEVENT date-time has a UTC offset, or a `TZID` that is neither an IANA nor a Windows zone name, and is converted to a Graph `Event`
+- **THEN** the Graph `start` is the same instant expressed in UTC
+- **AND WHEN** a VEVENT date-time is floating (no `TZID`, no `Z`)
+- **THEN** the Graph `start` keeps its wall-clock time in the builder's floating time zone (the system time zone unless configured)
+
+#### Scenario: Unrecognised Graph time zone is read as floating
+
+- **WHEN** a Graph `Event` whose `start.timeZone` is not a recognised IANA or Windows zone (e.g. `"Customized Time Zone"`) is converted to an iCal4j `Calendar`
+- **THEN** `DTSTART` keeps the wall-clock time as a floating value, with no `TZID` and no `Z`
+
 #### Scenario: PARTSTAT mapping
 
 - **WHEN** an ATTENDEE with `PARTSTAT=TENTATIVE` is mapped to a Graph attendee
@@ -216,6 +238,19 @@ PARTSTAT ↔ Graph `responseStatus.response`:
 - **WHEN** a VEVENT with `RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=MO` and a `DTSTART` is converted to a Graph `Event`
 - **THEN** the Graph `Event` has a `PatternedRecurrence` with weekly pattern, interval 1, `daysOfWeek` containing Monday, and a range starting at the `DTSTART` date
 - **AND** the reverse mapping reconstructs `RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=MO`
+
+#### Scenario: Recurrence details Graph requires or can't express
+
+- **WHEN** an `RRULE:FREQ=WEEKLY` without `BYDAY` is converted to a Graph `Event`
+- **THEN** the weekly pattern's `daysOfWeek` contains the `DTSTART` weekday
+- **AND WHEN** a yearly `RRULE` has `BYMONTH`, **THEN** the pattern's `month` is taken from `BYMONTH` rather than `DTSTART`
+- **AND WHEN** an `RRULE` can't be expressed as a Graph pattern (e.g. `BYDAY=-2FR`, several `BYMONTHDAY` values, or `FREQ=HOURLY`), **THEN** the Graph `Event` is created without a recurrence and a warning is logged
+
+#### Scenario: UNTIL keeps the final occurrence
+
+- **WHEN** a VEVENT with `DTSTART;TZID=Australia/Sydney:20260601T090000` and `RRULE:FREQ=DAILY;UNTIL=20260601T230000Z` (09:00 on 2 June in Sydney) is converted to a Graph `Event`
+- **THEN** the recurrence range's `endDate` is `2026-06-02`, the date of `UNTIL` in the series time zone
+- **AND WHEN** a timed Graph recurrence with an end date is converted to iCal, **THEN** `UNTIL` is a UTC date-time at the end of that date in the series time zone; for an all-day series it is a DATE
 
 #### Scenario: Unmapped fields are dropped
 

@@ -12,6 +12,7 @@ import spock.lang.Specification
 
 import java.util.function.Consumer
 
+import org.ical4j.connector.ObjectStoreException
 import org.mockito.ArgumentCaptor
 
 import static org.mockito.ArgumentMatchers.any
@@ -184,5 +185,55 @@ class MSGraphCalendarCollectionTest extends Specification {
 
         expect:
         grouped.listObjectUIDs() == ['g1']
+    }
+
+    private static Calendar parse(String... lines) {
+        def all = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//test//EN'] + (lines as List) + ['END:VCALENDAR']
+        new CalendarBuilder().build(new StringReader(all.join('\r\n') + '\r\n'))
+    }
+
+    def 'add posts the series VEVENT when a recurrence override comes first'() {
+        given:
+        def captor = ArgumentCaptor.forClass(Event)
+        when(events().post(any())).thenReturn(event('assigned@x'))
+        def calendar = parse(
+                'BEGIN:VEVENT', 'UID:s@x', 'SUMMARY:Override', 'RECURRENCE-ID:20260608T090000Z',
+                'DTSTART:20260608T100000Z', 'END:VEVENT',
+                'BEGIN:VEVENT', 'UID:s@x', 'SUMMARY:Master', 'DTSTART:20260601T090000Z',
+                'RRULE:FREQ=WEEKLY', 'END:VEVENT')
+
+        when:
+        collection.add(calendar)
+        verify(events()).post(captor.capture())
+
+        then:
+        captor.value.subject == 'Master'
+    }
+
+    def 'add rejects a calendar containing only recurrence overrides'() {
+        given:
+        def calendar = parse('BEGIN:VEVENT', 'UID:s@x', 'RECURRENCE-ID:20260608T090000Z',
+                'DTSTART:20260608T100000Z', 'END:VEVENT')
+
+        when:
+        collection.add(calendar)
+
+        then:
+        thrown(ObjectStoreException)
+    }
+
+    def 'merge skips objects without a VEVENT instead of failing part-way'() {
+        given:
+        when(events().post(any())).thenReturn(event('assigned@x'))
+        def calendar = parse(
+                'BEGIN:VTODO', 'UID:t@x', 'SUMMARY:Task', 'END:VTODO',
+                'BEGIN:VEVENT', 'UID:e@x', 'DTSTART:20260601T090000Z', 'END:VEVENT')
+
+        when:
+        def uids = collection.merge(calendar)
+        verify(events(), times(1)).post(any())
+
+        then:
+        uids.collect { it.value } == ['assigned@x']
     }
 }

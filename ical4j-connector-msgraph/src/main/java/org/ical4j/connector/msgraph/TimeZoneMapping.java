@@ -10,6 +10,7 @@ import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 /*
@@ -88,23 +89,34 @@ final class TimeZoneMapping {
         if (graphTimeZone == null || graphTimeZone.isBlank()) {
             return ZoneOffset.UTC;
         }
+        return find(graphTimeZone).orElseGet(() -> {
+            LOG.warn("Unrecognised time zone name '{}'; defaulting to UTC", graphTimeZone);
+            return ZoneOffset.UTC;
+        });
+    }
+
+    /**
+     * @param timeZone a time zone name (IANA or Windows), may be null
+     * @return the corresponding {@link ZoneId}, or empty when the name is null, blank, or unrecognised
+     */
+    static Optional<ZoneId> find(String timeZone) {
+        if (timeZone == null || timeZone.isBlank()) {
+            return Optional.empty();
+        }
         // Already an IANA id (or a fixed-offset id) that java.time understands.
         try {
-            return ZoneId.of(graphTimeZone);
+            return Optional.of(ZoneId.of(timeZone));
         } catch (RuntimeException ignored) {
             // fall through to Windows-name lookup
         }
-        String iana = WINDOWS_TO_IANA.get(graphTimeZone);
+        String iana = WINDOWS_TO_IANA.get(timeZone);
         if (iana != null) {
             try {
-                return ZoneId.of(iana);
+                return Optional.of(ZoneId.of(iana));
             } catch (RuntimeException e) {
-                LOG.warn("Mapped IANA zone '{}' for Windows zone '{}' is not resolvable; defaulting to UTC",
-                        iana, graphTimeZone);
-                return ZoneOffset.UTC;
+                LOG.warn("Mapped IANA zone '{}' for Windows zone '{}' is not resolvable", iana, timeZone);
             }
         }
-        LOG.warn("Unrecognised time zone name '{}'; defaulting to UTC", graphTimeZone);
-        return ZoneOffset.UTC;
+        return Optional.empty();
     }
 }

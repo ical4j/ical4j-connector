@@ -11,6 +11,8 @@ import com.microsoft.graph.models.ResponseType;
 import net.fortuna.ical4j.data.ContentHandler;
 import net.fortuna.ical4j.data.DefaultContentHandler;
 import net.fortuna.ical4j.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -60,6 +62,10 @@ import java.util.UUID;
  */
 public class ICalCalendarBuilder {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ICalCalendarBuilder.class);
+
+    private static final String PRODID = "-//iCal4j//iCal4j Connector MSGraph//EN";
+
     private static final DateTimeFormatter LOCAL_DATE_TIME = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
 
     private static final DateTimeFormatter UTC_DATE_TIME = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'");
@@ -71,17 +77,39 @@ public class ICalCalendarBuilder {
     private Calendar calendar;
 
     public ICalCalendarBuilder() {
-        this.registry = TimeZoneRegistryFactory.getInstance().createRegistry();
+        this(TimeZoneRegistryFactory.getInstance().createRegistry());
+    }
+
+    /**
+     * @param registry the registry used to resolve time zones in the built calendar
+     */
+    public ICalCalendarBuilder(TimeZoneRegistry registry) {
+        this.registry = registry;
         this.contentHandler = new DefaultContentHandler(c -> this.calendar = c, registry);
     }
 
+    /**
+     * Builds via a caller-supplied {@link ContentHandler}, which receives the built calendar. In this case
+     * {@link #build(Event)} returns {@code null}; use {@link #ICalCalendarBuilder(TimeZoneRegistry)} to
+     * customise only the time zone registry.
+     *
+     * @param contentHandler the handler that receives the calendar content
+     * @param registry the registry used to resolve time zones
+     */
     public ICalCalendarBuilder(ContentHandler contentHandler, TimeZoneRegistry registry) {
         this.contentHandler = contentHandler;
         this.registry = registry;
     }
 
+    /**
+     * @param event the Graph event to convert
+     * @return the built calendar, or {@code null} when constructed with a custom {@link ContentHandler}
+     * @throws IOException where an error occurs building the calendar
+     */
     public Calendar build(Event event) throws IOException {
         contentHandler.startCalendar();
+        property(Property.PRODID, PRODID);
+        property(Property.VERSION, "2.0");
         contentHandler.startComponent(Component.VEVENT);
 
         // UID — always emit; generate one only when Graph returns none.
@@ -94,7 +122,7 @@ public class ICalCalendarBuilder {
         }
 
         boolean allDay = Boolean.TRUE.equals(event.getIsAllDay());
-        dateProperty(Property.DTSTART, event.getStart(), allDay);
+        ZoneId startZone = dateProperty(Property.DTSTART, event.getStart(), allDay);
         dateProperty(Property.DTEND, event.getEnd(), allDay);
 
         organizer(event.getOrganizer());
@@ -105,7 +133,7 @@ public class ICalCalendarBuilder {
         }
 
         if (event.getRecurrence() != null) {
-            property(Property.RRULE, RecurrenceMapping.toRruleValue(event.getRecurrence()));
+            property(Property.RRULE, RecurrenceMapping.toRruleValue(event.getRecurrence(), startZone, allDay));
         }
 
         utcProperty(Property.CREATED, event.getCreatedDateTime());
@@ -129,18 +157,31 @@ public class ICalCalendarBuilder {
         contentHandler.endProperty(name);
     }
 
-    private void dateProperty(String name, DateTimeTimeZone source, boolean allDay) {
+    /**
+     * @return the zone the value was expressed in, or {@code null} for an all-day, floating or absent value
+     */
+    private ZoneId dateProperty(String name, DateTimeTimeZone source, boolean allDay) {
         if (source == null || source.getDateTime() == null) {
-            return;
+            return null;
         }
         LocalDateTime local = LocalDateTime.parse(source.getDateTime());
+        ZoneId zone = null;
         contentHandler.startProperty(name);
         if (allDay) {
             contentHandler.parameter(Parameter.VALUE, "DATE");
             contentHandler.propertyValue(local.toLocalDate().format(DateTimeFormatter.BASIC_ISO_DATE));
+        } else if (source.getTimeZone() == null || source.getTimeZone().isBlank()) {
+            // Graph returns UTC unless a Prefer: outlook.timezone header asks otherwise.
+            zone = ZoneOffset.UTC;
+            contentHandler.propertyValue(local.format(UTC_DATE_TIME));
         } else {
-            ZoneId zone = TimeZoneMapping.toZoneId(source.getTimeZone());
-            if (isUtc(zone)) {
+            zone = TimeZoneMapping.find(source.getTimeZone()).orElse(null);
+            if (zone == null) {
+                // Labelling an unknown zone (e.g. "Customized Time Zone") as UTC would shift the event, so keep
+                // the wall-clock time as a floating value instead..
+                LOG.warn("Unrecognised time zone '{}' for {}; mapping as a floating time", source.getTimeZone(), name);
+                contentHandler.propertyValue(local.format(LOCAL_DATE_TIME));
+            } else if (isUtc(zone)) {
                 contentHandler.propertyValue(local.format(UTC_DATE_TIME));
             } else {
                 contentHandler.parameter(Parameter.TZID, zone.getId());
@@ -148,6 +189,7 @@ public class ICalCalendarBuilder {
             }
         }
         contentHandler.endProperty(name);
+        return zone;
     }
 
     private void utcProperty(String name, OffsetDateTime value) {

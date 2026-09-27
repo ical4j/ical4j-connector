@@ -19,17 +19,21 @@ import net.fortuna.ical4j.model.property.Attendee;
 import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.Organizer;
 import net.fortuna.ical4j.model.property.RRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /*
  * Copyright (c) 2026, Ben Fortuna
@@ -70,12 +74,25 @@ import java.util.List;
  */
 public class MSGraphEventBuilder {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MSGraphEventBuilder.class);
+
     private static final DateTimeFormatter GRAPH_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     private VEvent icalEvent;
 
+    private ZoneId floatingTimeZone = ZoneId.systemDefault();
+
     public MSGraphEventBuilder vevent(VEvent icalEvent) {
         this.icalEvent = icalEvent;
+        return this;
+    }
+
+    /**
+     * @param floatingTimeZone the time zone used for floating (local) date-times, which Graph can't
+     *                         represent; defaults to the system time zone
+     */
+    public MSGraphEventBuilder floatingTimeZone(ZoneId floatingTimeZone) {
+        this.floatingTimeZone = floatingTimeZone;
         return this;
     }
 
@@ -114,16 +131,26 @@ public class MSGraphEventBuilder {
             event.setAttendees(mapped);
         }
 
-        icalEvent.<RRule<Temporal>>getProperty(Property.RRULE).ifPresent(rrule -> {
-            LocalDate start = icalEvent.<DateProperty<Temporal>>getProperty(Property.DTSTART)
-                    .map(p -> toLocalDate(p.getDate())).orElse(null);
-            if (start != null) {
-                var recurrence = RecurrenceMapping.toPatternedRecurrence(rrule.getRecur(), start);
-                if (recurrence != null) {
-                    event.setRecurrence(recurrence);
-                }
-            }
-        });
+        icalEvent.<RRule<Temporal>>getProperty(Property.RRULE).ifPresent(rrule ->
+                icalEvent.<DateProperty<Temporal>>getProperty(Property.DTSTART).ifPresent(dtStart -> {
+                    LocalDate start;
+                    ZoneId zone;
+                    if (dtStart.getDate() instanceof LocalDate) {
+                        start = (LocalDate) dtStart.getDate();
+                        zone = ZoneOffset.UTC;
+                    } else {
+                        ZonedDateTime zoned = toZonedDateTime(dtStart);
+                        start = zoned.toLocalDate();
+                        zone = zoned.getZone();
+                    }
+                    var recurrence = RecurrenceMapping.toPatternedRecurrence(rrule.getRecur(), start, zone);
+                    if (recurrence != null) {
+                        event.setRecurrence(recurrence);
+                    } else {
+                        LOG.warn("RRULE '{}' can't be expressed as a Graph recurrence pattern; event created without recurrence",
+                                rrule.getValue());
+                    }
+                }));
 
         return event;
     }
@@ -142,7 +169,7 @@ public class MSGraphEventBuilder {
         return false;
     }
 
-    private static DateTimeTimeZone toDateTimeTimeZone(DateProperty<Temporal> property) {
+    private DateTimeTimeZone toDateTimeTimeZone(DateProperty<Temporal> property) {
         Temporal temporal = property.getDate();
         DateTimeTimeZone result = new DateTimeTimeZone();
         if (temporal instanceof LocalDate) {
@@ -150,34 +177,42 @@ public class MSGraphEventBuilder {
             result.setTimeZone("UTC");
             return result;
         }
-
-        LocalDateTime local;
-        if (temporal instanceof ZonedDateTime) {
-            local = ((ZonedDateTime) temporal).toLocalDateTime();
-        } else if (temporal instanceof OffsetDateTime) {
-            local = ((OffsetDateTime) temporal).toLocalDateTime();
-        } else if (temporal instanceof Instant) {
-            local = ((Instant) temporal).atZone(ZoneOffset.UTC).toLocalDateTime();
-        } else {
-            local = (LocalDateTime) temporal;
-        }
-        result.setDateTime(local.format(GRAPH_DATE_TIME));
-
-        // Prefer the explicit TZID parameter: a TZID without an in-calendar VTIMEZONE leaves the
-        // parsed ZonedDateTime carrying a synthetic ical4j zone id, so the parameter is authoritative.
-        String tzid = property.getParameter(Parameter.TZID).map(net.fortuna.ical4j.model.Parameter::getValue).orElse(null);
-        result.setTimeZone(tzid != null ? tzid : "UTC");
+        ZonedDateTime zoned = toZonedDateTime(property);
+        result.setDateTime(zoned.toLocalDateTime().format(GRAPH_DATE_TIME));
+        result.setTimeZone(isUtc(zoned.getZone()) ? "UTC" : zoned.getZone().getId());
         return result;
     }
 
-    private static LocalDate toLocalDate(Temporal temporal) {
-        if (temporal instanceof LocalDate) {
-            return (LocalDate) temporal;
+    /**
+     * Resolves a DATE-TIME value to a wall-clock time in a zone Graph can resolve:
+     * <ul>
+     *     <li>a {@code TZID} naming a known IANA or Windows zone keeps its local time in that zone. A TZID
+     *     without an in-calendar VTIMEZONE leaves the parsed value carrying a synthetic ical4j zone id,
+     *     so the parameter is authoritative;</li>
+     *     <li>any other value with a fixed instant (UTC, an offset, or a TZID Graph wouldn't recognise)
+     *     is converted to UTC;</li>
+     *     <li>a floating value keeps its local time in {@link #floatingTimeZone(ZoneId)}.</li>
+     * </ul>
+     */
+    private ZonedDateTime toZonedDateTime(DateProperty<Temporal> property) {
+        Temporal temporal = property.getDate();
+        Optional<ZoneId> tzid = property.getParameter(Parameter.TZID)
+                .map(Parameter::getValue).flatMap(TimeZoneMapping::find);
+        if (temporal instanceof ZonedDateTime) {
+            ZonedDateTime zoned = (ZonedDateTime) temporal;
+            return tzid.map(zone -> zoned.toLocalDateTime().atZone(zone))
+                    .orElseGet(() -> zoned.withZoneSameInstant(ZoneOffset.UTC));
+        } else if (temporal instanceof OffsetDateTime) {
+            return ((OffsetDateTime) temporal).atZoneSameInstant(ZoneOffset.UTC);
+        } else if (temporal instanceof Instant) {
+            return ((Instant) temporal).atZone(ZoneOffset.UTC);
         }
-        if (temporal instanceof Instant) {
-            return ((Instant) temporal).atZone(ZoneOffset.UTC).toLocalDate();
-        }
-        return LocalDate.from(temporal);
+        LocalDateTime local = LocalDateTime.from(temporal);
+        return local.atZone(tzid.orElse(floatingTimeZone));
+    }
+
+    private static boolean isUtc(ZoneId zone) {
+        return zone.normalized().equals(ZoneOffset.UTC);
     }
 
     private static Recipient toRecipient(Organizer property) {

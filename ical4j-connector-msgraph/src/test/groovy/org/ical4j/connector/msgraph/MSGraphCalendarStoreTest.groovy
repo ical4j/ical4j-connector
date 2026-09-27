@@ -68,4 +68,38 @@ class MSGraphCalendarStoreTest extends Specification {
         expect:
         store.listWorkspaceIds() == ['g1', 'g2']
     }
+
+    def 'getCollections follows @odata.nextLink across pages'() {
+        given:
+        when(client.me().calendars().get()).thenReturn(
+                new CalendarCollectionResponse(value: [new Calendar(id: 'c1')], odataNextLink: 'NEXT'))
+        when(client.me().calendars().withUrl('NEXT').get()).thenReturn(
+                new CalendarCollectionResponse(value: [new Calendar(id: 'c2')]))
+
+        expect:
+        store.getCollections().size() == 2
+    }
+
+    def 'getCollections for a workspace follows @odata.nextLink across pages'() {
+        given:
+        def calendars = client.me().calendarGroups().byCalendarGroupId('grp').calendars()
+        when(calendars.get()).thenReturn(
+                new CalendarCollectionResponse(value: [new Calendar(id: 'c1')], odataNextLink: 'NEXT'))
+        when(calendars.withUrl('NEXT').get()).thenReturn(
+                new CalendarCollectionResponse(value: [new Calendar(id: 'c2')]))
+
+        expect:
+        store.getCollections('grp').size() == 2
+    }
+
+    def 'listWorkspaceIds follows @odata.nextLink across pages'() {
+        given:
+        when(client.me().calendarGroups().get()).thenReturn(
+                new CalendarGroupCollectionResponse(value: [new CalendarGroup(id: 'g1')], odataNextLink: 'NEXT'))
+        when(client.me().calendarGroups().withUrl('NEXT').get()).thenReturn(
+                new CalendarGroupCollectionResponse(value: [new CalendarGroup(id: 'g2')]))
+
+        expect:
+        store.listWorkspaceIds() == ['g1', 'g2']
+    }
 }
