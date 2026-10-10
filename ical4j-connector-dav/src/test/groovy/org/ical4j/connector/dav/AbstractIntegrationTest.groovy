@@ -17,6 +17,9 @@ abstract class AbstractIntegrationTest extends Specification {
             // wait until the DAV endpoint answers (e.g. 401), not just until the port is open,
             // as servers like Baikal accept connections before their backend is ready..
             .waitingFor(Wait.forHttp(getRepositoryPath()).forStatusCodeMatching { it < 500 })
+            // retry startup, as some Docker-compatible runtimes (e.g. Podman) close pooled API connections
+            // when the previous spec's container is removed, failing the next create request..
+            .withStartupAttempts(3)
             .with(container -> {
         getBindMounts().forEach { container.withFileSystemBind(it.v1, it.v2, it.v3)}
         container
