@@ -1,5 +1,5 @@
 [versions]
-ical4j = "4.2.3"
+ical4j = "4.4.0"
 ical4j-vcard = "2.1.0"
 httpclient = "4.5.14"
 jackrabbit-webdav = "2.23.1-beta"
