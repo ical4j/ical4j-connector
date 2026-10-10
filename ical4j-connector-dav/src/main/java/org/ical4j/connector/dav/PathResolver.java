@@ -117,7 +117,15 @@ public interface PathResolver {
         ORACLE_CS("/principals/%s/", "/home/%s/", "",
                 "/home/(?<resource>\\w+)/?"),
 
-        GENERIC("/%s", "/%s", "","/(?<resource>\\w+)");
+        GENERIC("/%s", "/%s", "","/(?<resource>\\w+)"),
+
+        /**
+         * Nextcloud (and ownCloud), with a server URL of the form {@code https://cloud.example.com/remote.php/dav/}.
+         */
+        NEXTCLOUD("/principals/users/%s/",
+                "/calendars/%2$s/%1$s/",
+                "/addressbooks/users/%2$s/%1$s/",
+                "/(calendars|addressbooks/users)/((?<wsp>[^/]+)/)?(?<resource>[^/]+)/?");
 
         private final String principalPath;
 

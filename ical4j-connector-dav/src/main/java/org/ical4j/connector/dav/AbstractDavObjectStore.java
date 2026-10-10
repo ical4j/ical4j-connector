@@ -277,6 +277,15 @@ abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> extends Abs
     }
 
     /**
+     * The workspace used to resolve the session's collection paths, defaulting to the session user where
+     * no workspace is configured.
+     */
+    String getSessionWorkspace() {
+        var workspace = sessionConfiguration.getWorkspace();
+        return workspace != null ? workspace : sessionConfiguration.getUser();
+    }
+
+    /**
      * Derives a collection name (as accepted by {@code getCollection(String)}) from the href of a
      * collection returned in a multistatus response, i.e. its last decoded path segment.
      */

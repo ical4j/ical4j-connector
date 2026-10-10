@@ -122,7 +122,7 @@ public class CalDavCalendarCollection extends AbstractDavObjectCollection<Calend
     @Override
     String getPath() {
         var workspace = principalOverride != null ? principalOverride
-                : getStore().getSessionConfiguration().getWorkspace();
+                : getStore().getSessionWorkspace();
         return getStore().pathResolver.getCalendarPath(getId(), workspace);
     }
 

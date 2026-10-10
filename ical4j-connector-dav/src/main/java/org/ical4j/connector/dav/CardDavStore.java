@@ -150,7 +150,7 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
     @Override
     public CardDavCollection getCollection(String id, String workspace) throws ObjectStoreException, ObjectNotFoundException {
         boolean useSessionUser = workspace == null || ObjectStore.DEFAULT_WORKSPACE.equals(workspace);
-        var principal = useSessionUser ? getSessionConfiguration().getWorkspace() : workspace;
+        var principal = useSessionUser ? getSessionWorkspace() : workspace;
         var override = useSessionUser ? null : workspace;
         try {
             var resourcePath = pathResolver.getCardPath(id, principal);

@@ -114,7 +114,7 @@ public class CardDavCollection extends AbstractDavObjectCollection<VCard> implem
     @Override
     String getPath() {
         var workspace = principalOverride != null ? principalOverride
-                : getStore().getSessionConfiguration().getWorkspace();
+                : getStore().getSessionWorkspace();
         return getStore().pathResolver.getCardPath(getId(), workspace);
     }
 
