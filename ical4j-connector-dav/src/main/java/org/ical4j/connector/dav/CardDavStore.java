@@ -173,7 +173,7 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
     }
 
     private String findAddressBookHomeSet() throws ParserConfigurationException, IOException, DavException {
-        return findAddressBookHomeSetForPrincipal(getSessionConfiguration().getUser());
+        return findHomeSet(PropertyNameSets.PROPFIND_CARD_HOME, CardDavPropertyName.ADDRESSBOOK_HOME_SET);
     }
 
     /**
@@ -206,7 +206,7 @@ public final class CardDavStore extends AbstractDavObjectStore<CardDavCollection
                 throw new ObjectNotFoundException("No " + CardDavPropertyName.ADDRESSBOOK_HOME_SET + " attribute found for the user");
             }
             return getCollectionsForHomeSet(this, calHomeSetPath);
-        } catch (DavException | IOException | ParserConfigurationException e) {
+        } catch (DavException | IOException | ParserConfigurationException | UnexpectedStatusException e) {
             throw new ObjectStoreException(e);
         }
     }

@@ -210,8 +210,14 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
         }
     }
 
+    /**
+     * Find the session user's {@code calendar-home-set}, falling back to {@code current-user-principal}
+     * discovery where the configured principal path doesn't provide it.
+     *
+     * @return the calendar-home-set path, or null if it couldn't be found
+     */
     public String findCalendarHomeSet() throws ParserConfigurationException, IOException, DavException {
-        return findCalendarHomeSetForPrincipal(getSessionConfiguration().getUser());
+        return findHomeSet(PropertyNameSets.PROPFIND_CALENDAR_HOME, CalDavPropertyName.CALENDAR_HOME_SET);
     }
 
     /**
@@ -245,7 +251,7 @@ public final class CalDavCalendarStore extends AbstractDavObjectStore<CalDavCale
                 throw new ObjectNotFoundException("No calendar-home-set attribute found for the user");
             }
             return getCollectionsForHomeSet(this, calHomeSetPath);
-        } catch (DavException | IOException | ParserConfigurationException de) {
+        } catch (DavException | IOException | ParserConfigurationException | UnexpectedStatusException de) {
             throw new ObjectStoreException(de);
         }
     }

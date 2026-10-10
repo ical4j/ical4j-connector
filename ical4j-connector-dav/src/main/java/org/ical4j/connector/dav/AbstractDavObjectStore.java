@@ -35,10 +35,15 @@ import net.fortuna.ical4j.util.Configurator;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.ical4j.connector.AbstractObjectStore;
 import org.ical4j.connector.FailedOperationException;
 import org.ical4j.connector.ObjectCollection;
 import org.ical4j.connector.ObjectStoreException;
+import org.ical4j.connector.dav.property.BaseDavPropertyName;
+import org.ical4j.connector.dav.response.GetPropertyValue;
+import org.ical4j.connector.dav.response.UnexpectedStatusException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -196,6 +201,79 @@ abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> extends Abs
     
     public boolean isSupportCalendarProxy() {
         return supportedFeatures.contains(SupportedFeature.CALENDAR_PROXY);
+    }
+
+    /**
+     * Find the session user's home-set (e.g. {@code calendar-home-set} or {@code addressbook-home-set}).
+     *
+     * <p>The principal path from the {@link PathResolver} is tried first. Where it doesn't expose the
+     * home-set (or doesn't exist, or no user is configured), the principal is discovered via the
+     * {@code current-user-principal} property on the server root (RFC 5397) and the home-set is
+     * requested from there.</p>
+     *
+     * @param propertyNames the properties to request from the principal
+     * @param homeSetName the home-set property name
+     * @return the home-set path, or null if it couldn't be found
+     */
+    String findHomeSet(DavPropertyNameSet propertyNames, DavPropertyName homeSetName) throws IOException {
+        String homeSet = null;
+        UnexpectedStatusException principalFailure = null;
+        var user = sessionConfiguration.getUser();
+        if (user != null) {
+            try {
+                homeSet = findHomeSetAt(pathResolver.getPrincipalPath(user), propertyNames, homeSetName);
+            } catch (UnexpectedStatusException e) {
+                principalFailure = e;
+            }
+        }
+        if (homeSet == null) {
+            var principalPath = findCurrentUserPrincipal();
+            if (principalPath != null) {
+                homeSet = findHomeSetAt(principalPath, propertyNames, homeSetName);
+            }
+        }
+        if (homeSet == null && principalFailure != null) {
+            throw principalFailure;
+        }
+        return homeSet;
+    }
+
+    private String findHomeSetAt(String principalPath, DavPropertyNameSet propertyNames,
+                                 DavPropertyName homeSetName) throws IOException {
+        return toPath(getClient().propFind(principalPath, propertyNames,
+                new GetPropertyValue<String>(homeSetName)));
+    }
+
+    /**
+     * Discover the session user's principal path via {@code current-user-principal} on the server root.
+     *
+     * @return the principal path, or null if the server doesn't report one
+     */
+    String findCurrentUserPrincipal() throws IOException {
+        var propertyNames = new DavPropertyNameSet();
+        propertyNames.add(BaseDavPropertyName.CURRENT_USER_PRINCIPAL);
+        try {
+            return toPath(getClient().propFind(null, propertyNames,
+                    new GetPropertyValue<String>(BaseDavPropertyName.CURRENT_USER_PRINCIPAL)));
+        } catch (UnexpectedStatusException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Normalise an href property value to a path, as servers may return either a path or an absolute URL.
+     */
+    private static String toPath(String href) {
+        if (href == null || href.isBlank()) {
+            return null;
+        }
+        var trimmed = href.trim();
+        try {
+            var uri = URI.create(trimmed);
+            return uri.isAbsolute() ? uri.getRawPath() : trimmed;
+        } catch (IllegalArgumentException e) {
+            return trimmed;
+        }
     }
 
     /**
