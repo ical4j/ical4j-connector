@@ -17,6 +17,7 @@ class PathResolverTest extends Specification {
         PathResolver.Defaults.BAIKAL          | '/principals/testcal'
         PathResolver.Defaults.BEDEWORK        | '/principals/users/testcal/'
         PathResolver.Defaults.CALENDAR_SERVER | '/testcal/'
+        PathResolver.Defaults.NEXTCLOUD       | '/principals/users/testcal/'
     }
 
     def 'verify calendar path resolution'() {
@@ -32,6 +33,7 @@ class PathResolverTest extends Specification {
         PathResolver.Defaults.BAIKAL          | '/calendars/testcal'
         PathResolver.Defaults.BEDEWORK        | '/ucaldav/users/testcal'
         PathResolver.Defaults.CALENDAR_SERVER | '/dav/testcal'
+        PathResolver.Defaults.NEXTCLOUD       | '/calendars/testcal/'
     }
 
     def 'verify calendar id resolution'() {
@@ -47,5 +49,16 @@ class PathResolverTest extends Specification {
         PathResolver.Defaults.BAIKAL          | '/calendars/testcal'
         PathResolver.Defaults.BEDEWORK        | '/users/testcal'
         PathResolver.Defaults.CALENDAR_SERVER | '/testcal'
+        PathResolver.Defaults.NEXTCLOUD       | '/calendars/admin/testcal/'
+        PathResolver.Defaults.NEXTCLOUD       | '/addressbooks/users/admin/testcal/'
+    }
+
+    def 'verify nextcloud collection paths include the workspace'() {
+        expect: 'calendar and address book paths follow the Nextcloud layout'
+        PathResolver.Defaults.NEXTCLOUD.getCalendarPath('personal', 'alice@example.com') ==
+                '/calendars/alice@example.com/personal/'
+        PathResolver.Defaults.NEXTCLOUD.getCardPath('contacts', 'alice@example.com') ==
+                '/addressbooks/users/alice@example.com/contacts/'
+        PathResolver.Defaults.NEXTCLOUD.getResourceName('/calendars/alice@example.com/personal/', '') == 'personal'
     }
 }
