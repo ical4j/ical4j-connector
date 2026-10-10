@@ -32,6 +32,9 @@
 package org.ical4j.connector.dav;
 
 import net.fortuna.ical4j.util.Configurator;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.ical4j.connector.AbstractObjectStore;
 import org.ical4j.connector.FailedOperationException;
 import org.ical4j.connector.ObjectCollection;
@@ -126,9 +129,19 @@ abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> extends Abs
         this.sessionConfiguration = sessionConfiguration;
     	try {
         	davClient = clientFactory.newInstance(rootUrl);
-            if (sessionConfiguration.getCredentialsProvider() != null) {
-                davClient.begin(sessionConfiguration.getCredentialsProvider());
+            var credentialsProvider = sessionConfiguration.getCredentialsProvider();
+            if (credentialsProvider == null && sessionConfiguration.getUser() != null
+                    && sessionConfiguration.getPassword() != null) {
+                credentialsProvider = new BasicCredentialsProvider();
+                credentialsProvider.setCredentials(new AuthScope(davClient.getHostConfiguration()),
+                        new UsernamePasswordCredentials(sessionConfiguration.getUser(),
+                                new String(sessionConfiguration.getPassword())));
             }
+            if (sessionConfiguration.getBearerAuth() != null) {
+                davClient.getClientConfiguration().withDefaultHeader("Authorization",
+                        "Bearer " + sessionConfiguration.getBearerAuth());
+            }
+            davClient.begin(credentialsProvider);
             supportedFeatures = davClient.getSupportedFeatures();
     	} catch (IOException ioe) {
     		throw new ObjectStoreException(ioe);

@@ -139,7 +139,7 @@ public class DefaultDavClient implements CalDavSupport, CardDavSupport {
 
 		this.hostConfiguration = new HttpHost(href.getHost(), href.getPort(), href.getProtocol());
 		this.repositoryPath = href.getPath().isEmpty() ? "/" : href.getPath();
-		this.clientConfiguration = clientConfiguration;
+		this.clientConfiguration = clientConfiguration.copy();
 	}
 
 	void begin() {
