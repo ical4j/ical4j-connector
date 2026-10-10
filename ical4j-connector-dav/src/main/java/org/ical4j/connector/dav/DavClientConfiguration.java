@@ -37,6 +37,17 @@ public class DavClientConfiguration {
         return this;
     }
 
+    /**
+     * Create an independent copy of this configuration, so per-client changes (e.g. session
+     * authorization headers) don't leak into other clients sharing the original.
+     */
+    DavClientConfiguration copy() {
+        var copy = new DavClientConfiguration().withPreemptiveAuth(preemptiveAuth)
+                .withFollowRedirects(followRedirects);
+        copy.defaultHeaders.putAll(defaultHeaders);
+        return copy;
+    }
+
     public boolean isPreemptiveAuth() {
         return preemptiveAuth;
     }

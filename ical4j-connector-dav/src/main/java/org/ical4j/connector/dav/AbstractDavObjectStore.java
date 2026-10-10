@@ -129,15 +129,19 @@ abstract class AbstractDavObjectStore<C extends ObjectCollection<?>> extends Abs
         this.sessionConfiguration = sessionConfiguration;
     	try {
         	davClient = clientFactory.newInstance(rootUrl);
-            if (sessionConfiguration.getCredentialsProvider() != null) {
-                davClient.begin(sessionConfiguration.getCredentialsProvider());
-            } else if (sessionConfiguration.getUser() != null && sessionConfiguration.getPassword() != null) {
-                var credentialsProvider = new BasicCredentialsProvider();
+            var credentialsProvider = sessionConfiguration.getCredentialsProvider();
+            if (credentialsProvider == null && sessionConfiguration.getUser() != null
+                    && sessionConfiguration.getPassword() != null) {
+                credentialsProvider = new BasicCredentialsProvider();
                 credentialsProvider.setCredentials(new AuthScope(davClient.getHostConfiguration()),
                         new UsernamePasswordCredentials(sessionConfiguration.getUser(),
                                 new String(sessionConfiguration.getPassword())));
-                davClient.begin(credentialsProvider);
             }
+            if (sessionConfiguration.getBearerAuth() != null) {
+                davClient.getClientConfiguration().withDefaultHeader("Authorization",
+                        "Bearer " + sessionConfiguration.getBearerAuth());
+            }
+            davClient.begin(credentialsProvider);
             supportedFeatures = davClient.getSupportedFeatures();
     	} catch (IOException ioe) {
     		throw new ObjectStoreException(ioe);
